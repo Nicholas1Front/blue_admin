@@ -1,19 +1,50 @@
-import {Request, Response, NextFunction} from 'express';
-import {AppError} from '../shared/errors/AppError.js';
-import jwt from 'jsonwebtoken';
+import { NextFunction, Request, Response } from "express";
+import jwt from "jsonwebtoken";
 
-export const authMiddleware = async (
-    req : Request,
-    res : Response,
-    next : NextFunction
-)=>{
-    const authHeader = req.headers.authorization;
+import { AppError } from "../shared/errors/AppError.js";
+import type { AuthUser } from "../modules/auth/auth.types.js";
 
-    if(!authHeader || !authHeader.startsWith('Bearer ')){
-        throw new AppError('Invalid token', 401, 'INVALID_TOKEN');
-    }
+export function authMiddleware(
+  req: Request,
+  _res: Response,
+  next: NextFunction,
+) {
+  const authorization = req.headers.authorization;
 
-    const token = authHeader.split(' ')[1];
+  if (!authorization) {
+    throw new AppError(
+      "Authentication token not provided",
+      401,
+      "TOKEN_NOT_PROVIDED",
+    );
+  }
 
-    
+  const [scheme, token] = authorization.split(" ");
+
+  if (scheme !== "Bearer" || !token) {
+    throw new AppError(
+      "Invalid authentication token",
+      401,
+      "INVALID_TOKEN",
+    );
+  }
+
+  try {
+    const decoded = jwt.verify(
+      token,
+      process.env.JWT_SECRET as string,
+    );
+
+    const user = decoded as AuthUser;
+
+    req.user = user;
+
+    return next();
+  } catch {
+    throw new AppError(
+      "Invalid authentication token",
+      401,
+      "INVALID_TOKEN",
+    );
+  }
 }
