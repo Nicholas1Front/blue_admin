@@ -19,7 +19,21 @@ export function errorHandler(
     });
   }
 
-  logger.error(error);
+  if (error instanceof Error) {
+      logger.error(
+        {
+          err: error,
+        },
+        "Unhandled application error",
+      );
+  } else {
+    logger.error(
+      {
+        error,
+      },
+      "Unhandled unknown error",
+    );
+  }
 
   return res.status(500).json({
     success: false,
