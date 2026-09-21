@@ -6,6 +6,7 @@ import rateLimit from "express-rate-limit";
 import {httpLogger} from './shared/logger/httpLogger.js';
 import {errorHandler} from './shared/errors/errorHandler.js';
 import {prisma} from './shared/database/prisma.js';
+import routes from './routes/index.js';
 
 const app = express();
 
@@ -51,6 +52,8 @@ app.get('/health/db', async (_req,res)=>{
         message : "Database is connected"
     })
 })
+
+app.use(routes);
 
 app.use(errorHandler);
 
