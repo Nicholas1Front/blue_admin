@@ -22,7 +22,7 @@ class AuthService{
             )
         }
 
-        const passwordMatch = await bcrypt.compare(data.password, existingUser.password);
+        const passwordMatch = await bcrypt.compare(data.password, existingUser.passwordHash);
 
         if(!passwordMatch){
             throw new AppError(
