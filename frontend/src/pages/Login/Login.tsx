@@ -12,6 +12,7 @@ export function Login() {
     return (
         <main className="login-page">
             <title>Login | Blue admin</title>
+            <title>Login | Blue admin</title>
 
             <section className="login-brand">
                 <div className="login-brand__content">
