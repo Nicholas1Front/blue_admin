@@ -9,12 +9,9 @@ export interface LoginRequest {
     password : string
 }
 
-export interface LoginResponse{
-    message : string,
-    data : {
-        id : string,
-        name : string,
-        email : string
-        token : string
-    }
+export interface LoginResponse {
+    id : string,
+    name : string,
+    email : string,
+    token : string
 }
