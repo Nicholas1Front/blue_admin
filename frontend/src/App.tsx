@@ -8,14 +8,7 @@ import {
 import { AuthProvider } from "./modules/auth/AuthContext";
 import { ProtectedRoute } from "./modules/auth/ProtectedRoute";
 import { Login } from "./pages/Login/Login";
-
-function Dashboard() {
-    return (
-        <main>
-            <h1>Dashboard</h1>
-        </main>
-    );
-}
+import { Dashboard } from "./pages/Dashboard/Dashboard";
 
 function App() {
     return (
