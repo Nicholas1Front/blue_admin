@@ -9,12 +9,12 @@ export interface LoginRequest {
     password : string
 }
 
-export interface LoginResponse {
+export interface LoginResponse{
     message : string,
     data : {
-        token : string,
         id : string,
         name : string,
         email : string
+        token : string
     }
 }
