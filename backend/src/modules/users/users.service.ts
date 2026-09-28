@@ -96,6 +96,30 @@ class UsersService{
         return updatedUser
     }
 
+    async usersDashboard(){
+        const rawUsers = await usersRepository.findAllUsers();
+
+        if(!rawUsers){
+            throw new AppError(
+                'Failed to fetch users',
+                500,
+                'USERS_FETCH_FAILED'
+            )
+        }
+
+        const users = rawUsers.map(user =>{
+            return {
+                id : user.id,
+                name : user.name,
+                email : user.email,
+                createdAt : user.createdAt,
+                updatedAt : user.updatedAt
+            }
+        })
+
+        return users
+    }
+
     async findUserByFilters(
         filters : findUserByFiltersDTO
     ){

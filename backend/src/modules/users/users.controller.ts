@@ -73,6 +73,26 @@ class UsersController{
         })
     }
 
+    async usersDashboard(
+        req: Request,
+        res : Response
+    ){
+        if(!req.user){
+            throw new AppError(
+                'User not authenticated',
+                401,
+                'USER_NOT_AUTHENTICATED'
+            )
+        }
+
+        const users = await usersService.usersDashboard();
+
+        return res.status(200).json({
+            message : "Users found successfully for dashboard",
+            data : users
+        })
+    }
+
     async findUserByFilters(
         req : Request,
         res : Response
