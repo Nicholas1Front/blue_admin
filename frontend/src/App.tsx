@@ -1,25 +1,42 @@
 import {
+    FormEvent,
+    useState
+} from "react";
+
+import {
     BrowserRouter,
     Navigate,
     Route,
-    Routes
+    Routes,
+    useNavigate
 } from "react-router-dom";
 
 import { AuthProvider } from "./modules/auth/AuthContext";
 import { ProtectedRoute } from "./modules/auth/ProtectedRoute";
+import { useAuth } from "./modules/auth/useAuth";
 import { login } from "./modules/auth/auth.api";
 
 function Login() {
-    async function handleTest() {
+    const navigate = useNavigate();
+
+    const [email, setEmail] = useState("");
+    const [password, setPassword] = useState("");
+    const [error, setError] = useState("");
+
+    async function handleLogin(event : FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+        setError("");
+
         try {
-            const result = await login({
-                email : "admin@gmail.com",
-                password : "1234567"
+            await login({
+                email,
+                password
             });
 
-            console.log("Login realizado", result);
+            navigate("/dashboard");
         } catch (err) {
             console.error("Login falhou", err);
+            setError("Email ou senha inválidos.");
         }
     }
 
@@ -27,18 +44,71 @@ function Login() {
         <main>
             <h1>Login</h1>
 
-            <button onClick = {handleTest}>
-                Testar login
-            </button>
+            <form onSubmit = {handleLogin}>
+                <div>
+                    <label htmlFor = "email">
+                        Email
+                    </label>
+
+                    <input
+                        id = "email"
+                        type = "email"
+                        value = {email}
+                        onChange = {(event) => setEmail(event.target.value)}
+                        required
+                    />
+                </div>
+
+                <div>
+                    <label htmlFor = "password">
+                        Senha
+                    </label>
+
+                    <input
+                        id = "password"
+                        type = "password"
+                        value = {password}
+                        onChange = {(event) => setPassword(event.target.value)}
+                        required
+                    />
+                </div>
+
+                {error && (
+                    <p>{error}</p>
+                )}
+
+                <button type = "submit">
+                    Entrar
+                </button>
+            </form>
         </main>
     );
 }
 
 function Dashboard() {
+    const navigate = useNavigate();
+    const { user, logout } = useAuth();
+
+    function handleLogout() {
+        logout();
+        navigate("/login");
+    }
+
     return (
         <main>
             <h1>Dashboard</h1>
-            <p>Área protegida da aplicação.</p>
+
+            <p>
+                Olá, {user?.name}!
+            </p>
+
+            <p>
+                Email: {user?.email}
+            </p>
+
+            <button onClick = {handleLogout}>
+                Sair
+            </button>
         </main>
     );
 }
