@@ -73,7 +73,7 @@ class UsersRepository{
             data : {
                 name : data.name,
                 email : data.email,
-                passwordHash : data.password
+                passwordHash : data.passwordHash
             }
         })
 
