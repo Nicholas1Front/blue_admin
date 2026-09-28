@@ -1,6 +1,9 @@
 import { api } from "../../api/axios";
 import { authService } from "./auth.service";
 import type {
+    ApiResponse
+} from "../../api/api.types";
+import type {
     LoginRequest,
     LoginResponse
 } from "./auth.types";
@@ -8,19 +11,19 @@ import type {
 export async function login(
     data : LoginRequest
 ) : Promise<LoginResponse> {
-    const result = await api.post<LoginResponse>(
+    const result = await api.post<ApiResponse<LoginResponse>>(
         "/auth/login",
         data
     );
 
-    const response = result.data;
+    const response = result.data.data;
 
     authService.saveSession(
-        response.data.token,
+        response.token,
         {
-            id : response.data.id,
-            name : response.data.name,
-            email : response.data.email
+            id : response.id,
+            name : response.name,
+            email : response.email
         }
     );
 
