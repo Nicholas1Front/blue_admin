@@ -1,0 +1,143 @@
+.user-list {
+    margin-top: var(--spacing-10);
+}
+
+.user-list__header {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
+    gap: var(--spacing-4);
+    margin-bottom: var(--spacing-4);
+}
+
+.user-list__eyebrow {
+    display: block;
+    margin-bottom: var(--spacing-2);
+
+    color: var(--color-primary-400);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.user-list__header h2 {
+    color: var(--color-text);
+    font-size: var(--font-size-xl);
+}
+
+.user-list__count {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+}
+
+.user-list__items {
+    display: grid;
+    gap: var(--spacing-3);
+}
+
+.user-list__card {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-5);
+
+    padding: var(--spacing-5);
+
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+
+    box-shadow: var(--shadow-sm);
+
+    transition:
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast);
+}
+
+.user-list__card:hover {
+    border-color: var(--color-primary-400);
+    box-shadow: var(--shadow-md);
+}
+
+.user-list__info {
+    min-width: 0;
+}
+
+.user-list__identity {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-1);
+}
+
+.user-list__name {
+    color: var(--color-text);
+    font-size: var(--font-size-md);
+    font-weight: var(--font-weight-semibold);
+}
+
+.user-list__email {
+    overflow: hidden;
+
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.user-list__id {
+    display: block;
+    margin-top: var(--spacing-2);
+
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+}
+
+.user-list__edit {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-2);
+
+    flex-shrink: 0;
+
+    min-height: var(--control-height-md);
+    padding: 0 var(--spacing-4);
+
+    color: var(--color-primary-400);
+    background: transparent;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+
+    cursor: pointer;
+
+    transition:
+        color var(--transition-fast),
+        background-color var(--transition-fast),
+        border-color var(--transition-fast);
+}
+
+.user-list__edit:hover {
+    color: var(--color-text);
+    background: var(--color-surface-hover);
+    border-color: var(--color-primary-400);
+}
+
+@media (max-width: 600px) {
+    .user-list__header {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .user-list__card {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .user-list__edit {
+        width: 100%;
+    }
+}
