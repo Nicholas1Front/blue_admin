@@ -40,7 +40,13 @@ class UsersService{
             )
         }
 
-        return user;
+        return {
+            id : user.id,
+            name : user.name,
+            email : user.email,
+            createdAt : user.createdAt,
+            updatedAt : user.updatedAt
+        }
     }
 
     async updateUser(
@@ -93,7 +99,13 @@ class UsersService{
 
         const updatedUser = await usersRepository.updateUser(id, existingUser);
 
-        return updatedUser
+        return {
+            id : updatedUser.id,
+            name : updatedUser.name,
+            email : updatedUser.email,
+            createdAt : updatedUser.createdAt,
+            updatedAt : updatedUser.updatedAt
+        }
     }
 
     async usersDashboard(){
@@ -129,7 +141,25 @@ class UsersService{
             filters.email as string
         );
 
-        return users
+        if(!users){
+            throw new AppError(
+                'Failed to fetch users by filters',
+                500,
+                'USERS_FETCH_FAILED_BY_FILTERS'
+            )
+        }
+
+        const finishedUsers = users.map(user =>{
+            return {
+                id : user.id,
+                name : user.name,
+                email : user.email,
+                createdAt : user.createdAt,
+                updatedAt : user.updatedAt
+            }
+        })
+
+        return finishedUsers
     }
 
     async deleteUserById(
