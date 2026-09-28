@@ -1,5 +1,4 @@
 import {
-    FormEvent,
     useState
 } from "react";
 
@@ -24,34 +23,34 @@ function Login() {
     const [password, setPassword] = useState("");
     const [error, setError] = useState("");
 
-    async function handleLogin(event : FormEvent<HTMLFormElement>) {
-        event.preventDefault();
-        setError("");
-
-        try {
-            const response = await login({
-                email,
-                password
-            });
-
-            setUser({
-                id : response.id,
-                name : response.name,
-                email : response.email
-            });
-
-            navigate("/dashboard");
-        } catch (err) {
-            console.error("Login falhou", err);
-            setError("Email ou senha inválidos.");
-        }
-    }
-
     return (
         <main>
             <h1>Login</h1>
 
-            <form onSubmit = {handleLogin}>
+            <form
+                onSubmit = {async (event) => {
+                    event.preventDefault();
+                    setError("");
+
+                    try {
+                        const response = await login({
+                            email,
+                            password
+                        });
+
+                        setUser({
+                            id : response.id,
+                            name : response.name,
+                            email : response.email
+                        });
+
+                        navigate("/dashboard");
+                    } catch (err) {
+                        console.error("Login falhou", err);
+                        setError("Email ou senha inválidos.");
+                    }
+                }}
+            >
                 <div>
                     <label htmlFor = "email">
                         Email
