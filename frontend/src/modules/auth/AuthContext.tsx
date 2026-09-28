@@ -1,16 +1,19 @@
 import {
     createContext,
     useContext,
+    useEffect,
     useState,
     type ReactNode
 } from "react";
 
+import { authService } from "./auth.service";
 import type { AuthUser } from "./auth.types";
 
 interface AuthContextData {
     user : AuthUser | null;
     isAuthenticated : boolean;
     setUser : (user : AuthUser | null) => void;
+    logout : () => void;
 }
 
 export const AuthContext = createContext<AuthContextData | undefined>(
@@ -23,6 +26,22 @@ interface AuthProviderProps {
 
 export function AuthProvider({ children } : AuthProviderProps) {
     const [user, setUser] = useState<AuthUser | null>(null);
+    const [isLoading, setIsLoading] = useState(true);
+
+    useEffect(() => {
+        const authenticated = authService.isAuthenticated();
+
+        if (authenticated) {
+            setUser(authService.getUser());
+        }
+
+        setIsLoading(false);
+    }, []);
+
+    function logout() {
+        authService.logout();
+        setUser(null);
+    }
 
     const isAuthenticated = user !== null;
 
@@ -31,10 +50,11 @@ export function AuthProvider({ children } : AuthProviderProps) {
             value={{
                 user,
                 isAuthenticated,
-                setUser
+                setUser,
+                logout
             }}
         >
-            {children}
+            {isLoading ? null : children}
         </AuthContext.Provider>
     );
 }
