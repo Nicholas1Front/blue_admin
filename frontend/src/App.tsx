@@ -9,6 +9,7 @@ import { AuthProvider } from "./modules/auth/AuthContext";
 import { ProtectedRoute } from "./modules/auth/ProtectedRoute";
 import { Login } from "./pages/Login/Login";
 import { Dashboard } from "./pages/Dashboard/Dashboard";
+import { Users } from "./pages/Users/Users";
 
 function App() {
     return (
@@ -30,6 +31,15 @@ function App() {
                         element={
                             <ProtectedRoute>
                                 <Dashboard />
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    <Route
+                        path="/users"
+                        element={
+                            <ProtectedRoute>
+                                <Users />
                             </ProtectedRoute>
                         }
                     />
