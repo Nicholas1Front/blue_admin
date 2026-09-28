@@ -1,6 +1,8 @@
 import { useEffect } from "react";
 
+import { AppHeader } from "../../components/AppHeader/AppHeader";
 import { useUsers } from "../../modules/users/useUsers";
+import { UserList } from "./components/UserList/UserList";
 
 import "./Users.css";
 
@@ -18,13 +20,17 @@ export function Users() {
 
     return (
         <main className="users-page">
+            <AppHeader />
+
             <section className="users-content">
                 <header className="users-header">
                     <div>
                         <span className="users-header__eyebrow">
                             Administração
                         </span>
+
                         <h1>Usuários</h1>
+
                         <p>
                             Gerencie os usuários com acesso ao sistema.
                         </p>
@@ -32,12 +38,15 @@ export function Users() {
                 </header>
 
                 {isLoading && (
-                    <p>Carregando usuários...</p>
+                    <div className="users-feedback">
+                        <p>Carregando usuários...</p>
+                    </div>
                 )}
 
                 {!isLoading && error && (
-                    <div role="alert">
+                    <div className="users-feedback" role="alert">
                         <p>{error}</p>
+
                         <button type="button" onClick={loadUsers}>
                             Tentar novamente
                         </button>
@@ -45,21 +54,10 @@ export function Users() {
                 )}
 
                 {!isLoading && !error && (
-                    <section>
-                        <p>
-                            {users.length}{" "}
-                            {users.length === 1 ? "usuário" : "usuários"}
-                        </p>
-
-                        <div>
-                            {users.map((user) => (
-                                <article key={user.id}>
-                                    <h2>{user.name}</h2>
-                                    <p>{user.email}</p>
-                                </article>
-                            ))}
-                        </div>
-                    </section>
+                    <UserList
+                        users={users}
+                        onEdit={() => {}}
+                    />
                 )}
             </section>
         </main>
