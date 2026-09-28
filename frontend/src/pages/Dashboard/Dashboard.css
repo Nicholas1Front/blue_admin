@@ -1,0 +1,200 @@
+.dashboard-page {
+    min-height: 100vh;
+    background: var(--color-background);
+}
+
+.dashboard-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    min-height: 4.5rem;
+    padding: 0 var(--spacing-8);
+
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.dashboard-header__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+}
+
+.dashboard-header__user {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    margin-right: var(--spacing-3);
+}
+
+.dashboard-header__user-name {
+    color: var(--color-text);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+}
+
+.dashboard-header__user-email {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+}
+
+.dashboard-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    width: var(--control-height-md);
+    height: var(--control-height-md);
+
+    color: var(--color-text-secondary);
+    background: transparent;
+    border-radius: var(--radius-md);
+
+    transition:
+        color var(--transition-fast),
+        background-color var(--transition-fast);
+}
+
+.dashboard-action:hover {
+    color: var(--color-text);
+    background: var(--color-surface-hover);
+}
+
+.dashboard-action--logout:hover {
+    color: var(--color-danger);
+}
+
+.dashboard-content {
+    width: min(100% - 3rem, 72rem);
+    margin: 0 auto;
+    padding: var(--spacing-12) 0;
+}
+
+.dashboard-welcome {
+    max-width: 48rem;
+}
+
+.dashboard-welcome__eyebrow {
+    display: inline-block;
+    margin-bottom: var(--spacing-3);
+
+    color: var(--color-primary-400);
+
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+}
+
+.dashboard-welcome h1 {
+    font-size: clamp(
+        var(--font-size-3xl),
+        4vw,
+        var(--font-size-4xl)
+    );
+}
+
+.dashboard-welcome p {
+    max-width: 42rem;
+    margin-top: var(--spacing-4);
+    font-size: var(--font-size-lg);
+    line-height: var(--line-height-relaxed);
+}
+
+.dashboard-overview {
+    display: grid;
+    grid-template-columns: repeat(
+        auto-fit,
+        minmax(16rem, 1fr)
+    );
+
+    gap: var(--spacing-4);
+    margin-top: var(--spacing-10);
+}
+
+.dashboard-card {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-4);
+
+    padding: var(--spacing-6);
+
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+
+    box-shadow: var(--shadow-sm);
+}
+
+.dashboard-card__icon {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    flex-shrink: 0;
+
+    width: 2.75rem;
+    height: 2.75rem;
+
+    color: var(--color-primary-400);
+    background: var(--color-info-bg);
+    border-radius: var(--radius-md);
+}
+
+.dashboard-card__label {
+    display: block;
+    margin-bottom: var(--spacing-1);
+
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+}
+
+.dashboard-card strong {
+    display: block;
+    color: var(--color-text);
+    font-size: var(--font-size-lg);
+}
+
+.dashboard-card p {
+    margin-top: var(--spacing-2);
+    font-size: var(--font-size-sm);
+}
+
+@media (max-width: 768px) {
+    .dashboard-header {
+        min-height: 4rem;
+        padding: 0 var(--spacing-4);
+    }
+
+    .dashboard-header__user {
+        display: none;
+    }
+
+    .dashboard-content {
+        width: min(100% - 2rem, 72rem);
+        padding: var(--spacing-8) 0;
+    }
+
+    .dashboard-welcome p {
+        font-size: var(--font-size-md);
+    }
+
+    .dashboard-overview {
+        margin-top: var(--spacing-8);
+    }
+}
+
+@media (max-width: 480px) {
+    .app-logo__image {
+        height: 2.25rem;
+    }
+
+    .dashboard-content {
+        width: min(100% - 1.5rem, 72rem);
+        padding: var(--spacing-6) 0;
+    }
+}
