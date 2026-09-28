@@ -8,8 +8,8 @@ export function Login() {
     return (
         <main>
             <section>
-                <h1>Bem-vindo ao sistema</h1>
-                <p>Gerencie as informações da sua empresa em um só lugar.</p>
+                <h1>Blue admin</h1>
+                <p>Entre para acessar o sistema</p>
             </section>
 
             <section>
