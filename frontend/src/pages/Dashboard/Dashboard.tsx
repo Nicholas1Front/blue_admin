@@ -22,6 +22,7 @@ export function Dashboard() {
 
     return (
         <main className="dashboard-page">
+            <title>Dashboard | Blue admin</title>
             <header className="dashboard-header">
                 <AppLogo />
 
