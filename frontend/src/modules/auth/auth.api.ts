@@ -16,11 +16,11 @@ export async function login(
     const response = result.data;
 
     authService.saveSession(
-        response.token,
+        response.data.token,
         {
-            id : response.id,
-            name : response.name,
-            email : response.email
+            id : response.data.id,
+            name : response.data.name,
+            email : response.data.email
         }
     );
 
