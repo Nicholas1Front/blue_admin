@@ -1,5 +1,7 @@
 import type { FormEvent } from "react";
 import { useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faArrowRight } from "@fortawesome/free-solid-svg-icons";
 
 import { login } from "../../../modules/auth/auth.api";
 import { useAuth } from "../../../modules/auth/useAuth";
@@ -38,14 +40,35 @@ export function LoginForm({ onSuccess }: LoginFormProps) {
     }
 
     return (
-        <form onSubmit={handleSubmit}>
-            <EmailField value={email} onChange={setEmail} />
-            <PasswordField value={password} onChange={setPassword} />
+        <form
+            className="login-form"
+            onSubmit={handleSubmit}
+        >
+            <EmailField
+                value={email}
+                onChange={setEmail}
+            />
 
-            {error && <p role="alert">{error}</p>}
+            <PasswordField
+                value={password}
+                onChange={setPassword}
+            />
 
-            <button type="submit">
-                Entrar
+            {error && (
+                <p
+                    className="login-form__error"
+                    role="alert"
+                >
+                    {error}
+                </p>
+            )}
+
+            <button
+                className="login-form__submit"
+                type="submit"
+            >
+                <span>Entrar</span>
+                <FontAwesomeIcon icon={faArrowRight} />
             </button>
         </form>
     );
