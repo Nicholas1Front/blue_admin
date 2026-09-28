@@ -39,9 +39,9 @@ function Login() {
                         });
 
                         setUser({
-                            id : response.data.id,
-                            name : response.data.name,
-                            email : response.data.email
+                            id : response.id,
+                            name : response.name,
+                            email : response.email
                         });
 
                         navigate("/dashboard");
