@@ -18,6 +18,7 @@ import { login } from "./modules/auth/auth.api";
 
 function Login() {
     const navigate = useNavigate();
+    const { setUser } = useAuth();
 
     const [email, setEmail] = useState("");
     const [password, setPassword] = useState("");
@@ -28,9 +29,15 @@ function Login() {
         setError("");
 
         try {
-            await login({
+            const response = await login({
                 email,
                 password
+            });
+
+            setUser({
+                id : response.id,
+                name : response.name,
+                email : response.email
             });
 
             navigate("/dashboard");
