@@ -28,3 +28,9 @@
     height: 2.5rem;
     object-fit: contain;
 }
+
+@media (max-width: 480px) {
+    .app-logo__image {
+        height: 2.25rem;
+    }
+}
