@@ -135,11 +135,7 @@ class UsersService{
     async findUserByFilters(
         filters : findUserByFiltersDTO
     ){
-        const users = await usersRepository.findUserByFilters(
-            filters.id as string,
-            filters.name as string,
-            filters.email as string
-        );
+        const users = await usersRepository.findUserByFilters(filters);
 
         if(!users){
             throw new AppError(
