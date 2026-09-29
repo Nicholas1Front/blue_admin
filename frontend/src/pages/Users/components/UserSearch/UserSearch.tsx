@@ -11,12 +11,14 @@ import "./UserSearch.css";
 
 interface UserSearchProps {
     isSearching: boolean;
+    hasSearched: boolean;
     onSearch: (filters: FindUserFilters) => Promise<void>;
     onClear: () => void;
 }
 
 export function UserSearch({
     isSearching,
+    hasSearched,
     onSearch,
     onClear
 }: UserSearchProps) {
