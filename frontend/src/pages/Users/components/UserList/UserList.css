@@ -13,7 +13,6 @@
 .user-list__eyebrow {
     display: block;
     margin-bottom: var(--spacing-2);
-
     color: var(--color-primary-400);
     font-size: var(--font-size-xs);
     font-weight: var(--font-weight-semibold);
@@ -41,15 +40,11 @@
     align-items: center;
     justify-content: space-between;
     gap: var(--spacing-5);
-
     padding: var(--spacing-5);
-
     background: var(--color-surface);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
-
     box-shadow: var(--shadow-sm);
-
     transition:
         border-color var(--transition-fast),
         box-shadow var(--transition-fast);
@@ -78,7 +73,6 @@
 
 .user-list__email {
     overflow: hidden;
-
     color: var(--color-text-secondary);
     font-size: var(--font-size-sm);
     text-overflow: ellipsis;
@@ -88,39 +82,38 @@
 .user-list__id {
     display: block;
     margin-top: var(--spacing-2);
-
     color: var(--color-text-muted);
     font-size: var(--font-size-xs);
 }
 
-.user-list__edit {
+.user-list__actions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    flex-shrink: 0;
+}
+
+.user-list__action {
     display: inline-flex;
     align-items: center;
     justify-content: center;
     gap: var(--spacing-2);
-
-    flex-shrink: 0;
-
     min-height: var(--control-height-md);
     padding: 0 var(--spacing-4);
-
     color: var(--color-primary-400);
     background: transparent;
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
-
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-semibold);
-
     cursor: pointer;
-
     transition:
         color var(--transition-fast),
         background-color var(--transition-fast),
         border-color var(--transition-fast);
 }
 
-.user-list__edit:hover {
+.user-list__action:hover {
     color: var(--color-text);
     background: var(--color-surface-hover);
     border-color: var(--color-primary-400);
@@ -137,7 +130,12 @@
         flex-direction: column;
     }
 
-    .user-list__edit {
+    .user-list__actions {
+        width: 100%;
+        flex-direction: column;
+    }
+
+    .user-list__action {
         width: 100%;
     }
 }
