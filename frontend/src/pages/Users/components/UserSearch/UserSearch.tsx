@@ -25,21 +25,32 @@ export function UserSearch({
     const [id, setId] = useState("");
     const [name, setName] = useState("");
     const [email, setEmail] = useState("");
+    const [validationError, setValidationError] = useState<string | null>(null);
 
     async function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
 
-        await onSearch({
+        const filters: FindUserFilters = {
             id: id.trim() || undefined,
             name: name.trim() || undefined,
             email: email.trim() || undefined
-        });
+        };
+
+        if (!filters.id && !filters.name && !filters.email) {
+            setValidationError("Informe pelo menos um filtro para pesquisar.");
+            return;
+        }
+
+        setValidationError(null);
+
+        await onSearch(filters);
     }
 
     function handleClear() {
         setId("");
         setName("");
         setEmail("");
+        setValidationError(null);
         onClear();
     }
 
@@ -118,6 +129,12 @@ export function UserSearch({
                     </button>
                 </div>
             </form>
+
+            {validationError && (
+                <p className="user-search__validation-error" role="alert">
+                    {validationError}
+                </p>
+            )}
         </section>
     );
 }
