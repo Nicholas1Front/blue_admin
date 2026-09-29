@@ -1,5 +1,11 @@
 .user-list {
     margin-top: var(--spacing-10);
+    padding: var(--spacing-6);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-top: 3px solid var(--color-primary-500);
+    border-radius: var(--radius-lg);
+    box-shadow: var(--shadow-sm);
 }
 
 .user-list__header {
@@ -7,7 +13,7 @@
     align-items: flex-end;
     justify-content: space-between;
     gap: var(--spacing-4);
-    margin-bottom: var(--spacing-4);
+    margin-bottom: var(--spacing-5);
 }
 
 .user-list__eyebrow {
@@ -41,10 +47,9 @@
     justify-content: space-between;
     gap: var(--spacing-5);
     padding: var(--spacing-5);
-    background: var(--color-surface);
+    background: var(--color-surface-raised);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-lg);
-    box-shadow: var(--shadow-sm);
     transition:
         border-color var(--transition-fast),
         box-shadow var(--transition-fast);
@@ -130,6 +135,10 @@
 }
 
 @media (max-width: 600px) {
+    .user-list {
+        padding: var(--spacing-5);
+    }
+
     .user-list__header {
         align-items: flex-start;
         flex-direction: column;
