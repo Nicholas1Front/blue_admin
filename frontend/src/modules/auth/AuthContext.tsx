@@ -13,6 +13,7 @@ interface AuthContextData {
     user : AuthUser | null;
     isAuthenticated : boolean;
     setUser : (user : AuthUser | null) => void;
+    updateAuthenticatedUser : (user : AuthUser) => void;
     logout : () => void;
 }
 
@@ -38,6 +39,17 @@ export function AuthProvider({ children } : AuthProviderProps) {
         setIsLoading(false);
     }, []);
 
+    function updateAuthenticatedUser(updatedUser : AuthUser) {
+        const token = authService.getToken();
+
+        if (!token) {
+            return;
+        }
+
+        authService.saveSession(token, updatedUser);
+        setUser(updatedUser);
+    }
+
     function logout() {
         authService.logout();
         setUser(null);
@@ -51,6 +63,7 @@ export function AuthProvider({ children } : AuthProviderProps) {
                 user,
                 isAuthenticated,
                 setUser,
+                updateAuthenticatedUser,
                 logout
             }}
         >
