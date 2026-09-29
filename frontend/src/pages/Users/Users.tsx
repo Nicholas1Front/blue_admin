@@ -40,6 +40,9 @@ export function Users() {
         loadUsers,
         searchUsers,
         clearSearch,
+        clearCreateError,
+        clearUpdateError,
+        clearDeleteError,
         addUser,
         editUser,
         removeUser
@@ -167,10 +170,10 @@ export function Users() {
                         <section className="users-create">
                             <div className="users-create__content">
                                 <span className="users-create__eyebrow">
-                                    Administração
+                                    Adição de usuário
                                 </span>
 
-                                <h2>Novo usuário</h2>
+                                <h2>Criar novo usuário</h2>
 
                                 <p>
                                     Adicione um novo usuário com acesso ao sistema.
@@ -180,7 +183,10 @@ export function Users() {
                             <button
                                 className="users-create__button"
                                 type="button"
-                                onClick={() => setIsCreateModalOpen(true)}
+                                onClick={() => {
+                                    clearCreateError();
+                                    setIsCreateModalOpen(true);
+                                }}
                             >
                                 Criar usuário
                             </button>
