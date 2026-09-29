@@ -35,6 +35,40 @@
     cursor: not-allowed;
 }
 
+.user-create-form__password {
+    position: relative;
+}
+
+.user-create-form__password input {
+    padding-right: calc(var(--control-height-md) + var(--spacing-2));
+}
+
+.user-create-form__password-toggle {
+    position: absolute;
+    top: 50%;
+    right: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: var(--control-height-md);
+    height: var(--control-height-md);
+    transform: translateY(-50%);
+    color: var(--color-text-secondary);
+    background: transparent;
+    border: 0;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+}
+
+.user-create-form__password-toggle:hover {
+    color: var(--color-text);
+}
+
+.user-create-form__password-toggle:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
 .user-create-form__error,
 .user-create-form__api-error {
     color: var(--color-danger);
