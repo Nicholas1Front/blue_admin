@@ -30,7 +30,7 @@ export function UserEditModal({
         register,
         handleSubmit,
         reset,
-        formState: { errors }
+        formState: { errors, isDirty }
     } = useForm<UpdateUserFormData>({
         resolver: zodResolver(updateUserSchema),
         defaultValues: {
@@ -165,7 +165,7 @@ export function UserEditModal({
                     <button
                         className="user-edit-form__submit"
                         type="submit"
-                        disabled={isSubmitting}
+                        disabled={isSubmitting || !isDirty}
                     >
                         {isSubmitting ? "Salvando..." : "Salvar alterações"}
                     </button>
