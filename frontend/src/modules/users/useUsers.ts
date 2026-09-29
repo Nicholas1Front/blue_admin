@@ -2,6 +2,7 @@ import { useCallback, useState } from "react";
 
 import {
     createUser,
+    deleteUser,
     getUsers,
     updateUser
 } from "./users.api";
@@ -16,15 +17,18 @@ interface UseUsersReturn {
     isLoading: boolean;
     isCreating: boolean;
     isUpdating: boolean;
+    isDeleting: boolean;
     error: string | null;
     createError: string | null;
     updateError: string | null;
+    deleteError: string | null;
     loadUsers: () => Promise<void>;
     addUser: (data: CreateUserRequest) => Promise<User>;
     editUser: (
         id: string,
         data: UpdateUserRequest
     ) => Promise<User>;
+    removeUser: (id: string) => Promise<void>;
 }
 
 export function useUsers(): UseUsersReturn {
@@ -32,9 +36,11 @@ export function useUsers(): UseUsersReturn {
     const [isLoading, setIsLoading] = useState(true);
     const [isCreating, setIsCreating] = useState(false);
     const [isUpdating, setIsUpdating] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [createError, setCreateError] = useState<string | null>(null);
     const [updateError, setUpdateError] = useState<string | null>(null);
+    const [deleteError, setDeleteError] = useState<string | null>(null);
 
     const loadUsers = useCallback(async () => {
         setIsLoading(true);
@@ -111,16 +117,45 @@ export function useUsers(): UseUsersReturn {
         []
     );
 
+    const removeUser = useCallback(
+        async (id: string) => {
+            setIsDeleting(true);
+            setDeleteError(null);
+
+            try {
+                await deleteUser(id);
+
+                setUsers((currentUsers) =>
+                    currentUsers.filter((user) => user.id !== id)
+                );
+            } catch (error) {
+                const message =
+                    error instanceof Error
+                        ? error.message
+                        : "Não foi possível excluir o usuário.";
+
+                setDeleteError(message);
+                throw error;
+            } finally {
+                setIsDeleting(false);
+            }
+        },
+        []
+    );
+
     return {
         users,
         isLoading,
         isCreating,
         isUpdating,
+        isDeleting,
         error,
         createError,
         updateError,
+        deleteError,
         loadUsers,
         addUser,
-        editUser
+        editUser,
+        removeUser
     };
 }

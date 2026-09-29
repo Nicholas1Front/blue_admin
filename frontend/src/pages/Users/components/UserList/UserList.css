@@ -119,6 +119,16 @@
     border-color: var(--color-primary-400);
 }
 
+.user-list__action--delete {
+    color: var(--color-danger);
+}
+
+.user-list__action--delete:hover {
+    color: var(--color-danger);
+    background: var(--color-surface-hover);
+    border-color: var(--color-danger);
+}
+
 @media (max-width: 600px) {
     .user-list__header {
         align-items: flex-start;

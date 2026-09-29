@@ -1,7 +1,8 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faEye,
-    faPenToSquare
+    faPenToSquare,
+    faTrash
 } from "@fortawesome/free-solid-svg-icons";
 
 import type { User } from "../../../../modules/users/users.types";
@@ -12,12 +13,14 @@ interface UserListProps {
     users: User[];
     onView: (user: User) => void;
     onEdit: (user: User) => void;
+    onDelete: (user: User) => void;
 }
 
 export function UserList({
     users,
     onView,
-    onEdit
+    onEdit,
+    onDelete
 }: UserListProps) {
     return (
         <section className="user-list">
@@ -75,6 +78,17 @@ export function UserList({
                             >
                                 <FontAwesomeIcon icon={faPenToSquare} />
                                 <span>Editar</span>
+                            </button>
+
+                            <button
+                                className="user-list__action user-list__action--delete"
+                                type="button"
+                                onClick={() => onDelete(user)}
+                                aria-label={"Excluir usuário " + user.name}
+                                title="Excluir usuário"
+                            >
+                                <FontAwesomeIcon icon={faTrash} />
+                                <span>Excluir</span>
                             </button>
                         </div>
                     </article>

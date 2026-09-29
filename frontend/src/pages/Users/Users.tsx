@@ -8,6 +8,7 @@ import type {
     User
 } from "../../modules/users/users.types";
 import { UserCreateModal } from "./components/UserCreateModal/UserCreateModal";
+import { UserDeleteModal } from "./components/UserDeleteModal/UserDeleteModal";
 import { UserEditModal } from "./components/UserEditModal/UserEditModal";
 import { UserViewModal } from "./components/UserViewModal/UserViewModal";
 import { UserList } from "./components/UserList/UserList";
@@ -25,17 +26,21 @@ export function Users() {
         isLoading,
         isCreating,
         isUpdating,
+        isDeleting,
         error,
         createError,
         updateError,
+        deleteError,
         loadUsers,
         addUser,
-        editUser
+        editUser,
+        removeUser
     } = useUsers();
 
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
     const [viewingUser, setViewingUser] = useState<User | null>(null);
+    const [deletingUser, setDeletingUser] = useState<User | null>(null);
 
     useEffect(() => {
         loadUsers();
@@ -47,6 +52,14 @@ export function Users() {
         }
 
         setSelectedUser(null);
+    }
+
+    function handleCloseDelete() {
+        if (isDeleting) {
+            return;
+        }
+
+        setDeletingUser(null);
     }
 
     async function handleCreateUser(data: CreateUserRequest) {
@@ -72,6 +85,15 @@ export function Users() {
         }
 
         setSelectedUser(null);
+    }
+
+    async function handleDeleteUser() {
+        if (!deletingUser) {
+            return;
+        }
+
+        await removeUser(deletingUser.id);
+        setDeletingUser(null);
     }
 
     return (
@@ -115,6 +137,7 @@ export function Users() {
                             users={users}
                             onView={setViewingUser}
                             onEdit={setSelectedUser}
+                            onDelete={setDeletingUser}
                         />
 
                         <section className="users-create">
@@ -165,6 +188,14 @@ export function Users() {
                 error={updateError}
                 onClose={handleCloseEdit}
                 onSubmit={handleUpdateUser}
+            />
+
+            <UserDeleteModal
+                user={deletingUser}
+                isSubmitting={isDeleting}
+                error={deleteError}
+                onClose={handleCloseDelete}
+                onConfirm={handleDeleteUser}
             />
         </main>
     );

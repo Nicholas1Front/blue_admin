@@ -1,0 +1,97 @@
+.user-delete {
+    display: grid;
+    gap: var(--spacing-5);
+}
+
+.user-delete__warning {
+    display: flex;
+    align-items: flex-start;
+    gap: var(--spacing-3);
+    padding: var(--spacing-4);
+    color: var(--color-text-secondary);
+    background: var(--color-background);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+}
+
+.user-delete__warning > svg {
+    flex-shrink: 0;
+    margin-top: 0.1rem;
+    color: var(--color-danger);
+}
+
+.user-delete__title {
+    color: var(--color-text);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+}
+
+.user-delete__description {
+    margin-top: var(--spacing-2);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-relaxed);
+}
+
+.user-delete__error {
+    color: var(--color-danger);
+    font-size: var(--font-size-sm);
+}
+
+.user-delete__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--spacing-3);
+}
+
+.user-delete__cancel,
+.user-delete__confirm {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-2);
+    min-height: var(--control-height-md);
+    padding: 0 var(--spacing-4);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+}
+
+.user-delete__cancel {
+    color: var(--color-text-secondary);
+    background: transparent;
+    border: 1px solid var(--color-border);
+}
+
+.user-delete__confirm {
+    color: var(--color-text-on-primary);
+    background: var(--color-danger);
+    border: 1px solid var(--color-danger);
+}
+
+.user-delete__cancel:hover {
+    color: var(--color-text);
+    background: var(--color-surface-hover);
+}
+
+.user-delete__confirm:hover {
+    opacity: 0.9;
+}
+
+.user-delete__cancel:disabled,
+.user-delete__confirm:disabled {
+    opacity: 0.7;
+    cursor: not-allowed;
+}
+
+@media (max-width: 480px) {
+    .user-delete__actions {
+        flex-direction: column-reverse;
+    }
+
+    .user-delete__cancel,
+    .user-delete__confirm {
+        width: 100%;
+    }
+}
