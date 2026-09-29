@@ -66,7 +66,7 @@ export function UserList({
                                 title="Visualizar usuário"
                             >
                                 <FontAwesomeIcon icon={faEye} />
-                                <span>Visualizar</span>
+                                <span>Abrir</span>
                             </button>
 
                             <button
