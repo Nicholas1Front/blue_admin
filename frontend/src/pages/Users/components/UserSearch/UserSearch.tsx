@@ -55,7 +55,9 @@ export function UserSearch({
     }
 
     return (
-        <section className="user-search">
+        <section
+            className={"user-search" + (hasSearched ? " user-search--has-results" : "")}
+        >
             <div className="user-search__header">
                 <span className="user-search__eyebrow">
                     Consulta
