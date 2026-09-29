@@ -31,6 +31,9 @@ interface UseUsersReturn {
     loadUsers: () => Promise<void>;
     searchUsers: (filters: FindUserFilters) => Promise<void>;
     clearSearch: () => void;
+    clearCreateError: () => void;
+    clearUpdateError: () => void;
+    clearDeleteError: () => void;
     addUser: (data: CreateUserRequest) => Promise<User>;
     editUser: (
         id: string,
@@ -101,6 +104,18 @@ export function useUsers(): UseUsersReturn {
         setSearchResults([]);
         setSearchError(null);
         setHasSearched(false);
+    }, []);
+
+    const clearCreateError = useCallback(() => {
+        setCreateError(null);
+    }, []);
+
+    const clearUpdateError = useCallback(() => {
+        setUpdateError(null);
+    }, []);
+
+    const clearDeleteError = useCallback(() => {
+        setDeleteError(null);
     }, []);
 
     const addUser = useCallback(
@@ -214,6 +229,9 @@ export function useUsers(): UseUsersReturn {
         loadUsers,
         searchUsers,
         clearSearch,
+        clearCreateError,
+        clearUpdateError,
+        clearDeleteError,
         addUser,
         editUser,
         removeUser
