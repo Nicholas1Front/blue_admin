@@ -3,7 +3,11 @@ import { useEffect, useState } from "react";
 import { AppHeader } from "../../components/AppHeader/AppHeader";
 import { useAuth } from "../../modules/auth/useAuth";
 import { useUsers } from "../../modules/users/useUsers";
-import type { User } from "../../modules/users/users.types";
+import type {
+    CreateUserRequest,
+    User
+} from "../../modules/users/users.types";
+import { UserCreateModal } from "./components/UserCreateModal/UserCreateModal";
 import { UserEditModal } from "./components/UserEditModal/UserEditModal";
 import { UserViewModal } from "./components/UserViewModal/UserViewModal";
 import { UserList } from "./components/UserList/UserList";
@@ -19,13 +23,17 @@ export function Users() {
     const {
         users,
         isLoading,
+        isCreating,
         isUpdating,
         error,
+        createError,
         updateError,
         loadUsers,
+        addUser,
         editUser
     } = useUsers();
 
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
     const [viewingUser, setViewingUser] = useState<User | null>(null);
 
@@ -39,6 +47,11 @@ export function Users() {
         }
 
         setSelectedUser(null);
+    }
+
+    async function handleCreateUser(data: CreateUserRequest) {
+        await addUser(data);
+        setIsCreateModalOpen(false);
     }
 
     async function handleUpdateUser(
@@ -63,7 +76,6 @@ export function Users() {
 
     return (
         <main className="users-page">
-            <title>Usuários | Blue admin</title>
             <AppHeader />
 
             <section className="users-content">
@@ -98,17 +110,53 @@ export function Users() {
                 )}
 
                 {!isLoading && !error && (
-                    <UserList
-                        users={users}
-                        onView={setViewingUser}
-                        onEdit={setSelectedUser}
-                    />
+                    <>
+                        <UserList
+                            users={users}
+                            onView={setViewingUser}
+                            onEdit={setSelectedUser}
+                        />
+
+                        <section className="users-create">
+                            <div className="users-create__content">
+                                <span className="users-create__eyebrow">
+                                    Administração
+                                </span>
+
+                                <h2>Novo usuário</h2>
+
+                                <p>
+                                    Adicione um novo usuário com acesso ao sistema.
+                                </p>
+                            </div>
+
+                            <button
+                                className="users-create__button"
+                                type="button"
+                                onClick={() => setIsCreateModalOpen(true)}
+                            >
+                                Criar usuário
+                            </button>
+                        </section>
+                    </>
                 )}
             </section>
 
             <UserViewModal
                 user={viewingUser}
                 onClose={() => setViewingUser(null)}
+            />
+
+            <UserCreateModal
+                isOpen={isCreateModalOpen}
+                isSubmitting={isCreating}
+                error={createError}
+                onClose={() => {
+                    if (!isCreating) {
+                        setIsCreateModalOpen(false);
+                    }
+                }}
+                onSubmit={handleCreateUser}
             />
 
             <UserEditModal
