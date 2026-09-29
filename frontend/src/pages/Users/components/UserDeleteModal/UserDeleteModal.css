@@ -85,7 +85,7 @@
     cursor: not-allowed;
 }
 
-@media (max-width: 480px) {
+@media (max-width: 600px) {
     .user-delete__actions {
         flex-direction: column-reverse;
     }
