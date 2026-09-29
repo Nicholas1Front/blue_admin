@@ -1,6 +1,8 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
 import { Modal } from "../../../../components/Modal/Modal";
 import {
@@ -26,6 +28,8 @@ export function UserCreateModal({
     onClose,
     onSubmit
 }: UserCreateModalProps) {
+    const [showPassword, setShowPassword] = useState(false);
+
     const {
         register,
         handleSubmit,
@@ -47,12 +51,14 @@ export function UserCreateModal({
                 email: "",
                 password: ""
             });
+            setShowPassword(false);
         }
     }, [isOpen, reset]);
 
     async function handleFormSubmit(data: CreateUserFormData) {
         await onSubmit(data);
         reset();
+        setShowPassword(false);
     }
 
     return (
@@ -66,10 +72,7 @@ export function UserCreateModal({
                 onSubmit={handleSubmit(handleFormSubmit)}
             >
                 <div className="user-create-form__field">
-                    <label htmlFor="create-user-name">
-                        Nome
-                    </label>
-
+                    <label htmlFor="create-user-name">Nome</label>
                     <input
                         id="create-user-name"
                         type="text"
@@ -77,7 +80,6 @@ export function UserCreateModal({
                         disabled={isSubmitting}
                         autoComplete="name"
                     />
-
                     {errors.name && (
                         <span className="user-create-form__error">
                             {errors.name.message}
@@ -86,10 +88,7 @@ export function UserCreateModal({
                 </div>
 
                 <div className="user-create-form__field">
-                    <label htmlFor="create-user-email">
-                        E-mail
-                    </label>
-
+                    <label htmlFor="create-user-email">E-mail</label>
                     <input
                         id="create-user-email"
                         type="email"
@@ -97,7 +96,6 @@ export function UserCreateModal({
                         disabled={isSubmitting}
                         autoComplete="email"
                     />
-
                     {errors.email && (
                         <span className="user-create-form__error">
                             {errors.email.message}
@@ -106,17 +104,27 @@ export function UserCreateModal({
                 </div>
 
                 <div className="user-create-form__field">
-                    <label htmlFor="create-user-password">
-                        Senha
-                    </label>
+                    <label htmlFor="create-user-password">Senha</label>
 
-                    <input
-                        id="create-user-password"
-                        type="password"
-                        {...register("password")}
-                        disabled={isSubmitting}
-                        autoComplete="new-password"
-                    />
+                    <div className="user-create-form__password">
+                        <input
+                            id="create-user-password"
+                            type={showPassword ? "text" : "password"}
+                            {...register("password")}
+                            disabled={isSubmitting}
+                            autoComplete="new-password"
+                        />
+                        <button
+                            className="user-create-form__password-toggle"
+                            type="button"
+                            onClick={() => setShowPassword((current) => !current)}
+                            disabled={isSubmitting}
+                            aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                            title={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                        >
+                            <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+                        </button>
+                    </div>
 
                     {errors.password && (
                         <span className="user-create-form__error">
@@ -140,7 +148,6 @@ export function UserCreateModal({
                     >
                         Cancelar
                     </button>
-
                     <button
                         className="user-create-form__submit"
                         type="submit"
