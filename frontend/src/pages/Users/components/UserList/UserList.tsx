@@ -1,5 +1,8 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPenToSquare } from "@fortawesome/free-solid-svg-icons";
+import {
+    faEye,
+    faPenToSquare
+} from "@fortawesome/free-solid-svg-icons";
 
 import type { User } from "../../../../modules/users/users.types";
 
@@ -7,10 +10,15 @@ import "./UserList.css";
 
 interface UserListProps {
     users: User[];
+    onView: (user: User) => void;
     onEdit: (user: User) => void;
 }
 
-export function UserList({ users, onEdit }: UserListProps) {
+export function UserList({
+    users,
+    onView,
+    onEdit
+}: UserListProps) {
     return (
         <section className="user-list">
             <header className="user-list__header">
@@ -46,16 +54,29 @@ export function UserList({ users, onEdit }: UserListProps) {
                             </span>
                         </div>
 
-                        <button
-                            className="user-list__edit"
-                            type="button"
-                            onClick={() => onEdit(user)}
-                            aria-label={"Editar usuário " + user.name}
-                            title="Editar usuário"
-                        >
-                            <FontAwesomeIcon icon={faPenToSquare} />
-                            <span>Editar</span>
-                        </button>
+                        <div className="user-list__actions">
+                            <button
+                                className="user-list__action"
+                                type="button"
+                                onClick={() => onView(user)}
+                                aria-label={"Visualizar usuário " + user.name}
+                                title="Visualizar usuário"
+                            >
+                                <FontAwesomeIcon icon={faEye} />
+                                <span>Visualizar</span>
+                            </button>
+
+                            <button
+                                className="user-list__action"
+                                type="button"
+                                onClick={() => onEdit(user)}
+                                aria-label={"Editar usuário " + user.name}
+                                title="Editar usuário"
+                            >
+                                <FontAwesomeIcon icon={faPenToSquare} />
+                                <span>Editar</span>
+                            </button>
+                        </div>
                     </article>
                 ))}
             </div>
