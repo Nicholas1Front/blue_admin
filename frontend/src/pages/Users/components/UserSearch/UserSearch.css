@@ -74,6 +74,12 @@
     cursor: not-allowed;
 }
 
+.user-search__validation-error {
+    margin-top: var(--spacing-3);
+    color: var(--color-danger);
+    font-size: var(--font-size-sm);
+}
+
 .user-search__actions {
     display: flex;
     gap: var(--spacing-2);
