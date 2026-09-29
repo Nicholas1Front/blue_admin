@@ -1,10 +1,12 @@
 import { useCallback, useState } from "react";
 
 import {
+    createUser,
     getUsers,
     updateUser
 } from "./users.api";
 import type {
+    CreateUserRequest,
     UpdateUserRequest,
     User
 } from "./users.types";
@@ -12,10 +14,13 @@ import type {
 interface UseUsersReturn {
     users: User[];
     isLoading: boolean;
+    isCreating: boolean;
     isUpdating: boolean;
     error: string | null;
+    createError: string | null;
     updateError: string | null;
     loadUsers: () => Promise<void>;
+    addUser: (data: CreateUserRequest) => Promise<User>;
     editUser: (
         id: string,
         data: UpdateUserRequest
@@ -25,8 +30,10 @@ interface UseUsersReturn {
 export function useUsers(): UseUsersReturn {
     const [users, setUsers] = useState<User[]>([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [isCreating, setIsCreating] = useState(false);
     const [isUpdating, setIsUpdating] = useState(false);
     const [error, setError] = useState<string | null>(null);
+    const [createError, setCreateError] = useState<string | null>(null);
     const [updateError, setUpdateError] = useState<string | null>(null);
 
     const loadUsers = useCallback(async () => {
@@ -47,6 +54,30 @@ export function useUsers(): UseUsersReturn {
             setIsLoading(false);
         }
     }, []);
+
+    const addUser = useCallback(
+        async (data: CreateUserRequest) => {
+            setIsCreating(true);
+            setCreateError(null);
+
+            try {
+                const newUser = await createUser(data);
+                setUsers((currentUsers) => [...currentUsers, newUser]);
+                return newUser;
+            } catch (error) {
+                const message =
+                    error instanceof Error
+                        ? error.message
+                        : "Não foi possível criar o usuário.";
+
+                setCreateError(message);
+                throw error;
+            } finally {
+                setIsCreating(false);
+            }
+        },
+        []
+    );
 
     const editUser = useCallback(
         async (id: string, data: UpdateUserRequest) => {
@@ -83,10 +114,13 @@ export function useUsers(): UseUsersReturn {
     return {
         users,
         isLoading,
+        isCreating,
         isUpdating,
         error,
+        createError,
         updateError,
         loadUsers,
+        addUser,
         editUser
     };
 }
