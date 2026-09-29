@@ -19,7 +19,7 @@ interface UseUsersReturn {
     editUser: (
         id: string,
         data: UpdateUserRequest
-    ) => Promise<void>;
+    ) => Promise<User>;
 }
 
 export function useUsers(): UseUsersReturn {
@@ -63,6 +63,8 @@ export function useUsers(): UseUsersReturn {
                             : user
                     )
                 );
+
+                return updatedUser;
             } catch (error) {
                 const message =
                     error instanceof Error
