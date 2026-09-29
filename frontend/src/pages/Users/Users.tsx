@@ -147,8 +147,14 @@ export function Users() {
                         <UserList
                             users={users}
                             onView={setViewingUser}
-                            onEdit={setSelectedUser}
-                            onDelete={setDeletingUser}
+                            onEdit={(user) => {
+                                clearUpdateError();
+                                setSelectedUser(user);
+                            }}
+                            onDelete={(user) => {
+                                clearDeleteError();
+                                setDeletingUser(user);
+                            }}
                         />
 
                         <UserSearch
@@ -163,8 +169,14 @@ export function Users() {
                             hasSearched={hasSearched}
                             error={searchError}
                             onView={setViewingUser}
-                            onEdit={setSelectedUser}
-                            onDelete={setDeletingUser}
+                            onEdit={(user) => {
+                                clearUpdateError();
+                                setSelectedUser(user);
+                            }}
+                            onDelete={(user) => {
+                                clearDeleteError();
+                                setDeletingUser(user);
+                            }}
                         />
 
                         <section className="users-create">
