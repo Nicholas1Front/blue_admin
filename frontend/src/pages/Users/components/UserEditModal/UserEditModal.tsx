@@ -1,6 +1,8 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faEye, faEyeSlash } from "@fortawesome/free-solid-svg-icons";
 
 import { Modal } from "../../../../components/Modal/Modal";
 import { updateUserSchema, type UpdateUserFormData } from "../../schemas/users.schema";
@@ -26,6 +28,8 @@ export function UserEditModal({
     onClose,
     onSubmit
 }: UserEditModalProps) {
+    const [showPassword, setShowPassword] = useState(false);
+
     const {
         register,
         handleSubmit,
@@ -50,6 +54,7 @@ export function UserEditModal({
             email: user.email,
             password: ""
         });
+        setShowPassword(false);
     }, [user, reset]);
 
     async function handleFormSubmit(data: UpdateUserFormData) {
@@ -89,17 +94,13 @@ export function UserEditModal({
                 onSubmit={handleSubmit(handleFormSubmit)}
             >
                 <div className="user-edit-form__field">
-                    <label htmlFor="user-name">
-                        Nome
-                    </label>
-
+                    <label htmlFor="user-name">Nome</label>
                     <input
                         id="user-name"
                         type="text"
                         {...register("name")}
                         disabled={isSubmitting}
                     />
-
                     {errors.name && (
                         <span className="user-edit-form__error">
                             {errors.name.message}
@@ -108,17 +109,13 @@ export function UserEditModal({
                 </div>
 
                 <div className="user-edit-form__field">
-                    <label htmlFor="user-email">
-                        E-mail
-                    </label>
-
+                    <label htmlFor="user-email">E-mail</label>
                     <input
                         id="user-email"
                         type="email"
                         {...register("email")}
                         disabled={isSubmitting}
                     />
-
                     {errors.email && (
                         <span className="user-edit-form__error">
                             {errors.email.message}
@@ -127,17 +124,27 @@ export function UserEditModal({
                 </div>
 
                 <div className="user-edit-form__field">
-                    <label htmlFor="user-password">
-                        Nova senha
-                    </label>
+                    <label htmlFor="user-password">Nova senha</label>
 
-                    <input
-                        id="user-password"
-                        type="password"
-                        placeholder="Deixe vazio para manter a senha atual"
-                        {...register("password")}
-                        disabled={isSubmitting}
-                    />
+                    <div className="user-edit-form__password">
+                        <input
+                            id="user-password"
+                            type={showPassword ? "text" : "password"}
+                            placeholder="Deixe vazio para manter a senha atual"
+                            {...register("password")}
+                            disabled={isSubmitting}
+                        />
+                        <button
+                            className="user-edit-form__password-toggle"
+                            type="button"
+                            onClick={() => setShowPassword((current) => !current)}
+                            disabled={isSubmitting}
+                            aria-label={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                            title={showPassword ? "Ocultar senha" : "Mostrar senha"}
+                        >
+                            <FontAwesomeIcon icon={showPassword ? faEyeSlash : faEye} />
+                        </button>
+                    </div>
 
                     {errors.password && (
                         <span className="user-edit-form__error">
@@ -161,7 +168,6 @@ export function UserEditModal({
                     >
                         Cancelar
                     </button>
-
                     <button
                         className="user-edit-form__submit"
                         type="submit"
