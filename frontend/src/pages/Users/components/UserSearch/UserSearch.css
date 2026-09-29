@@ -151,6 +151,15 @@
     .user-search__form {
         gap: var(--spacing-3);
     }
+
+    .user-search__actions {
+        justify-content: stretch;
+    }
+
+    .user-search__clear,
+    .user-search__submit {
+        flex: 1;
+    }
 }
 
 @media (max-width: 600px) {
