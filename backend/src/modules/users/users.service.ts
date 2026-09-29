@@ -53,7 +53,7 @@ class UsersService{
         id : string,
         data : updateUserDTO
     ){
-        let existingUser = await usersRepository.findUserById(id);
+        const existingUser = await usersRepository.findUserById(id);
 
         if(!existingUser){
             throw new AppError(
