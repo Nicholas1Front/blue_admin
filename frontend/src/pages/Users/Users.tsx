@@ -10,8 +10,10 @@ import type {
 import { UserCreateModal } from "./components/UserCreateModal/UserCreateModal";
 import { UserDeleteModal } from "./components/UserDeleteModal/UserDeleteModal";
 import { UserEditModal } from "./components/UserEditModal/UserEditModal";
-import { UserViewModal } from "./components/UserViewModal/UserViewModal";
 import { UserList } from "./components/UserList/UserList";
+import { UserSearch } from "./components/UserSearch/UserSearch";
+import { UserSearchResults } from "./components/UserSearchResults/UserSearchResults";
+import { UserViewModal } from "./components/UserViewModal/UserViewModal";
 
 import "./Users.css";
 
@@ -23,15 +25,21 @@ export function Users() {
 
     const {
         users,
+        searchResults,
         isLoading,
         isCreating,
         isUpdating,
         isDeleting,
+        isSearching,
         error,
         createError,
         updateError,
         deleteError,
+        searchError,
+        hasSearched,
         loadUsers,
+        searchUsers,
+        clearSearch,
         addUser,
         editUser,
         removeUser
@@ -135,6 +143,22 @@ export function Users() {
                     <>
                         <UserList
                             users={users}
+                            onView={setViewingUser}
+                            onEdit={setSelectedUser}
+                            onDelete={setDeletingUser}
+                        />
+
+                        <UserSearch
+                            isSearching={isSearching}
+                            onSearch={searchUsers}
+                            onClear={clearSearch}
+                        />
+
+                        <UserSearchResults
+                            users={searchResults}
+                            isSearching={isSearching}
+                            hasSearched={hasSearched}
+                            error={searchError}
                             onView={setViewingUser}
                             onEdit={setSelectedUser}
                             onDelete={setDeletingUser}

@@ -3,26 +3,34 @@ import { useCallback, useState } from "react";
 import {
     createUser,
     deleteUser,
+    findUsers,
     getUsers,
     updateUser
 } from "./users.api";
 import type {
     CreateUserRequest,
+    FindUserFilters,
     UpdateUserRequest,
     User
 } from "./users.types";
 
 interface UseUsersReturn {
     users: User[];
+    searchResults: User[];
     isLoading: boolean;
     isCreating: boolean;
     isUpdating: boolean;
     isDeleting: boolean;
+    isSearching: boolean;
     error: string | null;
     createError: string | null;
     updateError: string | null;
     deleteError: string | null;
+    searchError: string | null;
+    hasSearched: boolean;
     loadUsers: () => Promise<void>;
+    searchUsers: (filters: FindUserFilters) => Promise<void>;
+    clearSearch: () => void;
     addUser: (data: CreateUserRequest) => Promise<User>;
     editUser: (
         id: string,
@@ -33,14 +41,18 @@ interface UseUsersReturn {
 
 export function useUsers(): UseUsersReturn {
     const [users, setUsers] = useState<User[]>([]);
+    const [searchResults, setSearchResults] = useState<User[]>([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isCreating, setIsCreating] = useState(false);
     const [isUpdating, setIsUpdating] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
+    const [isSearching, setIsSearching] = useState(false);
     const [error, setError] = useState<string | null>(null);
     const [createError, setCreateError] = useState<string | null>(null);
     const [updateError, setUpdateError] = useState<string | null>(null);
     const [deleteError, setDeleteError] = useState<string | null>(null);
+    const [searchError, setSearchError] = useState<string | null>(null);
+    const [hasSearched, setHasSearched] = useState(false);
 
     const loadUsers = useCallback(async () => {
         setIsLoading(true);
@@ -59,6 +71,36 @@ export function useUsers(): UseUsersReturn {
         } finally {
             setIsLoading(false);
         }
+    }, []);
+
+    const searchUsers = useCallback(
+        async (filters: FindUserFilters) => {
+            setIsSearching(true);
+            setSearchError(null);
+            setHasSearched(true);
+
+            try {
+                const data = await findUsers(filters);
+                setSearchResults(data);
+            } catch (error) {
+                const message =
+                    error instanceof Error
+                        ? error.message
+                        : "Não foi possível pesquisar os usuários.";
+
+                setSearchError(message);
+                setSearchResults([]);
+            } finally {
+                setIsSearching(false);
+            }
+        },
+        []
+    );
+
+    const clearSearch = useCallback(() => {
+        setSearchResults([]);
+        setSearchError(null);
+        setHasSearched(false);
     }, []);
 
     const addUser = useCallback(
@@ -101,6 +143,14 @@ export function useUsers(): UseUsersReturn {
                     )
                 );
 
+                setSearchResults((currentResults) =>
+                    currentResults.map((user) =>
+                        user.id === updatedUser.id
+                            ? updatedUser
+                            : user
+                    )
+                );
+
                 return updatedUser;
             } catch (error) {
                 const message =
@@ -128,6 +178,10 @@ export function useUsers(): UseUsersReturn {
                 setUsers((currentUsers) =>
                     currentUsers.filter((user) => user.id !== id)
                 );
+
+                setSearchResults((currentResults) =>
+                    currentResults.filter((user) => user.id !== id)
+                );
             } catch (error) {
                 const message =
                     error instanceof Error
@@ -145,15 +199,21 @@ export function useUsers(): UseUsersReturn {
 
     return {
         users,
+        searchResults,
         isLoading,
         isCreating,
         isUpdating,
         isDeleting,
+        isSearching,
         error,
         createError,
         updateError,
         deleteError,
+        searchError,
+        hasSearched,
         loadUsers,
+        searchUsers,
+        clearSearch,
         addUser,
         editUser,
         removeUser
