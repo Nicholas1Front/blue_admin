@@ -8,6 +8,11 @@
     box-shadow: var(--shadow-sm);
 }
 
+.user-search--has-results {
+    margin-bottom: 0;
+    border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+}
+
 .user-search__eyebrow {
     display: block;
     margin-bottom: var(--spacing-2);
