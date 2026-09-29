@@ -18,6 +18,8 @@ import { UserViewModal } from "./components/UserViewModal/UserViewModal";
 import "./Users.css";
 
 export function Users() {
+    document.title = "Usuários | Blue Admin";
+
     const {
         user: authenticatedUser,
         updateAuthenticatedUser
