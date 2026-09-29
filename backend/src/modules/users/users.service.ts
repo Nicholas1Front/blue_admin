@@ -86,7 +86,7 @@ class UsersService{
         if(data.email !== undefined){
             const emailExists = await usersRepository.findUserByEmail(data.email);
 
-            if(emailExists){
+            if(emailExists && emailExists.id !== id){
                 throw new AppError(
                     'Email already exists',
                     400,
@@ -165,6 +165,16 @@ class UsersService{
     async deleteUserById(
         id : string
     ){
+        const existingUser = await usersRepository.findUserById(id);
+
+        if(!existingUser){
+            throw new AppError(
+                'User not found',
+                404,
+                'USER_NOT_FOUND'
+            )
+        }
+
         await usersRepository.deleteUserById(id);
 
         return true
