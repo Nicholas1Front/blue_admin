@@ -127,22 +127,29 @@
     cursor: not-allowed;
 }
 
-@media (max-width: 900px) {
-    .user-search {
-        margin-top: var(--spacing-6);
-    }
-
+@media (max-width: 1000px) {
     .user-search__form {
         grid-template-columns: 1fr 1fr;
     }
 
-    .user-search__field--id,
-    .user-search__actions {
+    .user-search__field--id {
         grid-column: span 2;
     }
 
     .user-search__actions {
+        grid-column: span 2;
         justify-content: flex-end;
+    }
+}
+
+@media (max-width: 768px) {
+    .user-search {
+        margin-top: var(--spacing-6);
+        padding: var(--spacing-5);
+    }
+
+    .user-search__form {
+        gap: var(--spacing-3);
     }
 }
 
