@@ -18,13 +18,10 @@
     width: 100%;
     min-height: var(--control-height-md);
     padding: 0 var(--spacing-3);
-
     color: var(--color-text);
     background: var(--color-background);
-
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
-
     outline: none;
     transition: border-color var(--transition-fast);
 }
@@ -48,7 +45,6 @@
     display: flex;
     justify-content: flex-end;
     gap: var(--spacing-3);
-
     margin-top: var(--spacing-2);
 }
 
@@ -56,12 +52,9 @@
 .user-edit-form__submit {
     min-height: var(--control-height-md);
     padding: 0 var(--spacing-4);
-
     border-radius: var(--radius-md);
-
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-semibold);
-
     cursor: pointer;
 }
 
