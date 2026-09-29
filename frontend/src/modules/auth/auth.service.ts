@@ -62,7 +62,6 @@ function saveSession(token: string, user: AuthUser): void {
     localStorage.setItem(TOKEN_KEY, token);
     localStorage.setItem(USER_KEY, JSON.stringify(user));
 
-    console.log('Token saved in local storage')
 }
 
 function logout(): void {
