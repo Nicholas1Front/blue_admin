@@ -159,6 +159,7 @@ export function Users() {
 
                         <UserSearch
                             isSearching={isSearching}
+                            hasSearched={hasSearched}
                             onSearch={searchUsers}
                             onClear={clearSearch}
                         />
