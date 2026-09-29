@@ -1,14 +1,21 @@
 import { useEffect, useState } from "react";
 
 import { AppHeader } from "../../components/AppHeader/AppHeader";
+import { useAuth } from "../../modules/auth/useAuth";
 import { useUsers } from "../../modules/users/useUsers";
 import type { User } from "../../modules/users/users.types";
 import { UserEditModal } from "./components/UserEditModal/UserEditModal";
+import { UserViewModal } from "./components/UserViewModal/UserViewModal";
 import { UserList } from "./components/UserList/UserList";
 
 import "./Users.css";
 
 export function Users() {
+    const {
+        user: authenticatedUser,
+        updateAuthenticatedUser
+    } = useAuth();
+
     const {
         users,
         isLoading,
@@ -20,6 +27,7 @@ export function Users() {
     } = useUsers();
 
     const [selectedUser, setSelectedUser] = useState<User | null>(null);
+    const [viewingUser, setViewingUser] = useState<User | null>(null);
 
     useEffect(() => {
         loadUsers();
@@ -40,7 +48,16 @@ export function Users() {
             return;
         }
 
-        await editUser(selectedUser.id, data);
+        const updatedUser = await editUser(selectedUser.id, data);
+
+        if (authenticatedUser?.id === updatedUser.id) {
+            updateAuthenticatedUser({
+                id: updatedUser.id,
+                name: updatedUser.name,
+                email: updatedUser.email
+            });
+        }
+
         setSelectedUser(null);
     }
 
@@ -82,10 +99,16 @@ export function Users() {
                 {!isLoading && !error && (
                     <UserList
                         users={users}
+                        onView={setViewingUser}
                         onEdit={setSelectedUser}
                     />
                 )}
             </section>
+
+            <UserViewModal
+                user={viewingUser}
+                onClose={() => setViewingUser(null)}
+            />
 
             <UserEditModal
                 user={selectedUser}
