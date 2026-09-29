@@ -63,6 +63,7 @@ export function Users() {
 
     return (
         <main className="users-page">
+            <title>Usuários | Blue admin</title>
             <AppHeader />
 
             <section className="users-content">
