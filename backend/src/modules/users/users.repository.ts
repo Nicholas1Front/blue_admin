@@ -64,7 +64,11 @@ class UsersRepository{
 
     async updateUser(
         id : string,
-        data : any
+        data : {
+            name : string;
+            email : string;
+            passwordHash : string;
+        }
     ){
         const user = await prisma.user.update({
             where : {
