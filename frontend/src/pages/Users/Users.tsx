@@ -1,7 +1,9 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 
 import { AppHeader } from "../../components/AppHeader/AppHeader";
 import { useUsers } from "../../modules/users/useUsers";
+import type { User } from "../../modules/users/users.types";
+import { UserEditModal } from "./components/UserEditModal/UserEditModal";
 import { UserList } from "./components/UserList/UserList";
 
 import "./Users.css";
@@ -10,13 +12,37 @@ export function Users() {
     const {
         users,
         isLoading,
+        isUpdating,
         error,
+        updateError,
         loadUsers,
+        editUser
     } = useUsers();
+
+    const [selectedUser, setSelectedUser] = useState<User | null>(null);
 
     useEffect(() => {
         loadUsers();
     }, [loadUsers]);
+
+    function handleCloseEdit() {
+        if (isUpdating) {
+            return;
+        }
+
+        setSelectedUser(null);
+    }
+
+    async function handleUpdateUser(
+        data: Parameters<typeof editUser>[1]
+    ) {
+        if (!selectedUser) {
+            return;
+        }
+
+        await editUser(selectedUser.id, data);
+        setSelectedUser(null);
+    }
 
     return (
         <main className="users-page">
@@ -56,10 +82,18 @@ export function Users() {
                 {!isLoading && !error && (
                     <UserList
                         users={users}
-                        onEdit={() => {}}
+                        onEdit={setSelectedUser}
                     />
                 )}
             </section>
+
+            <UserEditModal
+                user={selectedUser}
+                isSubmitting={isUpdating}
+                error={updateError}
+                onClose={handleCloseEdit}
+                onSubmit={handleUpdateUser}
+            />
         </main>
     );
 }
