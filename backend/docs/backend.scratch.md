@@ -126,5 +126,7 @@ Só que fazer isso pode gerar complexidade pois precisaremos fazer um dominio es
     - Usuário 1 vê notificação hoje
     - Usuário 2 vê notificação somente depois de 2 dias
 
-
 Enfim isso é o que consigo arquitetar por agora, sei que é um trabalhinho mas se conseguirmos desenvolver na velocidade e qualidade que estamos fazendo acho que daqui 2 semanas podemos terminar
+
+Considerações quase que finais 
+Você reparou que esse sistema ele é orientado a dashboards, interconexões e dados que se cruzam e se apoiam entretanto de maneira nenhuma podemos fazer essa api e o frontend serem engessados e não escalaveis, pelo contrário no futuro quando quisermos mudar, adicionar ou excluir funcionalidades essa estrutura quase que comparada ao serverless vai nos ajudar e muito
