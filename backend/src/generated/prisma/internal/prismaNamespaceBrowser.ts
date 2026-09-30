@@ -51,7 +51,10 @@ export const AnyNull = runtime.AnyNull
 
 
 export const ModelName = {
-  User: 'User'
+  User: 'User',
+  Client: 'Client',
+  ClientContact: 'ClientContact',
+  Equipment: 'Equipment'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -82,6 +85,44 @@ export const UserScalarFieldEnum = {
 export type UserScalarFieldEnum = (typeof UserScalarFieldEnum)[keyof typeof UserScalarFieldEnum]
 
 
+export const ClientScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  document: 'document',
+  address: 'address',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ClientScalarFieldEnum = (typeof ClientScalarFieldEnum)[keyof typeof ClientScalarFieldEnum]
+
+
+export const ClientContactScalarFieldEnum = {
+  id: 'id',
+  clientId: 'clientId',
+  name: 'name',
+  email: 'email',
+  phoneNumber: 'phoneNumber'
+} as const
+
+export type ClientContactScalarFieldEnum = (typeof ClientContactScalarFieldEnum)[keyof typeof ClientContactScalarFieldEnum]
+
+
+export const EquipmentScalarFieldEnum = {
+  id: 'id',
+  clientId: 'clientId',
+  type: 'type',
+  brand: 'brand',
+  model: 'model',
+  mainIdentification: 'mainIdentification',
+  additionalIdentification: 'additionalIdentification',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type EquipmentScalarFieldEnum = (typeof EquipmentScalarFieldEnum)[keyof typeof EquipmentScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
@@ -96,4 +137,12 @@ export const QueryMode = {
 } as const
 
 export type QueryMode = (typeof QueryMode)[keyof typeof QueryMode]
+
+
+export const NullsOrder = {
+  first: 'first',
+  last: 'last'
+} as const
+
+export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
 
