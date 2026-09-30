@@ -8,10 +8,43 @@ datasource db {
 }
 
 model User {
-  id        String   @id @default(uuid())
-  name      String
-  email     String   @unique
-  passwordHash  String   @map("password_hash")
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
+  id           String   @id @default(uuid())
+  name         String
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
+}
+
+model Client {
+  id         String          @id @default(uuid())
+  name       String
+  document   String          @db.VarChar(14)
+  address    String
+  createdAt  DateTime        @default(now())
+  updatedAt  DateTime        @updatedAt
+  contacts   ClientContact[]
+  equipments Equipment[]
+}
+
+model ClientContact {
+  id          String   @id @default(uuid())
+  clientId    String   @map("client_id")
+  name        String
+  email       String
+  phoneNumber String   @map("phone_number")
+  client      Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+}
+
+model Equipment {
+  id                     String   @id @default(uuid())
+  clientId               String   @map("client_id")
+  type                   String
+  brand                  String
+  model                  String
+  mainIdentification     String   @map("main_identification")
+  additionalIdentification String? @map("additional_identification")
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+  client                 Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
 }
