@@ -156,7 +156,7 @@ export type ClientGroupByArgs<ExtArgs extends runtime.Types.Extensions.InternalA
 export type ClientGroupByOutputType = {
   id: string
   name: string
-  document: string
+  document: string | null
   address: string
   createdAt: Date
   updatedAt: Date
@@ -186,7 +186,7 @@ export type ClientWhereInput = {
   NOT?: Prisma.ClientWhereInput | Prisma.ClientWhereInput[]
   id?: Prisma.StringFilter<"Client"> | string
   name?: Prisma.StringFilter<"Client"> | string
-  document?: Prisma.StringFilter<"Client"> | string
+  document?: Prisma.StringNullableFilter<"Client"> | string | null
   address?: Prisma.StringFilter<"Client"> | string
   createdAt?: Prisma.DateTimeFilter<"Client"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Client"> | Date | string
@@ -197,7 +197,7 @@ export type ClientWhereInput = {
 export type ClientOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
-  document?: Prisma.SortOrder
+  document?: Prisma.SortOrderInput | Prisma.SortOrder
   address?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -211,7 +211,7 @@ export type ClientWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.ClientWhereInput[]
   NOT?: Prisma.ClientWhereInput | Prisma.ClientWhereInput[]
   name?: Prisma.StringFilter<"Client"> | string
-  document?: Prisma.StringFilter<"Client"> | string
+  document?: Prisma.StringNullableFilter<"Client"> | string | null
   address?: Prisma.StringFilter<"Client"> | string
   createdAt?: Prisma.DateTimeFilter<"Client"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Client"> | Date | string
@@ -222,7 +222,7 @@ export type ClientWhereUniqueInput = Prisma.AtLeast<{
 export type ClientOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
-  document?: Prisma.SortOrder
+  document?: Prisma.SortOrderInput | Prisma.SortOrder
   address?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -237,7 +237,7 @@ export type ClientScalarWhereWithAggregatesInput = {
   NOT?: Prisma.ClientScalarWhereWithAggregatesInput | Prisma.ClientScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Client"> | string
   name?: Prisma.StringWithAggregatesFilter<"Client"> | string
-  document?: Prisma.StringWithAggregatesFilter<"Client"> | string
+  document?: Prisma.StringNullableWithAggregatesFilter<"Client"> | string | null
   address?: Prisma.StringWithAggregatesFilter<"Client"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Client"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Client"> | Date | string
@@ -246,7 +246,7 @@ export type ClientScalarWhereWithAggregatesInput = {
 export type ClientCreateInput = {
   id?: string
   name: string
-  document: string
+  document?: string | null
   address: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -257,7 +257,7 @@ export type ClientCreateInput = {
 export type ClientUncheckedCreateInput = {
   id?: string
   name: string
-  document: string
+  document?: string | null
   address: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -268,7 +268,7 @@ export type ClientUncheckedCreateInput = {
 export type ClientUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  document?: Prisma.StringFieldUpdateOperationsInput | string
+  document?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -279,7 +279,7 @@ export type ClientUpdateInput = {
 export type ClientUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  document?: Prisma.StringFieldUpdateOperationsInput | string
+  document?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -290,7 +290,7 @@ export type ClientUncheckedUpdateInput = {
 export type ClientCreateManyInput = {
   id?: string
   name: string
-  document: string
+  document?: string | null
   address: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -299,7 +299,7 @@ export type ClientCreateManyInput = {
 export type ClientUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  document?: Prisma.StringFieldUpdateOperationsInput | string
+  document?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -308,7 +308,7 @@ export type ClientUpdateManyMutationInput = {
 export type ClientUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  document?: Prisma.StringFieldUpdateOperationsInput | string
+  document?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -346,6 +346,10 @@ export type ClientScalarRelationFilter = {
   isNot?: Prisma.ClientWhereInput
 }
 
+export type NullableStringFieldUpdateOperationsInput = {
+  set?: string | null
+}
+
 export type ClientCreateNestedOneWithoutContactsInput = {
   create?: Prisma.XOR<Prisma.ClientCreateWithoutContactsInput, Prisma.ClientUncheckedCreateWithoutContactsInput>
   connectOrCreate?: Prisma.ClientCreateOrConnectWithoutContactsInput
@@ -377,7 +381,7 @@ export type ClientUpdateOneRequiredWithoutEquipmentsNestedInput = {
 export type ClientCreateWithoutContactsInput = {
   id?: string
   name: string
-  document: string
+  document?: string | null
   address: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -387,7 +391,7 @@ export type ClientCreateWithoutContactsInput = {
 export type ClientUncheckedCreateWithoutContactsInput = {
   id?: string
   name: string
-  document: string
+  document?: string | null
   address: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -413,7 +417,7 @@ export type ClientUpdateToOneWithWhereWithoutContactsInput = {
 export type ClientUpdateWithoutContactsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  document?: Prisma.StringFieldUpdateOperationsInput | string
+  document?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -423,7 +427,7 @@ export type ClientUpdateWithoutContactsInput = {
 export type ClientUncheckedUpdateWithoutContactsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  document?: Prisma.StringFieldUpdateOperationsInput | string
+  document?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -433,7 +437,7 @@ export type ClientUncheckedUpdateWithoutContactsInput = {
 export type ClientCreateWithoutEquipmentsInput = {
   id?: string
   name: string
-  document: string
+  document?: string | null
   address: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -443,7 +447,7 @@ export type ClientCreateWithoutEquipmentsInput = {
 export type ClientUncheckedCreateWithoutEquipmentsInput = {
   id?: string
   name: string
-  document: string
+  document?: string | null
   address: string
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -469,7 +473,7 @@ export type ClientUpdateToOneWithWhereWithoutEquipmentsInput = {
 export type ClientUpdateWithoutEquipmentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  document?: Prisma.StringFieldUpdateOperationsInput | string
+  document?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -479,7 +483,7 @@ export type ClientUpdateWithoutEquipmentsInput = {
 export type ClientUncheckedUpdateWithoutEquipmentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  document?: Prisma.StringFieldUpdateOperationsInput | string
+  document?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   address?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -583,7 +587,7 @@ export type $ClientPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     name: string
-    document: string
+    document: string | null
     address: string
     createdAt: Date
     updatedAt: Date

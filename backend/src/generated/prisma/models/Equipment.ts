@@ -447,10 +447,6 @@ export type EquipmentUncheckedUpdateManyWithoutClientNestedInput = {
   deleteMany?: Prisma.EquipmentScalarWhereInput | Prisma.EquipmentScalarWhereInput[]
 }
 
-export type NullableStringFieldUpdateOperationsInput = {
-  set?: string | null
-}
-
 export type EquipmentCreateWithoutClientInput = {
   id?: string
   type: string

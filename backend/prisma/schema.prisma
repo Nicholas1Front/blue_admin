@@ -19,7 +19,7 @@ model User {
 model Client {
   id         String          @id @default(uuid())
   name       String
-  document   String          @db.VarChar(14)
+  document   String?          @db.VarChar(14)
   address    String
   createdAt  DateTime        @default(now())
   updatedAt  DateTime        @updatedAt
