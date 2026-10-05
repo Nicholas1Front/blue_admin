@@ -16,9 +16,9 @@ class EquipamentsRepository{
         clientId : string,
         type : string,
         brand : string,
-        model : any,
-        mainIdentification : any,
-        additionalIdentification : any
+        model : string | null,
+        mainIdentification : string | null,
+        additionalIdentification : string | null
     ){
         const equipament = await prisma.equipament.create({
             data : {
@@ -36,7 +36,14 @@ class EquipamentsRepository{
 
     async updateEquipament(
         id : string,
-        data : any
+        data : {
+            clientId?: string;
+            type?: string;
+            brand?: string;
+            model?: string | null;
+            mainIdentification?: string | null;
+            additionalIdentification?: string | null;
+        }
     ){
         const equipament = await prisma.equipament.update({
             where : {
@@ -56,17 +63,57 @@ class EquipamentsRepository{
     }
 
     async findEquipamentsByFilters(
-        filters : any
+        filters : {
+            id?: string;
+            clientId?: string;
+            type?: string;
+            brand?: string;
+            model?: string;
+            mainIdentification?: string;
+            additionalIdentification?: string;
+        }
     ){
         const equipaments = await prisma.equipament.findMany({
             where : {
-                id : filters.id,
-                clientId : filters.clientId,
-                type : filters.type,
-                brand : filters.brand,
-                model : filters.model,
-                mainIdentification : filters.mainIdentification,
-                additionalIdentification : filters.additionalIdentification
+                ...(filters.id !== undefined && {
+                    id : filters.id
+                }),
+                ...(filters.clientId !== undefined && {
+                    clientId : filters.clientId
+                }),
+                ...(filters.type !== undefined && {
+                    type : {
+                        contains : filters.type,
+                        mode : 'insensitive'
+                    }
+                }),
+                ...(filters.brand !== undefined && {
+                    brand : {
+                        contains : filters.brand,
+                        mode : 'insensitive'
+                    }
+                }),
+                ...(filters.model !== undefined && {
+                    model : {
+                        contains : filters.model,
+                        mode : 'insensitive'
+                    }
+                }),
+                ...(filters.mainIdentification !== undefined && {
+                    mainIdentification : {
+                        contains : filters.mainIdentification,
+                        mode : 'insensitive'
+                    }
+                }),
+                ...(filters.additionalIdentification !== undefined && {
+                    additionalIdentification : {
+                        contains : filters.additionalIdentification,
+                        mode : 'insensitive'
+                    }
+                })
+            },
+            orderBy : {
+                brand : 'asc'
             }
         })
 
