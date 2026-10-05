@@ -400,7 +400,7 @@ export const ModelName = {
   User: 'User',
   Client: 'Client',
   ClientContact: 'ClientContact',
-  Equipment: 'Equipment'
+  Equipament: 'Equipament'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -416,7 +416,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "client" | "clientContact" | "equipment"
+    modelProps: "user" | "client" | "clientContact" | "equipament"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -642,77 +642,77 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    Equipment: {
-      payload: Prisma.$EquipmentPayload<ExtArgs>
-      fields: Prisma.EquipmentFieldRefs
+    Equipament: {
+      payload: Prisma.$EquipamentPayload<ExtArgs>
+      fields: Prisma.EquipamentFieldRefs
       operations: {
         findUnique: {
-          args: Prisma.EquipmentFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$EquipmentPayload> | null
+          args: Prisma.EquipamentFindUniqueArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EquipamentPayload> | null
         }
         findUniqueOrThrow: {
-          args: Prisma.EquipmentFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$EquipmentPayload>
+          args: Prisma.EquipamentFindUniqueOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EquipamentPayload>
         }
         findFirst: {
-          args: Prisma.EquipmentFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$EquipmentPayload> | null
+          args: Prisma.EquipamentFindFirstArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EquipamentPayload> | null
         }
         findFirstOrThrow: {
-          args: Prisma.EquipmentFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$EquipmentPayload>
+          args: Prisma.EquipamentFindFirstOrThrowArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EquipamentPayload>
         }
         findMany: {
-          args: Prisma.EquipmentFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$EquipmentPayload>[]
+          args: Prisma.EquipamentFindManyArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EquipamentPayload>[]
         }
         create: {
-          args: Prisma.EquipmentCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$EquipmentPayload>
+          args: Prisma.EquipamentCreateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EquipamentPayload>
         }
         createMany: {
-          args: Prisma.EquipmentCreateManyArgs<ExtArgs>
+          args: Prisma.EquipamentCreateManyArgs<ExtArgs>
           result: BatchPayload
         }
         createManyAndReturn: {
-          args: Prisma.EquipmentCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$EquipmentPayload>[]
+          args: Prisma.EquipamentCreateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EquipamentPayload>[]
         }
         delete: {
-          args: Prisma.EquipmentDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$EquipmentPayload>
+          args: Prisma.EquipamentDeleteArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EquipamentPayload>
         }
         update: {
-          args: Prisma.EquipmentUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$EquipmentPayload>
+          args: Prisma.EquipamentUpdateArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EquipamentPayload>
         }
         deleteMany: {
-          args: Prisma.EquipmentDeleteManyArgs<ExtArgs>
+          args: Prisma.EquipamentDeleteManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateMany: {
-          args: Prisma.EquipmentUpdateManyArgs<ExtArgs>
+          args: Prisma.EquipamentUpdateManyArgs<ExtArgs>
           result: BatchPayload
         }
         updateManyAndReturn: {
-          args: Prisma.EquipmentUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$EquipmentPayload>[]
+          args: Prisma.EquipamentUpdateManyAndReturnArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EquipamentPayload>[]
         }
         upsert: {
-          args: Prisma.EquipmentUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$EquipmentPayload>
+          args: Prisma.EquipamentUpsertArgs<ExtArgs>
+          result: runtime.Types.Utils.PayloadToResult<Prisma.$EquipamentPayload>
         }
         aggregate: {
-          args: Prisma.EquipmentAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateEquipment>
+          args: Prisma.EquipamentAggregateArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.AggregateEquipament>
         }
         groupBy: {
-          args: Prisma.EquipmentGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.EquipmentGroupByOutputType>[]
+          args: Prisma.EquipamentGroupByArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EquipamentGroupByOutputType>[]
         }
         count: {
-          args: Prisma.EquipmentCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.EquipmentCountAggregateOutputType> | number
+          args: Prisma.EquipamentCountArgs<ExtArgs>
+          result: runtime.Types.Utils.Optional<Prisma.EquipamentCountAggregateOutputType> | number
         }
       }
     }
@@ -790,7 +790,7 @@ export const ClientContactScalarFieldEnum = {
 export type ClientContactScalarFieldEnum = (typeof ClientContactScalarFieldEnum)[keyof typeof ClientContactScalarFieldEnum]
 
 
-export const EquipmentScalarFieldEnum = {
+export const EquipamentScalarFieldEnum = {
   id: 'id',
   clientId: 'clientId',
   type: 'type',
@@ -802,7 +802,7 @@ export const EquipmentScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type EquipmentScalarFieldEnum = (typeof EquipmentScalarFieldEnum)[keyof typeof EquipmentScalarFieldEnum]
+export type EquipamentScalarFieldEnum = (typeof EquipamentScalarFieldEnum)[keyof typeof EquipamentScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1030,7 +1030,7 @@ export type GlobalOmitConfig = {
   user?: Prisma.UserOmit
   client?: Prisma.ClientOmit
   clientContact?: Prisma.ClientContactOmit
-  equipment?: Prisma.EquipmentOmit
+  equipament?: Prisma.EquipamentOmit
 }
 
 /* Types for Logging */

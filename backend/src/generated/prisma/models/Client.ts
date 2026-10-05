@@ -191,7 +191,7 @@ export type ClientWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Client"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Client"> | Date | string
   contacts?: Prisma.ClientContactListRelationFilter
-  equipments?: Prisma.EquipmentListRelationFilter
+  equipaments?: Prisma.EquipamentListRelationFilter
 }
 
 export type ClientOrderByWithRelationInput = {
@@ -202,7 +202,7 @@ export type ClientOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   contacts?: Prisma.ClientContactOrderByRelationAggregateInput
-  equipments?: Prisma.EquipmentOrderByRelationAggregateInput
+  equipaments?: Prisma.EquipamentOrderByRelationAggregateInput
 }
 
 export type ClientWhereUniqueInput = Prisma.AtLeast<{
@@ -216,7 +216,7 @@ export type ClientWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"Client"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Client"> | Date | string
   contacts?: Prisma.ClientContactListRelationFilter
-  equipments?: Prisma.EquipmentListRelationFilter
+  equipaments?: Prisma.EquipamentListRelationFilter
 }, "id">
 
 export type ClientOrderByWithAggregationInput = {
@@ -251,7 +251,7 @@ export type ClientCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   contacts?: Prisma.ClientContactCreateNestedManyWithoutClientInput
-  equipments?: Prisma.EquipmentCreateNestedManyWithoutClientInput
+  equipaments?: Prisma.EquipamentCreateNestedManyWithoutClientInput
 }
 
 export type ClientUncheckedCreateInput = {
@@ -262,7 +262,7 @@ export type ClientUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   contacts?: Prisma.ClientContactUncheckedCreateNestedManyWithoutClientInput
-  equipments?: Prisma.EquipmentUncheckedCreateNestedManyWithoutClientInput
+  equipaments?: Prisma.EquipamentUncheckedCreateNestedManyWithoutClientInput
 }
 
 export type ClientUpdateInput = {
@@ -273,7 +273,7 @@ export type ClientUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   contacts?: Prisma.ClientContactUpdateManyWithoutClientNestedInput
-  equipments?: Prisma.EquipmentUpdateManyWithoutClientNestedInput
+  equipaments?: Prisma.EquipamentUpdateManyWithoutClientNestedInput
 }
 
 export type ClientUncheckedUpdateInput = {
@@ -284,7 +284,7 @@ export type ClientUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   contacts?: Prisma.ClientContactUncheckedUpdateManyWithoutClientNestedInput
-  equipments?: Prisma.EquipmentUncheckedUpdateManyWithoutClientNestedInput
+  equipaments?: Prisma.EquipamentUncheckedUpdateManyWithoutClientNestedInput
 }
 
 export type ClientCreateManyInput = {
@@ -364,18 +364,18 @@ export type ClientUpdateOneRequiredWithoutContactsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ClientUpdateToOneWithWhereWithoutContactsInput, Prisma.ClientUpdateWithoutContactsInput>, Prisma.ClientUncheckedUpdateWithoutContactsInput>
 }
 
-export type ClientCreateNestedOneWithoutEquipmentsInput = {
-  create?: Prisma.XOR<Prisma.ClientCreateWithoutEquipmentsInput, Prisma.ClientUncheckedCreateWithoutEquipmentsInput>
-  connectOrCreate?: Prisma.ClientCreateOrConnectWithoutEquipmentsInput
+export type ClientCreateNestedOneWithoutEquipamentsInput = {
+  create?: Prisma.XOR<Prisma.ClientCreateWithoutEquipamentsInput, Prisma.ClientUncheckedCreateWithoutEquipamentsInput>
+  connectOrCreate?: Prisma.ClientCreateOrConnectWithoutEquipamentsInput
   connect?: Prisma.ClientWhereUniqueInput
 }
 
-export type ClientUpdateOneRequiredWithoutEquipmentsNestedInput = {
-  create?: Prisma.XOR<Prisma.ClientCreateWithoutEquipmentsInput, Prisma.ClientUncheckedCreateWithoutEquipmentsInput>
-  connectOrCreate?: Prisma.ClientCreateOrConnectWithoutEquipmentsInput
-  upsert?: Prisma.ClientUpsertWithoutEquipmentsInput
+export type ClientUpdateOneRequiredWithoutEquipamentsNestedInput = {
+  create?: Prisma.XOR<Prisma.ClientCreateWithoutEquipamentsInput, Prisma.ClientUncheckedCreateWithoutEquipamentsInput>
+  connectOrCreate?: Prisma.ClientCreateOrConnectWithoutEquipamentsInput
+  upsert?: Prisma.ClientUpsertWithoutEquipamentsInput
   connect?: Prisma.ClientWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.ClientUpdateToOneWithWhereWithoutEquipmentsInput, Prisma.ClientUpdateWithoutEquipmentsInput>, Prisma.ClientUncheckedUpdateWithoutEquipmentsInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.ClientUpdateToOneWithWhereWithoutEquipamentsInput, Prisma.ClientUpdateWithoutEquipamentsInput>, Prisma.ClientUncheckedUpdateWithoutEquipamentsInput>
 }
 
 export type ClientCreateWithoutContactsInput = {
@@ -385,7 +385,7 @@ export type ClientCreateWithoutContactsInput = {
   address: string
   createdAt?: Date | string
   updatedAt?: Date | string
-  equipments?: Prisma.EquipmentCreateNestedManyWithoutClientInput
+  equipaments?: Prisma.EquipamentCreateNestedManyWithoutClientInput
 }
 
 export type ClientUncheckedCreateWithoutContactsInput = {
@@ -395,7 +395,7 @@ export type ClientUncheckedCreateWithoutContactsInput = {
   address: string
   createdAt?: Date | string
   updatedAt?: Date | string
-  equipments?: Prisma.EquipmentUncheckedCreateNestedManyWithoutClientInput
+  equipaments?: Prisma.EquipamentUncheckedCreateNestedManyWithoutClientInput
 }
 
 export type ClientCreateOrConnectWithoutContactsInput = {
@@ -421,7 +421,7 @@ export type ClientUpdateWithoutContactsInput = {
   address?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  equipments?: Prisma.EquipmentUpdateManyWithoutClientNestedInput
+  equipaments?: Prisma.EquipamentUpdateManyWithoutClientNestedInput
 }
 
 export type ClientUncheckedUpdateWithoutContactsInput = {
@@ -431,10 +431,10 @@ export type ClientUncheckedUpdateWithoutContactsInput = {
   address?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  equipments?: Prisma.EquipmentUncheckedUpdateManyWithoutClientNestedInput
+  equipaments?: Prisma.EquipamentUncheckedUpdateManyWithoutClientNestedInput
 }
 
-export type ClientCreateWithoutEquipmentsInput = {
+export type ClientCreateWithoutEquipamentsInput = {
   id?: string
   name: string
   document?: string | null
@@ -444,7 +444,7 @@ export type ClientCreateWithoutEquipmentsInput = {
   contacts?: Prisma.ClientContactCreateNestedManyWithoutClientInput
 }
 
-export type ClientUncheckedCreateWithoutEquipmentsInput = {
+export type ClientUncheckedCreateWithoutEquipamentsInput = {
   id?: string
   name: string
   document?: string | null
@@ -454,23 +454,23 @@ export type ClientUncheckedCreateWithoutEquipmentsInput = {
   contacts?: Prisma.ClientContactUncheckedCreateNestedManyWithoutClientInput
 }
 
-export type ClientCreateOrConnectWithoutEquipmentsInput = {
+export type ClientCreateOrConnectWithoutEquipamentsInput = {
   where: Prisma.ClientWhereUniqueInput
-  create: Prisma.XOR<Prisma.ClientCreateWithoutEquipmentsInput, Prisma.ClientUncheckedCreateWithoutEquipmentsInput>
+  create: Prisma.XOR<Prisma.ClientCreateWithoutEquipamentsInput, Prisma.ClientUncheckedCreateWithoutEquipamentsInput>
 }
 
-export type ClientUpsertWithoutEquipmentsInput = {
-  update: Prisma.XOR<Prisma.ClientUpdateWithoutEquipmentsInput, Prisma.ClientUncheckedUpdateWithoutEquipmentsInput>
-  create: Prisma.XOR<Prisma.ClientCreateWithoutEquipmentsInput, Prisma.ClientUncheckedCreateWithoutEquipmentsInput>
+export type ClientUpsertWithoutEquipamentsInput = {
+  update: Prisma.XOR<Prisma.ClientUpdateWithoutEquipamentsInput, Prisma.ClientUncheckedUpdateWithoutEquipamentsInput>
+  create: Prisma.XOR<Prisma.ClientCreateWithoutEquipamentsInput, Prisma.ClientUncheckedCreateWithoutEquipamentsInput>
   where?: Prisma.ClientWhereInput
 }
 
-export type ClientUpdateToOneWithWhereWithoutEquipmentsInput = {
+export type ClientUpdateToOneWithWhereWithoutEquipamentsInput = {
   where?: Prisma.ClientWhereInput
-  data: Prisma.XOR<Prisma.ClientUpdateWithoutEquipmentsInput, Prisma.ClientUncheckedUpdateWithoutEquipmentsInput>
+  data: Prisma.XOR<Prisma.ClientUpdateWithoutEquipamentsInput, Prisma.ClientUncheckedUpdateWithoutEquipamentsInput>
 }
 
-export type ClientUpdateWithoutEquipmentsInput = {
+export type ClientUpdateWithoutEquipamentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   document?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -480,7 +480,7 @@ export type ClientUpdateWithoutEquipmentsInput = {
   contacts?: Prisma.ClientContactUpdateManyWithoutClientNestedInput
 }
 
-export type ClientUncheckedUpdateWithoutEquipmentsInput = {
+export type ClientUncheckedUpdateWithoutEquipamentsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   document?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -497,12 +497,12 @@ export type ClientUncheckedUpdateWithoutEquipmentsInput = {
 
 export type ClientCountOutputType = {
   contacts: number
-  equipments: number
+  equipaments: number
 }
 
 export type ClientCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   contacts?: boolean | ClientCountOutputTypeCountContactsArgs
-  equipments?: boolean | ClientCountOutputTypeCountEquipmentsArgs
+  equipaments?: boolean | ClientCountOutputTypeCountEquipamentsArgs
 }
 
 /**
@@ -525,8 +525,8 @@ export type ClientCountOutputTypeCountContactsArgs<ExtArgs extends runtime.Types
 /**
  * ClientCountOutputType without action
  */
-export type ClientCountOutputTypeCountEquipmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.EquipmentWhereInput
+export type ClientCountOutputTypeCountEquipamentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.EquipamentWhereInput
 }
 
 
@@ -538,7 +538,7 @@ export type ClientSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs =
   createdAt?: boolean
   updatedAt?: boolean
   contacts?: boolean | Prisma.Client$contactsArgs<ExtArgs>
-  equipments?: boolean | Prisma.Client$equipmentsArgs<ExtArgs>
+  equipaments?: boolean | Prisma.Client$equipamentsArgs<ExtArgs>
   _count?: boolean | Prisma.ClientCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["client"]>
 
@@ -572,7 +572,7 @@ export type ClientSelectScalar = {
 export type ClientOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "document" | "address" | "createdAt" | "updatedAt", ExtArgs["result"]["client"]>
 export type ClientInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   contacts?: boolean | Prisma.Client$contactsArgs<ExtArgs>
-  equipments?: boolean | Prisma.Client$equipmentsArgs<ExtArgs>
+  equipaments?: boolean | Prisma.Client$equipamentsArgs<ExtArgs>
   _count?: boolean | Prisma.ClientCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ClientIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -582,7 +582,7 @@ export type $ClientPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs
   name: "Client"
   objects: {
     contacts: Prisma.$ClientContactPayload<ExtArgs>[]
-    equipments: Prisma.$EquipmentPayload<ExtArgs>[]
+    equipaments: Prisma.$EquipamentPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -986,7 +986,7 @@ readonly fields: ClientFieldRefs;
 export interface Prisma__ClientClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   contacts<T extends Prisma.Client$contactsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Client$contactsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ClientContactPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  equipments<T extends Prisma.Client$equipmentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Client$equipmentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EquipmentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  equipaments<T extends Prisma.Client$equipamentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Client$equipamentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EquipamentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1439,27 +1439,27 @@ export type Client$contactsArgs<ExtArgs extends runtime.Types.Extensions.Interna
 }
 
 /**
- * Client.equipments
+ * Client.equipaments
  */
-export type Client$equipmentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Client$equipamentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the Equipment
+   * Select specific fields to fetch from the Equipament
    */
-  select?: Prisma.EquipmentSelect<ExtArgs> | null
+  select?: Prisma.EquipamentSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the Equipment
+   * Omit specific fields from the Equipament
    */
-  omit?: Prisma.EquipmentOmit<ExtArgs> | null
+  omit?: Prisma.EquipamentOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.EquipmentInclude<ExtArgs> | null
-  where?: Prisma.EquipmentWhereInput
-  orderBy?: Prisma.EquipmentOrderByWithRelationInput | Prisma.EquipmentOrderByWithRelationInput[]
-  cursor?: Prisma.EquipmentWhereUniqueInput
+  include?: Prisma.EquipamentInclude<ExtArgs> | null
+  where?: Prisma.EquipamentWhereInput
+  orderBy?: Prisma.EquipamentOrderByWithRelationInput | Prisma.EquipamentOrderByWithRelationInput[]
+  cursor?: Prisma.EquipamentWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.EquipmentScalarFieldEnum | Prisma.EquipmentScalarFieldEnum[]
+  distinct?: Prisma.EquipamentScalarFieldEnum | Prisma.EquipamentScalarFieldEnum[]
 }
 
 /**

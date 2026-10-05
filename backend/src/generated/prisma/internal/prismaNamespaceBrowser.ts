@@ -54,7 +54,7 @@ export const ModelName = {
   User: 'User',
   Client: 'Client',
   ClientContact: 'ClientContact',
-  Equipment: 'Equipment'
+  Equipament: 'Equipament'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -108,7 +108,7 @@ export const ClientContactScalarFieldEnum = {
 export type ClientContactScalarFieldEnum = (typeof ClientContactScalarFieldEnum)[keyof typeof ClientContactScalarFieldEnum]
 
 
-export const EquipmentScalarFieldEnum = {
+export const EquipamentScalarFieldEnum = {
   id: 'id',
   clientId: 'clientId',
   type: 'type',
@@ -120,7 +120,7 @@ export const EquipmentScalarFieldEnum = {
   updatedAt: 'updatedAt'
 } as const
 
-export type EquipmentScalarFieldEnum = (typeof EquipmentScalarFieldEnum)[keyof typeof EquipmentScalarFieldEnum]
+export type EquipamentScalarFieldEnum = (typeof EquipamentScalarFieldEnum)[keyof typeof EquipamentScalarFieldEnum]
 
 
 export const SortOrder = {

@@ -33,7 +33,7 @@ export type Client = Prisma.ClientModel
  */
 export type ClientContact = Prisma.ClientContactModel
 /**
- * Model Equipment
+ * Model Equipament
  * 
  */
-export type Equipment = Prisma.EquipmentModel
+export type Equipament = Prisma.EquipamentModel
