@@ -37,33 +37,40 @@ class ClientsContactsRepository{
     }
 
     async findContactsByFilters(
-        filters : any
+        clientId : string | undefined,
+        name : string | undefined,
+        email : string | undefined,
+        phoneNumber : string | undefined
     ){
         const contacts = await prisma.clientContact.findMany({
             where : {
-                id : {
-                    contains : filters.id,
-                    mode : "insensitive"
-                },
-                clientId : {
-                    contains : filters.clientId,
-                    mode : "insensitive"
-                },
-                name : {
-                    contains : filters.name,
-                    mode : "insensitive"
-                },
-                email : {
-                    contains : filters.email,
-                    mode : "insensitive"
-                },
-                phoneNumber : {
-                    contains : filters.phoneNumber,
-                    mode : "insensitive"
-                },
+                ...(clientId !== undefined && {
+                    clientId : {
+                        contains : clientId,
+                        mode : 'insensitive'
+                    }
+                }),
+                ...(name !== undefined && {
+                    name : {
+                        contains : name,
+                        mode : 'insensitive'
+                    }
+                }),
+                ...(email !== undefined && {
+                    email : {
+                        contains : email,
+                        mode : 'insensitive'
+                    }
+                }),
+                ...(phoneNumber !== undefined && {
+                    phoneNumber : {
+                        contains : phoneNumber,
+                        mode : 'insensitive'
+                    }
+                })
             },
             orderBy : {
-                name : "asc"
+                name : 'asc'
             }
         })
 
