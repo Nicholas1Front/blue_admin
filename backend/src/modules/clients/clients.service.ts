@@ -14,8 +14,10 @@ class ClientsService {
     async createClient(
         data : createClientDTO
     ){
-        if(data.document !== undefined){
-            if(data.document.length > 14 || data.document.length < 11){
+        const cleanedData = removeUndefined(data)
+
+        if(cleanedData.document !== null){
+            if(cleanedData.document.length > 14 || cleanedData.document.length < 11){
                 throw new AppError(
                     'Document must be between 11 and 14 characters',
                     400,
@@ -25,9 +27,9 @@ class ClientsService {
         }
 
         const client = await clientsRepository.createClient(
-            data.name,
-            data.document,
-            data.address
+            cleanedData.name,
+            cleanedData.document,
+            cleanedData.address
         )
 
         if(!client){
@@ -55,8 +57,10 @@ class ClientsService {
             )
         }
 
-        if(data.document !== undefined){
-            if(data.document.length > 14 || data.document.length < 11){
+        const cleanedData = removeUndefined(data)
+
+        if(cleanedData.document !== undefined){
+            if(cleanedData.document.length > 14 || cleanedData.document.length < 11){
                 throw new AppError(
                     'Document must be between 11 and 14 characters',
                     400,
@@ -64,8 +68,6 @@ class ClientsService {
                 )
             }
         }
-
-        const cleanedData = removeUndefined(data);
 
         const updatedClient = await clientsRepository.updateClient(
             id,

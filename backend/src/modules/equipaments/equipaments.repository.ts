@@ -1,5 +1,4 @@
 import {prisma} from '../../shared/database/prisma.js';
-import type { Prisma } from '../../generated/prisma/client.js';
 
 class EquipamentsRepository{
 
@@ -31,7 +30,7 @@ class EquipamentsRepository{
 
     async updateEquipament(
         id : string,
-        data : Prisma.EquipamentUpdateInput
+        data : any
     ){
         return prisma.equipament.update({
             where : { id },
@@ -40,14 +39,45 @@ class EquipamentsRepository{
     }
 
     async findEquipamentsByFilters(
-        filters : Prisma.EquipamentWhereInput
+        filters : any
     ){
-        return prisma.equipament.findMany({
-            where : filters,
+        const equipaments = await prisma.equipament.findMany({
+            where : {
+                id : {
+                    contains : filters.id,
+                    mode : "insensitive"
+                },
+                clientId : {
+                    contains : filters.clientId,
+                    mode : 'insensitive'
+                },
+                type : {
+                    contains : filters.type,
+                    mode : "insensitive"
+                },
+                brand : {
+                    contains : filters.brand,
+                    mode : "insensitive"
+                },
+                model : {
+                    contains : filters.model,
+                    mode : "insensitive"
+                },
+                mainIdentification : {
+                    contains : filters.mainIdentification,
+                    mode : "insensitive"
+                },
+                additionalIdentification : {
+                    contains : filters.additionalIdentification,
+                    mode : "insensitive"
+                },
+            },
             orderBy : {
-                brand : 'asc'
+                createdAt : 'asc'
             }
         })
+
+        return equipaments
     }
 
     async findEquipamentById(id : string){

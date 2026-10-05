@@ -1,5 +1,4 @@
 import {prisma} from '../../../shared/database/prisma.js';
-import type { Prisma } from '../../../generated/prisma/client.js';
 
 class ClientsContactsRepository{
 
@@ -29,7 +28,7 @@ class ClientsContactsRepository{
 
     async updateContact(
         id : string,
-        data : Prisma.ClientContactUpdateInput
+        data : any
     ){
         return prisma.clientContact.update({
             where : { id },
@@ -38,14 +37,37 @@ class ClientsContactsRepository{
     }
 
     async findContactsByFilters(
-        filters : Prisma.ClientContactWhereInput
+        filters : any
     ){
-        return prisma.clientContact.findMany({
-            where : filters,
+        const contacts = await prisma.clientContact.findMany({
+            where : {
+                id : {
+                    contains : filters.id,
+                    mode : "insensitive"
+                },
+                clientId : {
+                    contains : filters.clientId,
+                    mode : "insensitive"
+                },
+                name : {
+                    contains : filters.name,
+                    mode : "insensitive"
+                },
+                email : {
+                    contains : filters.email,
+                    mode : "insensitive"
+                },
+                phoneNumber : {
+                    contains : filters.phoneNumber,
+                    mode : "insensitive"
+                },
+            },
             orderBy : {
-                name : 'asc'
+                name : "asc"
             }
         })
+
+        return contacts
     }
 
     async findContactById(id : string){

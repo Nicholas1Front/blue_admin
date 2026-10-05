@@ -1,24 +1,23 @@
 import {prisma} from '../../shared/database/prisma.js';
-import type { Prisma } from '../../generated/prisma/client.js';
 
 class ClientsRepository {
     async createClient(
         name : string,
-        document : string | undefined,
+        document : string | null,
         address : string,
     ){
         return prisma.client.create({
             data : {
                 name,
                 address,
-                ...(document !== undefined && { document })
+                document
             }
         })
     }
 
     async updateClient(
         id : string,
-        data : Prisma.ClientUpdateInput
+        data : any
     ){
         return prisma.client.update({
             where : { id },
@@ -33,14 +32,26 @@ class ClientsRepository {
     }
 
     async findClientsByFilters(
-        filters : Prisma.ClientWhereInput
+        filters : any
     ){
-        return prisma.client.findMany({
-            where : filters,
-            orderBy : {
-                name : 'asc'
+        const clients = await prisma.client.findMany({
+            where : {
+                name : {
+                    contains : filters.name,
+                    mode : 'insensitive'
+                },
+                address : {
+                    contains : filters.address,
+                    mode : 'insensitive'
+                },
+                document : {
+                    contains : filters.document,
+                    mode : 'insensitive'
+                }
             }
         })
+
+        return clients
     }
 
     async findAllClients(){
