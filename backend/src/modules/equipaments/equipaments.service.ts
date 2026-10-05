@@ -76,7 +76,15 @@ class EquipamentsService{
 
         const cleanedFilters = removeUndefined(filters)
 
-        const equipaments = await equipamentsRepository.findEquipamentsByFilters(cleanedFilters);
+        const equipaments = await equipamentsRepository.findEquipamentsByFilters(
+            cleanedFilters.id,
+            cleanedFilters.clientId,
+            cleanedFilters.type,
+            cleanedFilters.brand,
+            cleanedFilters.model,
+            cleanedFilters.mainIdentification,
+            cleanedFilters.additionalIdentification
+        );
 
         if(!equipaments){
             throw new AppError('Internal server error', 500, 'INTERNAL_SERVER_ERROR');
