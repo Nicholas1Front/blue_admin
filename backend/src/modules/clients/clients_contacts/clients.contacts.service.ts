@@ -71,7 +71,12 @@ class ClientsContactsService{
         filters : findContactByFiltersDTO
     ){
         const cleanedFilters = removeUndefined(filters);
-        const contacts = await clientsContactsRepository.findContactsByFilters(cleanedFilters);
+        const contacts = await clientsContactsRepository.findContactsByFilters(
+            cleanedFilters.clientId,
+            cleanedFilters.name,
+            cleanedFilters.email,
+            cleanedFilters.phoneNumber
+        );
 
         if(!contacts){
             throw new AppError('Internal server error', 500, 'INTERNAL_SERVER_ERROR');
