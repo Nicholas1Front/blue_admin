@@ -37,6 +37,7 @@ class ClientsContactsRepository{
     }
 
     async findContactsByFilters(
+        id : string | undefined,
         clientId : string | undefined,
         name : string | undefined,
         email : string | undefined,
@@ -44,6 +45,12 @@ class ClientsContactsRepository{
     ){
         const contacts = await prisma.clientContact.findMany({
             where : {
+                ...(id !== undefined &&{
+                    id : {
+                        contains : id,
+                        mode : "insensitive"
+                    }
+                }),
                 ...(clientId !== undefined && {
                     clientId : {
                         contains : clientId,

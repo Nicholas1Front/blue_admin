@@ -72,6 +72,7 @@ class ClientsContactsService{
     ){
         const cleanedFilters = removeUndefined(filters);
         const contacts = await clientsContactsRepository.findContactsByFilters(
+            cleanedFilters.id,
             cleanedFilters.clientId,
             cleanedFilters.name,
             cleanedFilters.email,
