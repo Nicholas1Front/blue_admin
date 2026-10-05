@@ -1,4 +1,5 @@
 import {prisma} from '../../shared/database/prisma.js';
+import type { Prisma } from '../../generated/prisma/client.js';
 
 class ClientsRepository {
     async createClient(
@@ -6,97 +7,53 @@ class ClientsRepository {
         document : string | undefined,
         address : string,
     ){
-        const client = await prisma.client.create({
+        return prisma.client.create({
             data : {
                 name,
-                document,
-                address
+                address,
+                ...(document !== undefined && { document })
             }
         })
-
-        return client
     }
 
     async updateClient(
         id : string,
-        data : {
-            name?: string;
-            document?: string;
-            address?: string;
-        }
+        data : Prisma.ClientUpdateInput
     ){
-        const client = await prisma.client.update({
-            where : {
-                id
-            },
-            data : {
-                name : data.name,
-                document : data.document,
-                address : data.address
-            }
+        return prisma.client.update({
+            where : { id },
+            data
         })
-
-        return client
     }
 
     async findClientById(id : string){
-        const client = await prisma.client.findUnique({
-            where : {
-                id
-            }
+        return prisma.client.findUnique({
+            where : { id }
         })
-
-        return client
     }
 
     async findClientsByFilters(
-        filters : {
-            name?: string;
-            document?: string;
-            address?: string;
-        }
+        filters : Prisma.ClientWhereInput
     ){
-        const clients = await prisma.client.findMany({
-            where : {
-                ...(filters.name !== undefined && {
-                    name : {
-                        contains : filters.name,
-                        mode : 'insensitive'
-                    }
-                }),
-                ...(filters.document !== undefined && {
-                    document : filters.document
-                }),
-                ...(filters.address !== undefined && {
-                    address : {
-                        contains : filters.address,
-                        mode : 'insensitive'
-                    }
-                })
-            },
+        return prisma.client.findMany({
+            where : filters,
             orderBy : {
                 name : 'asc'
             }
         })
-
-        return clients
     }
 
     async findAllClients(){
-        const clients = await prisma.client.findMany({
+        return prisma.client.findMany({
             orderBy : {
                 name : 'asc'
             }
         })
-
-        return clients
     }
 
     async deleteClientById(id : string){
         await prisma.client.delete({
-            where : {
-                id
-            }
+            where : { id }
         })
 
         return true
