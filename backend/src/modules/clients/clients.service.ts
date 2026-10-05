@@ -92,7 +92,9 @@ class ClientsService {
         const cleanedFilters = removeUndefined(filters);
 
         const clients = await clientsRepository.findClientsByFilters(
-            cleanedFilters
+            cleanedFilters.name,
+            cleanedFilters.document,
+            cleanedFilters.address
         )
 
         if(!clients){
