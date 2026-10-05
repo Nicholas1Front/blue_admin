@@ -41,8 +41,8 @@ model Equipment {
   clientId               String   @map("client_id")
   type                   String
   brand                  String
-  model                  String
-  mainIdentification     String   @map("main_identification")
+  model                  String?
+  mainIdentification     String?  @map("main_identification")
   additionalIdentification String? @map("additional_identification")
   createdAt              DateTime @default(now())
   updatedAt              DateTime @updatedAt
