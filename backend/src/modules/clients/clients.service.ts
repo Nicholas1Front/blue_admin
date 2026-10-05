@@ -43,7 +43,7 @@ class ClientsService {
         id : string,
         data : updateClientDTO
     ){
-        let existingClient = await clientsRepository.findClientById(id)
+        const existingClient = await clientsRepository.findClientById(id)
 
         if(!existingClient){
             throw new AppError(
@@ -93,6 +93,8 @@ class ClientsService {
                 'FIND_CLIENTS_ERROR'
             )
         }
+
+        return clients
     }
 
     async findAllClients(){
