@@ -47,6 +47,7 @@ export interface UpdateContactRequest {
 }
 
 export interface FindContactsFilters {
+    id?: string;
     clientId?: string;
     name?: string;
     email?: string;
