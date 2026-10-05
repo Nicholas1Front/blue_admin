@@ -21,11 +21,13 @@ class ClientsContactsService{
             throw new AppError('Client not found', 404, 'CLIENT_NOT_FOUND');
         }
 
+        const cleanedData = removeUndefined(data);
+
         const contact = await clientsContactsRepository.createContact(
             clientId,
-            data.name,
-            data.email,
-            data.phoneNumber
+            cleanedData.name,
+            cleanedData.email,
+            cleanedData.phoneNumber
         )
 
         if(!contact){

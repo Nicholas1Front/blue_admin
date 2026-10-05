@@ -13,7 +13,7 @@ class ClientsContactsRepository{
     async createContact(
         clientId : string,
         name : string,
-        email : string,
+        email : string | null,
         phoneNumber : string
     ){
         return prisma.clientContact.create({
@@ -40,7 +40,7 @@ class ClientsContactsRepository{
         id : string | undefined,
         clientId : string | undefined,
         name : string | undefined,
-        email : string | undefined,
+        email : string | null | undefined,
         phoneNumber : string | undefined
     ){
         const contacts = await prisma.clientContact.findMany({
@@ -63,12 +63,16 @@ class ClientsContactsRepository{
                         mode : 'insensitive'
                     }
                 }),
-                ...(email !== undefined && {
-                    email : {
-                        contains : email,
-                        mode : 'insensitive'
-                    }
-                }),
+                ...(email !== undefined && (
+                    email === null
+                        ? { email : null }
+                        : {
+                            email : {
+                                contains : email,
+                                mode : 'insensitive'
+                            }
+                        }
+                )),
                 ...(phoneNumber !== undefined && {
                     phoneNumber : {
                         contains : phoneNumber,

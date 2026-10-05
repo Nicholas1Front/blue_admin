@@ -31,7 +31,7 @@ model ClientContact {
   id          String   @id @default(uuid())
   clientId    String   @map("client_id")
   name        String
-  email       String
+  email       String?
   phoneNumber String   @map("phone_number")
   client      Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
 }

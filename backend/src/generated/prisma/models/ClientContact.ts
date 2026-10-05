@@ -151,7 +151,7 @@ export type ClientContactGroupByOutputType = {
   id: string
   clientId: string
   name: string
-  email: string
+  email: string | null
   phoneNumber: string
   _count: ClientContactCountAggregateOutputType | null
   _min: ClientContactMinAggregateOutputType | null
@@ -180,7 +180,7 @@ export type ClientContactWhereInput = {
   id?: Prisma.StringFilter<"ClientContact"> | string
   clientId?: Prisma.StringFilter<"ClientContact"> | string
   name?: Prisma.StringFilter<"ClientContact"> | string
-  email?: Prisma.StringFilter<"ClientContact"> | string
+  email?: Prisma.StringNullableFilter<"ClientContact"> | string | null
   phoneNumber?: Prisma.StringFilter<"ClientContact"> | string
   client?: Prisma.XOR<Prisma.ClientScalarRelationFilter, Prisma.ClientWhereInput>
 }
@@ -189,7 +189,7 @@ export type ClientContactOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   clientId?: Prisma.SortOrder
   name?: Prisma.SortOrder
-  email?: Prisma.SortOrder
+  email?: Prisma.SortOrderInput | Prisma.SortOrder
   phoneNumber?: Prisma.SortOrder
   client?: Prisma.ClientOrderByWithRelationInput
 }
@@ -201,7 +201,7 @@ export type ClientContactWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.ClientContactWhereInput | Prisma.ClientContactWhereInput[]
   clientId?: Prisma.StringFilter<"ClientContact"> | string
   name?: Prisma.StringFilter<"ClientContact"> | string
-  email?: Prisma.StringFilter<"ClientContact"> | string
+  email?: Prisma.StringNullableFilter<"ClientContact"> | string | null
   phoneNumber?: Prisma.StringFilter<"ClientContact"> | string
   client?: Prisma.XOR<Prisma.ClientScalarRelationFilter, Prisma.ClientWhereInput>
 }, "id">
@@ -210,7 +210,7 @@ export type ClientContactOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   clientId?: Prisma.SortOrder
   name?: Prisma.SortOrder
-  email?: Prisma.SortOrder
+  email?: Prisma.SortOrderInput | Prisma.SortOrder
   phoneNumber?: Prisma.SortOrder
   _count?: Prisma.ClientContactCountOrderByAggregateInput
   _max?: Prisma.ClientContactMaxOrderByAggregateInput
@@ -224,14 +224,14 @@ export type ClientContactScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"ClientContact"> | string
   clientId?: Prisma.StringWithAggregatesFilter<"ClientContact"> | string
   name?: Prisma.StringWithAggregatesFilter<"ClientContact"> | string
-  email?: Prisma.StringWithAggregatesFilter<"ClientContact"> | string
+  email?: Prisma.StringNullableWithAggregatesFilter<"ClientContact"> | string | null
   phoneNumber?: Prisma.StringWithAggregatesFilter<"ClientContact"> | string
 }
 
 export type ClientContactCreateInput = {
   id?: string
   name: string
-  email: string
+  email?: string | null
   phoneNumber: string
   client: Prisma.ClientCreateNestedOneWithoutContactsInput
 }
@@ -240,14 +240,14 @@ export type ClientContactUncheckedCreateInput = {
   id?: string
   clientId: string
   name: string
-  email: string
+  email?: string | null
   phoneNumber: string
 }
 
 export type ClientContactUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
   client?: Prisma.ClientUpdateOneRequiredWithoutContactsNestedInput
 }
@@ -256,7 +256,7 @@ export type ClientContactUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   clientId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
@@ -264,14 +264,14 @@ export type ClientContactCreateManyInput = {
   id?: string
   clientId: string
   name: string
-  email: string
+  email?: string | null
   phoneNumber: string
 }
 
 export type ClientContactUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
@@ -279,7 +279,7 @@ export type ClientContactUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   clientId?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
@@ -362,14 +362,14 @@ export type ClientContactUncheckedUpdateManyWithoutClientNestedInput = {
 export type ClientContactCreateWithoutClientInput = {
   id?: string
   name: string
-  email: string
+  email?: string | null
   phoneNumber: string
 }
 
 export type ClientContactUncheckedCreateWithoutClientInput = {
   id?: string
   name: string
-  email: string
+  email?: string | null
   phoneNumber: string
 }
 
@@ -406,35 +406,35 @@ export type ClientContactScalarWhereInput = {
   id?: Prisma.StringFilter<"ClientContact"> | string
   clientId?: Prisma.StringFilter<"ClientContact"> | string
   name?: Prisma.StringFilter<"ClientContact"> | string
-  email?: Prisma.StringFilter<"ClientContact"> | string
+  email?: Prisma.StringNullableFilter<"ClientContact"> | string | null
   phoneNumber?: Prisma.StringFilter<"ClientContact"> | string
 }
 
 export type ClientContactCreateManyClientInput = {
   id?: string
   name: string
-  email: string
+  email?: string | null
   phoneNumber: string
 }
 
 export type ClientContactUpdateWithoutClientInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type ClientContactUncheckedUpdateWithoutClientInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
 export type ClientContactUncheckedUpdateManyWithoutClientInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
-  email?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   phoneNumber?: Prisma.StringFieldUpdateOperationsInput | string
 }
 
@@ -495,7 +495,7 @@ export type $ClientContactPayload<ExtArgs extends runtime.Types.Extensions.Inter
     id: string
     clientId: string
     name: string
-    email: string
+    email: string | null
     phoneNumber: string
   }, ExtArgs["result"]["clientContact"]>
   composites: {}
