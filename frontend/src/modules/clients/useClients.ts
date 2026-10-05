@@ -60,7 +60,7 @@ interface UseClientsReturn {
     searchClients: (filters: FindClientsFilters) => Promise<void>;
     clearClientSearch: () => void;
 
-    loadContacts: (clientId?: string) => Promise<void>;
+    loadContacts: (clientId: string) => Promise<void>;
     searchContacts: (filters: FindContactsFilters) => Promise<void>;
     clearContactSearch: () => void;
 
@@ -275,14 +275,12 @@ export function useClients(): UseClientsReturn {
     );
 
     const loadContacts = useCallback(
-        async (clientId?: string) => {
+        async (clientId: string) => {
             setIsLoadingContacts(true);
             setContactError(null);
 
             try {
-                const data = await findContacts(
-                    clientId ? { clientId } : { name: "" }
-                );
+                const data = await findContacts({ clientId });
 
                 setContacts(data);
             } catch (error) {
