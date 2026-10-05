@@ -3,7 +3,7 @@ import {prisma} from '../../shared/database/prisma.js';
 class ClientsRepository {
     async createClient(
         name : string,
-        document : any,
+        document : string | undefined,
         address : string,
     ){
         const client = await prisma.client.create({
@@ -19,7 +19,11 @@ class ClientsRepository {
 
     async updateClient(
         id : string,
-        data : any
+        data : {
+            name?: string;
+            document?: string;
+            address?: string;
+        }
     ){
         const client = await prisma.client.update({
             where : {
@@ -46,13 +50,32 @@ class ClientsRepository {
     }
 
     async findClientsByFilters(
-        filters : any
+        filters : {
+            name?: string;
+            document?: string;
+            address?: string;
+        }
     ){
         const clients = await prisma.client.findMany({
             where : {
-                name : filters.name,
-                document : filters.document,
-                address : filters.address
+                ...(filters.name !== undefined && {
+                    name : {
+                        contains : filters.name,
+                        mode : 'insensitive'
+                    }
+                }),
+                ...(filters.document !== undefined && {
+                    document : filters.document
+                }),
+                ...(filters.address !== undefined && {
+                    address : {
+                        contains : filters.address,
+                        mode : 'insensitive'
+                    }
+                })
+            },
+            orderBy : {
+                name : 'asc'
             }
         })
 
@@ -60,7 +83,11 @@ class ClientsRepository {
     }
 
     async findAllClients(){
-        const clients = await prisma.client.findMany()
+        const clients = await prisma.client.findMany({
+            orderBy : {
+                name : 'asc'
+            }
+        })
 
         return clients
     }
