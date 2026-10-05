@@ -14,7 +14,6 @@ class ClientsContactsRepository{
         return client
     }
 
-
     async createContact(
         clientId : string,
         name : string,
@@ -35,17 +34,22 @@ class ClientsContactsRepository{
 
     async updateContact(
         id : string,
-        data : any
+        data : {
+            clientId?: string;
+            name?: string;
+            email?: string;
+            phoneNumber?: string;
+        }
     ){
         const contact = await prisma.clientContact.update({
             where : {
                 id
             },
             data : {
+                clientId : data.clientId,
                 name : data.name,
                 email : data.email,
-                phoneNumber : data.phoneNumber,
-                clientId : data.clientId
+                phoneNumber : data.phoneNumber
             }
         })
 
@@ -53,14 +57,38 @@ class ClientsContactsRepository{
     }
 
     async findContactsByFilters(
-        filters : any
+        filters : {
+            clientId?: string;
+            name?: string;
+            email?: string;
+            phoneNumber?: string;
+        }
     ){
         const contacts = await prisma.clientContact.findMany({
             where : {
-                clientId : filters.clientId,
-                name : filters.name,
-                email : filters.email,
-                phoneNumber : filters.phoneNumber
+                ...(filters.clientId !== undefined && {
+                    clientId : filters.clientId
+                }),
+                ...(filters.name !== undefined && {
+                    name : {
+                        contains : filters.name,
+                        mode : 'insensitive'
+                    }
+                }),
+                ...(filters.email !== undefined && {
+                    email : {
+                        contains : filters.email,
+                        mode : 'insensitive'
+                    }
+                }),
+                ...(filters.phoneNumber !== undefined && {
+                    phoneNumber : {
+                        contains : filters.phoneNumber
+                    }
+                })
+            },
+            orderBy : {
+                name : 'asc'
             }
         })
 
