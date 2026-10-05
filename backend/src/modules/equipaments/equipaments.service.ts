@@ -80,14 +80,16 @@ class EquipamentsService{
     async deleteEquipamentById(
         id : string
     ){
-        const result = await equipamentsRepository.deleteEquipamentById(id);
+        const existingEquipament = await equipamentsRepository.findEquipamentById(id);
 
-        if(!result){
-            throw new AppError('Internal server error', 500, 'INTERNAL_SERVER_ERROR');
+        if(!existingEquipament){
+            throw new AppError('Equipament not found', 404, 'EQUIPAMENT_NOT_FOUND');
         }
+
+        await equipamentsRepository.deleteEquipamentById(id);
 
         return true
     }
 }
 
-export default new EquipamentsService();
+export default new EquipamentsService()
