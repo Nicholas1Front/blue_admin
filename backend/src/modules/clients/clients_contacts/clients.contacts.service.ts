@@ -8,6 +8,8 @@ import type {
     findContactByFiltersDTO
 } from "./clients.contacts.dto.js";
 
+import {removeUndefined} from "../../../shared/helpers/objects/removeUndefined.js";
+
 class ClientsContactsService{
     async createContact(
         clientId : string,
@@ -51,9 +53,11 @@ class ClientsContactsService{
             }
         }
 
+        const cleanedData = removeUndefined(data);
+
         const updatedContact = await clientsContactsRepository.updateContact(
             id,
-            data
+            cleanedData
         )
 
         if(!updatedContact){
@@ -66,7 +70,8 @@ class ClientsContactsService{
     async findContactsByFilters(
         filters : findContactByFiltersDTO
     ){
-        const contacts = await clientsContactsRepository.findContactsByFilters(filters);
+        const cleanedFilters = removeUndefined(filters);
+        const contacts = await clientsContactsRepository.findContactsByFilters(cleanedFilters);
 
         if(!contacts){
             throw new AppError('Internal server error', 500, 'INTERNAL_SERVER_ERROR');

@@ -1,21 +1,20 @@
 import {z} from 'zod'
-import {optionalToNull} from '../../shared/helpers/schemas/optionalToNull.js'
 
 export const createEquipamentSchema = z.object({
     type : z.string().min(1, {message: "Type is required"}),
     brand : z.string().min(1, {message: "Brand is required"}),
-    model : optionalToNull(z.string()),
-    mainIdentification : optionalToNull(z.string().min(1, {message: "Main Identification is required"})),
-    additionalIdentification : optionalToNull(z.string())
+    model : z.string().nullable().optional(),
+    mainIdentification : z.string().min(1, {message: "Main Identification is required"}).nullable().optional(),
+    additionalIdentification : z.string().optional()
 })
 
 export const updateEquipamentSchema = z.object({
     clientId : z.string().min(1).optional(),
     type : z.string().min(1).optional(),
     brand : z.string().min(1).optional(),
-    model : optionalToNull(z.string().optional()),
-    mainIdentification : optionalToNull(z.string().min(1).optional()),
-    additionalIdentification : optionalToNull(z.string().optional())
+    model : z.string().nullable().optional(),
+    mainIdentification : z.string().min(1, {message: "Main Identification is required"}).nullable().optional(),
+    additionalIdentification : z.string().nullable().optional()
 }).refine(
     data => Object.keys(data).length > 0,
     {
@@ -28,9 +27,9 @@ export const findEquipamentsByFiltersSchema = z.object({
     clientId : z.string().min(1).optional(),
     type : z.string().min(1).optional(),
     brand : z.string().min(1).optional(),
-    model : z.string().optional(),
-    mainIdentification : z.string().min(1).optional(),
-    additionalIdentification : z.string().optional()
+    model : z.string().nullable().optional(),
+    mainIdentification : z.string().min(1).nullable().optional(),
+    additionalIdentification : z.string().nullable().optional()
 }).refine(
     data => Object.keys(data).length > 0,
     {

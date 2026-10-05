@@ -8,6 +8,8 @@ import type {
     findClientsByFiltersDTO
 } from './clients.dto.js';
 
+import {removeUndefined} from '../../shared/helpers/objects/removeUndefined.js';
+
 class ClientsService {
     async createClient(
         data : createClientDTO
@@ -63,9 +65,11 @@ class ClientsService {
             }
         }
 
+        const cleanedData = removeUndefined(data);
+
         const updatedClient = await clientsRepository.updateClient(
             id,
-            data
+            cleanedData
         );
 
         if(!updatedClient){
@@ -82,8 +86,11 @@ class ClientsService {
     async findClientByFilters(
         filters : findClientsByFiltersDTO
     ){
+
+        const cleanedFilters = removeUndefined(filters);
+
         const clients = await clientsRepository.findClientsByFilters(
-            filters
+            cleanedFilters
         )
 
         if(!clients){

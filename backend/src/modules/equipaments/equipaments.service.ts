@@ -8,11 +8,14 @@ import type {
     findEquipamentsByFiltersDTO
 } from './equipaments.dto.js';
 
+import {removeUndefined} from '../../shared/helpers/objects/removeUndefined.js'
+
 class EquipamentsService{
     async createEquipament(
         clientId : string,
         data : createEquipamentDTO
     ){
+        const cleanedData = removeUndefined(data)
         const existingClient = await equipamentsRepository.findClientById(clientId);
 
         if(!existingClient){
@@ -21,11 +24,11 @@ class EquipamentsService{
 
         const equipament = await equipamentsRepository.createEquipament(
             clientId,
-            data.type,
-            data.brand,
-            data.model,
-            data.mainIdentification,
-            data.additionalIdentification
+            cleanedData.type,
+            cleanedData.brand,
+            cleanedData.model,
+            cleanedData.mainIdentification,
+            cleanedData.additionalIdentification
         )
 
         if(!equipament){
@@ -53,9 +56,11 @@ class EquipamentsService{
             }
         }
 
+        const cleanedData = removeUndefined(data)
+
         const updatedEquipament = await equipamentsRepository.updateEquipament(
             id,
-            data
+            cleanedData
         )
 
         if(!updatedEquipament){
@@ -68,7 +73,10 @@ class EquipamentsService{
     async findEquipamentsByFilters(
         filters : findEquipamentsByFiltersDTO
     ){
-        const equipaments = await equipamentsRepository.findEquipamentsByFilters(filters);
+
+        const cleanedFilters = removeUndefined(filters)
+
+        const equipaments = await equipamentsRepository.findEquipamentsByFilters(cleanedFilters);
 
         if(!equipaments){
             throw new AppError('Internal server error', 500, 'INTERNAL_SERVER_ERROR');
