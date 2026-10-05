@@ -19,6 +19,7 @@ export const updateContactSchema = z.object({
 )
 
 export const findContactByFiltersSchema = z.object({
+    id : z.string().optional(),
     clientId : z.string().optional(),
     name : z.string().optional(),
     email : z.string().email('Invalid email address').optional(),
