@@ -32,12 +32,19 @@ class ClientsRepository {
     }
 
     async findClientsByFilters(
+        id : string | undefined,
         name : string | undefined,
         document : string | undefined,
         address : string | undefined
     ){
         const clients = await prisma.client.findMany({
             where : {
+                ...(id !== undefined && {
+                    id : {
+                        contains : id,
+                        mode : 'insensitive'
+                    }
+                }),
                 ...(name !== undefined && {
                     name : {
                         contains : name,

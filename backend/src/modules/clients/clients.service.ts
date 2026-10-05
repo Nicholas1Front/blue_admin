@@ -17,7 +17,7 @@ class ClientsService {
         const cleanedData = removeUndefined(data)
 
         if(cleanedData.document !== null){
-            if(cleanedData.document.length > 14 || cleanedData.document.length < 11){
+            if(cleanedData.document.length !== 14 && cleanedData.document.length !== 11){
                 throw new AppError(
                     'Document must be between 11 and 14 characters',
                     400,
@@ -60,7 +60,7 @@ class ClientsService {
         const cleanedData = removeUndefined(data)
 
         if(cleanedData.document !== undefined){
-            if(cleanedData.document.length > 14 || cleanedData.document.length < 11){
+            if(cleanedData.document.length !== 14 && cleanedData.document.length !== 11){
                 throw new AppError(
                     'Document must be between 11 and 14 characters',
                     400,
@@ -92,6 +92,7 @@ class ClientsService {
         const cleanedFilters = removeUndefined(filters);
 
         const clients = await clientsRepository.findClientsByFilters(
+            cleanedFilters.id,
             cleanedFilters.name,
             cleanedFilters.document,
             cleanedFilters.address

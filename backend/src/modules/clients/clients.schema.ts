@@ -18,6 +18,7 @@ const updateClientSchema = z.object({
 )
 
 const findClientsByFilters = z.object({
+    id : z.string().min(1).optional(),
     name : z.string().min(1).optional(),
     document : z.string().min(11).max(14).optional(),
     address : z.string().min(1).nullable().optional()
