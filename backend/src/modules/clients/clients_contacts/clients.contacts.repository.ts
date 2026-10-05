@@ -1,17 +1,14 @@
 import {prisma} from '../../../shared/database/prisma.js';
+import type { Prisma } from '../../../generated/prisma/client.js';
 
 class ClientsContactsRepository{
 
-    async findClientById(
-        clientId : string
-    ){
-        const client = await prisma.client.findUnique({
+    async findClientById(clientId : string){
+        return prisma.client.findUnique({
             where : {
                 id : clientId
             }
         })
-
-        return client
     }
 
     async createContact(
@@ -20,7 +17,7 @@ class ClientsContactsRepository{
         email : string,
         phoneNumber : string
     ){
-        const contact = await prisma.clientContact.create({
+        return prisma.clientContact.create({
             data : {
                 clientId,
                 name,
@@ -28,92 +25,38 @@ class ClientsContactsRepository{
                 phoneNumber
             }
         })
-
-        return contact
     }
 
     async updateContact(
         id : string,
-        data : {
-            clientId?: string;
-            name?: string;
-            email?: string;
-            phoneNumber?: string;
-        }
+        data : Prisma.ClientContactUpdateInput
     ){
-        const contact = await prisma.clientContact.update({
-            where : {
-                id
-            },
-            data : {
-                clientId : data.clientId,
-                name : data.name,
-                email : data.email,
-                phoneNumber : data.phoneNumber
-            }
+        return prisma.clientContact.update({
+            where : { id },
+            data
         })
-
-        return contact
     }
 
     async findContactsByFilters(
-        filters : {
-            clientId?: string;
-            name?: string;
-            email?: string;
-            phoneNumber?: string;
-        }
+        filters : Prisma.ClientContactWhereInput
     ){
-        const contacts = await prisma.clientContact.findMany({
-            where : {
-                ...(filters.clientId !== undefined && {
-                    clientId : filters.clientId
-                }),
-                ...(filters.name !== undefined && {
-                    name : {
-                        contains : filters.name,
-                        mode : 'insensitive'
-                    }
-                }),
-                ...(filters.email !== undefined && {
-                    email : {
-                        contains : filters.email,
-                        mode : 'insensitive'
-                    }
-                }),
-                ...(filters.phoneNumber !== undefined && {
-                    phoneNumber : {
-                        contains : filters.phoneNumber
-                    }
-                })
-            },
+        return prisma.clientContact.findMany({
+            where : filters,
             orderBy : {
                 name : 'asc'
             }
         })
-
-        return contacts
     }
 
-    async findContactById(
-        id : string
-    ){
-        const contact = await prisma.clientContact.findUnique({
-            where : {
-                id
-            }
+    async findContactById(id : string){
+        return prisma.clientContact.findUnique({
+            where : { id }
         })
-
-        return contact
     }
 
-    async deleteContactById(
-        id : string
-    ){
+    async deleteContactById(id : string){
         await prisma.clientContact.delete({
-            where : {
-                id
-            }
+            where : { id }
         })
 
         return true
