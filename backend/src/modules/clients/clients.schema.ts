@@ -3,7 +3,7 @@ import {z} from 'zod';
 const createClientSchema = z.object({
     name : z.string().min(1),
     document : z.string().min(11).max(14).nullable().optional(),
-    address : z.string().min(1).nullable().optional()
+    address : z.string().min(1).optional()
 })
 
 const updateClientSchema = z.object({
