@@ -78,25 +78,6 @@ export function Dashboard() {
                             </p>
                         </div>
                     </button>
-
-                    <article className="dashboard-card">
-                        <div className="dashboard-card__icon">
-                            <FontAwesomeIcon icon={faChartLine} />
-                        </div>
-
-                        <div>
-                            <span className="dashboard-card__label">
-                                Sistema
-                            </span>
-
-                            <strong>Em desenvolvimento</strong>
-
-                            <p>
-                                Os módulos de gestão serão adicionados
-                                progressivamente.
-                            </p>
-                        </div>
-                    </article>
                 </section>
             </section>
         </main>
