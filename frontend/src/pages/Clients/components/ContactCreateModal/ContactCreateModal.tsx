@@ -29,7 +29,7 @@ export function ContactCreateModal({ isOpen, isSubmitting, error, onClose, onSub
     async function handleFormSubmit(data: ContactFormData) {
         await onSubmit({
             name: data.name.trim(),
-            email: data.email.trim(),
+            email: data.email.trim() || undefined,
             phoneNumber: data.phoneNumber.trim()
         });
         reset();
