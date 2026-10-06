@@ -9,7 +9,7 @@
     padding: var(--spacing-12) 0;
 }
 
-.clients-header__eyebrow {
+.clients-header {\n    display: flex;\n    align-items: flex-end;\n    justify-content: space-between;\n    gap: var(--spacing-6);\n}\n\n.clients-header__add {\n    min-height: var(--control-height-md);\n    padding: 0 var(--spacing-4);\n    color: var(--color-background);\n    background: var(--color-success);\n    border: 1px solid var(--color-success);\n    border-radius: var(--radius-md);\n    font-size: var(--font-size-sm);\n    font-weight: var(--font-weight-semibold);\n    cursor: pointer;\n}\n\n.clients-header__eyebrow {
     display: inline-block;
     margin-bottom: var(--spacing-3);
     color: var(--color-primary-400);
@@ -30,7 +30,7 @@
     line-height: var(--line-height-relaxed);
 }
 
-@media (max-width: 900px) {
+@media (max-width: 900px) {\n    .clients-header {\n        align-items: flex-start;\n        flex-direction: column;\n    }
     .clients-content {
         width: min(100% - 2rem, 72rem);
         padding: var(--spacing-10) 0;
