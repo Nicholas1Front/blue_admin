@@ -1,7 +1,8 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faChartLine,
-    faUsers
+    faUsers,
+    faBuilding
 } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 
@@ -52,6 +53,28 @@ export function Dashboard() {
 
                             <p>
                                 Gerencie os usuários com acesso ao sistema.
+                            </p>
+                        </div>
+                    </button>
+
+                    <button
+                        className="dashboard-card dashboard-card--action"
+                        type="button"
+                        onClick={() => navigate("/clients")}
+                    >
+                        <div className="dashboard-card__icon">
+                            <FontAwesomeIcon icon={faBuilding} />
+                        </div>
+
+                        <div>
+                            <span className="dashboard-card__label">
+                                Gestão
+                            </span>
+
+                            <strong>Clientes e equipamentos</strong>
+
+                            <p>
+                                Consulte clientes, contatos e equipamentos em um só lugar.
                             </p>
                         </div>
                     </button>
