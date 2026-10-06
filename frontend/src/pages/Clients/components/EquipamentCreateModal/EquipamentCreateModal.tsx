@@ -23,7 +23,7 @@ export function EquipamentCreateModal({ isOpen, isSubmitting, error, onClose, on
             brand: data.brand.trim(),
             model: data.model.trim() || null,
             mainIdentification: data.mainIdentification.trim() || null,
-            additionalIdentification: data.additionalIdentification.trim() || undefined
+            additionalIdentification: data.additionalIdentification.trim() || null
         });
         reset();
     }
