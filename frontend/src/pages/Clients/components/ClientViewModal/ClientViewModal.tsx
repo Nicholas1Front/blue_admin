@@ -10,22 +10,29 @@ import {
 
 import { Modal } from "../../../../components/Modal/Modal";
 import type { Client, ClientContact } from "../../../../modules/clients/clients.types";
+import type { Equipament } from "../../../../modules/equipaments/equipaments.types";
 
 import "./ClientViewModal.css";
 
 interface ClientViewModalProps {
     client: Client | null;
     contacts: ClientContact[];
+    equipaments: Equipament[];
     isLoadingContacts: boolean;
+    isLoadingEquipaments: boolean;
     contactError: string | null;
+    equipamentError: string | null;
     onClose: () => void;
 }
 
 export function ClientViewModal({
     client,
     contacts,
+    equipaments,
     isLoadingContacts,
+    isLoadingEquipaments,
     contactError,
+    equipamentError,
     onClose
 }: ClientViewModalProps) {
     if (!client) {
@@ -196,10 +203,64 @@ export function ClientViewModal({
                         </button>
                     </div>
 
-                    <p className="client-view__feedback">
-                        Os equipamentos deste cliente serão carregados e
-                        gerenciados nesta seção.
-                    </p>
+                    {isLoadingEquipaments && (
+                        <p className="client-view__feedback">
+                            Carregando equipamentos...
+                        </p>
+                    )}
+
+                    {!isLoadingEquipaments && equipamentError && (
+                        <p className="client-view__feedback client-view__feedback--error">
+                            {equipamentError}
+                        </p>
+                    )}
+
+                    {!isLoadingEquipaments && !equipamentError && equipaments.length === 0 && (
+                        <p className="client-view__feedback">
+                            Este cliente ainda não possui equipamentos cadastrados.
+                        </p>
+                    )}
+
+                    {!isLoadingEquipaments && !equipamentError && equipaments.length > 0 && (
+                        <div className="client-view__list">
+                            {equipaments.map((equipament) => (
+                                <article className="client-view__list-item" key={equipament.id}>
+                                    <div className="client-view__list-content">
+                                        <strong>
+                                            {equipament.type} — {equipament.brand}
+                                        </strong>
+                                        <span>
+                                            Modelo: {equipament.model || "Não informado"}
+                                        </span>
+                                        <span>
+                                            Identificação:{" "}
+                                            {equipament.mainIdentification || "Não informado"}
+                                        </span>
+                                    </div>
+
+                                    <div className="client-view__list-actions">
+                                        <button
+                                            type="button"
+                                            disabled
+                                            title="Editar equipamento"
+                                            aria-label={"Editar equipamento " + equipament.id}
+                                        >
+                                            <FontAwesomeIcon icon={faPenToSquare} />
+                                        </button>
+                                        <button
+                                            className="client-view__list-action--delete"
+                                            type="button"
+                                            disabled
+                                            title="Excluir equipamento"
+                                            aria-label={"Excluir equipamento " + equipament.id}
+                                        >
+                                            <FontAwesomeIcon icon={faTrash} />
+                                        </button>
+                                    </div>
+                                </article>
+                            ))}
+                        </div>
+                    )}
                 </section>
             </div>
         </Modal>
