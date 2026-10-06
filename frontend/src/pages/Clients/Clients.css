@@ -25,7 +25,6 @@
 }
 
 .clients-header p {
-    max-width: 48rem;
     margin-top: var(--spacing-3);
     color: var(--color-text-secondary);
     line-height: var(--line-height-relaxed);
