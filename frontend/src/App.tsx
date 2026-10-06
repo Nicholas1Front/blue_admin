@@ -10,6 +10,7 @@ import { ProtectedRoute } from "./modules/auth/ProtectedRoute";
 import { Login } from "./pages/Login/Login";
 import { Dashboard } from "./pages/Dashboard/Dashboard";
 import { Users } from "./pages/Users/Users";
+import { Clients } from "./pages/Clients/Clients";
 
 function App() {
     return (
@@ -40,6 +41,15 @@ function App() {
                         element={
                             <ProtectedRoute>
                                 <Users />
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    <Route
+                        path="/clients"
+                        element={
+                            <ProtectedRoute>
+                                <Clients />
                             </ProtectedRoute>
                         }
                     />
