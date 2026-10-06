@@ -124,7 +124,7 @@ export function ClientDetails({
                 </div>
 
                 <div className="client-details__actions">
-                    <button type="button" className="client-details__button">
+                    <button type="button" className="client-details__button" onClick={onEditClient}>
                         <FontAwesomeIcon icon={faPenToSquare} />
                         Editar
                     </button>
