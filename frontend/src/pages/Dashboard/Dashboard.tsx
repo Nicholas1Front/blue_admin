@@ -1,6 +1,5 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-    faChartLine,
     faUsers,
     faBuilding
 } from "@fortawesome/free-solid-svg-icons";
