@@ -2,7 +2,7 @@ import {z} from 'zod';
 
 export const createContactSchema = z.object({
     name : z.string().min(1, 'Name is required'),
-    email : z.string().email('Invalid email address').nullable().optional(),
+    email : z.string().email('Invalid email address').optional(),
     phoneNumber : z.string().min(1, 'Phone number is required'),
 })
 
