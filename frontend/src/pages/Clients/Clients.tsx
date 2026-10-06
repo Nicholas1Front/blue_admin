@@ -59,6 +59,7 @@ export function Clients() {
         searchContactError,
         hasSearched,
         hasSearchedContacts,
+        loadClients,
         searchClients,
         clearClientSearch,
         clearCreateError,
@@ -390,7 +391,6 @@ export function Clients() {
             />
 
             <ContactCreateModal
-                clientId={selectedClient?.id ?? ""}
                 isOpen={isCreateContactModalOpen}
                 isSubmitting={isCreatingContact}
                 error={createContactError}
