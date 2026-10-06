@@ -61,7 +61,7 @@ class ClientsService {
 
         const cleanedData = removeUndefined(data)
 
-        if(cleanedData.document !== null){
+        if(cleanedData.document !== null && cleanedData.document !== undefined){
             if(cleanedData.document.length !== 14 && cleanedData.document.length !== 11){
                 throw new AppError(
                     'Document must be between 11 and 14 characters',
