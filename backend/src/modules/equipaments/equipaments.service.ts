@@ -9,13 +9,14 @@ import type {
 } from './equipaments.dto.js';
 
 import {removeUndefined} from '../../shared/helpers/objects/removeUndefined.js'
+import {undefinedToNull} from '../../shared/helpers/objects/undefinedToNull.js';
 
 class EquipamentsService{
     async createEquipament(
         clientId : string,
         data : createEquipamentDTO
     ){
-        const cleanedData = removeUndefined(data)
+        const cleanedData = undefinedToNull(data)
         const existingClient = await equipamentsRepository.findClientById(clientId);
 
         if(!existingClient){

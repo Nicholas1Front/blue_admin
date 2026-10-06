@@ -4,7 +4,7 @@ class ClientsRepository {
     async createClient(
         name : string,
         document : string | null,
-        address : string,
+        address : string | null,
     ){
         return prisma.client.create({
             data : {

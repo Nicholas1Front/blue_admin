@@ -9,6 +9,7 @@ import type {
 } from "./clients.contacts.dto.js";
 
 import {removeUndefined} from "../../../shared/helpers/objects/removeUndefined.js";
+import {undefinedToNull} from '../../../shared/helpers/objects/undefinedToNull.js';
 
 class ClientsContactsService{
     async createContact(
@@ -21,7 +22,7 @@ class ClientsContactsService{
             throw new AppError('Client not found', 404, 'CLIENT_NOT_FOUND');
         }
 
-        const cleanedData = removeUndefined(data);
+        const cleanedData = undefinedToNull(data);
 
         const contact = await clientsContactsRepository.createContact(
             clientId,

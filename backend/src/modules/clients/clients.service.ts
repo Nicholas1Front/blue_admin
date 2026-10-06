@@ -1,3 +1,4 @@
+
 import clientsRepository from './clients.repository.js';
 
 import {AppError} from '../../shared/errors/AppError.js';
@@ -9,12 +10,13 @@ import type {
 } from './clients.dto.js';
 
 import {removeUndefined} from '../../shared/helpers/objects/removeUndefined.js';
+import { undefinedToNull } from './../../shared/helpers/objects/undefinedToNull.js';
 
 class ClientsService {
     async createClient(
         data : createClientDTO
     ){
-        const cleanedData = removeUndefined(data)
+        const cleanedData = undefinedToNull(data)
 
         if(cleanedData.document !== null){
             if(cleanedData.document.length !== 14 && cleanedData.document.length !== 11){
@@ -59,7 +61,7 @@ class ClientsService {
 
         const cleanedData = removeUndefined(data)
 
-        if(cleanedData.document !== undefined){
+        if(cleanedData.document !== undefined && cleanedData.document !== null){
             if(cleanedData.document.length !== 14 && cleanedData.document.length !== 11){
                 throw new AppError(
                     'Document must be between 11 and 14 characters',
