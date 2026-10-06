@@ -3,10 +3,31 @@ import { useState } from "react";
 import { AppHeader } from "../../components/AppHeader/AppHeader";
 import { useClients } from "../../modules/clients/useClients";
 import { useEquipaments } from "../../modules/equipaments/useEquipaments";
-import type { Client } from "../../modules/clients/clients.types";
+import type {
+    Client,
+    ClientContact,
+    CreateClientRequest,
+    CreateContactRequest,
+    UpdateClientRequest,
+    UpdateContactRequest
+} from "../../modules/clients/clients.types";
+import type {
+    CreateEquipamentRequest,
+    Equipament,
+    UpdateEquipamentRequest
+} from "../../modules/equipaments/equipaments.types";
 import { ClientSearch } from "./components/ClientSearch/ClientSearch";
 import { ClientSearchResults } from "./components/ClientSearchResults/ClientSearchResults";
 import { ClientDetails } from "./components/ClientDetails/ClientDetails";
+import { ClientCreateModal } from "./components/ClientCreateModal/ClientCreateModal";
+import { ClientEditModal } from "./components/ClientEditModal/ClientEditModal";
+import { ClientDeleteModal } from "./components/ClientDeleteModal/ClientDeleteModal";
+import { ContactCreateModal } from "./components/ContactCreateModal/ContactCreateModal";
+import { ContactEditModal } from "./components/ContactEditModal/ContactEditModal";
+import { ContactDeleteModal } from "./components/ContactDeleteModal/ContactDeleteModal";
+import { EquipamentCreateModal } from "./components/EquipamentCreateModal/EquipamentCreateModal";
+import { EquipamentEditModal } from "./components/EquipamentEditModal/EquipamentEditModal";
+import { EquipamentDeleteModal } from "./components/EquipamentDeleteModal/EquipamentDeleteModal";
 
 import "./Clients.css";
 
@@ -18,11 +39,19 @@ export function Clients() {
         contacts,
         contactSearchResults,
         isSearching,
+        isCreating,
         isUpdating,
         isDeleting,
+        createError,
         updateError,
         deleteError,
         isLoadingContacts,
+        isCreatingContact,
+        isUpdatingContact,
+        isDeletingContact,
+        createContactError,
+        updateContactError,
+        deleteContactError,
         isSearchingContacts,
         searchError,
         contactError,
@@ -31,29 +60,61 @@ export function Clients() {
         hasSearchedContacts,
         searchClients,
         clearClientSearch,
+        clearCreateError,
+        clearUpdateError,
+        clearDeleteError,
+        addClient,
+        editClient,
+        removeClient,
         loadContacts,
         searchContacts,
-        clearContactSearch
+        clearContactSearch,
+        clearCreateContactError,
+        clearUpdateContactError,
+        clearDeleteContactError,
+        addContact,
+        editContact,
+        removeContact
     } = useClients();
 
     const {
         equipaments,
         searchResults: equipamentSearchResults,
         isLoading: isLoadingEquipaments,
+        isCreating: isCreatingEquipament,
+        isUpdating: isUpdatingEquipament,
+        isDeleting: isDeletingEquipament,
         isSearching: isSearchingEquipaments,
         error: equipamentError,
+        createError: equipamentCreateError,
+        updateError: equipamentUpdateError,
+        deleteError: equipamentDeleteError,
         searchError: equipamentSearchError,
         hasSearched: hasSearchedEquipaments,
         loadEquipaments,
         searchEquipaments,
-        clearSearch: clearEquipamentSearch
+        clearSearch: clearEquipamentSearch,
+        clearCreateError: clearEquipamentCreateError,
+        clearUpdateError: clearEquipamentUpdateError,
+        clearDeleteError: clearEquipamentDeleteError,
+        addEquipament,
+        editEquipament,
+        removeEquipament
     } = useEquipaments();
 
     const [selectedClient, setSelectedClient] = useState<Client | null>(null);
+    const [isCreateClientModalOpen, setIsCreateClientModalOpen] = useState(false);
+    const [editingClient, setEditingClient] = useState<Client | null>(null);
+    const [deletingClient, setDeletingClient] = useState<Client | null>(null);
+    const [isCreateContactModalOpen, setIsCreateContactModalOpen] = useState(false);
+    const [editingContact, setEditingContact] = useState<ClientContact | null>(null);
+    const [deletingContact, setDeletingContact] = useState<ClientContact | null>(null);
+    const [isCreateEquipamentModalOpen, setIsCreateEquipamentModalOpen] = useState(false);
+    const [editingEquipament, setEditingEquipament] = useState<Equipament | null>(null);
+    const [deletingEquipament, setDeletingEquipament] = useState<Equipament | null>(null);
 
     async function handleViewClient(client: Client) {
         setSelectedClient(client);
-
         clearContactSearch();
         clearEquipamentSearch();
 
@@ -63,38 +124,70 @@ export function Clients() {
         ]);
     }
 
-    async function handleCreateContact(data: import("../../modules/clients/clients.types").CreateContactRequest) {
+    async function handleCreateClient(data: CreateClientRequest) {
+        await addClient(data);
+        setIsCreateClientModalOpen(false);
+    }
+
+    async function handleUpdateClient(data: UpdateClientRequest) {
+        if (!editingClient) return;
+
+        const updatedClient = await editClient(editingClient.id, data);
+        setSelectedClient(updatedClient);
+        setEditingClient(null);
+    }
+
+    async function handleDeleteClient() {
+        if (!deletingClient) return;
+
+        await removeClient(deletingClient.id);
+        setDeletingClient(null);
+
+        if (selectedClient?.id === deletingClient.id) {
+            setSelectedClient(null);
+            clearContactSearch();
+            clearEquipamentSearch();
+        }
+    }
+
+    async function handleCreateContact(data: CreateContactRequest) {
         if (!selectedClient) return;
+
         await addContact(selectedClient.id, data);
         setIsCreateContactModalOpen(false);
     }
 
-    async function handleUpdateContact(data: import("../../modules/clients/clients.types").UpdateContactRequest) {
+    async function handleUpdateContact(data: UpdateContactRequest) {
         if (!editingContact) return;
+
         await editContact(editingContact.id, data);
         setEditingContact(null);
     }
 
     async function handleDeleteContact() {
         if (!deletingContact) return;
+
         await removeContact(deletingContact.id);
         setDeletingContact(null);
     }
 
-    async function handleCreateEquipament(data: import("../../modules/equipaments/equipaments.types").CreateEquipamentRequest) {
+    async function handleCreateEquipament(data: CreateEquipamentRequest) {
         if (!selectedClient) return;
+
         await addEquipament(selectedClient.id, data);
         setIsCreateEquipamentModalOpen(false);
     }
 
-    async function handleUpdateEquipament(data: import("../../modules/equipaments/equipaments.types").UpdateEquipamentRequest) {
+    async function handleUpdateEquipament(data: UpdateEquipamentRequest) {
         if (!editingEquipament) return;
+
         await editEquipament(editingEquipament.id, data);
         setEditingEquipament(null);
     }
 
     async function handleDeleteEquipament() {
         if (!deletingEquipament) return;
+
         await removeEquipament(deletingEquipament.id);
         setDeletingEquipament(null);
     }
@@ -114,17 +207,21 @@ export function Clients() {
                     <>
                         <header className="clients-header">
                             <div>
-                                <span className="clients-header__eyebrow">
-                                    Gestão
-                                </span>
-
+                                <span className="clients-header__eyebrow">Gestão</span>
                                 <h1>Clientes e equipamentos</h1>
-
-                                <p>
-                                    Consulte clientes, contatos e equipamentos
-                                    em um só lugar.
-                                </p>
+                                <p>Consulte clientes, contatos e equipamentos em um só lugar.</p>
                             </div>
+
+                            <button
+                                className="clients-header__add"
+                                type="button"
+                                onClick={() => {
+                                    clearCreateError();
+                                    setIsCreateClientModalOpen(true);
+                                }}
+                            >
+                                Adicionar cliente
+                            </button>
                         </header>
 
                         <ClientSearch
@@ -160,6 +257,38 @@ export function Clients() {
                         hasSearchedContacts={hasSearchedContacts}
                         hasSearchedEquipaments={hasSearchedEquipaments}
                         onBack={handleBackToSearch}
+                        onEditClient={() => {
+                            clearUpdateError();
+                            setEditingClient(selectedClient);
+                        }}
+                        onDeleteClient={() => {
+                            clearDeleteError();
+                            setDeletingClient(selectedClient);
+                        }}
+                        onAddContact={() => {
+                            clearCreateContactError();
+                            setIsCreateContactModalOpen(true);
+                        }}
+                        onEditContact={(contact) => {
+                            clearUpdateContactError();
+                            setEditingContact(contact);
+                        }}
+                        onDeleteContact={(contact) => {
+                            clearDeleteContactError();
+                            setDeletingContact(contact);
+                        }}
+                        onAddEquipament={() => {
+                            clearEquipamentCreateError();
+                            setIsCreateEquipamentModalOpen(true);
+                        }}
+                        onEditEquipament={(equipament) => {
+                            clearEquipamentUpdateError();
+                            setEditingEquipament(equipament);
+                        }}
+                        onDeleteEquipament={(equipament) => {
+                            clearEquipamentDeleteError();
+                            setDeletingEquipament(equipament);
+                        }}
                         onSearchContacts={searchContacts}
                         onClearContactSearch={clearContactSearch}
                         onSearchEquipaments={searchEquipaments}
@@ -167,6 +296,80 @@ export function Clients() {
                     />
                 )}
             </section>
+
+            <ClientCreateModal
+                isOpen={isCreateClientModalOpen}
+                isSubmitting={isCreating}
+                error={createError}
+                onClose={() => !isCreating && setIsCreateClientModalOpen(false)}
+                onSubmit={handleCreateClient}
+            />
+
+            <ClientEditModal
+                client={editingClient}
+                isSubmitting={isUpdating}
+                error={updateError}
+                onClose={() => !isUpdating && setEditingClient(null)}
+                onSubmit={handleUpdateClient}
+            />
+
+            <ClientDeleteModal
+                client={deletingClient}
+                isSubmitting={isDeleting}
+                error={deleteError}
+                onClose={() => !isDeleting && setDeletingClient(null)}
+                onConfirm={handleDeleteClient}
+            />
+
+            <ContactCreateModal
+                clientId={selectedClient?.id ?? ""}
+                isOpen={isCreateContactModalOpen}
+                isSubmitting={isCreatingContact}
+                error={createContactError}
+                onClose={() => !isCreatingContact && setIsCreateContactModalOpen(false)}
+                onSubmit={handleCreateContact}
+            />
+
+            <ContactEditModal
+                contact={editingContact}
+                isSubmitting={isUpdatingContact}
+                error={updateContactError}
+                onClose={() => !isUpdatingContact && setEditingContact(null)}
+                onSubmit={handleUpdateContact}
+            />
+
+            <ContactDeleteModal
+                contact={deletingContact}
+                isSubmitting={isDeletingContact}
+                error={deleteContactError}
+                onClose={() => !isDeletingContact && setDeletingContact(null)}
+                onConfirm={handleDeleteContact}
+            />
+
+            <EquipamentCreateModal
+                clientId={selectedClient?.id ?? ""}
+                isOpen={isCreateEquipamentModalOpen}
+                isSubmitting={isCreatingEquipament}
+                error={equipamentCreateError}
+                onClose={() => !isCreatingEquipament && setIsCreateEquipamentModalOpen(false)}
+                onSubmit={handleCreateEquipament}
+            />
+
+            <EquipamentEditModal
+                equipament={editingEquipament}
+                isSubmitting={isUpdatingEquipament}
+                error={equipamentUpdateError}
+                onClose={() => !isUpdatingEquipament && setEditingEquipament(null)}
+                onSubmit={handleUpdateEquipament}
+            />
+
+            <EquipamentDeleteModal
+                equipament={deletingEquipament}
+                isSubmitting={isDeletingEquipament}
+                error={equipamentDeleteError}
+                onClose={() => !isDeletingEquipament && setDeletingEquipament(null)}
+                onConfirm={handleDeleteEquipament}
+            />
         </main>
     );
 }
