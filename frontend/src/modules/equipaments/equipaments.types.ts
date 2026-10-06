@@ -13,9 +13,9 @@ export interface Equipament {
 export interface CreateEquipamentRequest {
     type: string;
     brand: string;
-    model?: string;
-    mainIdentification?: string;
-    additionalIdentification?: string;
+    model?: string | null;
+    mainIdentification?: string | null;
+    additionalIdentification?: string | null;
 }
 
 export interface UpdateEquipamentRequest {
@@ -32,7 +32,7 @@ export interface FindEquipamentsFilters {
     clientId?: string;
     type?: string;
     brand?: string;
-    model?: string | null;
-    mainIdentification?: string | null;
-    additionalIdentification?: string | null;
+    model?: string;
+    mainIdentification?: string;
+    additionalIdentification?: string;
 }
