@@ -26,6 +26,7 @@ import { ClientSelectModal } from "./components/ClientSelectModal/ClientSelectMo
 import { ContactCreateModal } from "./components/ContactCreateModal/ContactCreateModal";
 import { ContactEditModal } from "./components/ContactEditModal/ContactEditModal";
 import { ContactDeleteModal } from "./components/ContactDeleteModal/ContactDeleteModal";
+import { ContactSelectModal } from "./components/ContactSelectModal/ContactSelectModal";
 import { EquipamentCreateModal } from "./components/EquipamentCreateModal/EquipamentCreateModal";
 import { EquipamentEditModal } from "./components/EquipamentEditModal/EquipamentEditModal";
 import { EquipamentDeleteModal } from "./components/EquipamentDeleteModal/EquipamentDeleteModal";
@@ -113,6 +114,9 @@ export function Clients() {
     const [deletingClient, setDeletingClient] = useState<Client | null>(null);
     const [clientSelectionMode, setClientSelectionMode] = useState<"edit" | "delete" | null>(null);
     const [isCreateContactModalOpen, setIsCreateContactModalOpen] = useState(false);
+    const [contactClientForAction, setContactClientForAction] = useState<Client | null>(null);
+    const [contactClientSelectionMode, setContactClientSelectionMode] = useState<"create" | "edit" | "delete" | null>(null);
+    const [contactSelectionMode, setContactSelectionMode] = useState<"edit" | "delete" | null>(null);
     const [editingContact, setEditingContact] = useState<ClientContact | null>(null);
     const [deletingContact, setDeletingContact] = useState<ClientContact | null>(null);
     const [isCreateEquipamentModalOpen, setIsCreateEquipamentModalOpen] = useState(false);
@@ -167,11 +171,13 @@ export function Clients() {
     }
 
     async function handleCreateContact(data: CreateContactRequest) {
-        if (!selectedClient) return;
+        const client = selectedClient ?? contactClientForAction;
+        if (!client) return;
 
-        await addContact(selectedClient.id, data);
+        await addContact(client.id, data);
         clearContactSearch();
         setIsCreateContactModalOpen(false);
+        setContactClientForAction(null);
     }
 
     async function handleUpdateContact(data: UpdateContactRequest) {
@@ -289,6 +295,49 @@ export function Clients() {
                                 </button>
                             </div>
                         </section>
+
+                        <section className="contacts-section">
+                            <header className="contacts-section__header">
+                                <span className="contacts-section__eyebrow">Contatos</span>
+                                <h2>Gerenciar contatos</h2>
+                                <p>Adicione, edite ou exclua contatos vinculados aos clientes.</p>
+                            </header>
+
+                            <div className="contacts-section__actions">
+                                <button
+                                    className="clients-section__button clients-section__button--add"
+                                    type="button"
+                                    onClick={() => {
+                                        clearCreateContactError();
+                                        setContactClientSelectionMode("create");
+                                    }}
+                                >
+                                    Adicionar contato
+                                </button>
+
+                                <button
+                                    className="clients-section__button"
+                                    type="button"
+                                    onClick={() => {
+                                        clearUpdateContactError();
+                                        setContactClientSelectionMode("edit");
+                                    }}
+                                >
+                                    Editar contato
+                                </button>
+
+                                <button
+                                    className="clients-section__button clients-section__button--delete"
+                                    type="button"
+                                    onClick={() => {
+                                        clearDeleteContactError();
+                                        setContactClientSelectionMode("delete");
+                                    }}
+                                >
+                                    Excluir contato
+                                </button>
+                            </div>
+                        </section>
                     </>
                 ) : (
                     <ClientDetails
@@ -366,6 +415,67 @@ export function Clients() {
 
                     clearDeleteError();
                     setDeletingClient(client);
+                }}
+            />
+
+            <ClientSelectModal
+                isOpen={contactClientSelectionMode !== null}
+                title={
+                    contactClientSelectionMode === "create"
+                        ? "Selecionar cliente para adicionar contato"
+                        : contactClientSelectionMode === "edit"
+                            ? "Selecionar cliente para editar contato"
+                            : "Selecionar cliente para excluir contato"
+                }
+                clients={clients}
+                isLoading={isLoading}
+                error={error}
+                onClose={() => setContactClientSelectionMode(null)}
+                onSelect={(client) => {
+                    const mode = contactClientSelectionMode;
+                    setContactClientSelectionMode(null);
+                    setContactClientForAction(client);
+
+                    if (mode === "create") {
+                        clearCreateContactError();
+                        setIsCreateContactModalOpen(true);
+                        return;
+                    }
+
+                    if (mode === "edit") {
+                        clearUpdateContactError();
+                        setContactSelectionMode("edit");
+                        void loadContacts(client.id);
+                        return;
+                    }
+
+                    clearDeleteContactError();
+                    setContactSelectionMode("delete");
+                    void loadContacts(client.id);
+                }}
+            />
+
+            <ContactSelectModal
+                isOpen={contactSelectionMode !== null}
+                title={contactSelectionMode === "edit" ? "Selecionar contato para editar" : "Selecionar contato para excluir"}
+                contacts={contacts}
+                isLoading={isLoadingContacts}
+                error={contactError}
+                onClose={() => {
+                    setContactSelectionMode(null);
+                    setContactClientForAction(null);
+                }}
+                onSelect={(contact) => {
+                    setContactSelectionMode(null);
+
+                    if (contactSelectionMode === "edit") {
+                        clearUpdateContactError();
+                        setEditingContact(contact);
+                        return;
+                    }
+
+                    clearDeleteContactError();
+                    setDeletingContact(contact);
                 }}
             />
 
