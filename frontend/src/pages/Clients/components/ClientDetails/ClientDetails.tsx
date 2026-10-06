@@ -196,7 +196,7 @@ export function ClientDetails({
                                     <strong>{contact.name}</strong>
                                     <span>
                                         <FontAwesomeIcon icon={faEnvelope} />
-                                        {contact.email}
+                                        {contact.email || "Não informado"}
                                     </span>
                                     <span>
                                         <FontAwesomeIcon icon={faPhone} />
