@@ -132,6 +132,7 @@ export function ClientDetails({
                     <button
                         type="button"
                         className="client-details__button client-details__button--delete"
+                        onClick={onDeleteClient}
                     >
                         <FontAwesomeIcon icon={faTrash} />
                         Excluir
@@ -164,6 +165,7 @@ export function ClientDetails({
                     <button
                         type="button"
                         className="client-details__add-button"
+                        onClick={onAddContact}
                     >
                         Adicionar contato
                     </button>
@@ -211,6 +213,7 @@ export function ClientDetails({
                                         type="button"
                                         className="client-details__item-delete"
                                         aria-label={"Excluir contato " + contact.name}
+                                        onClick={() => onDeleteContact(contact)}
                                     >
                                         <FontAwesomeIcon icon={faTrash} />
                                     </button>
@@ -234,6 +237,7 @@ export function ClientDetails({
                     <button
                         type="button"
                         className="client-details__add-button"
+                        onClick={onAddEquipament}
                     >
                         Adicionar equipamento
                     </button>
@@ -282,6 +286,7 @@ export function ClientDetails({
                                     <button
                                         type="button"
                                         aria-label={"Editar equipamento " + getEquipamentTitle(equipament)}
+                                        onClick={() => onEditEquipament(equipament)}
                                     >
                                         <FontAwesomeIcon icon={faPenToSquare} />
                                     </button>
@@ -289,6 +294,7 @@ export function ClientDetails({
                                         type="button"
                                         className="client-details__item-delete"
                                         aria-label={"Excluir equipamento " + getEquipamentTitle(equipament)}
+                                        onClick={() => onDeleteEquipament(equipament)}
                                     >
                                         <FontAwesomeIcon icon={faTrash} />
                                     </button>
