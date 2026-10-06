@@ -9,7 +9,6 @@ import type { CreateContactRequest } from "../../../../modules/clients/clients.t
 import "./ContactCreateModal.css";
 
 interface Props {
-    clientId: string;
     isOpen: boolean;
     isSubmitting: boolean;
     error: string | null;
@@ -17,7 +16,7 @@ interface Props {
     onSubmit: (data: CreateContactRequest) => Promise<void>;
 }
 
-export function ContactCreateModal({ clientId, isOpen, isSubmitting, error, onClose, onSubmit }: Props) {
+export function ContactCreateModal({ isOpen, isSubmitting, error, onClose, onSubmit }: Props) {
     const { register, handleSubmit, reset, formState: { errors } } = useForm<ContactFormData>({
         resolver: zodResolver(contactSchema),
         defaultValues: { name: "", email: "", phoneNumber: "" }
