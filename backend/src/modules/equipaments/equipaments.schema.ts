@@ -5,7 +5,7 @@ export const createEquipamentSchema = z.object({
     brand : z.string().min(1, {message: "Brand is required"}),
     model : z.string().nullable().optional(),
     mainIdentification : z.string().min(1, {message: "Main Identification is required"}).nullable().optional(),
-    additionalIdentification : z.string().optional()
+    additionalIdentification : z.string().nullable().optional()
 })
 
 export const updateEquipamentSchema = z.object({
