@@ -15,7 +15,7 @@ export interface CreateEquipamentRequest {
     brand: string;
     model?: string | null;
     mainIdentification?: string | null;
-    additionalIdentification?: string;
+    additionalIdentification?: string | null;
 }
 
 export interface UpdateEquipamentRequest {
