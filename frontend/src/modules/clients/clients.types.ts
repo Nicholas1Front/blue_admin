@@ -18,7 +18,7 @@ export interface ClientContact {
 export interface CreateClientRequest {
     name: string;
     document?: string | null;
-    address?: string;
+    address?: string | null;
 }
 
 export interface UpdateClientRequest {
@@ -31,7 +31,7 @@ export interface FindClientsFilters {
     id?: string;
     name?: string;
     document?: string;
-    address?: string | null;
+    address?: string;
 }
 
 export interface CreateContactRequest {
