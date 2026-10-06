@@ -23,14 +23,14 @@ export function ContactEditModal({ contact, isSubmitting, error, onClose, onSubm
     });
 
     useEffect(() => {
-        if (contact) reset({ name: contact.name, email: contact.email, phoneNumber: contact.phoneNumber });
+        if (contact) reset({ name: contact.name, email: contact.email ?? "", phoneNumber: contact.phoneNumber });
     }, [contact, reset]);
 
     async function handleFormSubmit(data: ContactFormData) {
         if (!contact) return;
         const updateData: UpdateContactRequest = {};
         if (data.name.trim() !== contact.name) updateData.name = data.name.trim();
-        if (data.email.trim() !== contact.email) updateData.email = data.email.trim();
+        const email = data.email.trim() || null;\n        if (email !== contact.email) updateData.email = email;
         if (data.phoneNumber.trim() !== contact.phoneNumber) updateData.phoneNumber = data.phoneNumber.trim();
         if (Object.keys(updateData).length === 0) return;
         await onSubmit(updateData);
