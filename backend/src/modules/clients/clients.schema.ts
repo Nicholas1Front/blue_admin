@@ -21,7 +21,7 @@ const findClientsByFilters = z.object({
     id : z.string().min(1).optional(),
     name : z.string().min(1).optional(),
     document : z.string().min(11).max(14).optional(),
-    address : z.string().min(1).nullable().optional()
+    address : z.string().min(1).optional()
 }).refine(
     data => Object.keys(data).length > 0,
     {
