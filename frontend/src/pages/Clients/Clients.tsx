@@ -512,7 +512,12 @@ export function Clients() {
                 isOpen={isCreateContactModalOpen}
                 isSubmitting={isCreatingContact}
                 error={createContactError}
-                onClose={() => !isCreatingContact && setIsCreateContactModalOpen(false)}
+                onClose={() => {
+                    if (!isCreatingContact) {
+                        setIsCreateContactModalOpen(false);
+                        setContactClientForAction(null);
+                    }
+                }}
                 onSubmit={handleCreateContact}
             />
 
@@ -520,7 +525,12 @@ export function Clients() {
                 contact={editingContact}
                 isSubmitting={isUpdatingContact}
                 error={updateContactError}
-                onClose={() => !isUpdatingContact && setEditingContact(null)}
+                onClose={() => {
+                    if (!isUpdatingContact) {
+                        setEditingContact(null);
+                        setContactClientForAction(null);
+                    }
+                }}
                 onSubmit={handleUpdateContact}
             />
 
@@ -528,7 +538,12 @@ export function Clients() {
                 contact={deletingContact}
                 isSubmitting={isDeletingContact}
                 error={deleteContactError}
-                onClose={() => !isDeletingContact && setDeletingContact(null)}
+                onClose={() => {
+                    if (!isDeletingContact) {
+                        setDeletingContact(null);
+                        setContactClientForAction(null);
+                    }
+                }}
                 onConfirm={handleDeleteContact}
             />
 
