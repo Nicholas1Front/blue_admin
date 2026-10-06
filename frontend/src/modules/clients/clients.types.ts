@@ -11,7 +11,7 @@ export interface ClientContact {
     id: string;
     clientId: string;
     name: string;
-    email: string;
+    email: string | null;
     phoneNumber: string;
 }
 
@@ -36,14 +36,14 @@ export interface FindClientsFilters {
 
 export interface CreateContactRequest {
     name: string;
-    email: string;
+    email: string | null;
     phoneNumber: string;
 }
 
 export interface UpdateContactRequest {
     clientId?: string;
     name?: string;
-    email?: string;
+    email?: string | null;
     phoneNumber?: string;
 }
 
