@@ -28,6 +28,7 @@ export interface UpdateClientRequest {
 }
 
 export interface FindClientsFilters {
+    id?: string;
     name?: string;
     document?: string;
     address?: string | null;
