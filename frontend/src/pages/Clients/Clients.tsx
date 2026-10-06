@@ -36,7 +36,10 @@ export function Clients() {
     document.title = "Gestão | Blue Admin";
 
     const {
+        clients,
         clientSearchResults,
+        isLoading,
+        error,
         contacts,
         contactSearchResults,
         isSearching,
