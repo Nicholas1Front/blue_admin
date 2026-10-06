@@ -63,6 +63,42 @@ export function Clients() {
         ]);
     }
 
+    async function handleCreateContact(data: import("../../modules/clients/clients.types").CreateContactRequest) {
+        if (!selectedClient) return;
+        await addContact(selectedClient.id, data);
+        setIsCreateContactModalOpen(false);
+    }
+
+    async function handleUpdateContact(data: import("../../modules/clients/clients.types").UpdateContactRequest) {
+        if (!editingContact) return;
+        await editContact(editingContact.id, data);
+        setEditingContact(null);
+    }
+
+    async function handleDeleteContact() {
+        if (!deletingContact) return;
+        await removeContact(deletingContact.id);
+        setDeletingContact(null);
+    }
+
+    async function handleCreateEquipament(data: import("../../modules/equipaments/equipaments.types").CreateEquipamentRequest) {
+        if (!selectedClient) return;
+        await addEquipament(selectedClient.id, data);
+        setIsCreateEquipamentModalOpen(false);
+    }
+
+    async function handleUpdateEquipament(data: import("../../modules/equipaments/equipaments.types").UpdateEquipamentRequest) {
+        if (!editingEquipament) return;
+        await editEquipament(editingEquipament.id, data);
+        setEditingEquipament(null);
+    }
+
+    async function handleDeleteEquipament() {
+        if (!deletingEquipament) return;
+        await removeEquipament(deletingEquipament.id);
+        setDeletingEquipament(null);
+    }
+
     function handleBackToSearch() {
         setSelectedClient(null);
         clearContactSearch();
