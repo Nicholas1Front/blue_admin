@@ -12,9 +12,9 @@ export const updateEquipamentSchema = z.object({
     clientId : z.string().min(1).optional(),
     type : z.string().min(1).optional(),
     brand : z.string().min(1).optional(),
-    model : z.string().nullable().optional(),
-    mainIdentification : z.string().min(1, {message: "Main Identification is required"}).nullable().optional(),
-    additionalIdentification : z.string().nullable().optional()
+    model : z.string().optional(),
+    mainIdentification : z.string().min(1, {message: "Main Identification is required"}).optional(),
+    additionalIdentification : z.string().optional()
 }).refine(
     data => Object.keys(data).length > 0,
     {
