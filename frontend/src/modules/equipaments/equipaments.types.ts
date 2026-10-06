@@ -22,9 +22,9 @@ export interface UpdateEquipamentRequest {
     clientId?: string;
     type?: string;
     brand?: string;
-    model?: string;
-    mainIdentification?: string;
-    additionalIdentification?: string;
+    model?: string | null;
+    mainIdentification?: string | null;
+    additionalIdentification?: string | null;
 }
 
 export interface FindEquipamentsFilters {
