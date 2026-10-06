@@ -185,6 +185,7 @@ export function Clients() {
 
         await editContact(editingContact.id, data);
         setEditingContact(null);
+        setContactClientForAction(null);
     }
 
     async function handleDeleteContact() {
@@ -192,6 +193,7 @@ export function Clients() {
 
         await removeContact(deletingContact.id);
         setDeletingContact(null);
+        setContactClientForAction(null);
     }
 
     async function handleCreateEquipament(data: CreateEquipamentRequest) {
@@ -307,9 +309,10 @@ export function Clients() {
                                 <button
                                     className="clients-section__button clients-section__button--add"
                                     type="button"
-                                    onClick={() => {
+                                    onClick={async () => {
                                         clearCreateContactError();
                                         setContactClientSelectionMode("create");
+                                        await loadClients();
                                     }}
                                 >
                                     Adicionar contato
@@ -318,9 +321,10 @@ export function Clients() {
                                 <button
                                     className="clients-section__button"
                                     type="button"
-                                    onClick={() => {
+                                    onClick={async () => {
                                         clearUpdateContactError();
                                         setContactClientSelectionMode("edit");
+                                        await loadClients();
                                     }}
                                 >
                                     Editar contato
@@ -329,9 +333,10 @@ export function Clients() {
                                 <button
                                     className="clients-section__button clients-section__button--delete"
                                     type="button"
-                                    onClick={() => {
+                                    onClick={async () => {
                                         clearDeleteContactError();
                                         setContactClientSelectionMode("delete");
+                                        await loadClients();
                                     }}
                                 >
                                     Excluir contato
