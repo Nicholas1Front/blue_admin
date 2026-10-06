@@ -54,7 +54,7 @@ export function ClientCreateModal({
         await onSubmit({
             name: data.name.trim(),
             document: data.document.trim() || null,
-            address: data.address.trim() || null
+            address: data.address.trim() || undefined
         });
         reset();
     }

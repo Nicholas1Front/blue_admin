@@ -41,6 +41,15 @@ export function ClientSearch({
             return;
         }
 
+        if (
+            filters.document &&
+            filters.document.length !== 11 &&
+            filters.document.length !== 14
+        ) {
+            setValidationError("O CPF/CNPJ deve ter 11 ou 14 caracteres.");
+            return;
+        }
+
         setValidationError(null);
         await onSearch(filters);
     }

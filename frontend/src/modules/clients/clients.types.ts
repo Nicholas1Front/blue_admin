@@ -18,7 +18,7 @@ export interface ClientContact {
 export interface CreateClientRequest {
     name: string;
     document?: string | null;
-    address?: string | null;
+    address?: string;
 }
 
 export interface UpdateClientRequest {
