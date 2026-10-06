@@ -35,7 +35,7 @@ export function ContactEditModal({ contact, isSubmitting, error, onClose, onSubm
             updateData.name = data.name.trim();
         }
 
-        const email = data.email.trim() || null;
+        const email = (data.email ?? "").trim() || null;
 
         if (email !== contact.email) {
             updateData.email = email;
