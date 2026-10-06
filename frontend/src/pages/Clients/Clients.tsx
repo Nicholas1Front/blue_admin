@@ -22,6 +22,7 @@ import { ClientDetails } from "./components/ClientDetails/ClientDetails";
 import { ClientCreateModal } from "./components/ClientCreateModal/ClientCreateModal";
 import { ClientEditModal } from "./components/ClientEditModal/ClientEditModal";
 import { ClientDeleteModal } from "./components/ClientDeleteModal/ClientDeleteModal";
+import { ClientSelectModal } from "./components/ClientSelectModal/ClientSelectModal";
 import { ContactCreateModal } from "./components/ContactCreateModal/ContactCreateModal";
 import { ContactEditModal } from "./components/ContactEditModal/ContactEditModal";
 import { ContactDeleteModal } from "./components/ContactDeleteModal/ContactDeleteModal";
@@ -106,6 +107,7 @@ export function Clients() {
     const [isCreateClientModalOpen, setIsCreateClientModalOpen] = useState(false);
     const [editingClient, setEditingClient] = useState<Client | null>(null);
     const [deletingClient, setDeletingClient] = useState<Client | null>(null);
+    const [clientSelectionMode, setClientSelectionMode] = useState<"edit" | "delete" | null>(null);
     const [isCreateContactModalOpen, setIsCreateContactModalOpen] = useState(false);
     const [editingContact, setEditingContact] = useState<ClientContact | null>(null);
     const [deletingContact, setDeletingContact] = useState<ClientContact | null>(null);
@@ -224,16 +226,6 @@ export function Clients() {
                                 <p>Consulte clientes, contatos e equipamentos em um só lugar.</p>
                             </div>
 
-                            <button
-                                className="clients-header__add"
-                                type="button"
-                                onClick={() => {
-                                    clearCreateError();
-                                    setIsCreateClientModalOpen(true);
-                                }}
-                            >
-                                Adicionar cliente
-                            </button>
                         </header>
 
                         <ClientSearch
@@ -250,6 +242,49 @@ export function Clients() {
                             error={searchError}
                             onView={handleViewClient}
                         />
+
+                        <section className="clients-section">
+                            <header className="clients-section__header">
+                                <span className="clients-section__eyebrow">Clientes</span>
+                                <h2>Gerenciar clientes</h2>
+                                <p>Adicione, edite ou exclua clientes cadastrados.</p>
+                            </header>
+
+                            <div className="clients-section__actions">
+                                <button
+                                    className="clients-section__button clients-section__button--add"
+                                    type="button"
+                                    onClick={() => {
+                                        clearCreateError();
+                                        setIsCreateClientModalOpen(true);
+                                    }}
+                                >
+                                    Adicionar cliente
+                                </button>
+
+                                <button
+                                    className="clients-section__button"
+                                    type="button"
+                                    onClick={async () => {
+                                        setClientSelectionMode("edit");
+                                        await loadClients();
+                                    }}
+                                >
+                                    Editar cliente
+                                </button>
+
+                                <button
+                                    className="clients-section__button clients-section__button--delete"
+                                    type="button"
+                                    onClick={async () => {
+                                        setClientSelectionMode("delete");
+                                        await loadClients();
+                                    }}
+                                >
+                                    Excluir cliente
+                                </button>
+                            </div>
+                        </section>
                     </>
                 ) : (
                     <ClientDetails
@@ -308,6 +343,27 @@ export function Clients() {
                     />
                 )}
             </section>
+
+            <ClientSelectModal
+                isOpen={clientSelectionMode !== null}
+                title={clientSelectionMode === "edit" ? "Selecionar cliente para editar" : "Selecionar cliente para excluir"}
+                clients={clients}
+                isLoading={isLoading}
+                error={error}
+                onClose={() => setClientSelectionMode(null)}
+                onSelect={(client) => {
+                    setClientSelectionMode(null);
+
+                    if (clientSelectionMode === "edit") {
+                        clearUpdateError();
+                        setEditingClient(client);
+                        return;
+                    }
+
+                    clearDeleteError();
+                    setDeletingClient(client);
+                }}
+            />
 
             <ClientCreateModal
                 isOpen={isCreateClientModalOpen}

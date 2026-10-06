@@ -1,0 +1,93 @@
+.client-select {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-5);
+}
+
+.client-select__field {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+}
+
+.client-select__field label {
+    color: var(--color-text);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+}
+
+.client-select__field input {
+    min-height: var(--control-height-md);
+    padding: 0 var(--spacing-3);
+    color: var(--color-text);
+    background: var(--color-background);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    outline: none;
+}
+
+.client-select__field input:focus {
+    border-color: var(--color-primary-400);
+}
+
+.client-select__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+    max-height: 20rem;
+    overflow-y: auto;
+}
+
+.client-select__item {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-1);
+    width: 100%;
+    padding: var(--spacing-3);
+    color: var(--color-text);
+    background: var(--color-background);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    text-align: left;
+    cursor: pointer;
+}
+
+.client-select__item:hover {
+    border-color: var(--color-primary-400);
+}
+
+.client-select__item strong {
+    font-size: var(--font-size-sm);
+}
+
+.client-select__item span {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-xs);
+}
+
+.client-select__feedback {
+    padding: var(--spacing-6);
+    color: var(--color-text-secondary);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    text-align: center;
+}
+
+.client-select__actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: var(--spacing-3);
+}
+
+.client-select__cancel {
+    min-height: var(--control-height-md);
+    padding: 0 var(--spacing-4);
+    color: var(--color-text);
+    background: transparent;
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+}
