@@ -42,6 +42,12 @@ interface ClientDetailsProps {
     onBack: () => void;
     onEditClient: () => void;
     onDeleteClient: () => void;
+    onAddContact: () => void;
+    onEditContact: (contact: ClientContact) => void;
+    onDeleteContact: (contact: ClientContact) => void;
+    onAddEquipament: () => void;
+    onEditEquipament: (equipament: Equipament) => void;
+    onDeleteEquipament: (equipament: Equipament) => void;
     onSearchContacts: (filters: FindContactsFilters) => Promise<void>;
     onClearContactSearch: () => void;
     onSearchEquipaments: (filters: FindEquipamentsFilters) => Promise<void>;
@@ -79,6 +85,12 @@ export function ClientDetails({
     onBack,
     onEditClient,
     onDeleteClient,
+    onAddContact,
+    onEditContact,
+    onDeleteContact,
+    onAddEquipament,
+    onEditEquipament,
+    onDeleteEquipament,
     onSearchContacts,
     onClearContactSearch,
     onSearchEquipaments,
@@ -191,7 +203,8 @@ export function ClientDetails({
                                 </div>
 
                                 <div className="client-details__item-actions">
-                                    <button type="button" aria-label={"Editar contato " + contact.name}>
+                                    <button type="button" aria-label={"Editar contato " + contact.name}
+                                        onClick={() => onEditContact(contact)}>
                                         <FontAwesomeIcon icon={faPenToSquare} />
                                     </button>
                                     <button
