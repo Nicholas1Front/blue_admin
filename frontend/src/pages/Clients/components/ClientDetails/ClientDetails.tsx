@@ -40,6 +40,8 @@ interface ClientDetailsProps {
     hasSearchedContacts: boolean;
     hasSearchedEquipaments: boolean;
     onBack: () => void;
+    onEditClient: () => void;
+    onDeleteClient: () => void;
     onSearchContacts: (filters: FindContactsFilters) => Promise<void>;
     onClearContactSearch: () => void;
     onSearchEquipaments: (filters: FindEquipamentsFilters) => Promise<void>;
@@ -75,6 +77,8 @@ export function ClientDetails({
     hasSearchedContacts,
     hasSearchedEquipaments,
     onBack,
+    onEditClient,
+    onDeleteClient,
     onSearchContacts,
     onClearContactSearch,
     onSearchEquipaments,
