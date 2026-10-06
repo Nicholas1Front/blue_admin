@@ -28,11 +28,25 @@ export function ContactEditModal({ contact, isSubmitting, error, onClose, onSubm
 
     async function handleFormSubmit(data: ContactFormData) {
         if (!contact) return;
+
         const updateData: UpdateContactRequest = {};
-        if (data.name.trim() !== contact.name) updateData.name = data.name.trim();
-        const email = data.email.trim() || null;\n        if (email !== contact.email) updateData.email = email;
-        if (data.phoneNumber.trim() !== contact.phoneNumber) updateData.phoneNumber = data.phoneNumber.trim();
+
+        if (data.name.trim() !== contact.name) {
+            updateData.name = data.name.trim();
+        }
+
+        const email = data.email.trim() || null;
+
+        if (email !== contact.email) {
+            updateData.email = email;
+        }
+
+        if (data.phoneNumber.trim() !== contact.phoneNumber) {
+            updateData.phoneNumber = data.phoneNumber.trim();
+        }
+
         if (Object.keys(updateData).length === 0) return;
+
         await onSubmit(updateData);
     }
 
