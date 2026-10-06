@@ -125,8 +125,18 @@ export function Clients() {
     }
 
     async function handleCreateClient(data: CreateClientRequest) {
-        await addClient(data);
+        const newClient = await addClient(data);
+
         setIsCreateClientModalOpen(false);
+        clearClientSearch();
+        clearContactSearch();
+        clearEquipamentSearch();
+        setSelectedClient(newClient);
+
+        await Promise.all([
+            loadContacts(newClient.id),
+            loadEquipaments(newClient.id)
+        ]);
     }
 
     async function handleUpdateClient(data: UpdateClientRequest) {
@@ -154,6 +164,7 @@ export function Clients() {
         if (!selectedClient) return;
 
         await addContact(selectedClient.id, data);
+        clearContactSearch();
         setIsCreateContactModalOpen(false);
     }
 
@@ -175,6 +186,7 @@ export function Clients() {
         if (!selectedClient) return;
 
         await addEquipament(selectedClient.id, data);
+        clearEquipamentSearch();
         setIsCreateEquipamentModalOpen(false);
     }
 
