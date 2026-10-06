@@ -10,7 +10,7 @@ import "./EquipamentCreateModal.css";
 
 interface Props { clientId: string; isOpen: boolean; isSubmitting: boolean; error: string | null; onClose: () => void; onSubmit: (data: CreateEquipamentRequest) => Promise<void>; }
 
-export function EquipamentCreateModal({ clientId, isOpen, isSubmitting, error, onClose, onSubmit }: Props) {
+export function EquipamentCreateModal({ isOpen, isSubmitting, error, onClose, onSubmit }: Props) {
     const { register, handleSubmit, reset, formState: { errors } } = useForm<EquipamentFormData>({
         resolver: zodResolver(equipamentSchema),
         defaultValues: { type: "", brand: "", model: "", mainIdentification: "", additionalIdentification: "" }
