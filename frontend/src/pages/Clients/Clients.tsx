@@ -1,10 +1,9 @@
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { AppHeader } from "../../components/AppHeader/AppHeader";
 import { useClients } from "../../modules/clients/useClients";
 import { useEquipaments } from "../../modules/equipaments/useEquipaments";
 import type { Client } from "../../modules/clients/clients.types";
-
 import { ClientSearch } from "./components/ClientSearch/ClientSearch";
 import { ClientSearchResults } from "./components/ClientSearchResults/ClientSearchResults";
 import { ClientViewModal } from "./components/ClientViewModal/ClientViewModal";
@@ -16,96 +15,33 @@ export function Clients() {
 
     const {
         clientSearchResults,
+        contacts,
         isSearching,
+        isLoadingContacts,
         searchError,
+        contactError,
         hasSearched,
         searchClients,
         clearClientSearch,
-        loadContacts,
-        contacts,
-        isLoadingContacts,
-        contactError,
-        editClient,
-        removeClient,
-        editContact,
-        removeContact,
-        isUpdating,
-        isDeleting,
-        isUpdatingContact,
-        isDeletingContact,
-        updateError,
-        deleteError,
-        updateContactError,
-        deleteContactError,
-        clearUpdateError,
-        clearDeleteError,
-        clearUpdateContactError,
-        clearDeleteContactError
+        loadContacts
     } = useClients();
 
     const {
         equipaments,
         isLoading: isLoadingEquipaments,
         error: equipamentError,
-        loadEquipaments,
-        editEquipament,
-        removeEquipament,
-        isUpdating: isUpdatingEquipament,
-        isDeleting: isDeletingEquipament,
-        updateError: updateEquipamentError,
-        deleteError: deleteEquipamentError,
-        clearUpdateError: clearUpdateEquipamentError,
-        clearDeleteError: clearDeleteEquipamentError
+        loadEquipaments
     } = useEquipaments();
 
     const [selectedClient, setSelectedClient] = useState<Client | null>(null);
 
-    useEffect(() => {
-        if (!selectedClient) {
-            return;
-        }
-
-        loadContacts(selectedClient.id);
-        loadEquipaments(selectedClient.id);
-    }, [selectedClient, loadContacts, loadEquipaments]);
-
-    function handleSelectClient(client: Client) {
+    async function handleViewClient(client: Client) {
         setSelectedClient(client);
-    }
 
-    function handleCloseClient() {
-        if (
-            isUpdating ||
-            isDeleting ||
-            isUpdatingContact ||
-            isDeletingContact ||
-            isUpdatingEquipament ||
-            isDeletingEquipament
-        ) {
-            return;
-        }
-
-        setSelectedClient(null);
-    }
-
-    async function handleUpdateClient(
-        data: Parameters<typeof editClient>[1]
-    ) {
-        if (!selectedClient) {
-            return;
-        }
-
-        const updatedClient = await editClient(selectedClient.id, data);
-        setSelectedClient(updatedClient);
-    }
-
-    async function handleDeleteClient() {
-        if (!selectedClient) {
-            return;
-        }
-
-        await removeClient(selectedClient.id);
-        setSelectedClient(null);
+        await Promise.all([
+            loadContacts(client.id),
+            loadEquipaments(client.id)
+        ]);
     }
 
     return (
@@ -119,11 +55,11 @@ export function Clients() {
                             Gestão
                         </span>
 
-                        <h1>Clientes, contatos e equipamentos</h1>
+                        <h1>Clientes e equipamentos</h1>
 
                         <p>
-                            Pesquise um cliente para consultar e gerenciar todas
-                            as informações relacionadas a ele.
+                            Consulte clientes, contatos e equipamentos em um
+                            só lugar.
                         </p>
                     </div>
                 </header>
@@ -140,7 +76,7 @@ export function Clients() {
                     isSearching={isSearching}
                     hasSearched={hasSearched}
                     error={searchError}
-                    onSelect={handleSelectClient}
+                    onView={handleViewClient}
                 />
             </section>
 
@@ -152,31 +88,7 @@ export function Clients() {
                 isLoadingEquipaments={isLoadingEquipaments}
                 contactError={contactError}
                 equipamentError={equipamentError}
-                isUpdating={isUpdating}
-                isDeleting={isDeleting}
-                isUpdatingContact={isUpdatingContact}
-                isDeletingContact={isDeletingContact}
-                isUpdatingEquipament={isUpdatingEquipament}
-                isDeletingEquipament={isDeletingEquipament}
-                updateError={updateError}
-                deleteError={deleteError}
-                updateContactError={updateContactError}
-                deleteContactError={deleteContactError}
-                updateEquipamentError={updateEquipamentError}
-                deleteEquipamentError={deleteEquipamentError}
-                onClose={handleCloseClient}
-                onUpdateClient={handleUpdateClient}
-                onDeleteClient={handleDeleteClient}
-                onUpdateContact={editContact}
-                onDeleteContact={removeContact}
-                onUpdateEquipament={editEquipament}
-                onDeleteEquipament={removeEquipament}
-                onClearUpdateError={clearUpdateError}
-                onClearDeleteError={clearDeleteError}
-                onClearUpdateContactError={clearUpdateContactError}
-                onClearDeleteContactError={clearDeleteContactError}
-                onClearUpdateEquipamentError={clearUpdateEquipamentError}
-                onClearDeleteEquipamentError={clearDeleteEquipamentError}
+                onClose={() => setSelectedClient(null)}
             />
         </main>
     );
