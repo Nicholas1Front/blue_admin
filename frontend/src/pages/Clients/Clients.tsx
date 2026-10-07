@@ -31,6 +31,7 @@ import { EquipamentCreateModal } from "./components/EquipamentCreateModal/Equipa
 import { EquipamentEditModal } from "./components/EquipamentEditModal/EquipamentEditModal";
 import { EquipamentDeleteModal } from "./components/EquipamentDeleteModal/EquipamentDeleteModal";
 import { EquipamentSelectModal } from "./components/EquipamentSelectModal/EquipamentSelectModal";
+import { AllClientsSection } from "./components/AllClientsSection/AllClientsSection";
 
 import "./Clients.css";
 
@@ -126,6 +127,7 @@ export function Clients() {
     const [equipamentSelectionMode, setEquipamentSelectionMode] = useState<"edit" | "delete" | null>(null);
     const [editingEquipament, setEditingEquipament] = useState<Equipament | null>(null);
     const [deletingEquipament, setDeletingEquipament] = useState<Equipament | null>(null);
+    const [isAllClientsExpanded, setIsAllClientsExpanded] = useState(false);
 
     async function handleViewClient(client: Client) {
         setSelectedClient(client);
@@ -224,6 +226,16 @@ export function Clients() {
         await removeEquipament(deletingEquipament.id);
         setDeletingEquipament(null);
         setEquipamentClientForAction(null);
+    }
+
+    async function handleToggleAllClients() {
+        if (isAllClientsExpanded) {
+            setIsAllClientsExpanded(false);
+            return;
+        }
+
+        setIsAllClientsExpanded(true);
+        await loadClients();
     }
 
     function handleBackToSearch() {
@@ -397,6 +409,15 @@ export function Clients() {
                                 </button>
                             </div>
                         </section>
+
+                        <AllClientsSection
+                            clients={clients}
+                            isLoading={isLoading}
+                            error={error}
+                            isExpanded={isAllClientsExpanded}
+                            onToggle={handleToggleAllClients}
+                            onView={handleViewClient}
+                        />
                     </>
                 ) : (
                     <ClientDetails
