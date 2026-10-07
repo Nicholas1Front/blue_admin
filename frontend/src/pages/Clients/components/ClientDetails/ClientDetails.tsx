@@ -205,8 +205,12 @@ export function ClientDetails({
                                 </div>
 
                                 <div className="client-details__item-actions">
-                                    <button type="button" aria-label={"Editar contato " + contact.name}
-                                        onClick={() => onEditContact(contact)}>
+                                    <button
+                                        type="button"
+                                        className="client-details__item-edit"
+                                        aria-label={"Editar contato " + contact.name}
+                                        onClick={() => onEditContact(contact)}
+                                    >
                                         <FontAwesomeIcon icon={faPenToSquare} />
                                     </button>
                                     <button
@@ -268,17 +272,34 @@ export function ClientDetails({
                                     <strong>{getEquipamentTitle(equipament)}</strong>
 
                                     <div className="client-details__equipment-data">
-                                        <span>Tipo: {equipament.type || "Não informado"}</span>
-                                        <span>Marca: {equipament.brand || "Não informado"}</span>
-                                        <span>Modelo: {equipament.model || "Não informado"}</span>
-                                        <span>
-                                            Identificação:{" "}
-                                            {equipament.mainIdentification || "Não informada"}
-                                        </span>
-                                        <span>
-                                            Identificação adicional:{" "}
-                                            {equipament.additionalIdentification || "Não informada"}
-                                        </span>
+                                        <div className="client-details__equipment-field">
+                                            <span>Tipo</span>
+                                            <strong>{equipament.type || "Não informado"}</strong>
+                                        </div>
+
+                                        <div className="client-details__equipment-field">
+                                            <span>Marca</span>
+                                            <strong>{equipament.brand || "Não informado"}</strong>
+                                        </div>
+
+                                        <div className="client-details__equipment-field">
+                                            <span>Modelo</span>
+                                            <strong>{equipament.model || "Não informado"}</strong>
+                                        </div>
+
+                                        <div className="client-details__equipment-field">
+                                            <span>Identificação</span>
+                                            <strong>
+                                                {equipament.mainIdentification || "Não informada"}
+                                            </strong>
+                                        </div>
+
+                                        <div className="client-details__equipment-field">
+                                            <span>Identificação adicional</span>
+                                            <strong>
+                                                {equipament.additionalIdentification || "Não informada"}
+                                            </strong>
+                                        </div>
                                     </div>
                                 </div>
 
