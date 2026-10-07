@@ -30,6 +30,7 @@ import { ContactSelectModal } from "./components/ContactSelectModal/ContactSelec
 import { EquipamentCreateModal } from "./components/EquipamentCreateModal/EquipamentCreateModal";
 import { EquipamentEditModal } from "./components/EquipamentEditModal/EquipamentEditModal";
 import { EquipamentDeleteModal } from "./components/EquipamentDeleteModal/EquipamentDeleteModal";
+import { EquipamentSelectModal } from "./components/EquipamentSelectModal/EquipamentSelectModal";
 
 import "./Clients.css";
 
@@ -120,6 +121,9 @@ export function Clients() {
     const [editingContact, setEditingContact] = useState<ClientContact | null>(null);
     const [deletingContact, setDeletingContact] = useState<ClientContact | null>(null);
     const [isCreateEquipamentModalOpen, setIsCreateEquipamentModalOpen] = useState(false);
+    const [equipamentClientForAction, setEquipamentClientForAction] = useState<Client | null>(null);
+    const [equipamentClientSelectionMode, setEquipamentClientSelectionMode] = useState<"create" | "edit" | "delete" | null>(null);
+    const [equipamentSelectionMode, setEquipamentSelectionMode] = useState<"edit" | "delete" | null>(null);
     const [editingEquipament, setEditingEquipament] = useState<Equipament | null>(null);
     const [deletingEquipament, setDeletingEquipament] = useState<Equipament | null>(null);
 
@@ -197,11 +201,13 @@ export function Clients() {
     }
 
     async function handleCreateEquipament(data: CreateEquipamentRequest) {
-        if (!selectedClient) return;
+        const client = selectedClient ?? equipamentClientForAction;
+        if (!client) return;
 
-        await addEquipament(selectedClient.id, data);
+        await addEquipament(client.id, data);
         clearEquipamentSearch();
         setIsCreateEquipamentModalOpen(false);
+        setEquipamentClientForAction(null);
     }
 
     async function handleUpdateEquipament(data: UpdateEquipamentRequest) {
@@ -209,6 +215,7 @@ export function Clients() {
 
         await editEquipament(editingEquipament.id, data);
         setEditingEquipament(null);
+        setEquipamentClientForAction(null);
     }
 
     async function handleDeleteEquipament() {
@@ -216,6 +223,7 @@ export function Clients() {
 
         await removeEquipament(deletingEquipament.id);
         setDeletingEquipament(null);
+        setEquipamentClientForAction(null);
     }
 
     function handleBackToSearch() {
@@ -340,6 +348,52 @@ export function Clients() {
                                     }}
                                 >
                                     Excluir contato
+                                </button>
+                            </div>
+                        </section>
+
+                        <section className="equipaments-section">
+                            <header className="equipaments-section__header">
+                                <span className="equipaments-section__eyebrow">Equipamentos</span>
+                                <h2>Gerenciar equipamentos</h2>
+                                <p>Adicione, edite ou exclua equipamentos vinculados aos clientes.</p>
+                            </header>
+
+                            <div className="equipaments-section__actions">
+                                <button
+                                    className="clients-section__button clients-section__button--add"
+                                    type="button"
+                                    onClick={async () => {
+                                        clearEquipamentCreateError();
+                                        setEquipamentClientSelectionMode("create");
+                                        await loadClients();
+                                    }}
+                                >
+                                    Adicionar equipamento
+                                </button>
+
+                                <button
+                                    className="clients-section__button"
+                                    type="button"
+                                    onClick={async () => {
+                                        clearEquipamentUpdateError();
+                                        setEquipamentClientSelectionMode("edit");
+                                        await loadClients();
+                                    }}
+                                >
+                                    Editar equipamento
+                                </button>
+
+                                <button
+                                    className="clients-section__button clients-section__button--delete"
+                                    type="button"
+                                    onClick={async () => {
+                                        clearEquipamentDeleteError();
+                                        setEquipamentClientSelectionMode("delete");
+                                        await loadClients();
+                                    }}
+                                >
+                                    Excluir equipamento
                                 </button>
                             </div>
                         </section>
@@ -547,8 +601,69 @@ export function Clients() {
                 onConfirm={handleDeleteContact}
             />
 
+            <ClientSelectModal
+                isOpen={equipamentClientSelectionMode !== null}
+                title={
+                    equipamentClientSelectionMode === "create"
+                        ? "Selecionar cliente para adicionar equipamento"
+                        : equipamentClientSelectionMode === "edit"
+                            ? "Selecionar cliente para editar equipamento"
+                            : "Selecionar cliente para excluir equipamento"
+                }
+                clients={clients}
+                isLoading={isLoading}
+                error={error}
+                onClose={() => setEquipamentClientSelectionMode(null)}
+                onSelect={(client) => {
+                    const mode = equipamentClientSelectionMode;
+                    setEquipamentClientSelectionMode(null);
+                    setEquipamentClientForAction(client);
+
+                    if (mode === "create") {
+                        clearEquipamentCreateError();
+                        setIsCreateEquipamentModalOpen(true);
+                        return;
+                    }
+
+                    if (mode === "edit") {
+                        clearEquipamentUpdateError();
+                        setEquipamentSelectionMode("edit");
+                        void loadEquipaments(client.id);
+                        return;
+                    }
+
+                    clearEquipamentDeleteError();
+                    setEquipamentSelectionMode("delete");
+                    void loadEquipaments(client.id);
+                }}
+            />
+
+            <EquipamentSelectModal
+                isOpen={equipamentSelectionMode !== null}
+                title={equipamentSelectionMode === "edit" ? "Selecionar equipamento para editar" : "Selecionar equipamento para excluir"}
+                equipaments={equipaments}
+                isLoading={isLoadingEquipaments}
+                error={equipamentError}
+                onClose={() => {
+                    setEquipamentSelectionMode(null);
+                    setEquipamentClientForAction(null);
+                }}
+                onSelect={(equipament) => {
+                    setEquipamentSelectionMode(null);
+
+                    if (equipamentSelectionMode === "edit") {
+                        clearEquipamentUpdateError();
+                        setEditingEquipament(equipament);
+                        return;
+                    }
+
+                    clearEquipamentDeleteError();
+                    setDeletingEquipament(equipament);
+                }}
+            />
+
             <EquipamentCreateModal
-                clientId={selectedClient?.id ?? ""}
+                clientId={equipamentClientForAction?.id ?? selectedClient?.id ?? ""}
                 isOpen={isCreateEquipamentModalOpen}
                 isSubmitting={isCreatingEquipament}
                 error={equipamentCreateError}
@@ -560,7 +675,12 @@ export function Clients() {
                 equipament={editingEquipament}
                 isSubmitting={isUpdatingEquipament}
                 error={equipamentUpdateError}
-                onClose={() => !isUpdatingEquipament && setEditingEquipament(null)}
+                onClose={() => {
+                    if (!isUpdatingEquipament) {
+                        setEditingEquipament(null);
+                        setEquipamentClientForAction(null);
+                    }
+                }}
                 onSubmit={handleUpdateEquipament}
             />
 
@@ -568,7 +688,12 @@ export function Clients() {
                 equipament={deletingEquipament}
                 isSubmitting={isDeletingEquipament}
                 error={equipamentDeleteError}
-                onClose={() => !isDeletingEquipament && setDeletingEquipament(null)}
+                onClose={() => {
+                    if (!isDeletingEquipament) {
+                        setDeletingEquipament(null);
+                        setEquipamentClientForAction(null);
+                    }
+                }}
                 onConfirm={handleDeleteEquipament}
             />
         </main>
