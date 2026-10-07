@@ -7,6 +7,11 @@ datasource db {
   provider = "postgresql"
 }
 
+enum FinancialTransactionType {
+  INCOME
+  EXPENSE
+}
+
 model User {
   id           String   @id @default(uuid())
   name         String
@@ -17,13 +22,13 @@ model User {
 }
 
 model Client {
-  id         String          @id @default(uuid())
-  name       String
-  document   String?          @db.VarChar(14)
-  address    String?
-  createdAt  DateTime        @default(now())
-  updatedAt  DateTime        @updatedAt
-  contacts   ClientContact[]
+  id          String          @id @default(uuid())
+  name        String
+  document    String?         @db.VarChar(14)
+  address     String?
+  createdAt   DateTime        @default(now())
+  updatedAt   DateTime        @updatedAt
+  contacts    ClientContact[]
   equipaments Equipament[]
 }
 
@@ -37,14 +42,62 @@ model ClientContact {
 }
 
 model Equipament {
-  id                     String   @id @default(uuid())
-  clientId               String   @map("client_id")
-  type                   String
-  brand                  String
-  model                  String?
-  mainIdentification     String?  @map("main_identification")
-  additionalIdentification String? @map("additional_identification")
-  createdAt              DateTime @default(now())
-  updatedAt              DateTime @updatedAt
-  client                 Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  id                       String   @id @default(uuid())
+  clientId                 String   @map("client_id")
+  type                     String
+  brand                    String
+  model                    String?
+  mainIdentification       String?  @map("main_identification")
+  additionalIdentification String?  @map("additional_identification")
+  createdAt                DateTime @default(now())
+  updatedAt                DateTime @updatedAt
+  client                   Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+}
+
+model FinancialCategory {
+  id           String                    @id @default(uuid())
+  name         String
+  description  String?
+  type         FinancialTransactionType
+  active       Boolean                   @default(true)
+  createdAt    DateTime                  @default(now())
+  updatedAt    DateTime                  @updatedAt
+  transactions FinancialTransaction[]
+
+  @@map("financial_categories")
+}
+
+model FinancialTransaction {
+  id            String                    @id @default(uuid())
+  description   String
+  value         Decimal
+  type          FinancialTransactionType
+  categoryId    String                    @map("category_id")
+  referenceDate DateTime                  @map("reference_date")
+  originType    String?                   @map("origin_type")
+  originId      String?                   @map("origin_id")
+  createdAt     DateTime                  @default(now())
+  updatedAt     DateTime                  @updatedAt
+
+  category      FinancialCategory         @relation(fields: [categoryId], references: [id])
+
+  @@index([categoryId])
+  @@index([referenceDate])
+  @@index([type])
+  @@map("financial_transactions")
+}
+
+model MonthlyExpense {
+  id            String   @id @default(uuid())
+  name          String
+  description   String?
+  expectedValue Decimal  @map("expected_value")
+  dueDate       Int      @map("due_date")
+  notes         String?
+  active        Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  @@index([active])
+  @@map("monthly_expenses")
 }
