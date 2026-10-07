@@ -84,17 +84,51 @@
     border-radius: var(--radius-md);
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-semibold);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-2);
     cursor: pointer;
+    transition:
+        color var(--transition-fast),
+        background-color var(--transition-fast),
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast),
+        transform var(--transition-fast);
 }
 
 .clients-section__button:hover {
+    color: var(--color-text);
+    background: var(--color-surface-hover);
     border-color: var(--color-primary-400);
+    box-shadow: var(--shadow-sm);
+    transform: translateY(-1px);
+}
+
+.clients-section__button:active {
+    transform: translateY(0);
 }
 
 .clients-section__button--add {
     color: var(--color-background);
     background: var(--color-success);
     border-color: var(--color-success);
+}
+
+.clients-section__button--add:hover {
+    color: var(--color-background);
+    background: #16a34a;
+    border-color: #16a34a;
+}
+
+.clients-section__button--delete:hover {
+    color: var(--color-text);
+    background: var(--color-danger-bg);
+    border-color: var(--color-danger);
+}
+
+.clients-section__button svg {
+    flex-shrink: 0;
 }
 
 .clients-section__button--delete {
