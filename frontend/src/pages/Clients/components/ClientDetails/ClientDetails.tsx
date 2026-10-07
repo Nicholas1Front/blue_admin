@@ -306,6 +306,7 @@ export function ClientDetails({
                                 <div className="client-details__item-actions">
                                     <button
                                         type="button"
+                                        className="client-details__item-edit"
                                         aria-label={"Editar equipamento " + getEquipamentTitle(equipament)}
                                         onClick={() => onEditEquipament(equipament)}
                                     >
