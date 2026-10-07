@@ -1,4 +1,6 @@
 import { useState } from "react";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faBox, faBuilding, faPenToSquare, faPhone, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 
 import { AppHeader } from "../../components/AppHeader/AppHeader";
 import { useClients } from "../../modules/clients/useClients";
@@ -291,6 +293,7 @@ export function Clients() {
                                         setIsCreateClientModalOpen(true);
                                     }}
                                 >
+                                    <FontAwesomeIcon icon={faPlus} />
                                     Adicionar cliente
                                 </button>
 
@@ -302,6 +305,7 @@ export function Clients() {
                                         await loadClients();
                                     }}
                                 >
+                                    <FontAwesomeIcon icon={faPenToSquare} />
                                     Editar cliente
                                 </button>
 
@@ -313,6 +317,7 @@ export function Clients() {
                                         await loadClients();
                                     }}
                                 >
+                                    <FontAwesomeIcon icon={faTrash} />
                                     Excluir cliente
                                 </button>
                             </div>
@@ -335,6 +340,7 @@ export function Clients() {
                                         await loadClients();
                                     }}
                                 >
+                                    <FontAwesomeIcon icon={faPlus} />
                                     Adicionar contato
                                 </button>
 
@@ -347,6 +353,7 @@ export function Clients() {
                                         await loadClients();
                                     }}
                                 >
+                                    <FontAwesomeIcon icon={faPenToSquare} />
                                     Editar contato
                                 </button>
 
@@ -359,6 +366,7 @@ export function Clients() {
                                         await loadClients();
                                     }}
                                 >
+                                    <FontAwesomeIcon icon={faTrash} />
                                     Excluir contato
                                 </button>
                             </div>
@@ -381,6 +389,7 @@ export function Clients() {
                                         await loadClients();
                                     }}
                                 >
+                                    <FontAwesomeIcon icon={faPlus} />
                                     Adicionar equipamento
                                 </button>
 
@@ -393,6 +402,7 @@ export function Clients() {
                                         await loadClients();
                                     }}
                                 >
+                                    <FontAwesomeIcon icon={faPenToSquare} />
                                     Editar equipamento
                                 </button>
 
@@ -405,6 +415,7 @@ export function Clients() {
                                         await loadClients();
                                     }}
                                 >
+                                    <FontAwesomeIcon icon={faTrash} />
                                     Excluir equipamento
                                 </button>
                             </div>
