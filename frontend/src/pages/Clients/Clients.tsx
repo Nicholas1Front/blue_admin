@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faBox, faBuilding, faPenToSquare, faPhone, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
+import { faPenToSquare, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 
 import { AppHeader } from "../../components/AppHeader/AppHeader";
 import { useClients } from "../../modules/clients/useClients";
