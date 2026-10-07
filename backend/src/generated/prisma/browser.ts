@@ -37,3 +37,18 @@ export type ClientContact = Prisma.ClientContactModel
  * 
  */
 export type Equipament = Prisma.EquipamentModel
+/**
+ * Model FinancialCategory
+ * 
+ */
+export type FinancialCategory = Prisma.FinancialCategoryModel
+/**
+ * Model FinancialTransaction
+ * 
+ */
+export type FinancialTransaction = Prisma.FinancialTransactionModel
+/**
+ * Model MonthlyExpense
+ * 
+ */
+export type MonthlyExpense = Prisma.MonthlyExpenseModel

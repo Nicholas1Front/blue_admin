@@ -54,7 +54,10 @@ export const ModelName = {
   User: 'User',
   Client: 'Client',
   ClientContact: 'ClientContact',
-  Equipament: 'Equipament'
+  Equipament: 'Equipament',
+  FinancialCategory: 'FinancialCategory',
+  FinancialTransaction: 'FinancialTransaction',
+  MonthlyExpense: 'MonthlyExpense'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -121,6 +124,50 @@ export const EquipamentScalarFieldEnum = {
 } as const
 
 export type EquipamentScalarFieldEnum = (typeof EquipamentScalarFieldEnum)[keyof typeof EquipamentScalarFieldEnum]
+
+
+export const FinancialCategoryScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  type: 'type',
+  active: 'active',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FinancialCategoryScalarFieldEnum = (typeof FinancialCategoryScalarFieldEnum)[keyof typeof FinancialCategoryScalarFieldEnum]
+
+
+export const FinancialTransactionScalarFieldEnum = {
+  id: 'id',
+  description: 'description',
+  value: 'value',
+  type: 'type',
+  categoryId: 'categoryId',
+  referenceDate: 'referenceDate',
+  originType: 'originType',
+  originId: 'originId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type FinancialTransactionScalarFieldEnum = (typeof FinancialTransactionScalarFieldEnum)[keyof typeof FinancialTransactionScalarFieldEnum]
+
+
+export const MonthlyExpenseScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  expectedValue: 'expectedValue',
+  dueDate: 'dueDate',
+  notes: 'notes',
+  active: 'active',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type MonthlyExpenseScalarFieldEnum = (typeof MonthlyExpenseScalarFieldEnum)[keyof typeof MonthlyExpenseScalarFieldEnum]
 
 
 export const SortOrder = {
