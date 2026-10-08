@@ -22,7 +22,7 @@ class ExpensesService{
             cleanedData.name,
             cleanedData.description,
             cleanedData.expectedValue,
-            cleanedData.dueData,
+            cleanedData.dueDate,
             cleanedData.notes
         )
 
@@ -64,7 +64,7 @@ class ExpensesService{
             cleanedFilters.name,
             cleanedFilters.description,
             cleanedFilters.expectedValue,
-            cleanedFilters.dueData,
+            cleanedFilters.dueDate,
             cleanedFilters.notes,
             cleanedFilters.active
         )

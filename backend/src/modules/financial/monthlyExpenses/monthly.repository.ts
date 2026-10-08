@@ -5,7 +5,7 @@ class ExpensesRepository {
         name : string,
         description : string | null,
         expectedValue : number,
-        dueData : Date | null,
+        dueDate : Date | null,
         notes : string | null
     ){
         const expense = await prisma.monthlyExpense.create({
@@ -13,7 +13,7 @@ class ExpensesRepository {
                 name,
                 description,
                 expectedValue,
-                dueData,
+                dueDate,
                 notes,
                 active : true
             }
@@ -34,7 +34,7 @@ class ExpensesRepository {
                 name : data.name,
                 description : data.description,
                 expectedValue : data.expectedValue,
-                dueData : data.dueData,
+                dueDate : data.dueDate,
                 notes : data.notes
             }
         })
@@ -53,7 +53,7 @@ class ExpensesRepository {
         name : string | undefined,
         description : string | null | undefined,
         expectedValue : number | undefined,
-        dueData : Date | null | undefined,
+        dueDate : Date | null | undefined,
         notes : string | null | undefined,
         active : boolean | undefined
     ){
@@ -82,7 +82,7 @@ class ExpensesRepository {
                         }
                 )),
                 ...(expectedValue !== undefined && { expectedValue : expectedValue, mode : 'insensitive' }),
-                ...(dueData !== undefined && { dueData : dueData, mode : 'insensitive' }),
+                ...(dueDate !== undefined && { dueDate : dueDate, mode : 'insensitive' }),
                 ...(notes !== undefined && (
                     notes === null
                         ? { notes : null }
