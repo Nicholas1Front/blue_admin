@@ -92,7 +92,7 @@ model MonthlyExpense {
   name          String
   description   String?
   expectedValue Decimal  @map("expected_value")
-  dueDate       Int      @map("due_date")
+  dueDate       DateTime?      @map("due_date")
   notes         String?
   active        Boolean  @default(true)
   createdAt     DateTime @default(now())

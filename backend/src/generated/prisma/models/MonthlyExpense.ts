@@ -28,12 +28,10 @@ export type AggregateMonthlyExpense = {
 
 export type MonthlyExpenseAvgAggregateOutputType = {
   expectedValue: runtime.Decimal | null
-  dueDate: number | null
 }
 
 export type MonthlyExpenseSumAggregateOutputType = {
   expectedValue: runtime.Decimal | null
-  dueDate: number | null
 }
 
 export type MonthlyExpenseMinAggregateOutputType = {
@@ -41,7 +39,7 @@ export type MonthlyExpenseMinAggregateOutputType = {
   name: string | null
   description: string | null
   expectedValue: runtime.Decimal | null
-  dueDate: number | null
+  dueDate: Date | null
   notes: string | null
   active: boolean | null
   createdAt: Date | null
@@ -53,7 +51,7 @@ export type MonthlyExpenseMaxAggregateOutputType = {
   name: string | null
   description: string | null
   expectedValue: runtime.Decimal | null
-  dueDate: number | null
+  dueDate: Date | null
   notes: string | null
   active: boolean | null
   createdAt: Date | null
@@ -76,12 +74,10 @@ export type MonthlyExpenseCountAggregateOutputType = {
 
 export type MonthlyExpenseAvgAggregateInputType = {
   expectedValue?: true
-  dueDate?: true
 }
 
 export type MonthlyExpenseSumAggregateInputType = {
   expectedValue?: true
-  dueDate?: true
 }
 
 export type MonthlyExpenseMinAggregateInputType = {
@@ -212,7 +208,7 @@ export type MonthlyExpenseGroupByOutputType = {
   name: string
   description: string | null
   expectedValue: runtime.Decimal
-  dueDate: number
+  dueDate: Date | null
   notes: string | null
   active: boolean
   createdAt: Date
@@ -247,7 +243,7 @@ export type MonthlyExpenseWhereInput = {
   name?: Prisma.StringFilter<"MonthlyExpense"> | string
   description?: Prisma.StringNullableFilter<"MonthlyExpense"> | string | null
   expectedValue?: Prisma.DecimalFilter<"MonthlyExpense"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  dueDate?: Prisma.IntFilter<"MonthlyExpense"> | number
+  dueDate?: Prisma.DateTimeNullableFilter<"MonthlyExpense"> | Date | string | null
   notes?: Prisma.StringNullableFilter<"MonthlyExpense"> | string | null
   active?: Prisma.BoolFilter<"MonthlyExpense"> | boolean
   createdAt?: Prisma.DateTimeFilter<"MonthlyExpense"> | Date | string
@@ -259,7 +255,7 @@ export type MonthlyExpenseOrderByWithRelationInput = {
   name?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   expectedValue?: Prisma.SortOrder
-  dueDate?: Prisma.SortOrder
+  dueDate?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   active?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -274,7 +270,7 @@ export type MonthlyExpenseWhereUniqueInput = Prisma.AtLeast<{
   name?: Prisma.StringFilter<"MonthlyExpense"> | string
   description?: Prisma.StringNullableFilter<"MonthlyExpense"> | string | null
   expectedValue?: Prisma.DecimalFilter<"MonthlyExpense"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  dueDate?: Prisma.IntFilter<"MonthlyExpense"> | number
+  dueDate?: Prisma.DateTimeNullableFilter<"MonthlyExpense"> | Date | string | null
   notes?: Prisma.StringNullableFilter<"MonthlyExpense"> | string | null
   active?: Prisma.BoolFilter<"MonthlyExpense"> | boolean
   createdAt?: Prisma.DateTimeFilter<"MonthlyExpense"> | Date | string
@@ -286,7 +282,7 @@ export type MonthlyExpenseOrderByWithAggregationInput = {
   name?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
   expectedValue?: Prisma.SortOrder
-  dueDate?: Prisma.SortOrder
+  dueDate?: Prisma.SortOrderInput | Prisma.SortOrder
   notes?: Prisma.SortOrderInput | Prisma.SortOrder
   active?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
@@ -306,7 +302,7 @@ export type MonthlyExpenseScalarWhereWithAggregatesInput = {
   name?: Prisma.StringWithAggregatesFilter<"MonthlyExpense"> | string
   description?: Prisma.StringNullableWithAggregatesFilter<"MonthlyExpense"> | string | null
   expectedValue?: Prisma.DecimalWithAggregatesFilter<"MonthlyExpense"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  dueDate?: Prisma.IntWithAggregatesFilter<"MonthlyExpense"> | number
+  dueDate?: Prisma.DateTimeNullableWithAggregatesFilter<"MonthlyExpense"> | Date | string | null
   notes?: Prisma.StringNullableWithAggregatesFilter<"MonthlyExpense"> | string | null
   active?: Prisma.BoolWithAggregatesFilter<"MonthlyExpense"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"MonthlyExpense"> | Date | string
@@ -318,7 +314,7 @@ export type MonthlyExpenseCreateInput = {
   name: string
   description?: string | null
   expectedValue: runtime.Decimal | runtime.DecimalJsLike | number | string
-  dueDate: number
+  dueDate?: Date | string | null
   notes?: string | null
   active?: boolean
   createdAt?: Date | string
@@ -330,7 +326,7 @@ export type MonthlyExpenseUncheckedCreateInput = {
   name: string
   description?: string | null
   expectedValue: runtime.Decimal | runtime.DecimalJsLike | number | string
-  dueDate: number
+  dueDate?: Date | string | null
   notes?: string | null
   active?: boolean
   createdAt?: Date | string
@@ -342,7 +338,7 @@ export type MonthlyExpenseUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expectedValue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  dueDate?: Prisma.IntFieldUpdateOperationsInput | number
+  dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -354,7 +350,7 @@ export type MonthlyExpenseUncheckedUpdateInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expectedValue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  dueDate?: Prisma.IntFieldUpdateOperationsInput | number
+  dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -366,7 +362,7 @@ export type MonthlyExpenseCreateManyInput = {
   name: string
   description?: string | null
   expectedValue: runtime.Decimal | runtime.DecimalJsLike | number | string
-  dueDate: number
+  dueDate?: Date | string | null
   notes?: string | null
   active?: boolean
   createdAt?: Date | string
@@ -378,7 +374,7 @@ export type MonthlyExpenseUpdateManyMutationInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expectedValue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  dueDate?: Prisma.IntFieldUpdateOperationsInput | number
+  dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -390,7 +386,7 @@ export type MonthlyExpenseUncheckedUpdateManyInput = {
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   expectedValue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  dueDate?: Prisma.IntFieldUpdateOperationsInput | number
+  dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   notes?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -411,7 +407,6 @@ export type MonthlyExpenseCountOrderByAggregateInput = {
 
 export type MonthlyExpenseAvgOrderByAggregateInput = {
   expectedValue?: Prisma.SortOrder
-  dueDate?: Prisma.SortOrder
 }
 
 export type MonthlyExpenseMaxOrderByAggregateInput = {
@@ -440,15 +435,10 @@ export type MonthlyExpenseMinOrderByAggregateInput = {
 
 export type MonthlyExpenseSumOrderByAggregateInput = {
   expectedValue?: Prisma.SortOrder
-  dueDate?: Prisma.SortOrder
 }
 
-export type IntFieldUpdateOperationsInput = {
-  set?: number
-  increment?: number
-  decrement?: number
-  multiply?: number
-  divide?: number
+export type NullableDateTimeFieldUpdateOperationsInput = {
+  set?: Date | string | null
 }
 
 
@@ -511,7 +501,7 @@ export type $MonthlyExpensePayload<ExtArgs extends runtime.Types.Extensions.Inte
     name: string
     description: string | null
     expectedValue: runtime.Decimal
-    dueDate: number
+    dueDate: Date | null
     notes: string | null
     active: boolean
     createdAt: Date
@@ -943,7 +933,7 @@ export interface MonthlyExpenseFieldRefs {
   readonly name: Prisma.FieldRef<"MonthlyExpense", 'String'>
   readonly description: Prisma.FieldRef<"MonthlyExpense", 'String'>
   readonly expectedValue: Prisma.FieldRef<"MonthlyExpense", 'Decimal'>
-  readonly dueDate: Prisma.FieldRef<"MonthlyExpense", 'Int'>
+  readonly dueDate: Prisma.FieldRef<"MonthlyExpense", 'DateTime'>
   readonly notes: Prisma.FieldRef<"MonthlyExpense", 'String'>
   readonly active: Prisma.FieldRef<"MonthlyExpense", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"MonthlyExpense", 'DateTime'>
