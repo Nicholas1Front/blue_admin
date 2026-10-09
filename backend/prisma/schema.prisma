@@ -7,11 +7,6 @@ datasource db {
   provider = "postgresql"
 }
 
-enum FinancialTransactionType {
-  INCOME
-  EXPENSE
-}
-
 model User {
   id           String   @id @default(uuid())
   name         String
@@ -58,7 +53,7 @@ model FinancialCategory {
   id           String                    @id @default(uuid())
   name         String
   description  String?
-  type         FinancialTransactionType
+  type         String
   active       Boolean                   @default(true)
   createdAt    DateTime                  @default(now())
   updatedAt    DateTime                  @updatedAt
@@ -71,7 +66,7 @@ model FinancialTransaction {
   id            String                    @id @default(uuid())
   description   String
   value         Decimal
-  type          FinancialTransactionType
+  type          String
   categoryId    String                    @map("category_id")
   referenceDate DateTime                  @map("reference_date")
   originType    String?                   @map("origin_type")

@@ -38,7 +38,7 @@ export type FinancialTransactionMinAggregateOutputType = {
   id: string | null
   description: string | null
   value: runtime.Decimal | null
-  type: $Enums.FinancialTransactionType | null
+  type: string | null
   categoryId: string | null
   referenceDate: Date | null
   originType: string | null
@@ -51,7 +51,7 @@ export type FinancialTransactionMaxAggregateOutputType = {
   id: string | null
   description: string | null
   value: runtime.Decimal | null
-  type: $Enums.FinancialTransactionType | null
+  type: string | null
   categoryId: string | null
   referenceDate: Date | null
   originType: string | null
@@ -213,7 +213,7 @@ export type FinancialTransactionGroupByOutputType = {
   id: string
   description: string
   value: runtime.Decimal
-  type: $Enums.FinancialTransactionType
+  type: string
   categoryId: string
   referenceDate: Date
   originType: string | null
@@ -249,7 +249,7 @@ export type FinancialTransactionWhereInput = {
   id?: Prisma.StringFilter<"FinancialTransaction"> | string
   description?: Prisma.StringFilter<"FinancialTransaction"> | string
   value?: Prisma.DecimalFilter<"FinancialTransaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  type?: Prisma.EnumFinancialTransactionTypeFilter<"FinancialTransaction"> | $Enums.FinancialTransactionType
+  type?: Prisma.StringFilter<"FinancialTransaction"> | string
   categoryId?: Prisma.StringFilter<"FinancialTransaction"> | string
   referenceDate?: Prisma.DateTimeFilter<"FinancialTransaction"> | Date | string
   originType?: Prisma.StringNullableFilter<"FinancialTransaction"> | string | null
@@ -280,7 +280,7 @@ export type FinancialTransactionWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.FinancialTransactionWhereInput | Prisma.FinancialTransactionWhereInput[]
   description?: Prisma.StringFilter<"FinancialTransaction"> | string
   value?: Prisma.DecimalFilter<"FinancialTransaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  type?: Prisma.EnumFinancialTransactionTypeFilter<"FinancialTransaction"> | $Enums.FinancialTransactionType
+  type?: Prisma.StringFilter<"FinancialTransaction"> | string
   categoryId?: Prisma.StringFilter<"FinancialTransaction"> | string
   referenceDate?: Prisma.DateTimeFilter<"FinancialTransaction"> | Date | string
   originType?: Prisma.StringNullableFilter<"FinancialTransaction"> | string | null
@@ -315,7 +315,7 @@ export type FinancialTransactionScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"FinancialTransaction"> | string
   description?: Prisma.StringWithAggregatesFilter<"FinancialTransaction"> | string
   value?: Prisma.DecimalWithAggregatesFilter<"FinancialTransaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  type?: Prisma.EnumFinancialTransactionTypeWithAggregatesFilter<"FinancialTransaction"> | $Enums.FinancialTransactionType
+  type?: Prisma.StringWithAggregatesFilter<"FinancialTransaction"> | string
   categoryId?: Prisma.StringWithAggregatesFilter<"FinancialTransaction"> | string
   referenceDate?: Prisma.DateTimeWithAggregatesFilter<"FinancialTransaction"> | Date | string
   originType?: Prisma.StringNullableWithAggregatesFilter<"FinancialTransaction"> | string | null
@@ -328,7 +328,7 @@ export type FinancialTransactionCreateInput = {
   id?: string
   description: string
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
-  type: $Enums.FinancialTransactionType
+  type: string
   referenceDate: Date | string
   originType?: string | null
   originId?: string | null
@@ -341,7 +341,7 @@ export type FinancialTransactionUncheckedCreateInput = {
   id?: string
   description: string
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
-  type: $Enums.FinancialTransactionType
+  type: string
   categoryId: string
   referenceDate: Date | string
   originType?: string | null
@@ -354,7 +354,7 @@ export type FinancialTransactionUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  type?: Prisma.EnumFinancialTransactionTypeFieldUpdateOperationsInput | $Enums.FinancialTransactionType
+  type?: Prisma.StringFieldUpdateOperationsInput | string
   referenceDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   originType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   originId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -367,7 +367,7 @@ export type FinancialTransactionUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  type?: Prisma.EnumFinancialTransactionTypeFieldUpdateOperationsInput | $Enums.FinancialTransactionType
+  type?: Prisma.StringFieldUpdateOperationsInput | string
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   referenceDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   originType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -380,7 +380,7 @@ export type FinancialTransactionCreateManyInput = {
   id?: string
   description: string
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
-  type: $Enums.FinancialTransactionType
+  type: string
   categoryId: string
   referenceDate: Date | string
   originType?: string | null
@@ -393,7 +393,7 @@ export type FinancialTransactionUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  type?: Prisma.EnumFinancialTransactionTypeFieldUpdateOperationsInput | $Enums.FinancialTransactionType
+  type?: Prisma.StringFieldUpdateOperationsInput | string
   referenceDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   originType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   originId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -405,7 +405,7 @@ export type FinancialTransactionUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  type?: Prisma.EnumFinancialTransactionTypeFieldUpdateOperationsInput | $Enums.FinancialTransactionType
+  type?: Prisma.StringFieldUpdateOperationsInput | string
   categoryId?: Prisma.StringFieldUpdateOperationsInput | string
   referenceDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   originType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -525,7 +525,7 @@ export type FinancialTransactionCreateWithoutCategoryInput = {
   id?: string
   description: string
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
-  type: $Enums.FinancialTransactionType
+  type: string
   referenceDate: Date | string
   originType?: string | null
   originId?: string | null
@@ -537,7 +537,7 @@ export type FinancialTransactionUncheckedCreateWithoutCategoryInput = {
   id?: string
   description: string
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
-  type: $Enums.FinancialTransactionType
+  type: string
   referenceDate: Date | string
   originType?: string | null
   originId?: string | null
@@ -578,7 +578,7 @@ export type FinancialTransactionScalarWhereInput = {
   id?: Prisma.StringFilter<"FinancialTransaction"> | string
   description?: Prisma.StringFilter<"FinancialTransaction"> | string
   value?: Prisma.DecimalFilter<"FinancialTransaction"> | runtime.Decimal | runtime.DecimalJsLike | number | string
-  type?: Prisma.EnumFinancialTransactionTypeFilter<"FinancialTransaction"> | $Enums.FinancialTransactionType
+  type?: Prisma.StringFilter<"FinancialTransaction"> | string
   categoryId?: Prisma.StringFilter<"FinancialTransaction"> | string
   referenceDate?: Prisma.DateTimeFilter<"FinancialTransaction"> | Date | string
   originType?: Prisma.StringNullableFilter<"FinancialTransaction"> | string | null
@@ -591,7 +591,7 @@ export type FinancialTransactionCreateManyCategoryInput = {
   id?: string
   description: string
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
-  type: $Enums.FinancialTransactionType
+  type: string
   referenceDate: Date | string
   originType?: string | null
   originId?: string | null
@@ -603,7 +603,7 @@ export type FinancialTransactionUpdateWithoutCategoryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  type?: Prisma.EnumFinancialTransactionTypeFieldUpdateOperationsInput | $Enums.FinancialTransactionType
+  type?: Prisma.StringFieldUpdateOperationsInput | string
   referenceDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   originType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   originId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -615,7 +615,7 @@ export type FinancialTransactionUncheckedUpdateWithoutCategoryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  type?: Prisma.EnumFinancialTransactionTypeFieldUpdateOperationsInput | $Enums.FinancialTransactionType
+  type?: Prisma.StringFieldUpdateOperationsInput | string
   referenceDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   originType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   originId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -627,7 +627,7 @@ export type FinancialTransactionUncheckedUpdateManyWithoutCategoryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  type?: Prisma.EnumFinancialTransactionTypeFieldUpdateOperationsInput | $Enums.FinancialTransactionType
+  type?: Prisma.StringFieldUpdateOperationsInput | string
   referenceDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   originType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   originId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
@@ -712,7 +712,7 @@ export type $FinancialTransactionPayload<ExtArgs extends runtime.Types.Extension
     id: string
     description: string
     value: runtime.Decimal
-    type: $Enums.FinancialTransactionType
+    type: string
     categoryId: string
     referenceDate: Date
     originType: string | null
@@ -1146,7 +1146,7 @@ export interface FinancialTransactionFieldRefs {
   readonly id: Prisma.FieldRef<"FinancialTransaction", 'String'>
   readonly description: Prisma.FieldRef<"FinancialTransaction", 'String'>
   readonly value: Prisma.FieldRef<"FinancialTransaction", 'Decimal'>
-  readonly type: Prisma.FieldRef<"FinancialTransaction", 'FinancialTransactionType'>
+  readonly type: Prisma.FieldRef<"FinancialTransaction", 'String'>
   readonly categoryId: Prisma.FieldRef<"FinancialTransaction", 'String'>
   readonly referenceDate: Prisma.FieldRef<"FinancialTransaction", 'DateTime'>
   readonly originType: Prisma.FieldRef<"FinancialTransaction", 'String'>

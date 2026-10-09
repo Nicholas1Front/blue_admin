@@ -4,7 +4,7 @@ export const createTransactionSchema = z.object({
     categoryId : z.string().min(1),
     description : z.string().min(1),
     value : z.number().min(1),
-    type : z.enum(['income', 'expense']),
+    type : z.string().min(1),
     referenceDate : z.date(),
     originId : z.string().nullable().optional(),
     originType : z.string().nullable().optional()
@@ -14,7 +14,7 @@ export const updateTransactionSchema = z.object({
     categoryId : z.string().min(1).optional(),
     description : z.string().min(1).optional(),
     value : z.number().min(1).optional(),
-    type : z.enum(['income', 'expense']).optional(),
+    type : z.string().min(1).optional(),
     referenceDate : z.date().optional(),
     originId : z.string().nullable().optional(),
     originType : z.string().nullable().optional()
@@ -30,7 +30,7 @@ export const findTransactionsByFiltersSchema = z.object({
     categoryId : z.string().min(1).optional(),
     description : z.string().min(1).optional(),
     value : z.number().min(1).optional(),
-    type : z.enum(['income', 'expense']).optional(),
+    type : z.string().min(1).optional(),
     referenceDate : z.date().optional(),
     originId : z.string().nullable().optional(),
     originType : z.string().nullable().optional()

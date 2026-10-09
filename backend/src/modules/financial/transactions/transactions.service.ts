@@ -9,6 +9,7 @@ import type {
 import {removeUndefined} from '../../../shared/helpers/objects/removeUndefined.js';
 import {undefinedToNull} from '../../../shared/helpers/objects/undefinedToNull.js';
 // import {allowedOrigensList, verifyOrigin} from '../shared/allowedOrigensList.js';
+import {allowedTypes} from '../shared/allowedTypesList.js';
 
 class TransactionsService{
     async createTransaction(
@@ -21,6 +22,10 @@ class TransactionsService{
         }
 
         const cleanedData = undefinedToNull(data)
+
+        if(!allowedTypes.includes(cleanedData.type)){
+            throw new AppError('Invalid category type', 400, 'INVALID_CATEGORY_TYPE')
+        }
 
         if(cleanedData.type !== categoryExists.type){
             throw new AppError('Category type does not match transaction type', 400, 'CATEGORY_TYPE_MISMATCH')
@@ -68,6 +73,10 @@ class TransactionsService{
             if(!categoryExists){
                 throw new AppError('Category not found', 404, 'CATEGORY_NOT_FOUND')
             }
+        }
+
+        if(cleanedData.type !== undefined && !allowedTypes.includes(cleanedData.type)){
+            throw new AppError('Invalid category type', 400, 'INVALID_CATEGORY_TYPE')
         }
 
         if(cleanedData.type !== undefined && categoryExists){

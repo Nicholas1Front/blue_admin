@@ -1133,20 +1133,6 @@ export type ListDateTimeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaM
 
 
 /**
- * Reference to a field of type 'FinancialTransactionType'
- */
-export type EnumFinancialTransactionTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FinancialTransactionType'>
-    
-
-
-/**
- * Reference to a field of type 'FinancialTransactionType[]'
- */
-export type ListEnumFinancialTransactionTypeFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'FinancialTransactionType[]'>
-    
-
-
-/**
  * Reference to a field of type 'Boolean'
  */
 export type BooleanFieldRefInput<$PrismaModel> = FieldRefInputType<$PrismaModel, 'Boolean'>

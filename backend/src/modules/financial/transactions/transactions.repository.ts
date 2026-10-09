@@ -5,7 +5,7 @@ class TransactionsRepository{
         categoryId: string,
         description: string,
         value: number,
-        type: any,
+        type: string,
         referenceDate: Date,
         originId: string | null,
         originType: string | null
@@ -52,7 +52,7 @@ class TransactionsRepository{
         categoryId : string | undefined,
         description : string | undefined,
         value : number | undefined,
-        type : any | undefined,
+        type : string | undefined,
         referenceDate : Date | undefined,
         originId : string | null | undefined,
         originType : string | null | undefined

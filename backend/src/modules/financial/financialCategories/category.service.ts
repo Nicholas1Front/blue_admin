@@ -7,6 +7,7 @@ import type {
 } from './category.dto.js';
 import {removeUndefined} from '../../../shared/helpers/objects/removeUndefined.js'
 import{undefinedToNull} from '../../../shared/helpers/objects/undefinedToNull.js'
+import {allowedTypes} from '../shared/allowedTypesList.js'
 
 class CategoryService {
     async createCategory(
@@ -19,6 +20,10 @@ class CategoryService {
         }
 
         const cleanedData = undefinedToNull(data)
+
+        if(!allowedTypes.includes(cleanedData.type)){
+            throw new AppError('Invalid category type', 400, 'INVALID_CATEGORY_TYPE')
+        }
 
         const category = await categoryRepository.createCategory(
             cleanedData.name,
@@ -51,6 +56,10 @@ class CategoryService {
             if(categoryExists.length > 0){
                 throw new AppError('This category name already is in use', 400, 'CATEGORY_ALREADY_IN_USE')
             }
+        }
+
+        if(cleanedData.type !== undefined && !allowedTypes.includes(cleanedData.type)){
+            throw new AppError('Invalid category type', 400, 'INVALID_CATEGORY_TYPE')
         }
 
         const category = await categoryRepository.updateCategory(id, cleanedData)

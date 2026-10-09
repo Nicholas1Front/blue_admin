@@ -28,7 +28,7 @@ export type FinancialCategoryMinAggregateOutputType = {
   id: string | null
   name: string | null
   description: string | null
-  type: $Enums.FinancialTransactionType | null
+  type: string | null
   active: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -38,7 +38,7 @@ export type FinancialCategoryMaxAggregateOutputType = {
   id: string | null
   name: string | null
   description: string | null
-  type: $Enums.FinancialTransactionType | null
+  type: string | null
   active: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -163,7 +163,7 @@ export type FinancialCategoryGroupByOutputType = {
   id: string
   name: string
   description: string | null
-  type: $Enums.FinancialTransactionType
+  type: string
   active: boolean
   createdAt: Date
   updatedAt: Date
@@ -194,7 +194,7 @@ export type FinancialCategoryWhereInput = {
   id?: Prisma.StringFilter<"FinancialCategory"> | string
   name?: Prisma.StringFilter<"FinancialCategory"> | string
   description?: Prisma.StringNullableFilter<"FinancialCategory"> | string | null
-  type?: Prisma.EnumFinancialTransactionTypeFilter<"FinancialCategory"> | $Enums.FinancialTransactionType
+  type?: Prisma.StringFilter<"FinancialCategory"> | string
   active?: Prisma.BoolFilter<"FinancialCategory"> | boolean
   createdAt?: Prisma.DateTimeFilter<"FinancialCategory"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinancialCategory"> | Date | string
@@ -219,7 +219,7 @@ export type FinancialCategoryWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.FinancialCategoryWhereInput | Prisma.FinancialCategoryWhereInput[]
   name?: Prisma.StringFilter<"FinancialCategory"> | string
   description?: Prisma.StringNullableFilter<"FinancialCategory"> | string | null
-  type?: Prisma.EnumFinancialTransactionTypeFilter<"FinancialCategory"> | $Enums.FinancialTransactionType
+  type?: Prisma.StringFilter<"FinancialCategory"> | string
   active?: Prisma.BoolFilter<"FinancialCategory"> | boolean
   createdAt?: Prisma.DateTimeFilter<"FinancialCategory"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinancialCategory"> | Date | string
@@ -246,7 +246,7 @@ export type FinancialCategoryScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"FinancialCategory"> | string
   name?: Prisma.StringWithAggregatesFilter<"FinancialCategory"> | string
   description?: Prisma.StringNullableWithAggregatesFilter<"FinancialCategory"> | string | null
-  type?: Prisma.EnumFinancialTransactionTypeWithAggregatesFilter<"FinancialCategory"> | $Enums.FinancialTransactionType
+  type?: Prisma.StringWithAggregatesFilter<"FinancialCategory"> | string
   active?: Prisma.BoolWithAggregatesFilter<"FinancialCategory"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"FinancialCategory"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"FinancialCategory"> | Date | string
@@ -256,7 +256,7 @@ export type FinancialCategoryCreateInput = {
   id?: string
   name: string
   description?: string | null
-  type: $Enums.FinancialTransactionType
+  type: string
   active?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -267,7 +267,7 @@ export type FinancialCategoryUncheckedCreateInput = {
   id?: string
   name: string
   description?: string | null
-  type: $Enums.FinancialTransactionType
+  type: string
   active?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -278,7 +278,7 @@ export type FinancialCategoryUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  type?: Prisma.EnumFinancialTransactionTypeFieldUpdateOperationsInput | $Enums.FinancialTransactionType
+  type?: Prisma.StringFieldUpdateOperationsInput | string
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -289,7 +289,7 @@ export type FinancialCategoryUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  type?: Prisma.EnumFinancialTransactionTypeFieldUpdateOperationsInput | $Enums.FinancialTransactionType
+  type?: Prisma.StringFieldUpdateOperationsInput | string
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -300,7 +300,7 @@ export type FinancialCategoryCreateManyInput = {
   id?: string
   name: string
   description?: string | null
-  type: $Enums.FinancialTransactionType
+  type: string
   active?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -310,7 +310,7 @@ export type FinancialCategoryUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  type?: Prisma.EnumFinancialTransactionTypeFieldUpdateOperationsInput | $Enums.FinancialTransactionType
+  type?: Prisma.StringFieldUpdateOperationsInput | string
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -320,7 +320,7 @@ export type FinancialCategoryUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  type?: Prisma.EnumFinancialTransactionTypeFieldUpdateOperationsInput | $Enums.FinancialTransactionType
+  type?: Prisma.StringFieldUpdateOperationsInput | string
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -361,10 +361,6 @@ export type FinancialCategoryScalarRelationFilter = {
   isNot?: Prisma.FinancialCategoryWhereInput
 }
 
-export type EnumFinancialTransactionTypeFieldUpdateOperationsInput = {
-  set?: $Enums.FinancialTransactionType
-}
-
 export type BoolFieldUpdateOperationsInput = {
   set?: boolean
 }
@@ -387,7 +383,7 @@ export type FinancialCategoryCreateWithoutTransactionsInput = {
   id?: string
   name: string
   description?: string | null
-  type: $Enums.FinancialTransactionType
+  type: string
   active?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -397,7 +393,7 @@ export type FinancialCategoryUncheckedCreateWithoutTransactionsInput = {
   id?: string
   name: string
   description?: string | null
-  type: $Enums.FinancialTransactionType
+  type: string
   active?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -423,7 +419,7 @@ export type FinancialCategoryUpdateWithoutTransactionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  type?: Prisma.EnumFinancialTransactionTypeFieldUpdateOperationsInput | $Enums.FinancialTransactionType
+  type?: Prisma.StringFieldUpdateOperationsInput | string
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -433,7 +429,7 @@ export type FinancialCategoryUncheckedUpdateWithoutTransactionsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  type?: Prisma.EnumFinancialTransactionTypeFieldUpdateOperationsInput | $Enums.FinancialTransactionType
+  type?: Prisma.StringFieldUpdateOperationsInput | string
   active?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -529,7 +525,7 @@ export type $FinancialCategoryPayload<ExtArgs extends runtime.Types.Extensions.I
     id: string
     name: string
     description: string | null
-    type: $Enums.FinancialTransactionType
+    type: string
     active: boolean
     createdAt: Date
     updatedAt: Date
@@ -960,7 +956,7 @@ export interface FinancialCategoryFieldRefs {
   readonly id: Prisma.FieldRef<"FinancialCategory", 'String'>
   readonly name: Prisma.FieldRef<"FinancialCategory", 'String'>
   readonly description: Prisma.FieldRef<"FinancialCategory", 'String'>
-  readonly type: Prisma.FieldRef<"FinancialCategory", 'FinancialTransactionType'>
+  readonly type: Prisma.FieldRef<"FinancialCategory", 'String'>
   readonly active: Prisma.FieldRef<"FinancialCategory", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"FinancialCategory", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"FinancialCategory", 'DateTime'>

@@ -4,7 +4,7 @@ class CategoryRepository{
     async createCategory(
         name : string,
         description : string | null,
-        type : any
+        type : string
     ){
         const category = await prisma.financialCategory.create({
             data : {
@@ -46,7 +46,7 @@ class CategoryRepository{
         id : string | undefined,
         name : string | undefined,
         description : string | null | undefined,
-        type : any | undefined,
+        type : string | undefined,
         active : boolean | undefined
     ){
         const categories = await prisma.financialCategory.findMany({
@@ -74,7 +74,8 @@ class CategoryRepository{
                         }
                 )),
                 ...(type !== undefined && {
-                    type : type
+                    type : type,
+                    mode : 'insensitive'
                 }),
                 ...(active !== undefined && {
                     active : active
