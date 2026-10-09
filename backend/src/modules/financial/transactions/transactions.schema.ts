@@ -6,7 +6,7 @@ export const createTransactionSchema = z.object({
     description : z.string().min(1),
     value : z.number().min(1),
     type : z.string().min(1),
-    referenceDate : stringToDate(z.string().min(1)),
+    referenceDate : z.string().min(1),
     originId : z.string().nullable().optional(),
     originType : z.string().nullable().optional()
 })
@@ -16,7 +16,7 @@ export const updateTransactionSchema = z.object({
     description : z.string().min(1).optional(),
     value : z.number().min(1).optional(),
     type : z.string().min(1).optional(),
-    referenceDate : stringToDate(z.string().min(1).optional()),
+    referenceDate : z.string().min(1).optional(),
     originId : z.string().nullable().optional(),
     originType : z.string().nullable().optional()
 }).refine(
@@ -32,7 +32,7 @@ export const findTransactionsByFiltersSchema = z.object({
     description : z.string().min(1).optional(),
     value : z.number().min(1).optional(),
     type : z.string().min(1).optional(),
-    referenceDate : stringToDate(z.string().min(1).optional()),
+    referenceDate : z.string().min(1).optional(),
     originId : z.string().nullable().optional(),
     originType : z.string().nullable().optional()
 }).refine(
