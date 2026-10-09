@@ -8,7 +8,6 @@ import type {
 } from './transactions.dto.js';
 import {removeUndefined} from '../../../shared/helpers/objects/removeUndefined.js';
 import {undefinedToNull} from '../../../shared/helpers/objects/undefinedToNull.js';
-import {stringToDate} from '../../../shared/helpers/objects/stringToDateTime.js';
 // import {allowedOrigensList, verifyOrigin} from '../shared/allowedOrigensList.js';
 import {allowedTypes} from '../shared/allowedTypesList.js';
 
