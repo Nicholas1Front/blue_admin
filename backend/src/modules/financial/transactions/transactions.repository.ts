@@ -59,12 +59,42 @@ class TransactionsRepository{
     ){
         return prisma.financialTransaction.findMany({
             where : {
-                ...(id !== undefined && { id : id, mode : 'insensitive' }),
-                ...(categoryId !== undefined && { categoryId : categoryId, mode : 'insensitive' }),
-                ...(description !== undefined && { description : description, mode : 'insensitive' }),
-                ...(value !== undefined && { value : value, mode : 'insensitive' }),
-                ...(type !== undefined && { type : type, mode : 'insensitive' }),
-                ...(referenceDate !== undefined && { referenceDate : referenceDate, mode : 'insensitive' }),
+                ...(id !== undefined && {
+                    id : {
+                        contains : id,
+                        mode : 'insensitive'
+                    }
+                }),
+                ...(categoryId !== undefined && {
+                    categoryId : {
+                        contains : categoryId,
+                        mode : 'insensitive'
+                    }
+                }),
+                ...(description !== undefined && {
+                    description : {
+                        contains : description,
+                        mode : 'insensitive'
+                    }
+                }),
+                ...(value !== undefined && {
+                    value : {
+                        equals : value,
+                        mode : 'insensitive'
+                    }
+                }),
+                ...(type !== undefined && {
+                    type : {
+                        contains : type,
+                        mode : 'insensitive'
+                    }
+                }),
+                ...(referenceDate !== undefined && {
+                    referenceDate : {
+                        equals : referenceDate,
+                        mode : 'insensitive'
+                    }
+                }),
                 ...(originId !== undefined && (
                     originId === null
                         ? { originId : null }

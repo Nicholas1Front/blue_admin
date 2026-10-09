@@ -21,15 +21,9 @@ class TransactionsService{
             throw new AppError('Category not found', 404, 'CATEGORY_NOT_FOUND')
         }
 
-        const cleanedData = undefinedToNull(data)
+        let cleanedData = undefinedToNull(data)
 
-        if(!allowedTypes.includes(cleanedData.type)){
-            throw new AppError('Invalid category type', 400, 'INVALID_CATEGORY_TYPE')
-        }
-
-        if(cleanedData.type !== categoryExists.type){
-            throw new AppError('Category type does not match transaction type', 400, 'CATEGORY_TYPE_MISMATCH')
-        }
+        cleanedData.type = categoryExists.type
 
         // todo : needs to create a function to check if the originId and originType are valid in allowedOrigensList
         /* if(cleanedData.originId !== null && cleanedData.originType !== null){
@@ -73,16 +67,8 @@ class TransactionsService{
             if(!categoryExists){
                 throw new AppError('Category not found', 404, 'CATEGORY_NOT_FOUND')
             }
-        }
 
-        if(cleanedData.type !== undefined && !allowedTypes.includes(cleanedData.type)){
-            throw new AppError('Invalid category type', 400, 'INVALID_CATEGORY_TYPE')
-        }
-
-        if(cleanedData.type !== undefined && categoryExists){
-            if(categoryExists.type !== cleanedData.type){
-                throw new AppError('Category type does not match transaction type', 400, 'CATEGORY_TYPE_MISMATCH')
-            }
+            cleanedData.type = categoryExists.type
         }
 
         /* if(cleanedData.originId !== undefined && cleanedData.originType !== undefined){
@@ -101,15 +87,16 @@ class TransactionsService{
     }
 
     async findTransactionsByFilters(filters : findTransactionsByFiltersDTO){
+        const cleanedFilters = removeUndefined(filters)
         const transactions = await transactionsRepository.findTransactionsByFilters(
-            filters.id,
-            filters.categoryId,
-            filters.description,
-            filters.value,
-            filters.type,
-            filters.referenceDate,
-            filters.originId,
-            filters.originType
+            cleanedFilters.id,
+            cleanedFilters.categoryId,
+            cleanedFilters.description,
+            cleanedFilters.value,
+            cleanedFilters.type,
+            cleanedFilters.referenceDate,
+            cleanedFilters.originId,
+            cleanedFilters.originType
         )
 
         if(!transactions){

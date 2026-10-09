@@ -10,7 +10,6 @@ export const createTransactionSchema = z.object({
     categoryId: z.string().min(1),
     description: z.string().min(1),
     value: z.number().min(1),
-    type: z.string().min(1),
     referenceDate: referenceDateSchema,
     originId: z.string().nullable().optional(),
     originType: z.string().nullable().optional()
@@ -20,7 +19,6 @@ export const updateTransactionSchema = z.object({
     categoryId: z.string().min(1).optional(),
     description: z.string().min(1).optional(),
     value: z.number().min(1).optional(),
-    type: z.string().min(1).optional(),
     referenceDate: referenceDateSchema.optional(),
     originId: z.string().nullable().optional(),
     originType: z.string().nullable().optional()
