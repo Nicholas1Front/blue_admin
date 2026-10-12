@@ -1,5 +1,5 @@
 import queriesRepository from './queries.repository.js';
-import type {MonthlySummaryQuery} from './queries.schema.js';
+import type {MonthlySummaryQuery, YearlySummaryQuery} from './queries.schema.js';
 
 class QueriesService {
     async findMonthlySummary(filters : MonthlySummaryQuery){
@@ -33,7 +33,8 @@ class QueriesService {
         };
     }
     
-    async findYearlySummary(year : number){
+    async findYearlySummary(filters : YearlySummaryQuery){
+        const {year} = filters;
         const transactions = await queriesRepository.findYearlyTransactions(year);
 
         type CategorySummary = {
