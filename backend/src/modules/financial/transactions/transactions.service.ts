@@ -61,9 +61,10 @@ class TransactionsService{
             throw new AppError('Transaction not found', 404, 'TRANSACTION_NOT_FOUND')
         }
 
-        const categoryExists = await categoryRepository.findCategoryById(cleanedData.categoryId)
-
         if(cleanedData.categoryId !== undefined){
+
+            const categoryExists = await categoryRepository.findCategoryById(cleanedData.categoryId)
+
             if(!categoryExists){
                 throw new AppError('Category not found', 404, 'CATEGORY_NOT_FOUND')
             }
