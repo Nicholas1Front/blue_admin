@@ -88,6 +88,40 @@ class QueriesRepository {
             transactions
         };
     }
+    
+    async findYearlyTransactions(year : number){
+        const startDate = new Date(0);
+        startDate.setUTCFullYear(year, 0, 1);
+        startDate.setUTCHours(0, 0, 0, 0);
+
+        const endDate = new Date(0);
+        endDate.setUTCFullYear(year + 1, 0, 1);
+        endDate.setUTCHours(0, 0, 0, 0);
+
+        return prisma.financialTransaction.findMany({
+            where : {
+                referenceDate : {
+                    gte : startDate,
+                    lt : endDate
+                }
+            },
+            select : {
+                value : true,
+                type : true,
+                referenceDate : true,
+                category : {
+                    select : {
+                        id : true,
+                        name : true,
+                        description : true
+                    }
+                }
+            },
+            orderBy : {
+                referenceDate : 'asc'
+            }
+        });
+    }
 }
 
 export default new QueriesRepository();
