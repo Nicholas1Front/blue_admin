@@ -7,7 +7,9 @@
     "dev": "tsx watch src/server.ts",
     "build": "tsc",
     "start": "node dist/server.js",
-    "test": "jest"
+    "test": "jest",
+    "seed:financial:categories": "tsx src/modules/financial/scripts/createCategories.ts",
+    "seed:financial:transactions": "tsx src/modules/financial/scripts/createTransactions.ts"
   },
   "keywords": [],
   "author": "",
