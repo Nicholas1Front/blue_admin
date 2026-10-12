@@ -7,5 +7,6 @@ const router = Router();
 router.use(authMiddleware);
 
 router.get('/monthly-summary', queriesController.findMonthlySummary);
+router.get('/yearly-summary', queriesController.findYearlySummary);
 
 export default router;
