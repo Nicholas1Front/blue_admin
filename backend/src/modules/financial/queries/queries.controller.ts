@@ -32,7 +32,7 @@ class QueriesController {
         }
 
         const filters = yearlySummaryQuerySchema.parse(req.query);
-        const summary = await queriesService.findYearlySummary(filters.year);
+        const summary = await queriesService.findYearlySummary(filters);
 
         return res.status(200).json({
             message : 'Yearly financial summary found successfully',
