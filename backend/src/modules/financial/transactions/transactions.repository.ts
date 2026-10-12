@@ -79,8 +79,7 @@ class TransactionsRepository{
                 }),
                 ...(value !== undefined && {
                     value : {
-                        equals : value,
-                        mode : 'insensitive'
+                        equals : value
                     }
                 }),
                 ...(type !== undefined && {
@@ -91,8 +90,7 @@ class TransactionsRepository{
                 }),
                 ...(referenceDate !== undefined && {
                     referenceDate : {
-                        equals : referenceDate,
-                        mode : 'insensitive'
+                        equals : referenceDate
                     }
                 }),
                 ...(originId !== undefined && (
