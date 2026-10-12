@@ -3,6 +3,7 @@ import {authMiddleware} from '../../middlewares/auth.middleware.js'
 import transactionsRoutes from './transactions/transactions.routes.js'
 import categoriesRoutes from './financialCategories/category.routes.js'
 import monthlyRoutes from './monthlyExpenses/monthly.routes.js'
+import queriesRoutes from './queries/queries.routes.js'
 
 const router = Router()
 
@@ -11,5 +12,6 @@ router.use(authMiddleware);
 router.use('/transactions', transactionsRoutes)
 router.use('/categories', categoriesRoutes)
 router.use('/monthly-expenses', monthlyRoutes)
+router.use('/queries', queriesRoutes)
 
 export default router
