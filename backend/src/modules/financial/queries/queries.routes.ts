@@ -8,5 +8,6 @@ router.use(authMiddleware);
 
 router.get('/monthly-summary', queriesController.findMonthlySummary);
 router.get('/yearly-summary', queriesController.findYearlySummary);
+router.get('/period-summary', queriesController.findPeriodSummary);
 
 export default router;
