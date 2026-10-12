@@ -74,8 +74,10 @@ class CategoryRepository{
                         }
                 )),
                 ...(type !== undefined && {
-                    type : type,
-                    mode : 'insensitive'
+                    type : {
+                        equals : type,
+                        mode : 'insensitive'
+                    }
                 }),
                 ...(active !== undefined && {
                     active : active
