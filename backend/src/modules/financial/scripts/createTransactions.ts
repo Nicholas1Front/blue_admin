@@ -71,8 +71,8 @@ async function createTransactions(){
         for(let index = monthlyTypes.length - 1; index > 0; index--){
             const swapIndex = randomInteger(0, index);
             [monthlyTypes[index], monthlyTypes[swapIndex]] = [
-                monthlyTypes[swapIndex],
-                monthlyTypes[index]
+                monthlyTypes[swapIndex]!,
+                monthlyTypes[index]!
             ];
         }
 
