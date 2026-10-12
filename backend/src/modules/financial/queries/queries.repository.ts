@@ -59,7 +59,7 @@ class QueriesRepository {
         ]);
 
         const categoriesById = new Map(
-            categories.map(category => [category.id, category])
+            categories.map(category => [category.id, category] as const)
         );
 
         const categorySummary = groupedTransactions.flatMap(transaction => {
