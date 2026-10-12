@@ -81,8 +81,12 @@ class ExpensesRepository {
                             }
                         }
                 )),
-                ...(expectedValue !== undefined && { expectedValue : expectedValue, mode : 'insensitive' }),
-                ...(dueDate !== undefined && { dueDate : dueDate, mode : 'insensitive' }),
+                ...(expectedValue !== undefined && {
+                    expectedValue : expectedValue
+                }),
+                ...(dueDate !== undefined && {
+                    dueDate : dueDate
+                }),
                 ...(notes !== undefined && (
                     notes === null
                         ? { notes : null }
@@ -93,7 +97,9 @@ class ExpensesRepository {
                             }
                         }
                 )),
-                ...(active !== undefined && { active : active, mode : 'insensitive' })
+                ...(active !== undefined && {
+                    active : active
+                })
             }
         })
         
