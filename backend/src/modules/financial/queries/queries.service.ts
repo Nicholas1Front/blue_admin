@@ -1,5 +1,5 @@
 import queriesRepository from './queries.repository.js';
-import type {MonthlySummaryQuery, YearlySummaryQuery} from './queries.schema.js';
+import type {MonthlySummaryQuery, PeriodSummaryQuery, YearlySummaryQuery} from './queries.schema.js';
 
 class QueriesService {
     async findMonthlySummary(filters : MonthlySummaryQuery){
@@ -123,6 +123,29 @@ class QueriesService {
             ...calculateTotals(categories),
             categories,
             monthsDetails
+        };
+    }
+    
+    async findPeriodSummary(filters : PeriodSummaryQuery){
+        const {start, end, limit} = filters;
+        const summary = await queriesRepository.findPeriodSummary(start, end, limit);
+
+        const incomesValue = summary.categories
+            .filter(category => category.type === 'income')
+            .reduce((total, category) => total + category.value, 0);
+
+        const expensesValue = summary.categories
+            .filter(category => category.type === 'expense')
+            .reduce((total, category) => total + category.value, 0);
+
+        return {
+            start,
+            end,
+            incomesValue,
+            expensesValue,
+            balanceValue : incomesValue - expensesValue,
+            categories : summary.categories,
+            transactions : summary.transactions
         };
     }
 }
