@@ -1,7 +1,7 @@
 import {Request, Response} from 'express';
 import {AppError} from '../../../shared/errors/AppError.js';
 import queriesService from './queries.service.js';
-import {monthlySummaryQuerySchema, yearlySummaryQuerySchema} from './queries.schema.js';
+import {monthlySummaryQuerySchema, periodSummaryQuerySchema, yearlySummaryQuerySchema} from './queries.schema.js';
 
 class QueriesController {
     async findMonthlySummary(req : Request, res : Response){
@@ -36,6 +36,24 @@ class QueriesController {
 
         return res.status(200).json({
             message : 'Yearly financial summary found successfully',
+            data : summary
+        });
+    }
+    
+    async findPeriodSummary(req : Request, res : Response){
+        if(!req.user){
+            throw new AppError(
+                'User not authenticated',
+                401,
+                'USER_NOT_AUTHENTICATED'
+            );
+        }
+
+        const filters = periodSummaryQuerySchema.parse(req.query);
+        const summary = await queriesService.findPeriodSummary(filters);
+
+        return res.status(200).json({
+            message : 'Financial period summary found successfully',
             data : summary
         });
     }
