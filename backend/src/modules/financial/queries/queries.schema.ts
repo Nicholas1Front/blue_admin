@@ -7,3 +7,9 @@ export const monthlySummaryQuerySchema = z.object({
 });
 
 export type MonthlySummaryQuery = z.infer<typeof monthlySummaryQuerySchema>;
+
+export const yearlySummaryQuerySchema = z.object({
+    year : z.coerce.number().int().min(1).max(9999)
+});
+
+export type YearlySummaryQuery = z.infer<typeof yearlySummaryQuerySchema>;
