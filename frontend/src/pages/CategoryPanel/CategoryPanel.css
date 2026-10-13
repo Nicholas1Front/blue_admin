@@ -57,7 +57,9 @@
 .category-status--active, .category-type--income { color: #86efac; background: rgb(34 197 94 / 0.12); }
 .category-status--inactive { color: #cbd5e1; background: rgb(148 163 184 / 0.13); }
 .category-type--expense { color: #fca5a5; background: rgb(239 68 68 / 0.12); }
-.category-card__description { margin-top: var(--spacing-3); color: var(--color-text-secondary); font-size: var(--font-size-sm); line-height: var(--line-height-relaxed); white-space: pre-wrap; overflow-wrap: anywhere; }
+.category-card__description { display: grid; gap: var(--spacing-1); margin-top: var(--spacing-3); color: var(--color-text-secondary); font-size: var(--font-size-sm); line-height: var(--line-height-relaxed); }
+.category-card__description > span { color: var(--color-text-muted); font-size: var(--font-size-xs); }
+.category-card__description > p { white-space: pre-wrap; overflow-wrap: anywhere; }
 .category-card__details { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--spacing-3) var(--spacing-5); margin-top: var(--spacing-4); }
 .category-card__details > div { display: grid; gap: var(--spacing-1); min-width: 0; }
 .category-card__details dt { color: var(--color-text-muted); font-size: var(--font-size-xs); }
