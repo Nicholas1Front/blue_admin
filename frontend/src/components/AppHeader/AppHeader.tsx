@@ -6,11 +6,12 @@ import {
 import { useNavigate } from "react-router-dom";
 
 import { AppLogo } from "../AppLogo/AppLogo";
+import { BackLink } from "../BackLink/BackLink";
 import { useAuth } from "../../modules/auth/useAuth";
 
 import "./AppHeader.css";
 
-export function AppHeader() {
+export function AppHeader({ showBackLink = false }: { showBackLink?: boolean }) {
     const navigate = useNavigate();
     const { user, logout } = useAuth();
 
@@ -21,7 +22,10 @@ export function AppHeader() {
 
     return (
         <header className="app-header">
-            <AppLogo />
+            <div className="app-header__brand">
+                <AppLogo />
+                {showBackLink && <BackLink />}
+            </div>
 
             <div className="app-header__actions">
                 <span className="app-header__user">
