@@ -660,3 +660,36 @@
         flex-direction: column;
     }
 }
+
+.monthly-expense-overview-footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--spacing-4);
+    margin-top: var(--spacing-4);
+    padding: var(--spacing-4) var(--spacing-2) 0;
+    border-top: 1px solid var(--color-border);
+}
+
+.monthly-expense-overview-footer > div {
+    display: grid;
+    gap: var(--spacing-1);
+}
+
+.monthly-expense-overview-footer span {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+}
+
+.monthly-expense-overview-footer strong {
+    color: var(--color-text);
+    font-size: var(--font-size-sm);
+}
+
+@media (max-width: 560px) {
+    .monthly-expense-overview-footer {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
