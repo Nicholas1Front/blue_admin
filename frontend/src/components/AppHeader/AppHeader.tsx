@@ -1,5 +1,8 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowRightFromBracket, faGear } from "@fortawesome/free-solid-svg-icons";
+import {
+    faArrowRightFromBracket,
+    faGear
+} from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 
 import { AppLogo } from "../AppLogo/AppLogo";
@@ -21,7 +24,7 @@ export function AppHeader() {
             <AppLogo />
 
             <div className="app-header__actions">
-                    <span className="app-header__user">
+                <span className="app-header__user">
                     <span className="app-header__user-name">
                         {user?.name}
                     </span>
