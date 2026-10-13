@@ -3,6 +3,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPenToSquare, faPlus, faTrash } from "@fortawesome/free-solid-svg-icons";
 
 import { AppHeader } from "../../components/AppHeader/AppHeader";
+import { BackLink } from "../../components/BackLink/BackLink";
 import { useClients } from "../../modules/clients/useClients";
 import { useEquipaments } from "../../modules/equipaments/useEquipaments";
 import type {
@@ -249,6 +250,9 @@ export function Clients() {
     return (
         <main className="clients-page">
             <AppHeader />
+            <nav className="page-back-row" aria-label="Navegação da página">
+                <BackLink />
+            </nav>
 
             <section className="clients-content">
                 {!selectedClient ? (
