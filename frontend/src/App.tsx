@@ -12,6 +12,7 @@ import { Dashboard } from "./pages/Dashboard/Dashboard";
 import { Users } from "./pages/Users/Users";
 import { Clients } from "./pages/Clients/Clients";
 import { Financial } from "./pages/Financial/Financial";
+import { MonthlyExpenses } from "./pages/MonthlyExpenses/MonthlyExpenses";
 
 function App() {
     return (
@@ -60,6 +61,15 @@ function App() {
                         element={
                             <ProtectedRoute>
                                 <Financial />
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    <Route
+                        path="/monthly-expenses"
+                        element={
+                            <ProtectedRoute>
+                                <MonthlyExpenses />
                             </ProtectedRoute>
                         }
                     />
