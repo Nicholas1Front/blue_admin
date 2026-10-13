@@ -227,6 +227,18 @@ export function MonthlyExpenses() {
                         onDelete={openDeleteModal}
                         onToggleStatus={(expense) => void handleToggleStatus(expense)}
                     />
+                    {!hasFilters && overviewQuery.data && (
+                        <footer className="monthly-expense-overview-footer">
+                            <div>
+                                <span>Total de despesas cadastradas</span>
+                                <strong>{overviewQuery.data.numberExpenses}</strong>
+                            </div>
+                            <div>
+                                <span>Soma geral prevista, incluindo inativas</span>
+                                <strong>{new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(overviewQuery.data.totalSum)}</strong>
+                            </div>
+                        </footer>
+                    )}
                 </section>
             </section>
 
