@@ -1,13 +1,13 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowLeft, faArrowRightFromBracket, faGear } from "@fortawesome/free-solid-svg-icons";
-import { Link, useNavigate } from "react-router-dom";
+import { faArrowRightFromBracket, faGear } from "@fortawesome/free-solid-svg-icons";
+import { useNavigate } from "react-router-dom";
 
 import { AppLogo } from "../AppLogo/AppLogo";
 import { useAuth } from "../../modules/auth/useAuth";
 
 import "./AppHeader.css";
 
-export function AppHeader({ showBackLink = false }: { showBackLink?: boolean }) {
+export function AppHeader() {
     const navigate = useNavigate();
     const { user, logout } = useAuth();
 
@@ -17,10 +17,7 @@ export function AppHeader({ showBackLink = false }: { showBackLink?: boolean }) 
     }
 
     return (
-        <div className="app-header-container">
-            <header
-                className={`app-header${showBackLink ? " app-header--with-back-link" : ""}`}
-            >
+        <header className="app-header">
                 <AppLogo />
 
                 <div className="app-header__actions">
@@ -54,20 +51,6 @@ export function AppHeader({ showBackLink = false }: { showBackLink?: boolean }) 
                     </button>
                 </div>
             </header>
-
-            {showBackLink && (
-                <nav className="app-header__back-row" aria-label="Navegação da página">
-                    <Link
-                        className="app-back-link"
-                        to="/dashboard"
-                        aria-label="Voltar ao painel principal"
-                        title="Voltar ao painel principal"
-                    >
-                        <FontAwesomeIcon icon={faArrowLeft} aria-hidden="true" />
-                        <span className="app-back-link__label">Voltar ao painel principal</span>
-                    </Link>
-                </nav>
-            )}
-        </div>
+        </header>
     );
 }
