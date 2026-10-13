@@ -49,6 +49,9 @@ export interface MonthlyExpensesGroup {
 export interface MonthlyExpensesOverview {
     numberExpenses: number;
     totalSum: number;
-    activeExpenses: MonthlyExpensesGroup;
-    deactiveExpenses: Omit<MonthlyExpensesGroup, "dayCosts" | "hourCosts">;
+    activeExpenses: MonthlyExpensesGroup & {
+        dayCosts: number;
+        hourCosts: number;
+    };
+    deactiveExpenses: MonthlyExpensesGroup;
 }
