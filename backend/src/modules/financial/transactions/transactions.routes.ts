@@ -10,6 +10,8 @@ router.post('/create-transaction', transactionsController.createTransaction);
 
 router.put('/update-transaction/:id', transactionsController.updateTransaction);
 
+router.get('/find-transactions-paginated', transactionsController.findTransactionsPaginated);
+
 router.get('/find-transactions-by-filters', transactionsController.findTransactionsByFilters);
 
 router.delete('/delete-transaction/:id', transactionsController.deleteTransaction);
