@@ -113,10 +113,23 @@ export function Financial() {
         balance: item.balanceValue
     }));
 
-    const expenseCategories = (monthly?.categories ?? [])
+    const sortedExpenseCategories = (monthly?.categories ?? [])
         .filter(category => category.type === "expense" && category.value > 0)
-        .sort((a, b) => b.value - a.value)
-        .slice(0, 5);
+        .sort((a, b) => b.value - a.value);
+
+    const expenseCategories = sortedExpenseCategories.length > 5
+        ? [
+            ...sortedExpenseCategories.slice(0, 4),
+            {
+                name: "Outras categorias",
+                type: "expense" as const,
+                description: null,
+                value: sortedExpenseCategories
+                    .slice(4)
+                    .reduce((total, category) => total + category.value, 0)
+            }
+        ]
+        : sortedExpenseCategories;
 
     function changeMonth(direction: -1 | 1) {
         const date = new Date(selectedYear, selectedMonth - 1 + direction, 1);
@@ -126,6 +139,7 @@ export function Financial() {
 
     return (
         <main className="financial-page">
+            <title>Financeiro | Blue Admin</title>
             <AppHeader />
 
             <section className="financial-content">
@@ -280,7 +294,12 @@ export function Financial() {
                             </div>
                         </header>
 
-                        {monthlyQuery.isPending ? (
+                        {monthlyQuery.isError ? (
+                            <div className="financial-empty-state">
+                                <strong>Não foi possível carregar as categorias</strong>
+                                <button type="button" onClick={() => monthlyQuery.refetch()}>Tentar novamente</button>
+                            </div>
+                        ) : monthlyQuery.isPending ? (
                             <div className="financial-chart-loading">Carregando categorias…</div>
                         ) : expenseCategories.length === 0 ? (
                             <div className="financial-empty-state">
@@ -341,7 +360,12 @@ export function Financial() {
                             </div>
                         </header>
 
-                        {monthlyQuery.isPending ? (
+                        {monthlyQuery.isError ? (
+                            <div className="financial-empty-state financial-empty-state--compact">
+                                <strong>Não foi possível carregar os lançamentos</strong>
+                                <button type="button" onClick={() => monthlyQuery.refetch()}>Tentar novamente</button>
+                            </div>
+                        ) : monthlyQuery.isPending ? (
                             <div className="financial-chart-loading">Carregando lançamentos…</div>
                         ) : (monthly?.lastTransactions.transactions.length ?? 0) === 0 ? (
                             <div className="financial-empty-state financial-empty-state--compact">
