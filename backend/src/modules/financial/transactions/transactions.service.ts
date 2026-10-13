@@ -4,7 +4,8 @@ import {AppError} from '../../../shared/errors/AppError.js';
 import type {
     createTransactionDTO,
     updateTransactionDTO,
-    findTransactionsByFiltersDTO
+    findTransactionsByFiltersDTO,
+    findTransactionsPaginatedDTO
 } from './transactions.dto.js';
 import {removeUndefined} from '../../../shared/helpers/objects/removeUndefined.js';
 import {undefinedToNull} from '../../../shared/helpers/objects/undefinedToNull.js';
@@ -105,6 +106,26 @@ class TransactionsService{
         }
 
         return transactions
+    }
+
+    async findTransactionsPaginated(filters : findTransactionsPaginatedDTO){
+        const result = await transactionsRepository.findTransactionsPaginated(
+            filters.year,
+            filters.month,
+            filters.page,
+            filters.limit,
+            filters.categoryId,
+            filters.type,
+            filters.description
+        );
+
+        return {
+            transactions : result.transactions,
+            page : filters.page,
+            limit : filters.limit,
+            total : result.total,
+            totalPages : Math.ceil(result.total / filters.limit)
+        };
     }
 
     async deleteTransaction(id : string){
