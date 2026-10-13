@@ -15,7 +15,7 @@ export function useMonthlyExpensesOverview() {
 }
 
 export function useMonthlyExpensesByFilters(filters: FindMonthlyExpensesFilters) {
-    const hasFilters = Object.keys(filters).length > 0;
+    const hasFilters = Object.values(filters).some((value) => value !== undefined);
 
     return useQuery({
         queryKey: financialQueryKeys.monthlyExpenses.filtered(filters),
