@@ -13,6 +13,7 @@ import { Users } from "./pages/Users/Users";
 import { Clients } from "./pages/Clients/Clients";
 import { Financial } from "./pages/Financial/Financial";
 import { MonthlyExpenses } from "./pages/MonthlyExpenses/MonthlyExpenses";
+import { CategoryPanel } from "./pages/CategoryPanel/CategoryPanel";
 
 function App() {
     return (
@@ -70,6 +71,15 @@ function App() {
                         element={
                             <ProtectedRoute>
                                 <MonthlyExpenses />
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    <Route
+                        path="/financial/categories"
+                        element={
+                            <ProtectedRoute>
+                                <CategoryPanel />
                             </ProtectedRoute>
                         }
                     />
