@@ -117,6 +117,69 @@ class TransactionsRepository{
         })
     }
 
+    async findTransactionsPaginated(
+        year : number,
+        month : number,
+        page : number,
+        limit : number,
+        categoryId : string | undefined,
+        type : string | undefined,
+        description : string | undefined
+    ){
+        const startDate = new Date(0);
+        startDate.setUTCFullYear(year, month - 1, 1);
+        startDate.setUTCHours(0, 0, 0, 0);
+
+        const endDate = new Date(0);
+        endDate.setUTCFullYear(year, month, 1);
+        endDate.setUTCHours(0, 0, 0, 0);
+
+        const where = {
+            referenceDate : {
+                gte : startDate,
+                lt : endDate
+            },
+            ...(categoryId !== undefined && { categoryId }),
+            ...(type !== undefined && { type }),
+            ...(description !== undefined && {
+                description : {
+                    contains : description,
+                    mode : 'insensitive' as const
+                }
+            })
+        };
+
+        const [transactions, total] = await Promise.all([
+            prisma.financialTransaction.findMany({
+                where,
+                skip : (page - 1) * limit,
+                take : limit,
+                orderBy : [
+                    { referenceDate : 'desc' },
+                    { createdAt : 'desc' },
+                    { id : 'desc' }
+                ],
+                include : {
+                    category : {
+                        select : {
+                            name : true
+                        }
+                    }
+                }
+            }),
+            prisma.financialTransaction.count({ where })
+        ]);
+
+        return {
+            transactions : transactions.map(({ category, value, ...transaction }) => ({
+                ...transaction,
+                value : Number(value),
+                categoryName : category.name
+            })),
+            total
+        };
+    }
+
     async deleteTransaction(id : string){
         return prisma.financialTransaction.delete({
             where : { id }
