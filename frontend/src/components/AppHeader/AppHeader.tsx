@@ -1,12 +1,8 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import {
-    faArrowRightFromBracket,
-    faGear
-} from "@fortawesome/free-solid-svg-icons";
-import { useNavigate } from "react-router-dom";
+import { faArrowLeft, faArrowRightFromBracket, faGear } from "@fortawesome/free-solid-svg-icons";
+import { Link, useNavigate } from "react-router-dom";
 
 import { AppLogo } from "../AppLogo/AppLogo";
-import { BackLink } from "../BackLink/BackLink";
 import { useAuth } from "../../modules/auth/useAuth";
 
 import "./AppHeader.css";
@@ -61,7 +57,15 @@ export function AppHeader({ showBackLink = false }: { showBackLink?: boolean }) 
 
             {showBackLink && (
                 <nav className="app-header__back-row" aria-label="Navegação da página">
-                    <BackLink />
+                    <Link
+                        className="app-back-link"
+                        to="/dashboard"
+                        aria-label="Voltar ao painel principal"
+                        title="Voltar ao painel principal"
+                    >
+                        <FontAwesomeIcon icon={faArrowLeft} aria-hidden="true" />
+                        <span className="app-back-link__label">Voltar ao painel principal</span>
+                    </Link>
                 </nav>
             )}
         </div>
