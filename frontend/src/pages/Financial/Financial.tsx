@@ -368,7 +368,7 @@ export function Financial() {
                                 </div>
                             </>
                         )}
-                    </Link>
+                    </article>
                 </section>
 
                 <section className="financial-bottom-grid">
@@ -442,7 +442,7 @@ export function Financial() {
                                 </div>
                             </>
                         )}
-                    </article>
+                    </Link>
                 </section>
             </section>
         </main>
