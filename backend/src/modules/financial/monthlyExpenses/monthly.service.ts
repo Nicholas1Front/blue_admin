@@ -83,7 +83,38 @@ class ExpensesService{
             throw new AppError('Internal server error', 500, 'INTERNAL_SERVER_ERROR')
         }
 
-        return expenses
+        const activeExpensesNumber = expenses.filter(expense => expense.active === true).length;
+        const deactiveExpensesNumber = expenses.filter(expense => expense.active === false).length;
+
+        const activeExpenses = expenses.filter(expense => expense.active === true);
+        const deactiveExpenses = expenses.filter(expense => expense.active === false);
+
+        const activeExpensesSum = activeExpenses.reduce((total, expense) => total as any + expense.expectedValue, 0);
+        const deactiveExpensesSum = deactiveExpenses.reduce((total, expense) => total as any + expense.expectedValue, 0);
+
+        const dayCosts = activeExpensesSum / 30;
+        const hourCosts = dayCosts / 8;
+
+        return {
+            numberExpenses : activeExpensesNumber + deactiveExpensesNumber,
+            totalSum : activeExpensesSum + deactiveExpensesSum,
+            activeExpenses : {
+                number : activeExpensesNumber,
+                sum : activeExpensesSum,
+                dayCosts,
+                hourCosts,
+                expensesDetails : [
+                    ...activeExpenses
+                ]
+            },
+            deactiveExpenses : {
+                number : deactiveExpensesNumber,
+                sum : deactiveExpensesSum,
+                expensesDetails : [
+                    ...deactiveExpenses
+                ]
+            }
+        }
     }
 
     async deactivateExpense(id : string){
