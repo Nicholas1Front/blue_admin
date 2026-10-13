@@ -248,7 +248,7 @@ export function Clients() {
 
     return (
         <main className="clients-page">
-            <AppHeader showBackLink />
+            <AppHeader />
 
             <section className="clients-content">
                 {!selectedClient ? (

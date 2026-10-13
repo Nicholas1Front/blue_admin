@@ -111,7 +111,7 @@ export function Users() {
 
     return (
         <main className="users-page">
-            <AppHeader showBackLink />
+            <AppHeader />
 
             <section className="users-content">
                 <header className="users-header">

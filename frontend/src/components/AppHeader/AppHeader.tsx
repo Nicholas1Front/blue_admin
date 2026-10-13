@@ -21,13 +21,11 @@ export function AppHeader({ showBackLink = false }: { showBackLink?: boolean }) 
     }
 
     return (
-        <header className="app-header">
-            <div className="app-header__brand">
+        <div className="app-header-container">
+            <header className={`app-header${showBackLink ? " app-header--with-back-link" : ""}`}>
                 <AppLogo />
-                {showBackLink && <BackLink />}
-            </div>
 
-            <div className="app-header__actions">
+                <div className="app-header__actions">
                 <span className="app-header__user">
                     <span className="app-header__user-name">
                         {user?.name}
@@ -56,7 +54,14 @@ export function AppHeader({ showBackLink = false }: { showBackLink?: boolean }) 
                 >
                     <FontAwesomeIcon icon={faArrowRightFromBracket} />
                 </button>
-            </div>
-        </header>
+                </div>
+            </header>
+
+            {showBackLink && (
+                <nav className="app-header__back-row" aria-label="Navegação da página">
+                    <BackLink />
+                </nav>
+            )}
+        </div>
     );
 }

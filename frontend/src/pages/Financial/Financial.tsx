@@ -3,9 +3,12 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 import {
     faArrowDown,
+    faArrowLeft,
     faArrowTrendDown,
     faArrowTrendUp,
     faCalendarDays,
+    faChevronLeft,
+    faChevronRight,
     faWallet
 } from "@fortawesome/free-solid-svg-icons";
 import {
@@ -21,6 +24,8 @@ import {
     XAxis,
     YAxis
 } from "recharts";
+import { useNavigate } from "react-router-dom";
+
 import { AppHeader } from "../../components/AppHeader/AppHeader";
 import {
     useMonthlyFinancialSummary,
@@ -72,22 +77,10 @@ function MetricCard({
 }
 
 export function Financial() {
+    const navigate = useNavigate();
     const now = new Date();
-    const currentYear = now.getFullYear();
-    const currentMonth = now.getMonth() + 1;
-    const [selectedMonth, setSelectedMonth] = useState(currentMonth);
-    const [selectedYear, setSelectedYear] = useState(currentYear);
-
-    const availableYears = Array.from(
-        { length: currentYear - 1999 },
-        (_, index) => currentYear - index
-    );
-    const availableMonths = Array.from({ length: 12 }, (_, index) => ({
-        value: index + 1,
-        label: new Intl.DateTimeFormat("pt-BR", { month: "long" }).format(
-            new Date(2000, index, 1)
-        )
-    }));
+    const [selectedMonth, setSelectedMonth] = useState(now.getMonth() + 1);
+    const [selectedYear, setSelectedYear] = useState(now.getFullYear());
 
     const monthlyQuery = useMonthlyFinancialSummary({
         year: selectedYear,
@@ -100,6 +93,10 @@ export function Financial() {
     const monthly = monthlyQuery.data;
     const yearly = yearlyQuery.data;
     const expenses = expensesQuery.data;
+
+    const isCurrentMonth =
+        selectedYear === now.getFullYear() &&
+        selectedMonth === now.getMonth() + 1;
 
     const monthTitle = new Intl.DateTimeFormat("pt-BR", {
         month: "long",
@@ -133,24 +130,27 @@ export function Financial() {
         ]
         : sortedExpenseCategories;
 
-    function handleYearChange(year: number) {
-        if (!Number.isInteger(year) || year < 2000 || year > currentYear) {
-            return;
-        }
-
-        setSelectedYear(year);
-
-        if (year === currentYear && selectedMonth > currentMonth) {
-            setSelectedMonth(currentMonth);
-        }
+    function changeMonth(direction: -1 | 1) {
+        const date = new Date(selectedYear, selectedMonth - 1 + direction, 1);
+        setSelectedMonth(date.getMonth() + 1);
+        setSelectedYear(date.getFullYear());
     }
 
     return (
         <main className="financial-page">
             <title>Financeiro | Blue Admin</title>
-            <AppHeader showBackLink />
+            <AppHeader />
 
             <section className="financial-content">
+                <button
+                    className="financial-back-link"
+                    type="button"
+                    onClick={() => navigate("/dashboard")}
+                >
+                    <FontAwesomeIcon icon={faArrowLeft} />
+                    Voltar ao painel principal
+                </button>
+
                 <header className="financial-heading">
                     <div className="financial-heading__copy">
                         <span className="financial-eyebrow">Gestão financeira</span>
@@ -161,43 +161,30 @@ export function Financial() {
                         </p>
                     </div>
 
-                    <div className="financial-period-control">
+                    <div className="financial-period-control" aria-label="Selecionar mês">
                         <span className="financial-period-control__label">
                             <FontAwesomeIcon icon={faCalendarDays} />
                             Período de análise
                         </span>
                         <div className="financial-period-control__picker">
-                            <label className="financial-period-field">
-                                <span>Mês</span>
-                                <select
-                                    aria-label="Selecionar mês"
-                                    value={selectedMonth}
-                                    onChange={event => setSelectedMonth(Number(event.target.value))}
-                                >
-                                    {availableMonths.map(month => (
-                                        <option
-                                            key={month.value}
-                                            value={month.value}
-                                            disabled={selectedYear === currentYear && month.value > currentMonth}
-                                        >
-                                            {month.label}
-                                        </option>
-                                    ))}
-                                </select>
-                            </label>
-                            <label className="financial-period-field">
-                                <span>Ano</span>
-                                <select
-                                    aria-label="Selecionar ano"
-                                    value={selectedYear}
-                                    onChange={event => handleYearChange(Number(event.target.value))}
-                                    title="Use as teclas do teclado para localizar um ano rapidamente"
-                                >
-                                    {availableYears.map(year => (
-                                        <option key={year} value={year}>{year}</option>
-                                    ))}
-                                </select>
-                            </label>
+                            <button
+                                type="button"
+                                aria-label="Mês anterior"
+                                title="Mês anterior"
+                                onClick={() => changeMonth(-1)}
+                            >
+                                <FontAwesomeIcon icon={faChevronLeft} />
+                            </button>
+                            <strong>{monthTitle}</strong>
+                            <button
+                                type="button"
+                                aria-label="Próximo mês"
+                                title="Próximo mês"
+                                disabled={isCurrentMonth || new Date(selectedYear, selectedMonth, 1) > new Date(now.getFullYear(), now.getMonth(), 1)}
+                                onClick={() => changeMonth(1)}
+                            >
+                                <FontAwesomeIcon icon={faChevronRight} />
+                            </button>
                         </div>
                     </div>
                 </header>
