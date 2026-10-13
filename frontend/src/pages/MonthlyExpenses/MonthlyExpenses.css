@@ -24,6 +24,11 @@
     margin-bottom: var(--spacing-7);
 }
 
+.monthly-expenses-heading__refresh {
+    flex-shrink: 0;
+    margin-bottom: var(--spacing-1);
+}
+
 .monthly-expenses-heading h1 {
     color: var(--color-text);
     font-size: clamp(1.9rem, 3.3vw, 2.65rem);
@@ -575,6 +580,11 @@
     .monthly-expense-management__toolbar {
         align-items: flex-start;
         flex-direction: column;
+    }
+
+    .monthly-expenses-heading__refresh {
+        margin-top: var(--spacing-2);
+        margin-bottom: 0;
     }
 
     .monthly-expense-search__form {
