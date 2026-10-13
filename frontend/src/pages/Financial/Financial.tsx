@@ -8,6 +8,7 @@ import {
     faCalendarDays,
     faWallet
 } from "@fortawesome/free-solid-svg-icons";
+import { Link } from "react-router-dom";
 import {
     Bar,
     CartesianGrid,
@@ -156,7 +157,6 @@ export function Financial() {
             </nav>
 
             <section className="financial-content">
-
                 <header className="financial-heading">
                     <div className="financial-heading__copy">
                         <span className="financial-eyebrow">Gestão financeira</span>
@@ -420,6 +420,9 @@ export function Financial() {
                                     <span>Estimativa por hora</span>
                                     <strong>{formatCurrency(expenses?.activeExpenses.hourCosts)}</strong>
                                 </div>
+                                <Link className="financial-fixed-costs__manage" to="/monthly-expenses">
+                                    Gerenciar despesas
+                                </Link>
                             </>
                         )}
                     </article>
