@@ -1,4 +1,4 @@
-.financial-page {
+ .financial-page {
     min-height: 100vh;
     background:
         radial-gradient(ellipse at 78% 0%, rgb(11 116 229 / 0.08), transparent 35rem),
@@ -518,6 +518,28 @@
 .financial-fixed-costs__meta strong {
     color: var(--color-text-secondary);
     font-weight: var(--font-weight-semibold);
+}
+
+.financial-fixed-costs__manage {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: var(--control-height-md);
+    margin-top: var(--spacing-2);
+    padding: 0 var(--spacing-4);
+    color: var(--color-primary-300);
+    background: var(--color-info-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    text-decoration: none;
+    transition: background-color var(--transition-fast), border-color var(--transition-fast);
+}
+
+.financial-fixed-costs__manage:hover {
+    background: var(--color-surface-hover);
+    border-color: var(--color-primary-400);
 }
 
 @media (max-width: 1050px) {
