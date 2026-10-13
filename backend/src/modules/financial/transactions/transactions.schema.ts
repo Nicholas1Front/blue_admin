@@ -44,3 +44,13 @@ export const findTransactionsByFiltersSchema = z.object({
         message: 'At least one field must be provided to find transaction with filters'
     }
 );
+
+export const findTransactionsPaginatedSchema = z.object({
+    year: z.coerce.number().int().min(1).max(9999),
+    month: z.coerce.number().int().min(1).max(12),
+    page: z.coerce.number().int().min(1).default(1),
+    limit: z.coerce.number().int().min(1).max(100).default(10),
+    categoryId: z.string().min(1).optional(),
+    type: z.string().min(1).optional(),
+    description: z.string().trim().min(1).optional()
+});
