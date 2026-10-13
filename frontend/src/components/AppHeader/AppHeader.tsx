@@ -18,38 +18,38 @@ export function AppHeader() {
 
     return (
         <header className="app-header">
-                <AppLogo />
+            <AppLogo />
 
-                <div className="app-header__actions">
+            <div className="app-header__actions">
                     <span className="app-header__user">
-                        <span className="app-header__user-name">
-                            {user?.name}
-                        </span>
-
-                        <span className="app-header__user-email">
-                            {user?.email}
-                        </span>
+                    <span className="app-header__user-name">
+                        {user?.name}
                     </span>
 
-                    <button
-                        className="app-header__action"
-                        type="button"
-                        aria-label="Configurações"
-                        title="Configurações"
-                    >
-                        <FontAwesomeIcon icon={faGear} />
-                    </button>
+                    <span className="app-header__user-email">
+                        {user?.email}
+                    </span>
+                </span>
 
-                    <button
-                        className="app-header__action app-header__action--logout"
-                        type="button"
-                        onClick={handleLogout}
-                        aria-label="Sair"
-                        title="Sair"
-                    >
-                        <FontAwesomeIcon icon={faArrowRightFromBracket} />
-                    </button>
-                </div>
+                <button
+                    className="app-header__action"
+                    type="button"
+                    aria-label="Configurações"
+                    title="Configurações"
+                >
+                    <FontAwesomeIcon icon={faGear} />
+                </button>
+
+                <button
+                    className="app-header__action app-header__action--logout"
+                    type="button"
+                    onClick={handleLogout}
+                    aria-label="Sair"
+                    title="Sair"
+                >
+                    <FontAwesomeIcon icon={faArrowRightFromBracket} />
+                </button>
+            </div>
         </header>
     );
 }
