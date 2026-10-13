@@ -52,15 +52,19 @@ function MetricCard({
     value,
     detail,
     icon,
-    tone
+    tone,
+    to,
+    ariaLabel
 }: {
     label: string;
     value: string;
     detail: string;
     icon: IconDefinition;
     tone: "blue" | "green" | "red" | "violet";
+    to?: string;
+    ariaLabel?: string;
 }) {
-    return (
+    const content = (
         <article className={`financial-metric financial-metric--${tone}`}>
             <div className="financial-metric__top">
                 <span className="financial-metric__label">{label}</span>
@@ -72,6 +76,16 @@ function MetricCard({
             <span className="financial-metric__detail">{detail}</span>
         </article>
     );
+
+    if (to) {
+        return (
+            <Link className="financial-metric-link" to={to} aria-label={ariaLabel ?? label}>
+                {content}
+            </Link>
+        );
+    }
+
+    return content;
 }
 
 export function Financial() {
@@ -232,6 +246,8 @@ export function Financial() {
                         detail={expenses ? `${expenses.activeExpenses.number} despesas ativas cadastradas` : "Total mensal previsto"}
                         icon={faArrowDown}
                         tone="violet"
+                        to="/monthly-expenses"
+                        ariaLabel="Abrir gestão de despesas mensais"
                     />
                 </section>
 
@@ -352,10 +368,7 @@ export function Financial() {
                                 </div>
                             </>
                         )}
-                        <Link className="financial-fixed-costs__manage" to="/monthly-expenses">
-                            Gerenciar despesas
-                        </Link>
-                    </article>
+                    </Link>
                 </section>
 
                 <section className="financial-bottom-grid">
@@ -400,7 +413,11 @@ export function Financial() {
                         )}
                     </article>
 
-                    <article className="financial-panel financial-fixed-costs">
+                    <Link
+                        className="financial-panel financial-fixed-costs financial-fixed-costs--link"
+                        to="/monthly-expenses"
+                        aria-label="Abrir gestão de despesas mensais"
+                    >
                         <div className="financial-fixed-costs__icon">
                             <FontAwesomeIcon icon={faCalendarDays} />
                         </div>
