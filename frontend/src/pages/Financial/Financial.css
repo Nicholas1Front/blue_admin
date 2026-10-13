@@ -536,11 +536,6 @@
 }
 
 @media (max-width: 700px) {
-    .page-back-row {
-        min-height: 3rem;
-        padding: 0 var(--spacing-4);
-    }
-
     .financial-content {
         width: min(100% - 2rem, 84rem);
         padding-top: var(--spacing-5);
