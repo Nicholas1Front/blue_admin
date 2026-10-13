@@ -6,6 +6,15 @@ const dueDateSchema = z.preprocess(
     z.date()
 );
 
+const queryBooleanSchema = z.preprocess(
+    value => {
+        if(value === 'true') return true;
+        if(value === 'false') return false;
+        return value;
+    },
+    z.boolean()
+);
+
 export const createExpenseSchema = z.object({
     name : z.string().min(1),
     description : z.string().min(1).nullable().optional(),
@@ -31,10 +40,10 @@ export const findExpensesByFiltersSchema = z.object({
     id : z.string().min(1).optional(),
     name : z.string().min(1).optional(),
     description : z.string().min(1).nullable().optional(),
-    expectedValue : z.number().min(1).optional(),
+    expectedValue : z.coerce.number().min(1).optional(),
     dueDate : dueDateSchema.nullable().optional(),
     notes : z.string().min(1).nullable().optional(),
-    active : z.boolean().optional()
+    active : queryBooleanSchema.optional()
 }).refine(
     data => Object.keys(data).length > 0,
     {

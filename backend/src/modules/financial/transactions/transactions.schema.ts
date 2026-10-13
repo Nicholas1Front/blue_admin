@@ -33,7 +33,7 @@ export const findTransactionsByFiltersSchema = z.object({
     id: z.string().min(1).optional(),
     categoryId: z.string().min(1).optional(),
     description: z.string().min(1).optional(),
-    value: z.number().min(1).optional(),
+    value: z.coerce.number().min(1).optional(),
     type: z.string().min(1).optional(),
     referenceDate: referenceDateSchema.optional(),
     originId: z.string().nullable().optional(),

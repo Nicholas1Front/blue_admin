@@ -1,5 +1,14 @@
 import {z} from 'zod';
 
+const queryBooleanSchema = z.preprocess(
+    value => {
+        if(value === 'true') return true;
+        if(value === 'false') return false;
+        return value;
+    },
+    z.boolean()
+);
+
 export const createCategorySchema = z.object({
     name : z.string().min(1),
     description : z.string().min(1).nullable().optional(),
@@ -22,7 +31,7 @@ export const findCategoryByFiltersSchema = z.object({
     name : z.string().min(1).optional(),
     description : z.string().min(1).nullable().optional(),
     type : z.string().optional(),
-    active : z.boolean().optional()
+    active : queryBooleanSchema.optional()
 }).refine(
     data => Object.keys(data).length > 0,
     {
