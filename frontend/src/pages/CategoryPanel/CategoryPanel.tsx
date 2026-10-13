@@ -292,7 +292,10 @@ function CategoryList({
                                         {category.type === "income" ? "Entrada · income" : "Saída · expense"}
                                     </span>
                                 </div>
-                                <p className="category-card__description">{category.description || "Sem descrição informada."}</p>
+                                <div className="category-card__description">
+                                    <span>Descrição</span>
+                                    <p>{category.description || "Sem descrição informada."}</p>
+                                </div>
                                 <dl className="category-card__details">
                                     <div><dt>ID</dt><dd className="category-card__id" title={category.id}>{category.id}</dd></div>
                                     <div><dt>Tipo</dt><dd>{category.type}</dd></div>
