@@ -13,7 +13,6 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import {
     Bar,
-    BarChart,
     CartesianGrid,
     Cell,
     ComposedChart,
