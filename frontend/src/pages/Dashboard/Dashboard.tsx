@@ -1,7 +1,8 @@
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faUsers,
-    faBuilding
+    faBuilding,
+    faChartLine
 } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 
@@ -74,6 +75,28 @@ export function Dashboard() {
 
                             <p>
                                 Consulte clientes, contatos e equipamentos em um só lugar.
+                            </p>
+                        </div>
+                    </button>
+
+                    <button
+                        className="dashboard-card dashboard-card--action"
+                        type="button"
+                        onClick={() => navigate("/financial")}
+                    >
+                        <div className="dashboard-card__icon dashboard-card__icon--financial">
+                            <FontAwesomeIcon icon={faChartLine} />
+                        </div>
+
+                        <div>
+                            <span className="dashboard-card__label">
+                                Controle e análise
+                            </span>
+
+                            <strong>Financeiro</strong>
+
+                            <p>
+                                Acompanhe receitas, despesas, saldo e indicadores da empresa.
                             </p>
                         </div>
                     </button>

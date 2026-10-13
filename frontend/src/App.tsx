@@ -11,6 +11,7 @@ import { Login } from "./pages/Login/Login";
 import { Dashboard } from "./pages/Dashboard/Dashboard";
 import { Users } from "./pages/Users/Users";
 import { Clients } from "./pages/Clients/Clients";
+import { Financial } from "./pages/Financial/Financial";
 
 function App() {
     return (
@@ -50,6 +51,15 @@ function App() {
                         element={
                             <ProtectedRoute>
                                 <Clients />
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    <Route
+                        path="/financial"
+                        element={
+                            <ProtectedRoute>
+                                <Financial />
                             </ProtectedRoute>
                         }
                     />
