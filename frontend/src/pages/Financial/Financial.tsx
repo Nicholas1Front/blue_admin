@@ -6,7 +6,8 @@ import {
     faArrowTrendDown,
     faArrowTrendUp,
     faCalendarDays,
-    faWallet
+    faWallet,
+    faTags
 } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
 import {
@@ -442,6 +443,18 @@ export function Financial() {
                                 </div>
                             </>
                         )}
+                    </Link>
+                </section>
+
+                <section className="financial-category-access" aria-label="Gestão de categorias">
+                    <div>
+                        <span className="financial-panel__eyebrow">Organização financeira</span>
+                        <h2>Suas categorias</h2>
+                        <p>Gerencie as categorias de entrada e saída utilizadas nos lançamentos.</p>
+                    </div>
+                    <Link className="financial-category-access__button" to="/financial/categories">
+                        <FontAwesomeIcon icon={faTags} />
+                        Gerenciar categorias
                     </Link>
                 </section>
             </section>
