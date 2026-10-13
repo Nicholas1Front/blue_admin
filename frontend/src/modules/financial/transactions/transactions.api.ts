@@ -3,7 +3,6 @@ import type { ApiResponse } from "../../../api/api.types";
 import type {
     CreateTransactionRequest,
     FinancialTransaction,
-    FinancialTransactionListItem,
     FindTransactionsByFilters,
     PaginatedTransactionsFilters,
     PaginatedTransactionsResponse,
