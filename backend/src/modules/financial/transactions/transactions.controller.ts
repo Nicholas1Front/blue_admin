@@ -4,7 +4,8 @@ import {AppError} from '../../../shared/errors/AppError.js'
 import {
     createTransactionSchema,
     updateTransactionSchema,
-    findTransactionsByFiltersSchema
+    findTransactionsByFiltersSchema,
+    findTransactionsPaginatedSchema
 } from './transactions.schema.js'
 
 class TransactionsController{
@@ -54,6 +55,20 @@ class TransactionsController{
             message : 'Transactions found successfully using filters',
             data : transactions
         })
+    }
+
+    async findTransactionsPaginated(req : Request, res : Response){
+        if(!req.user){
+            throw new AppError('User not authenticated', 401, 'USER_NOT_AUTHENTICATED')
+        }
+
+        const filters = findTransactionsPaginatedSchema.parse(req.query);
+        const result = await transactionsService.findTransactionsPaginated(filters);
+
+        return res.status(200).json({
+            message : 'Transactions found successfully',
+            data : result
+        });
     }
 
     async deleteTransaction(req : Request, res : Response){
