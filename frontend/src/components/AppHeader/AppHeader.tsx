@@ -50,7 +50,6 @@ export function AppHeader() {
                         <FontAwesomeIcon icon={faArrowRightFromBracket} />
                     </button>
                 </div>
-            </header>
         </header>
     );
 }
