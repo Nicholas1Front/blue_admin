@@ -352,6 +352,9 @@ export function Financial() {
                                 </div>
                             </>
                         )}
+                        <Link className="financial-fixed-costs__manage" to="/monthly-expenses">
+                            Gerenciar despesas
+                        </Link>
                     </article>
                 </section>
 
@@ -420,9 +423,6 @@ export function Financial() {
                                     <span>Estimativa por hora</span>
                                     <strong>{formatCurrency(expenses?.activeExpenses.hourCosts)}</strong>
                                 </div>
-                                <Link className="financial-fixed-costs__manage" to="/monthly-expenses">
-                                    Gerenciar despesas
-                                </Link>
                             </>
                         )}
                     </article>
