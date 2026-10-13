@@ -149,7 +149,10 @@ export function MonthlyExpenses() {
         <main className="monthly-expenses-page">
             <AppHeader />
             <nav className="page-back-row" aria-label="Navegação da página">
-                <BackLink />
+                <BackLink
+                    to="/financial"
+                    label="Voltar ao dashboard financeiro"
+                />
             </nav>
 
             <section className="monthly-expenses-content">
