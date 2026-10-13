@@ -46,8 +46,8 @@ export async function findTransactionsPaginated(
 
 export async function findTransactionsByFilters(
     filters: FindTransactionsByFilters
-): Promise<FinancialTransactionListItem[]> {
-    const result = await api.get<ApiResponse<FinancialTransactionListItem[]>>(
+): Promise<FinancialTransaction[]> {
+    const result = await api.get<ApiResponse<FinancialTransaction[]>>(
         "/financial/transactions/find-transactions-by-filters",
         { params: filters }
     );
