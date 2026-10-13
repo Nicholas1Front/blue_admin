@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 
 import { AppHeader } from "../../components/AppHeader/AppHeader";
+import { BackLink } from "../../components/BackLink/BackLink";
 import { useAuth } from "../../modules/auth/useAuth";
 import { useUsers } from "../../modules/users/useUsers";
 import type {
@@ -112,6 +113,9 @@ export function Users() {
     return (
         <main className="users-page">
             <AppHeader />
+            <nav className="page-back-row" aria-label="Navegação da página">
+                <BackLink />
+            </nav>
 
             <section className="users-content">
                 <header className="users-header">
