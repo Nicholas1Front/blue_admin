@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 
 import { Modal } from "../../components/Modal/Modal";
 import {
@@ -63,20 +63,6 @@ export function FinancialTransactionCreateModal({
         String(new Date(selectedYear, selectedMonth, 0).getDate()).padStart(2, "0")
     ].join("-");
     const isSubmitting = transactionMutations.create.isPending || categoryMutations.create.isPending;
-
-    useEffect(() => {
-        if (!isOpen) return;
-
-        setDescription("");
-        setValue("");
-        setReferenceDate(getDefaultReferenceDate(selectedYear, selectedMonth));
-        setCategoryId("");
-        setShowCategoryForm(false);
-        setNewCategoryName("");
-        setNewCategoryDescription("");
-        setNewCategoryType("expense");
-        setFormError("");
-    }, [isOpen, selectedYear, selectedMonth]);
 
     function handleClose() {
         if (!isSubmitting) onClose();
