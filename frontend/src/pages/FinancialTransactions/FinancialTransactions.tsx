@@ -15,12 +15,16 @@ import {
 
 import { AppHeader } from "../../components/AppHeader/AppHeader";
 import { BackLink } from "../../components/BackLink/BackLink";
+import { Modal } from "../../components/Modal/Modal";
 import { FinancialTransactionCreateModal } from "./FinancialTransactionCreateModal";
 import {
     useMonthlyFinancialSummary,
+    useTransactionMutations,
     useTransactions,
-    useYearlyFinancialSummary
+    useYearlyFinancialSummary,
+    type FinancialTransaction
 } from "../../modules/financial";
+import type { FinancialTransactionListItem } from "../../modules/financial/transactions/transactions.types";
 import "./FinancialTransactions.css";
 
 const currencyFormatter = new Intl.NumberFormat("pt-BR", {
@@ -78,6 +82,9 @@ export function FinancialTransactions() {
     const [selectedMonth, setSelectedMonth] = useState(currentMonth);
     const [transactionPage, setTransactionPage] = useState(1);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [transactionToEdit, setTransactionToEdit] = useState<FinancialTransactionListItem | null>(null);
+    const [transactionToDelete, setTransactionToDelete] = useState<FinancialTransactionListItem | null>(null);
+    const transactionMutations = useTransactionMutations();
     const transactionsPerPage = 10;
 
     const availableYears = Array.from(
@@ -110,6 +117,32 @@ export function FinancialTransactions() {
         year: "numeric"
     }).format(new Date(selectedYear, selectedMonth - 1, 1));
     const capitalizedMonthTitle = monthTitle.charAt(0).toLocaleUpperCase("pt-BR") + monthTitle.slice(1);
+
+    function handleTransactionSaved(transaction: FinancialTransaction) {
+        const referenceDate = transaction.referenceDate.slice(0, 10);
+        const [year, month] = referenceDate.split("-").map(Number);
+
+        if (Number.isInteger(year) && Number.isInteger(month) && month >= 1 && month <= 12) {
+            setSelectedYear(year);
+            setSelectedMonth(month);
+        }
+
+        setTransactionPage(1);
+        setIsCreateModalOpen(false);
+        setTransactionToEdit(null);
+    }
+
+    async function handleDeleteTransaction() {
+        if (!transactionToDelete || transactionMutations.remove.isPending) return;
+
+        try {
+            await transactionMutations.remove.mutateAsync(transactionToDelete.id);
+            setTransactionToDelete(null);
+            setTransactionPage(1);
+        } catch {
+            // O modal permanece aberto para permitir uma nova tentativa.
+        }
+    }
 
     function handleYearChange(year: number) {
         if (!Number.isInteger(year) || year < 2000 || year > currentYear) {
@@ -389,10 +422,20 @@ export function FinancialTransactions() {
                                             </strong>
 
                                             <div className="financial-transactions-table__actions" role="cell">
-                                                <button type="button" disabled title="Edição será implementada na próxima etapa" aria-label={`Editar lançamento: ${transaction.description}`}>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setTransactionToEdit(transaction)}
+                                                    title="Editar lançamento"
+                                                    aria-label={`Editar lançamento: ${transaction.description}`}
+                                                >
                                                     <FontAwesomeIcon icon={faPencil} />
                                                 </button>
-                                                <button type="button" disabled title="Exclusão será implementada na próxima etapa" aria-label={`Excluir lançamento: ${transaction.description}`}>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setTransactionToDelete(transaction)}
+                                                    title="Excluir lançamento"
+                                                    aria-label={`Excluir lançamento: ${transaction.description}`}
+                                                >
                                                     <FontAwesomeIcon icon={faTrash} />
                                                 </button>
                                             </div>
@@ -431,17 +474,63 @@ export function FinancialTransactions() {
                 </section>
             </section>
 
-            {isCreateModalOpen && (
+            {(isCreateModalOpen || transactionToEdit) && (
                 <FinancialTransactionCreateModal
                     isOpen
                     selectedYear={selectedYear}
                     selectedMonth={selectedMonth}
-                    onClose={() => setIsCreateModalOpen(false)}
-                    onCreated={() => {
+                    transaction={transactionToEdit ?? undefined}
+                    onClose={() => {
                         setIsCreateModalOpen(false);
-                        setTransactionPage(1);
+                        setTransactionToEdit(null);
                     }}
+                    onSaved={handleTransactionSaved}
                 />
+            )}
+
+            {transactionToDelete && (
+                <Modal
+                    isOpen
+                    title="Excluir lançamento"
+                    onClose={() => {
+                        if (!transactionMutations.remove.isPending) {
+                            setTransactionToDelete(null);
+                        }
+                    }}
+                >
+                    <div className="financial-transaction-delete">
+                        <p>
+                            Tem certeza de que deseja excluir o lançamento
+                            {" "}<strong>“{transactionToDelete.description}”</strong>?
+                        </p>
+                        <p>Essa ação não pode ser desfeita.</p>
+
+                        {transactionMutations.remove.isError && (
+                            <p className="financial-transaction-form__error" role="alert">
+                                Não foi possível excluir o lançamento. Tente novamente.
+                            </p>
+                        )}
+
+                        <footer className="financial-transaction-form__actions">
+                            <button
+                                className="financial-transaction-form__cancel-button"
+                                type="button"
+                                onClick={() => setTransactionToDelete(null)}
+                                disabled={transactionMutations.remove.isPending}
+                            >
+                                Cancelar
+                            </button>
+                            <button
+                                className="financial-transaction-delete__confirm"
+                                type="button"
+                                onClick={handleDeleteTransaction}
+                                disabled={transactionMutations.remove.isPending}
+                            >
+                                {transactionMutations.remove.isPending ? "Excluindo…" : "Excluir lançamento"}
+                            </button>
+                        </footer>
+                    </div>
+                </Modal>
             )}
         </main>
     );
