@@ -5,7 +5,6 @@ import {
     faArrowDown,
     faArrowTrendDown,
     faArrowTrendUp,
-    faCalendarDays,
     faChevronLeft,
     faChevronRight,
     faPencil,
@@ -331,6 +330,10 @@ export function FinancialTransactions() {
                     ) : transactionsQuery.isPending ? (
                         <div className="financial-transactions-list-feedback" role="status">
                             Carregando lançamentos…
+                        </div>
+                    ) : !transactionsResult ? (
+                        <div className="financial-transactions-list-feedback" role="status">
+                            Preparando os lançamentos…
                         </div>
                     ) : transactionsResult.transactions.length === 0 ? (
                         <div className="financial-transactions-empty">
