@@ -923,3 +923,77 @@
     }
 }
 
+.financial-transactions-table__actions button {
+    cursor: pointer;
+}
+
+.financial-transactions-table__actions button:first-child:hover:not(:disabled),
+.financial-transactions-table__actions button:first-child:focus-visible {
+    color: var(--color-primary-400);
+    border-color: var(--color-primary-400);
+}
+
+.financial-transactions-table__actions button:last-child:hover:not(:disabled),
+.financial-transactions-table__actions button:last-child:focus-visible {
+    color: var(--color-danger);
+    border-color: var(--color-danger);
+    background: var(--color-danger-bg);
+}
+
+.financial-transactions-table__actions button:focus-visible,
+.financial-transaction-delete__confirm:focus-visible {
+    outline: 2px solid var(--color-primary-400);
+    outline-offset: 2px;
+}
+
+.financial-transaction-delete {
+    display: grid;
+    gap: var(--spacing-3);
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-relaxed);
+}
+
+.financial-transaction-delete strong {
+    color: var(--color-text);
+    overflow-wrap: anywhere;
+}
+
+.financial-transaction-delete__confirm {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: var(--control-height-md);
+    padding: 0 var(--spacing-4);
+    color: #fff;
+    background: var(--color-danger);
+    border: 1px solid transparent;
+    border-radius: var(--radius-md);
+    font: inherit;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+    transition: background var(--transition-fast), opacity var(--transition-fast);
+}
+
+.financial-transaction-delete__confirm:hover:not(:disabled) {
+    background: var(--color-danger);
+    filter: brightness(1.08);
+}
+
+.financial-transaction-delete__confirm:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+@media (max-width: 520px) {
+    .financial-transaction-delete .financial-transaction-form__actions {
+        flex-direction: column-reverse;
+    }
+
+    .financial-transaction-delete .financial-transaction-form__cancel-button,
+    .financial-transaction-delete__confirm {
+        width: 100%;
+    }
+}
+
