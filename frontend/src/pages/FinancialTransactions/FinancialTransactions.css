@@ -1,0 +1,270 @@
+.financial-transactions-page {
+    min-height: 100vh;
+    background:
+        radial-gradient(ellipse at 82% 0%, rgb(11 116 229 / 0.07), transparent 34rem),
+        var(--color-background);
+}
+
+.financial-transactions-content {
+    width: min(100% - 3rem, 84rem);
+    margin: 0 auto;
+    padding: var(--spacing-8) 0 var(--spacing-16);
+}
+
+.financial-transactions-heading {
+    max-width: 48rem;
+    margin-bottom: var(--spacing-8);
+}
+
+.financial-transactions-eyebrow {
+    display: block;
+    margin-bottom: var(--spacing-2);
+    color: var(--color-primary-400);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+}
+
+.financial-transactions-heading h1 {
+    color: var(--color-text);
+    font-size: clamp(1.9rem, 3.3vw, 2.65rem);
+    letter-spacing: -0.045em;
+}
+
+.financial-transactions-heading p {
+    max-width: 43rem;
+    margin-top: var(--spacing-3);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-relaxed);
+}
+
+.financial-transactions-yearly {
+    padding: var(--spacing-5);
+    background: rgb(24 35 44 / 0.72);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-sm);
+}
+
+.financial-transactions-yearly__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--spacing-5);
+    margin-bottom: var(--spacing-5);
+}
+
+.financial-transactions-yearly__header h2 {
+    color: var(--color-text);
+    font-size: var(--font-size-xl);
+    letter-spacing: -0.025em;
+}
+
+.financial-transactions-yearly__header p {
+    margin-top: var(--spacing-2);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-relaxed);
+}
+
+.financial-transactions-year-picker {
+    display: grid;
+    gap: var(--spacing-2);
+    flex-shrink: 0;
+    min-width: 11rem;
+}
+
+.financial-transactions-year-picker > span {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+}
+
+.financial-transactions-year-picker select {
+    width: 100%;
+    min-height: var(--control-height-md);
+    padding: 0 var(--spacing-3);
+    color: var(--color-text);
+    background: var(--color-surface-hover);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font: inherit;
+    font-size: var(--font-size-sm);
+}
+
+.financial-transactions-year-picker select:focus-visible {
+    outline: 2px solid var(--color-primary-400);
+    outline-offset: 2px;
+}
+
+.financial-transactions-metrics {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--spacing-4);
+}
+
+.financial-transactions-metric {
+    position: relative;
+    min-width: 0;
+    padding: var(--spacing-5);
+    overflow: hidden;
+    background: linear-gradient(145deg, var(--color-surface-raised), var(--color-surface));
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+}
+
+.financial-transactions-metric::after {
+    position: absolute;
+    right: -2rem;
+    bottom: -2.5rem;
+    width: 6rem;
+    height: 6rem;
+    content: "";
+    background: var(--metric-glow, rgb(77 155 255 / 0.07));
+    border-radius: 50%;
+    pointer-events: none;
+}
+
+.financial-transactions-metric--income {
+    --metric-color: #4ade80;
+    --metric-glow: rgb(34 197 94 / 0.08);
+}
+
+.financial-transactions-metric--expense {
+    --metric-color: #fb8585;
+    --metric-glow: rgb(239 68 68 / 0.08);
+}
+
+.financial-transactions-metric--balance {
+    --metric-color: #70b3ff;
+    --metric-glow: rgb(77 155 255 / 0.1);
+}
+
+.financial-transactions-metric__top {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--spacing-3);
+}
+
+.financial-transactions-metric__top > span:first-child {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+}
+
+.financial-transactions-metric__icon {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    width: 2.25rem;
+    height: 2.25rem;
+    color: var(--metric-color);
+    background: color-mix(in srgb, var(--metric-color) 12%, transparent);
+    border-radius: var(--radius-md);
+}
+
+.financial-transactions-metric__value {
+    position: relative;
+    display: block;
+    margin-top: var(--spacing-4);
+    color: var(--color-text);
+    font-size: clamp(1.25rem, 2vw, 1.8rem);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: -0.04em;
+    overflow-wrap: anywhere;
+}
+
+.financial-transactions-metric > p {
+    position: relative;
+    margin-top: var(--spacing-2);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+    line-height: var(--line-height-normal);
+}
+
+.financial-transactions-feedback {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-4);
+    padding: var(--spacing-4);
+    color: var(--color-danger);
+    background: var(--color-danger-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    font-size: var(--font-size-sm);
+}
+
+.financial-transactions-feedback button {
+    padding: var(--spacing-2) var(--spacing-3);
+    color: var(--color-text);
+    background: rgb(255 255 255 / 0.07);
+    border-radius: var(--radius-md);
+    white-space: nowrap;
+}
+
+@media (max-width: 900px) {
+    .financial-transactions-metrics {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .financial-transactions-metric:last-child {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 700px) {
+    .financial-transactions-content {
+        width: min(100% - 2rem, 84rem);
+        padding-top: var(--spacing-6);
+    }
+
+    .financial-transactions-yearly {
+        padding: var(--spacing-4);
+    }
+
+    .financial-transactions-yearly__header {
+        flex-direction: column;
+        align-items: stretch;
+        gap: var(--spacing-4);
+    }
+
+    .financial-transactions-year-picker {
+        width: 100%;
+        min-width: 0;
+    }
+
+    .financial-transactions-feedback {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
+
+@media (max-width: 520px) {
+    .financial-transactions-content {
+        width: min(100% - 1.25rem, 84rem);
+        padding-bottom: var(--spacing-10);
+    }
+
+    .financial-transactions-heading h1 {
+        font-size: var(--font-size-2xl);
+    }
+
+    .financial-transactions-metrics {
+        grid-template-columns: minmax(0, 1fr);
+        gap: var(--spacing-3);
+    }
+
+    .financial-transactions-metric:last-child {
+        grid-column: auto;
+    }
+
+    .financial-transactions-metric {
+        padding: var(--spacing-4);
+    }
+}
