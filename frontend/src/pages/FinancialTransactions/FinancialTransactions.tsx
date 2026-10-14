@@ -15,6 +15,7 @@ import {
 
 import { AppHeader } from "../../components/AppHeader/AppHeader";
 import { BackLink } from "../../components/BackLink/BackLink";
+import { FinancialTransactionCreateModal } from "./FinancialTransactionCreateModal";
 import {
     useMonthlyFinancialSummary,
     useTransactions,
@@ -74,6 +75,7 @@ export function FinancialTransactions() {
     const [selectedYear, setSelectedYear] = useState(currentYear);
     const [selectedMonth, setSelectedMonth] = useState(currentMonth);
     const [transactionPage, setTransactionPage] = useState(1);
+    const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const transactionsPerPage = 10;
 
     const availableYears = Array.from(
@@ -312,8 +314,7 @@ export function FinancialTransactions() {
                         <button
                             className="financial-transactions-add-button"
                             type="button"
-                            disabled
-                            title="A ação será implementada na próxima etapa"
+                            onClick={() => setIsCreateModalOpen(true)}
                         >
                             <FontAwesomeIcon icon={faPlus} aria-hidden="true" />
                             Adicionar lançamento
@@ -424,6 +425,17 @@ export function FinancialTransactions() {
                     )}
                 </section>
             </section>
+
+            <FinancialTransactionCreateModal
+                isOpen={isCreateModalOpen}
+                selectedYear={selectedYear}
+                selectedMonth={selectedMonth}
+                onClose={() => setIsCreateModalOpen(false)}
+                onCreated={() => {
+                    setIsCreateModalOpen(false);
+                    setTransactionPage(1);
+                }}
+            />
         </main>
     );
 }
