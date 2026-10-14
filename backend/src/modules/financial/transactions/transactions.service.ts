@@ -74,6 +74,10 @@ class TransactionsService{
                 throw new AppError('Category not found', 404, 'CATEGORY_NOT_FOUND')
             }
 
+            if(categoryExists.active === false){
+                throw new AppError('Cannot assign an inactive category to a transaction', 400, 'CATEGORY_INACTIVE')
+            }
+
             cleanedData.type = categoryExists.type
         }
 
