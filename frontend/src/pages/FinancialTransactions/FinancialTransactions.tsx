@@ -24,11 +24,12 @@ import {
     useMonthlyFinancialSummary,
     useTransactionMutations,
     useTransactions,
+    useTransactionsByFilters,
     useYearlyFinancialSummary,
     type FinancialTransaction,
     type FinancialType
 } from "../../modules/financial";
-import type { FinancialTransactionListItem } from "../../modules/financial/transactions/transactions.types";
+import type { FinancialTransactionListItem, FindTransactionsByFilters } from "../../modules/financial/transactions/transactions.types";
 import "./FinancialTransactions.css";
 
 const currencyFormatter = new Intl.NumberFormat("pt-BR", {
@@ -88,11 +89,9 @@ export function FinancialTransactions() {
     const [searchDescription, setSearchDescription] = useState("");
     const [searchType, setSearchType] = useState<FinancialType | "">("");
     const [searchCategoryId, setSearchCategoryId] = useState("");
-    const [appliedFilters, setAppliedFilters] = useState<{
-        description?: string;
-        categoryId?: string;
-        type?: FinancialType;
-    }>({});
+    const [searchValue, setSearchValue] = useState("");
+    const [searchReferenceDate, setSearchReferenceDate] = useState("");
+    const [searchAppliedFilters, setSearchAppliedFilters] = useState<FindTransactionsByFilters>({});
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [transactionToEdit, setTransactionToEdit] = useState<FinancialTransactionListItem | null>(null);
     const [transactionToDelete, setTransactionToDelete] = useState<FinancialTransactionListItem | null>(null);
@@ -119,13 +118,14 @@ export function FinancialTransactions() {
         year: selectedYear,
         month: selectedMonth,
         page: transactionPage,
-        limit: transactionsPerPage,
-        ...appliedFilters
+        limit: transactionsPerPage
     });
+    const filteredTransactionsQuery = useTransactionsByFilters(searchAppliedFilters);
 
     const yearlySummary = yearlyQuery.data;
     const monthlySummary = monthlyQuery.data;
     const transactionsResult = transactionsQuery.data;
+    const filteredTransactions = filteredTransactionsQuery.data;
     const monthTitle = new Intl.DateTimeFormat("pt-BR", {
         month: "long",
         year: "numeric"
@@ -150,25 +150,30 @@ export function FinancialTransactions() {
         event.preventDefault();
 
         const description = searchDescription.trim();
-        setAppliedFilters({
+        const parsedValue = searchValue.trim() ? Number(searchValue) : undefined;
+        const filters: FindTransactionsByFilters = {
             ...(description ? { description } : {}),
             ...(searchCategoryId ? { categoryId: searchCategoryId } : {}),
-            ...(searchType ? { type: searchType } : {})
-        });
-        setTransactionPage(1);
+            ...(searchType ? { type: searchType } : {}),
+            ...(parsedValue !== undefined && Number.isFinite(parsedValue) && parsedValue >= 1
+                ? { value: parsedValue }
+                : {}),
+            ...(searchReferenceDate ? { referenceDate: searchReferenceDate } : {})
+        };
+
+        setSearchAppliedFilters(filters);
     }
 
     function handleClearSearch() {
         setSearchDescription("");
         setSearchType("");
         setSearchCategoryId("");
-        setAppliedFilters({});
-        setTransactionPage(1);
+        setSearchValue("");
+        setSearchReferenceDate("");
+        setSearchAppliedFilters({});
     }
 
-    const hasActiveSearch = Boolean(
-        appliedFilters.description || appliedFilters.categoryId || appliedFilters.type
-    );
+    const hasActiveSearch = Object.keys(searchAppliedFilters).length > 0;
 
     async function handleDeleteTransaction() {
         if (!transactionToDelete || transactionMutations.remove.isPending) return;
@@ -398,99 +403,6 @@ export function FinancialTransactions() {
                     </header>
 
 
-                    <form className="financial-transactions-search" onSubmit={handleSearchSubmit}>
-                        <div className="financial-transactions-search__intro">
-                            <span className="financial-transactions-eyebrow">Pesquisa e filtros</span>
-                            <p>Encontre lançamentos pela descrição, categoria ou tipo.</p>
-                        </div>
-
-                        <div className="financial-transactions-search__fields">
-                            <label className="financial-transactions-search__field financial-transactions-search__field--description">
-                                <span>Descrição</span>
-                                <div className="financial-transactions-search__input-wrap">
-                                    <FontAwesomeIcon icon={faMagnifyingGlass} aria-hidden="true" />
-                                    <input
-                                        type="search"
-                                        value={searchDescription}
-                                        onChange={(event) => setSearchDescription(event.target.value)}
-                                        placeholder="Ex.: compra de materiais"
-                                        aria-label="Pesquisar pela descrição do lançamento"
-                                    />
-                                </div>
-                            </label>
-
-                            <label className="financial-transactions-search__field">
-                                <span>Tipo</span>
-                                <select
-                                    value={searchType}
-                                    onChange={(event) => setSearchType(event.target.value as FinancialType | "")}
-                                    aria-label="Filtrar por tipo de lançamento"
-                                >
-                                    <option value="">Todos os tipos</option>
-                                    <option value="income">Entradas</option>
-                                    <option value="expense">Saídas</option>
-                                </select>
-                            </label>
-
-                            <label className="financial-transactions-search__field">
-                                <span>Categoria</span>
-                                <select
-                                    value={searchCategoryId}
-                                    onChange={(event) => setSearchCategoryId(event.target.value)}
-                                    aria-label="Filtrar por categoria"
-                                    disabled={categoriesQuery.isPending || categoriesQuery.isError}
-                                >
-                                    <option value="">Todas as categorias</option>
-                                    {(categoriesQuery.data ?? []).filter((category) => category.type === "income").length > 0 && (
-                                        <optgroup label="Entradas">
-                                            {(categoriesQuery.data ?? []).filter((category) => category.type === "income").map((category) => (
-                                                <option key={category.id} value={category.id}>
-                                                    {category.name}{category.active ? "" : " (inativa)"}
-                                                </option>
-                                            ))}
-                                        </optgroup>
-                                    )}
-                                    {(categoriesQuery.data ?? []).filter((category) => category.type === "expense").length > 0 && (
-                                        <optgroup label="Saídas">
-                                            {(categoriesQuery.data ?? []).filter((category) => category.type === "expense").map((category) => (
-                                                <option key={category.id} value={category.id}>
-                                                    {category.name}{category.active ? "" : " (inativa)"}
-                                                </option>
-                                            ))}
-                                        </optgroup>
-                                    )}
-                                </select>
-                            </label>
-                        </div>
-
-                        {categoriesQuery.isError && (
-                            <p className="financial-transactions-search__notice" role="status">
-                                Não foi possível carregar as categorias. Você ainda pode pesquisar pela descrição ou pelo tipo.
-                                {" "}
-                                <button type="button" onClick={() => categoriesQuery.refetch()}>
-                                    Tentar novamente
-                                </button>
-                            </p>
-                        )}
-
-                        <div className="financial-transactions-search__actions">
-                            {(searchDescription || searchType || searchCategoryId || hasActiveSearch) && (
-                                <button
-                                    className="financial-transactions-search__clear"
-                                    type="button"
-                                    onClick={handleClearSearch}
-                                >
-                                    <FontAwesomeIcon icon={faRotateLeft} aria-hidden="true" />
-                                    Limpar filtros
-                                </button>
-                            )}
-                            <button className="financial-transactions-search__submit" type="submit">
-                                <FontAwesomeIcon icon={faMagnifyingGlass} aria-hidden="true" />
-                                Pesquisar lançamentos
-                            </button>
-                        </div>
-                    </form>
-
                     {transactionsQuery.isError ? (
                         <div className="financial-transactions-feedback" role="alert">
                             <p>Não foi possível carregar os lançamentos de {monthTitle}.</p>
@@ -511,11 +423,9 @@ export function FinancialTransactions() {
                             <span className="financial-transactions-empty__icon" aria-hidden="true">
                                 <FontAwesomeIcon icon={faArrowDown} />
                             </span>
-                            <h3>{hasActiveSearch ? "Nenhum lançamento corresponde aos filtros" : "Nenhum lançamento neste período"}</h3>
+                            <h3>"Nenhum lançamento neste período"</h3>
                             <p>
-                                {hasActiveSearch
-                                    ? "Tente ajustar os termos da pesquisa ou limpar os filtros para ver outros lançamentos."
-                                    : "Não há entradas ou saídas registradas em " + monthTitle + ". Selecione outro mês para consultar o histórico."}
+                                {"Não há entradas ou saídas registradas em " + monthTitle + ". Selecione outro mês para consultar o histórico."}
                             </p>
                         </div>
                     ) : (
@@ -605,6 +515,218 @@ export function FinancialTransactions() {
                                     </div>
                                 </nav>
                             )}
+                        </>
+                    )}
+                </section>
+
+                <section
+                    className="financial-transactions-search-section"
+                    aria-labelledby="financial-transactions-search-title"
+                >
+                    <header className="financial-transactions-list-section__header">
+                        <div>
+                            <span className="financial-transactions-eyebrow">Consulta avançada</span>
+                            <h2 id="financial-transactions-search-title">Pesquisar lançamentos</h2>
+                            <p>Pesquise em todo o histórico por descrição, tipo, categoria, valor exato ou data de referência.</p>
+                        </div>
+                    </header>
+
+                    <form className="financial-transactions-search" onSubmit={handleSearchSubmit}>
+                        <div className="financial-transactions-search__fields">
+                            <label className="financial-transactions-search__field financial-transactions-search__field--description">
+                                <span>Descrição</span>
+                                <div className="financial-transactions-search__input-wrap">
+                                    <FontAwesomeIcon icon={faMagnifyingGlass} aria-hidden="true" />
+                                    <input
+                                        type="search"
+                                        value={searchDescription}
+                                        onChange={(event) => setSearchDescription(event.target.value)}
+                                        placeholder="Ex.: compra de materiais"
+                                        aria-label="Pesquisar pela descrição do lançamento"
+                                    />
+                                </div>
+                            </label>
+
+                            <label className="financial-transactions-search__field">
+                                <span>Tipo</span>
+                                <select
+                                    value={searchType}
+                                    onChange={(event) => setSearchType(event.target.value as FinancialType | "")}
+                                    aria-label="Filtrar por tipo de lançamento"
+                                >
+                                    <option value="">Todos os tipos</option>
+                                    <option value="income">Entradas</option>
+                                    <option value="expense">Saídas</option>
+                                </select>
+                            </label>
+
+                            <label className="financial-transactions-search__field">
+                                <span>Categoria</span>
+                                <select
+                                    value={searchCategoryId}
+                                    onChange={(event) => setSearchCategoryId(event.target.value)}
+                                    aria-label="Filtrar por categoria"
+                                    disabled={categoriesQuery.isPending || categoriesQuery.isError}
+                                >
+                                    <option value="">Todas as categorias</option>
+                                    {(categoriesQuery.data ?? []).filter((category) => category.type === "income").length > 0 && (
+                                        <optgroup label="Entradas">
+                                            {(categoriesQuery.data ?? []).filter((category) => category.type === "income").map((category) => (
+                                                <option key={category.id} value={category.id}>
+                                                    {category.name}{category.active ? "" : " (inativa)"}
+                                                </option>
+                                            ))}
+                                        </optgroup>
+                                    )}
+                                    {(categoriesQuery.data ?? []).filter((category) => category.type === "expense").length > 0 && (
+                                        <optgroup label="Saídas">
+                                            {(categoriesQuery.data ?? []).filter((category) => category.type === "expense").map((category) => (
+                                                <option key={category.id} value={category.id}>
+                                                    {category.name}{category.active ? "" : " (inativa)"}
+                                                </option>
+                                            ))}
+                                        </optgroup>
+                                    )}
+                                </select>
+                            </label>
+
+                            <label className="financial-transactions-search__field">
+                                <span>Valor exato (R$)</span>
+                                <input
+                                    type="number"
+                                    min="1"
+                                    step="0.01"
+                                    value={searchValue}
+                                    onChange={(event) => setSearchValue(event.target.value)}
+                                    placeholder="Ex.: 150,00"
+                                    aria-label="Filtrar pelo valor exato"
+                                />
+                            </label>
+
+                            <label className="financial-transactions-search__field">
+                                <span>Data de referência</span>
+                                <input
+                                    type="date"
+                                    value={searchReferenceDate}
+                                    onChange={(event) => setSearchReferenceDate(event.target.value)}
+                                    aria-label="Filtrar pela data de referência"
+                                />
+                            </label>
+                        </div>
+
+                        {categoriesQuery.isError && (
+                            <p className="financial-transactions-search__notice" role="status">
+                                Não foi possível carregar as categorias. Você ainda pode pesquisar pelos outros campos.
+                                {" "}
+                                <button type="button" onClick={() => categoriesQuery.refetch()}>
+                                    Tentar novamente
+                                </button>
+                            </p>
+                        )}
+
+                        {searchValue.trim() !== "" && (!Number.isFinite(Number(searchValue)) || Number(searchValue) < 1) && (
+                            <p className="financial-transactions-search__notice" role="status">
+                                O valor precisa ser um número maior ou igual a R$ 1,00.
+                            </p>
+                        )}
+
+                        <div className="financial-transactions-search__actions">
+                            {(searchDescription || searchType || searchCategoryId || searchValue || searchReferenceDate || hasActiveSearch) && (
+                                <button
+                                    className="financial-transactions-search__clear"
+                                    type="button"
+                                    onClick={handleClearSearch}
+                                >
+                                    <FontAwesomeIcon icon={faRotateLeft} aria-hidden="true" />
+                                    Limpar filtros
+                                </button>
+                            )}
+                            <button className="financial-transactions-search__submit" type="submit">
+                                <FontAwesomeIcon icon={faMagnifyingGlass} aria-hidden="true" />
+                                Pesquisar lançamentos
+                            </button>
+                        </div>
+                    </form>
+
+                    {!hasActiveSearch ? (
+                        <div className="financial-transactions-list-feedback" role="status">
+                            Preencha ao menos um filtro e clique em “Pesquisar lançamentos” para consultar o histórico.
+                        </div>
+                    ) : filteredTransactionsQuery.isError ? (
+                        <div className="financial-transactions-feedback" role="alert">
+                            <p>Não foi possível pesquisar os lançamentos.</p>
+                            <button type="button" onClick={() => filteredTransactionsQuery.refetch()}>
+                                Tentar novamente
+                            </button>
+                        </div>
+                    ) : filteredTransactionsQuery.isPending ? (
+                        <div className="financial-transactions-list-feedback" role="status">
+                            Pesquisando lançamentos…
+                        </div>
+                    ) : !filteredTransactions || filteredTransactions.length === 0 ? (
+                        <div className="financial-transactions-empty">
+                            <span className="financial-transactions-empty__icon" aria-hidden="true">
+                                <FontAwesomeIcon icon={faArrowDown} />
+                            </span>
+                            <h3>Nenhum lançamento corresponde aos filtros</h3>
+                            <p>Tente ajustar os termos da pesquisa ou limpar os filtros para consultar outros lançamentos.</p>
+                        </div>
+                    ) : (
+                        <>
+                            <p className="financial-transactions-search__results-count" aria-live="polite">
+                                {filteredTransactions.length} {filteredTransactions.length === 1 ? "lançamento encontrado" : "lançamentos encontrados"}
+                            </p>
+                            <div className="financial-transactions-table-wrap">
+                                <div className="financial-transactions-table" role="table" aria-label="Resultados da pesquisa de lançamentos">
+                                    <div className="financial-transactions-table__head" role="row">
+                                        <span role="columnheader">Lançamento</span>
+                                        <span role="columnheader">Categoria</span>
+                                        <span role="columnheader">Data de referência</span>
+                                        <span role="columnheader" className="financial-transactions-table__amount-heading">Valor</span>
+                                        <span role="columnheader" className="financial-transactions-table__actions-heading">Ações</span>
+                                    </div>
+
+                                    {filteredTransactions.map((transaction) => (
+                                        <div className="financial-transactions-table__row" role="row" key={transaction.id}>
+                                            <div className="financial-transactions-table__description" role="cell">
+                                                <span className={`financial-transactions-table__type-icon financial-transactions-table__type-icon--${transaction.type}`} aria-hidden="true">
+                                                    <FontAwesomeIcon icon={transaction.type === "income" ? faArrowTrendUp : faArrowTrendDown} />
+                                                </span>
+                                                <div>
+                                                    <strong>{transaction.description}</strong>
+                                                    <span>{transaction.type === "income" ? "Entrada" : "Saída"}</span>
+                                                </div>
+                                            </div>
+                                            <span className="financial-transactions-table__category" role="cell">{transaction.categoryName}</span>
+                                            <span className="financial-transactions-table__date" role="cell">{formatReferenceDate(transaction.referenceDate)}</span>
+                                            <strong className={`financial-transactions-table__amount financial-transactions-table__amount--${transaction.type}`} role="cell">
+                                                {transaction.type === "income" ? "+" : "−"} {formatCurrency(transaction.value)}
+                                            </strong>
+                                            <div className="financial-transactions-table__actions" role="cell">
+                                                <button
+                                                    type="button"
+                                                    onClick={() => setTransactionToEdit(transaction)}
+                                                    title="Editar lançamento"
+                                                    aria-label={`Editar lançamento: ${transaction.description}`}
+                                                >
+                                                    <FontAwesomeIcon icon={faPencil} />
+                                                </button>
+                                                <button
+                                                    type="button"
+                                                    onClick={() => {
+                                                        transactionMutations.remove.reset();
+                                                        setTransactionToDelete(transaction);
+                                                    }}
+                                                    title="Excluir lançamento"
+                                                    aria-label={`Excluir lançamento: ${transaction.description}`}
+                                                >
+                                                    <FontAwesomeIcon icon={faTrash} />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
                         </>
                     )}
                 </section>
