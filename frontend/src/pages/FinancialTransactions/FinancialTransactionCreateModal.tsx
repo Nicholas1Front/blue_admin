@@ -224,7 +224,7 @@ export function FinancialTransactionCreateModal({
                             </p>
                         )}
 
-                        {formError && (
+                        {formError && !showCategoryForm && (
                             <p className="financial-transaction-form__error" role="alert">
                                 {formError}
                             </p>
@@ -284,7 +284,7 @@ export function FinancialTransactionCreateModal({
                                 <option value="income">Entrada</option>
                             </select>
                         </label>
-                        {formError && (
+                        {formError && showCategoryForm && (
                             <p className="financial-transaction-form__error" role="alert">
                                 {formError}
                             </p>
