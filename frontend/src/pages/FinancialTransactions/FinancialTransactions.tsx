@@ -86,6 +86,7 @@ export function FinancialTransactions() {
     const [selectedYear, setSelectedYear] = useState(currentYear);
     const [selectedMonth, setSelectedMonth] = useState(currentMonth);
     const [transactionPage, setTransactionPage] = useState(1);
+    const [searchPage, setSearchPage] = useState(1);
     const [searchDescription, setSearchDescription] = useState("");
     const [searchType, setSearchType] = useState<FinancialType | "">("");
     const [searchCategoryId, setSearchCategoryId] = useState("");
@@ -97,6 +98,7 @@ export function FinancialTransactions() {
     const [transactionToDelete, setTransactionToDelete] = useState<FinancialTransactionListItem | null>(null);
     const transactionMutations = useTransactionMutations();
     const transactionsPerPage = 10;
+    const searchResultsPerPage = 10;
 
     const availableYears = Array.from(
         { length: currentYear - 1999 },
@@ -126,6 +128,11 @@ export function FinancialTransactions() {
     const monthlySummary = monthlyQuery.data;
     const transactionsResult = transactionsQuery.data;
     const filteredTransactions = filteredTransactionsQuery.data;
+    const filteredTransactionsTotalPages = Math.ceil((filteredTransactions?.length ?? 0) / searchResultsPerPage);
+    const visibleFilteredTransactions = filteredTransactions?.slice(
+        (searchPage - 1) * searchResultsPerPage,
+        searchPage * searchResultsPerPage
+    );
     const monthTitle = new Intl.DateTimeFormat("pt-BR", {
         month: "long",
         year: "numeric"
@@ -142,6 +149,7 @@ export function FinancialTransactions() {
         }
 
         setTransactionPage(1);
+        setSearchPage(1);
         setIsCreateModalOpen(false);
         setTransactionToEdit(null);
     }
@@ -166,6 +174,7 @@ export function FinancialTransactions() {
         };
 
         setSearchAppliedFilters(filters);
+        setSearchPage(1);
     }
 
     function handleClearSearch() {
@@ -175,6 +184,7 @@ export function FinancialTransactions() {
         setSearchValue("");
         setSearchReferenceDate("");
         setSearchAppliedFilters({});
+        setSearchPage(1);
     }
 
     const hasActiveSearch = Object.keys(searchAppliedFilters).length > 0;
@@ -186,6 +196,7 @@ export function FinancialTransactions() {
             await transactionMutations.remove.mutateAsync(transactionToDelete.id);
             setTransactionToDelete(null);
             setTransactionPage(1);
+            setSearchPage(1);
         } catch {
             // O modal permanece aberto para permitir uma nova tentativa.
         }
@@ -690,7 +701,7 @@ export function FinancialTransactions() {
                                         <span role="columnheader" className="financial-transactions-table__actions-heading">Ações</span>
                                     </div>
 
-                                    {filteredTransactions.map((transaction) => (
+                                    {visibleFilteredTransactions?.map((transaction) => (
                                         <div className="financial-transactions-table__row" role="row" key={transaction.id}>
                                             <div className="financial-transactions-table__description" role="cell">
                                                 <span className={`financial-transactions-table__type-icon financial-transactions-table__type-icon--${transaction.type}`} aria-hidden="true">
@@ -731,6 +742,32 @@ export function FinancialTransactions() {
                                     ))}
                                 </div>
                             </div>
+
+                            {filteredTransactionsTotalPages > 1 && (
+                                <nav className="financial-transactions-pagination" aria-label="Paginação dos resultados da pesquisa">
+                                    <span>
+                                        Página {searchPage} de {filteredTransactionsTotalPages}
+                                    </span>
+                                    <div>
+                                        <button
+                                            type="button"
+                                            onClick={() => setSearchPage((page) => Math.max(1, page - 1))}
+                                            disabled={searchPage <= 1 || filteredTransactionsQuery.isFetching}
+                                            aria-label="Página anterior dos resultados da pesquisa"
+                                        >
+                                            <FontAwesomeIcon icon={faChevronLeft} />
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setSearchPage((page) => Math.min(filteredTransactionsTotalPages, page + 1))}
+                                            disabled={searchPage >= filteredTransactionsTotalPages || filteredTransactionsQuery.isFetching}
+                                            aria-label="Próxima página dos resultados da pesquisa"
+                                        >
+                                            <FontAwesomeIcon icon={faChevronRight} />
+                                        </button>
+                                    </div>
+                                </nav>
+                            )}
                         </>
                     )}
                 </section>
