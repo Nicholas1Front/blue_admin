@@ -122,8 +122,8 @@ function CategoryFormModal({
                 <div className="category-field">
                     <label htmlFor="category-type">Tipo</label>
                     <select id="category-type" {...register("type")} disabled={isSubmitting}>
-                        <option value="income">Entrada (income)</option>
-                        <option value="expense">Saída (expense)</option>
+                        <option value="income">Entrada</option>
+                        <option value="expense">Saída</option>
                     </select>
                     {errors.type && <span className="category-form-error">{errors.type.message}</span>}
                 </div>
@@ -212,8 +212,8 @@ function CategorySearch({
                     <label htmlFor="category-filter-type">Tipo</label>
                     <select id="category-filter-type" value={type} onChange={(event) => setType(event.target.value as "" | FinancialType)} disabled={isSearching}>
                         <option value="">Todos</option>
-                        <option value="income">Entrada (income)</option>
-                        <option value="expense">Saída (expense)</option>
+                        <option value="income">Entrada</option>
+                        <option value="expense">Saída</option>
                     </select>
                 </div>
                 <div className="category-field">
@@ -289,19 +289,25 @@ function CategoryList({
                                         </span>
                                     </div>
                                     <span className={`category-type category-type--${category.type}`}>
-                                        {category.type === "income" ? "Entrada · income" : "Saída · expense"}
+                                        {category.type === "income" ? "Entrada" : "Saída"}
                                     </span>
                                 </div>
                                 <div className="category-card__description">
-                                    <span>Descrição</span>
-                                    <p>{category.description || "Sem descrição informada."}</p>
+                                    <p>{category.description || "Esta categoria ainda não tem uma descrição."}</p>
                                 </div>
                                 <dl className="category-card__details">
-                                    <div><dt>ID</dt><dd className="category-card__id" title={category.id}>{category.id}</dd></div>
-                                    <div><dt>Tipo</dt><dd>{category.type}</dd></div>
-                                    <div><dt>Situação</dt><dd>{category.active ? "Ativa" : "Desativada"}</dd></div>
-                                    <div><dt>Criada em</dt><dd>{formatDateTime(category.createdAt)}</dd></div>
-                                    <div><dt>Atualizada em</dt><dd>{formatDateTime(category.updatedAt)}</dd></div>
+                                    <div>
+                                        <dt>Identificador</dt>
+                                        <dd className="category-card__id" title={category.id}>{category.id}</dd>
+                                    </div>
+                                    <div>
+                                        <dt>Criada em</dt>
+                                        <dd>{formatDateTime(category.createdAt)}</dd>
+                                    </div>
+                                    <div>
+                                        <dt>Última atualização</dt>
+                                        <dd>{formatDateTime(category.updatedAt)}</dd>
+                                    </div>
                                 </dl>
                             </div>
                             <div className="category-card__actions" aria-label={`Ações para ${category.name}`}>
@@ -500,12 +506,12 @@ export function CategoryPanel() {
                     <article className="category-metric category-metric--green">
                         <span>Categorias de entrada</span>
                         <strong>{allCategoriesQuery.isPending ? "…" : metrics.income}</strong>
-                        <small>Tipo income</small>
+                        <small>Classificadas como entrada</small>
                     </article>
                     <article className="category-metric category-metric--amber">
                         <span>Categorias de saída</span>
                         <strong>{allCategoriesQuery.isPending ? "…" : metrics.expense}</strong>
-                        <small>Tipo expense</small>
+                        <small>Classificadas como saída</small>
                     </article>
                 </section>
 
