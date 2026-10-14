@@ -44,16 +44,18 @@ function YearMetric({
     value,
     description,
     icon,
-    tone
+    tone,
+    compact = false
 }: {
     label: string;
     value: string;
     description: string;
     icon: IconDefinition;
     tone: "income" | "expense" | "balance";
+    compact?: boolean;
 }) {
     return (
-        <article className={`financial-transactions-metric financial-transactions-metric--${tone}`}>
+        <article className={`financial-transactions-metric financial-transactions-metric--${tone}${compact ? " financial-transactions-metric--compact" : ""}`}>
             <div className="financial-transactions-metric__top">
                 <span>{label}</span>
                 <span className="financial-transactions-metric__icon" aria-hidden="true">
@@ -164,7 +166,7 @@ export function FinancialTransactions() {
                                 Resumo anual de {selectedYear}
                             </h2>
                             <p>
-                                Os indicadores abaixo acompanham o ano selecionado.
+                                Totais consolidados do ano selecionado.
                             </p>
                         </div>
                     </header>
@@ -177,8 +179,9 @@ export function FinancialTransactions() {
                             </button>
                         </div>
                     ) : (
-                        <div className="financial-transactions-metrics" aria-live="polite">
+                        <div className="financial-transactions-metrics financial-transactions-metrics--annual" aria-live="polite">
                             <YearMetric
+                                compact
                                 label="Entradas do ano"
                                 value={yearlyQuery.isPending ? "Carregando…" : formatCurrency(yearlySummary?.incomesValue)}
                                 description={`Receitas registradas em ${selectedYear}`}
@@ -186,6 +189,7 @@ export function FinancialTransactions() {
                                 tone="income"
                             />
                             <YearMetric
+                                compact
                                 label="Saídas do ano"
                                 value={yearlyQuery.isPending ? "Carregando…" : formatCurrency(yearlySummary?.expensesValue)}
                                 description={`Despesas registradas em ${selectedYear}`}
@@ -193,6 +197,7 @@ export function FinancialTransactions() {
                                 tone="expense"
                             />
                             <YearMetric
+                                compact
                                 label="Saldo do ano"
                                 value={yearlyQuery.isPending ? "Carregando…" : formatCurrency(yearlySummary?.balanceValue)}
                                 description="Entradas menos saídas"
