@@ -3,6 +3,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 import {
     faArrowDown,
+    faArrowRight,
+    faMoneyBillTransfer,
     faArrowTrendDown,
     faArrowTrendUp,
     faCalendarDays,
@@ -373,7 +375,11 @@ export function Financial() {
                 </section>
 
                 <section className="financial-bottom-grid">
-                    <article className="financial-panel financial-panel--transactions">
+                    <Link
+                        className="financial-panel financial-panel--transactions financial-panel--transactions-link"
+                        to="/financial/transactions"
+                        aria-label={`Abrir todos os lançamentos financeiros de ${monthTitle}`}
+                    >
                         <header className="financial-panel__header">
                             <div>
                                 <span className="financial-panel__eyebrow">Movimentações recentes</span>
@@ -384,8 +390,8 @@ export function Financial() {
 
                         {monthlyQuery.isError ? (
                             <div className="financial-empty-state financial-empty-state--compact">
-                                <strong>Não foi possível carregar os lançamentos</strong>
-                                <button type="button" onClick={() => monthlyQuery.refetch()}>Tentar novamente</button>
+                                <strong>Não foi possível carregar os lançamentos.</strong>
+                                <p>Acesse a página de lançamentos para consultar o período completo.</p>
                             </div>
                         ) : monthlyQuery.isPending ? (
                             <div className="financial-chart-loading">Carregando lançamentos…</div>
@@ -412,7 +418,12 @@ export function Financial() {
                                 ))}
                             </div>
                         )}
-                    </article>
+
+                        <span className="financial-transactions-card__footer">
+                            Ver todos os lançamentos
+                            <FontAwesomeIcon icon={faArrowRight} aria-hidden="true" />
+                        </span>
+                    </Link>
 
                     <Link
                         className="financial-panel financial-fixed-costs financial-fixed-costs--link"
@@ -455,6 +466,21 @@ export function Financial() {
                     <Link className="financial-category-access__button" to="/financial/categories">
                         <FontAwesomeIcon icon={faTags} />
                         Gerenciar categorias
+                    </Link>
+                </section>
+
+                <section className="financial-category-access financial-transactions-access" aria-label="Gestão de lançamentos">
+                    <div className="financial-transactions-access__icon" aria-hidden="true">
+                        <FontAwesomeIcon icon={faMoneyBillTransfer} />
+                    </div>
+                    <div className="financial-transactions-access__copy">
+                        <span className="financial-panel__eyebrow">Movimentações financeiras</span>
+                        <h2>Seus lançamentos</h2>
+                        <p>Consulte o histórico completo e organize as entradas e saídas da empresa.</p>
+                    </div>
+                    <Link className="financial-category-access__button" to="/financial/transactions">
+                        Acessar lançamentos
+                        <FontAwesomeIcon icon={faArrowRight} />
                     </Link>
                 </section>
             </section>
