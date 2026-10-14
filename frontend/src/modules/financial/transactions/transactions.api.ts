@@ -3,6 +3,7 @@ import type { ApiResponse } from "../../../api/api.types";
 import type {
     CreateTransactionRequest,
     FinancialTransaction,
+    FinancialTransactionListItem,
     FindTransactionsByFilters,
     PaginatedTransactionsFilters,
     PaginatedTransactionsResponse,
@@ -45,8 +46,8 @@ export async function findTransactionsPaginated(
 
 export async function findTransactionsByFilters(
     filters: FindTransactionsByFilters
-): Promise<FinancialTransaction[]> {
-    const result = await api.get<ApiResponse<FinancialTransaction[]>>(
+ ): Promise<FinancialTransactionListItem[]> {
+    const result = await api.get<ApiResponse<FinancialTransactionListItem[]>>(
         "/financial/transactions/find-transactions-by-filters",
         { params: filters }
     );
