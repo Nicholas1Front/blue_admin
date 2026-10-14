@@ -22,6 +22,10 @@ class TransactionsService{
             throw new AppError('Category not found', 404, 'CATEGORY_NOT_FOUND')
         }
 
+        if(categoryExists.active === false){
+            throw new AppError('Cannot create a transaction with an inactive category', 400, 'CATEGORY_INACTIVE')
+        }
+
         let cleanedData = undefinedToNull(data)
 
         cleanedData.type = categoryExists.type
