@@ -92,7 +92,7 @@ export function FinancialTransactions() {
                                 Visão geral
                             </span>
                             <h2 id="financial-transactions-yearly-title">
-                                Resumo anual
+                                Resumo anual de {selectedYear}
                             </h2>
                             <p>
                                 Os indicadores abaixo acompanham o ano selecionado.
