@@ -42,7 +42,8 @@
 
 .financial-transactions-yearly,
 .financial-transactions-monthly,
-.financial-transactions-list-section {
+.financial-transactions-list-section,
+.financial-transactions-search-section {
     min-width: 0;
     padding: var(--spacing-5);
     background: rgb(24 35 44 / 0.82);
@@ -241,6 +242,10 @@
 
 .financial-transactions-list-section {
     padding-bottom: var(--spacing-3);
+}
+
+.financial-transactions-search-section {
+    margin-top: var(--spacing-5);
 }
 
 .financial-transactions-list-section__header {
@@ -537,7 +542,8 @@
 
     .financial-transactions-yearly,
     .financial-transactions-monthly,
-    .financial-transactions-list-section {
+    .financial-transactions-list-section,
+    .financial-transactions-search-section {
         padding: var(--spacing-4);
     }
 
@@ -1019,7 +1025,7 @@
 
 .financial-transactions-search__fields {
     display: grid;
-    grid-template-columns: minmax(12rem, 1.8fr) minmax(9rem, 0.8fr) minmax(11rem, 1.2fr);
+    grid-template-columns: minmax(12rem, 1.6fr) minmax(8rem, 0.8fr) minmax(11rem, 1.2fr) minmax(8rem, 0.8fr) minmax(10rem, 1fr);
     gap: var(--spacing-3);
     align-items: end;
 }
