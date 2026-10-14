@@ -57,7 +57,7 @@ class TransactionsRepository{
         originId : string | null | undefined,
         originType : string | null | undefined
     ){
-        return prisma.financialTransaction.findMany({
+        const transactions = await prisma.financialTransaction.findMany({
             where : {
                 ...(id !== undefined && {
                     id : {
@@ -113,8 +113,26 @@ class TransactionsRepository{
                             }
                         }
                 ))
-            }
-        })
+            },
+            include : {
+                category : {
+                    select : {
+                        name : true
+                    }
+                }
+            },
+            orderBy : [
+                { referenceDate : 'desc' },
+                { createdAt : 'desc' },
+                { id : 'asc' }
+            ]
+        });
+
+        return transactions.map(({ category, value, ...transaction }) => ({
+            ...transaction,
+            value : Number(value),
+            categoryName : category.name
+        }));
     }
 
     async findTransactionsPaginated(
