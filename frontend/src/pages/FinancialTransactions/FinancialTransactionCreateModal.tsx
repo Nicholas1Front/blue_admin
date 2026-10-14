@@ -52,6 +52,8 @@ export function FinancialTransactionCreateModal({
     const [formError, setFormError] = useState("");
 
     const categories = categoriesQuery.data ?? [];
+    const incomeCategories = categories.filter((category) => category.type === "income");
+    const expenseCategories = categories.filter((category) => category.type === "expense");
     const monthStart = [
         String(selectedYear),
         String(selectedMonth).padStart(2, "0"),
@@ -203,34 +205,38 @@ export function FinancialTransactionCreateModal({
                                     <option value="">
                                         {categoriesQuery.isPending ? "Carregando categorias…" : "Selecione uma categoria"}
                                     </option>
-                                    <optgroup
-                                        className="financial-transaction-form__category-group financial-transaction-form__category-group--income"
-                                        label="↑ Entradas"
-                                    >
-                                        {categories.filter((category) => category.type === "income").map((category) => (
-                                            <option
-                                                className="financial-transaction-form__category-option financial-transaction-form__category-option--income"
-                                                key={category.id}
-                                                value={category.id}
-                                            >
-                                                ↗ {category.name}
-                                            </option>
-                                        ))}
-                                    </optgroup>
-                                    <optgroup
-                                        className="financial-transaction-form__category-group financial-transaction-form__category-group--expense"
-                                        label="↓ Saídas"
-                                    >
-                                        {categories.filter((category) => category.type === "expense").map((category) => (
-                                            <option
-                                                className="financial-transaction-form__category-option financial-transaction-form__category-option--expense"
-                                                key={category.id}
-                                                value={category.id}
-                                            >
-                                                ↘ {category.name}
-                                            </option>
-                                        ))}
-                                    </optgroup>
+                                    {incomeCategories.length > 0 && (
+                                        <optgroup
+                                            className="financial-transaction-form__category-group financial-transaction-form__category-group--income"
+                                            label="↑ Entradas"
+                                        >
+                                            {incomeCategories.map((category) => (
+                                                <option
+                                                    className="financial-transaction-form__category-option financial-transaction-form__category-option--income"
+                                                    key={category.id}
+                                                    value={category.id}
+                                                >
+                                                    ↗ {category.name}
+                                                </option>
+                                            ))}
+                                        </optgroup>
+                                    )}
+                                    {expenseCategories.length > 0 && (
+                                        <optgroup
+                                            className="financial-transaction-form__category-group financial-transaction-form__category-group--expense"
+                                            label="↓ Saídas"
+                                        >
+                                            {expenseCategories.map((category) => (
+                                                <option
+                                                    className="financial-transaction-form__category-option financial-transaction-form__category-option--expense"
+                                                    key={category.id}
+                                                    value={category.id}
+                                                >
+                                                    ↘ {category.name}
+                                                </option>
+                                            ))}
+                                        </optgroup>
+                                    )}
                                 </select>
                             </label>
                             <button
