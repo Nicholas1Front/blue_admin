@@ -67,7 +67,7 @@ export function FinancialTransactions() {
             <AppHeader />
 
             <nav className="page-back-row" aria-label="Navegação da página">
-                <BackLink to="/financial" label="Voltar ao financeiro" />
+                <BackLink to="/financial" label="Voltar ao dashboard financeiro" />
             </nav>
 
             <section className="financial-transactions-content">
