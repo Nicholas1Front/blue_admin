@@ -150,6 +150,10 @@ export function FinancialTransactions() {
         event.preventDefault();
 
         const description = searchDescription.trim();
+        if (searchValue.trim() !== "" && (!Number.isFinite(Number(searchValue)) || Number(searchValue) < 1)) {
+            return;
+        }
+
         const parsedValue = searchValue.trim() ? Number(searchValue) : undefined;
         const filters: FindTransactionsByFilters = {
             ...(description ? { description } : {}),
