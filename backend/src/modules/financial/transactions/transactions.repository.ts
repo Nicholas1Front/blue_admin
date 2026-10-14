@@ -157,7 +157,7 @@ class TransactionsRepository{
                 orderBy : [
                     { referenceDate : 'asc' },
                     { createdAt : 'asc' },
-                    { id : 'desc' }
+                    { id : 'asc' }
                 ],
                 include : {
                     category : {
