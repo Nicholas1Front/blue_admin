@@ -277,6 +277,14 @@ export function FinancialTransactionCreateModal({
                             </p>
                         )}
 
+                        {isEditing && categoryId && !categoriesQuery.isPending
+                            && !categoriesQuery.isError
+                            && !categories.some((category) => category.id === categoryId) && (
+                                <p className="financial-transaction-form__hint" role="status">
+                                    A categoria atual não está ativa. Selecione uma categoria ativa para salvar as alterações.
+                                </p>
+                            )}
+
                         {categories.length === 0 && !categoriesQuery.isPending && !categoriesQuery.isError && (
                             <p className="financial-transaction-form__hint">
                                 Você ainda não tem categorias ativas. Crie uma abaixo para continuar.
