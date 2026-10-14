@@ -997,3 +997,200 @@
     }
 }
 
+
+
+/* Pesquisa da listagem: filtros compactos, legíveis e responsivos. */
+.financial-transactions-search {
+    display: grid;
+    gap: var(--spacing-4);
+    margin: var(--spacing-5) 0;
+    padding: var(--spacing-4);
+    background: color-mix(in srgb, var(--color-surface-raised) 68%, transparent);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+}
+
+.financial-transactions-search__intro p {
+    margin-top: var(--spacing-1);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-relaxed);
+}
+
+.financial-transactions-search__fields {
+    display: grid;
+    grid-template-columns: minmax(12rem, 1.8fr) minmax(9rem, 0.8fr) minmax(11rem, 1.2fr);
+    gap: var(--spacing-3);
+    align-items: end;
+}
+
+.financial-transactions-search__field {
+    display: grid;
+    gap: var(--spacing-2);
+    min-width: 0;
+}
+
+.financial-transactions-search__field > span {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+}
+
+.financial-transactions-search__field input,
+.financial-transactions-search__field select {
+    width: 100%;
+    min-width: 0;
+    min-height: var(--control-height-md);
+    padding: 0 var(--spacing-3);
+    color: var(--color-text);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font: inherit;
+    font-size: var(--font-size-sm);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.financial-transactions-search__input-wrap {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    min-width: 0;
+    min-height: var(--control-height-md);
+    padding-left: var(--spacing-3);
+    color: var(--color-text-muted);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    transition: border-color var(--transition-fast), box-shadow var(--transition-fast);
+}
+
+.financial-transactions-search__input-wrap:focus-within {
+    border-color: var(--color-primary-400);
+    box-shadow: 0 0 0 2px color-mix(in srgb, var(--color-primary-400) 20%, transparent);
+}
+
+.financial-transactions-search__input-wrap input {
+    min-width: 0;
+    padding-left: 0;
+    background: transparent;
+    border: 0;
+    outline: 0;
+    box-shadow: none;
+}
+
+.financial-transactions-search__input-wrap input:focus-visible {
+    outline: 0;
+}
+
+.financial-transactions-search__field input:focus-visible,
+.financial-transactions-search__field select:focus-visible {
+    border-color: var(--color-primary-400);
+    outline: 2px solid var(--color-primary-400);
+    outline-offset: 1px;
+}
+
+.financial-transactions-search__field select:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}
+
+.financial-transactions-search__actions {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--spacing-3);
+}
+
+.financial-transactions-search__submit,
+.financial-transactions-search__clear {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-2);
+    min-height: var(--control-height-md);
+    padding: 0 var(--spacing-4);
+    border-radius: var(--radius-md);
+    font: inherit;
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+    transition: background var(--transition-fast), border-color var(--transition-fast), color var(--transition-fast);
+}
+
+.financial-transactions-search__submit {
+    color: #fff;
+    background: var(--color-primary-500);
+    border: 1px solid transparent;
+}
+
+.financial-transactions-search__submit:hover {
+    background: var(--color-primary-400);
+}
+
+.financial-transactions-search__clear {
+    color: var(--color-text-secondary);
+    background: transparent;
+    border: 1px solid var(--color-border);
+}
+
+.financial-transactions-search__clear:hover {
+    color: var(--color-text);
+    background: var(--color-surface-hover);
+    border-color: var(--color-border-strong);
+}
+
+.financial-transactions-search__submit:focus-visible,
+.financial-transactions-search__clear:focus-visible,
+.financial-transactions-search__notice button:focus-visible {
+    outline: 2px solid var(--color-primary-400);
+    outline-offset: 2px;
+}
+
+.financial-transactions-search__notice {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+    line-height: var(--line-height-relaxed);
+}
+
+.financial-transactions-search__notice button {
+    color: var(--color-primary-400);
+    font: inherit;
+    font-weight: var(--font-weight-semibold);
+    text-decoration: underline;
+    cursor: pointer;
+}
+
+@media (max-width: 900px) {
+    .financial-transactions-search__fields {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .financial-transactions-search__field--description {
+        grid-column: 1 / -1;
+    }
+}
+
+@media (max-width: 520px) {
+    .financial-transactions-search {
+        padding: var(--spacing-3);
+    }
+
+    .financial-transactions-search__fields {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .financial-transactions-search__field--description {
+        grid-column: auto;
+    }
+
+    .financial-transactions-search__actions {
+        align-items: stretch;
+        flex-direction: column-reverse;
+    }
+
+    .financial-transactions-search__submit,
+    .financial-transactions-search__clear {
+        width: 100%;
+    }
+}
