@@ -813,3 +813,113 @@
         width: 100%;
     }
 }
+
+/* O resumo anual é intencionalmente mais leve que os cartões mensais. */
+.financial-transactions-metrics--annual {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 0;
+    align-items: stretch;
+}
+
+.financial-transactions-metrics--annual .financial-transactions-metric--compact {
+    padding: var(--spacing-2) var(--spacing-5);
+    background: transparent;
+    border: 0;
+    border-right: 1px solid var(--color-border);
+    border-radius: 0;
+    box-shadow: none;
+    transform: none;
+}
+
+.financial-transactions-metrics--annual .financial-transactions-metric--compact:first-child {
+    padding-left: 0;
+}
+
+.financial-transactions-metrics--annual .financial-transactions-metric--compact:last-child {
+    padding-right: 0;
+    border-right: 0;
+    grid-column: auto;
+}
+
+.financial-transactions-metrics--annual .financial-transactions-metric--compact:hover {
+    border-color: var(--color-border);
+    transform: none;
+}
+
+.financial-transactions-metrics--annual .financial-transactions-metric--compact::after {
+    display: none;
+}
+
+.financial-transactions-metrics--annual .financial-transactions-metric--compact .financial-transactions-metric__icon {
+    width: 1.8rem;
+    height: 1.8rem;
+    border-radius: 50%;
+}
+
+.financial-transactions-metrics--annual .financial-transactions-metric--compact .financial-transactions-metric__value {
+    margin-top: var(--spacing-2);
+    font-size: clamp(1.15rem, 1.7vw, 1.55rem);
+}
+
+.financial-transactions-metrics--annual .financial-transactions-metric--compact > p {
+    margin-top: var(--spacing-1);
+    font-size: 0.7rem;
+}
+
+.financial-transaction-form__category-group--income,
+.financial-transaction-form__category-option--income {
+    color: #4ade80;
+}
+
+.financial-transaction-form__category-group--expense,
+.financial-transaction-form__category-option--expense {
+    color: #fb8585;
+}
+
+.financial-transaction-form__category-group {
+    font-weight: var(--font-weight-semibold);
+}
+
+@media (max-width: 900px) {
+    .financial-transactions-metrics--annual {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .financial-transactions-metrics--annual .financial-transactions-metric--compact:last-child {
+        grid-column: auto;
+    }
+}
+
+@media (max-width: 520px) {
+    .financial-transactions-metrics--annual {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .financial-transactions-metrics--annual .financial-transactions-metric--compact {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        align-items: center;
+        gap: var(--spacing-1) var(--spacing-3);
+        padding: var(--spacing-3) 0;
+        border-right: 0;
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    .financial-transactions-metrics--annual .financial-transactions-metric--compact:last-child {
+        border-bottom: 0;
+    }
+
+    .financial-transactions-metrics--annual .financial-transactions-metric--compact .financial-transactions-metric__value {
+        grid-column: 2;
+        grid-row: 1;
+        margin-top: 0;
+        font-size: 1.15rem;
+        text-align: right;
+    }
+
+    .financial-transactions-metrics--annual .financial-transactions-metric--compact > p {
+        grid-column: 1 / -1;
+        margin-top: 0;
+    }
+}
+
