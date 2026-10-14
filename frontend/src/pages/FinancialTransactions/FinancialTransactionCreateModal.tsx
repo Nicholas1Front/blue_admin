@@ -4,15 +4,18 @@ import { Modal } from "../../components/Modal/Modal";
 import {
     useCategories,
     useCategoryMutations,
-    useTransactionMutations
+    useTransactionMutations,
+    type FinancialTransaction
 } from "../../modules/financial";
+import type { FinancialTransactionListItem } from "../../modules/financial/transactions/transactions.types";
 
 interface FinancialTransactionCreateModalProps {
     isOpen: boolean;
     selectedYear: number;
     selectedMonth: number;
     onClose: () => void;
-    onCreated: () => void;
+    onSaved: (transaction: FinancialTransaction) => void;
+    transaction?: FinancialTransactionListItem;
 }
 
 function getDefaultReferenceDate(year: number, month: number) {
@@ -33,18 +36,20 @@ export function FinancialTransactionCreateModal({
     selectedYear,
     selectedMonth,
     onClose,
-    onCreated
+    onSaved,
+    transaction
 }: FinancialTransactionCreateModalProps) {
     const categoriesQuery = useCategories({ active: true });
     const categoryMutations = useCategoryMutations();
     const transactionMutations = useTransactionMutations();
 
-    const [description, setDescription] = useState("");
-    const [value, setValue] = useState("");
+    const isEditing = Boolean(transaction);
+    const [description, setDescription] = useState(() => transaction?.description ?? "");
+    const [value, setValue] = useState(() => transaction ? String(transaction.value) : "");
     const [referenceDate, setReferenceDate] = useState(
-        () => getDefaultReferenceDate(selectedYear, selectedMonth)
+        () => transaction?.referenceDate.slice(0, 10) ?? getDefaultReferenceDate(selectedYear, selectedMonth)
     );
-    const [categoryId, setCategoryId] = useState("");
+    const [categoryId, setCategoryId] = useState(() => transaction?.categoryId ?? "");
     const [showCategoryForm, setShowCategoryForm] = useState(false);
     const [newCategoryName, setNewCategoryName] = useState("");
     const [newCategoryDescription, setNewCategoryDescription] = useState("");
@@ -96,19 +101,29 @@ export function FinancialTransactionCreateModal({
             setFormError("Informe a data de referência.");
             return;
         }
-        if (referenceDate < monthStart || referenceDate > monthEnd) {
+        if (!/^\d{4}-\d{2}-\d{2}$/.test(referenceDate)) {
+            setFormError("Informe uma data de referência válida.");
+            return;
+        }
+        if (!isEditing && (referenceDate < monthStart || referenceDate > monthEnd)) {
             setFormError("A data de referência deve estar dentro do mês selecionado.");
             return;
         }
 
         try {
-            await transactionMutations.create.mutateAsync({
+            const payload = {
                 categoryId,
                 description: description.trim(),
                 value: parsedValue,
                 referenceDate
-            });
-            onCreated();
+            };
+            const savedTransaction = transaction
+                ? await transactionMutations.update.mutateAsync({
+                    id: transaction.id,
+                    data: payload
+                })
+                : await transactionMutations.create.mutateAsync(payload);
+            onSaved(savedTransaction);
         } catch {
             setFormError("Não foi possível salvar o lançamento. Confira os dados e tente novamente.");
         }
@@ -142,12 +157,14 @@ export function FinancialTransactionCreateModal({
     return (
         <Modal
             isOpen={isOpen}
-            title="Adicionar lançamento"
+            title={isEditing ? "Editar lançamento" : "Adicionar lançamento"}
             onClose={handleClose}
         >
             <div className="financial-transaction-form">
                 <p className="financial-transaction-form__intro">
-                    Registre uma entrada ou saída. O tipo será definido pela categoria escolhida.
+                    {isEditing
+                        ? "Atualize os dados do lançamento. O tipo será definido pela categoria escolhida."
+                        : "Registre uma entrada ou saída. O tipo será definido pela categoria escolhida."}
                 </p>
 
                 <form onSubmit={handleCreateTransaction}>
@@ -284,7 +301,9 @@ export function FinancialTransactionCreateModal({
                                 type="submit"
                                 disabled={isSubmitting || showCategoryForm || categoriesQuery.isPending || categoriesQuery.isError || !categoryId}
                             >
-                                {transactionMutations.create.isPending ? "Salvando…" : "Salvar lançamento"}
+                                {transactionMutations.create.isPending || transactionMutations.update.isPending
+                                    ? "Salvando…"
+                                    : isEditing ? "Salvar alterações" : "Salvar lançamento"}
                             </button>
                         </footer>
                     </div>
