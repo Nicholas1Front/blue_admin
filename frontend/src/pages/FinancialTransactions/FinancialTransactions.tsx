@@ -426,16 +426,18 @@ export function FinancialTransactions() {
                 </section>
             </section>
 
-            <FinancialTransactionCreateModal
-                isOpen={isCreateModalOpen}
-                selectedYear={selectedYear}
-                selectedMonth={selectedMonth}
-                onClose={() => setIsCreateModalOpen(false)}
-                onCreated={() => {
-                    setIsCreateModalOpen(false);
-                    setTransactionPage(1);
-                }}
-            />
+            {isCreateModalOpen && (
+                <FinancialTransactionCreateModal
+                    isOpen
+                    selectedYear={selectedYear}
+                    selectedMonth={selectedMonth}
+                    onClose={() => setIsCreateModalOpen(false)}
+                    onCreated={() => {
+                        setIsCreateModalOpen(false);
+                        setTransactionPage(1);
+                    }}
+                />
+            )}
         </main>
     );
 }
