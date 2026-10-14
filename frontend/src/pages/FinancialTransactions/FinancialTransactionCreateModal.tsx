@@ -52,6 +52,16 @@ export function FinancialTransactionCreateModal({
     const [formError, setFormError] = useState("");
 
     const categories = categoriesQuery.data ?? [];
+    const monthStart = [
+        String(selectedYear),
+        String(selectedMonth).padStart(2, "0"),
+        "01"
+    ].join("-");
+    const monthEnd = [
+        String(selectedYear),
+        String(selectedMonth).padStart(2, "0"),
+        String(new Date(selectedYear, selectedMonth, 0).getDate()).padStart(2, "0")
+    ].join("-");
     const isSubmitting = transactionMutations.create.isPending || categoryMutations.create.isPending;
 
     useEffect(() => {
@@ -176,6 +186,8 @@ export function FinancialTransactionCreateModal({
                                 <span>Data de referência</span>
                                 <input
                                     type="date"
+                                    min={monthStart}
+                                    max={monthEnd}
                                     value={referenceDate}
                                     onChange={(event) => setReferenceDate(event.target.value)}
                                     required
