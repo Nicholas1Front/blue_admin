@@ -2,15 +2,25 @@ import { useState } from "react";
 import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
+    faArrowDown,
     faArrowTrendDown,
     faArrowTrendUp,
     faCalendarDays,
+    faChevronLeft,
+    faChevronRight,
+    faPencil,
+    faPlus,
+    faTrash,
     faWallet
 } from "@fortawesome/free-solid-svg-icons";
 
 import { AppHeader } from "../../components/AppHeader/AppHeader";
 import { BackLink } from "../../components/BackLink/BackLink";
-import { useYearlyFinancialSummary } from "../../modules/financial";
+import {
+    useMonthlyFinancialSummary,
+    useTransactions,
+    useYearlyFinancialSummary
+} from "../../modules/financial";
 import "./FinancialTransactions.css";
 
 const currencyFormatter = new Intl.NumberFormat("pt-BR", {
@@ -18,8 +28,15 @@ const currencyFormatter = new Intl.NumberFormat("pt-BR", {
     currency: "BRL"
 });
 
+const monthFormatter = new Intl.DateTimeFormat("pt-BR", { month: "long" });
+const referenceDateFormatter = new Intl.DateTimeFormat("pt-BR");
+
 function formatCurrency(value: number | string | null | undefined) {
     return currencyFormatter.format(Number(value ?? 0));
+}
+
+function formatReferenceDate(value: string) {
+    return referenceDateFormatter.format(new Date(`${value.slice(0, 10)}T12:00:00`));
 }
 
 function YearMetric({
@@ -52,15 +69,66 @@ function YearMetric({
 export function FinancialTransactions() {
     document.title = "Lançamentos financeiros | Blue Admin";
 
-    const currentYear = new Date().getFullYear();
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth() + 1;
     const [selectedYear, setSelectedYear] = useState(currentYear);
+    const [selectedMonth, setSelectedMonth] = useState(currentMonth);
+    const [transactionPage, setTransactionPage] = useState(1);
+    const transactionsPerPage = 10;
+
     const availableYears = Array.from(
         { length: currentYear - 1999 },
         (_, index) => currentYear - index
     );
+    const availableMonths = Array.from({ length: 12 }, (_, index) => ({
+        value: index + 1,
+        label: monthFormatter.format(new Date(2000, index, 1))
+    }));
 
     const yearlyQuery = useYearlyFinancialSummary({ year: selectedYear });
+    const monthlyQuery = useMonthlyFinancialSummary({
+        year: selectedYear,
+        month: selectedMonth,
+        limit: 1
+    });
+    const transactionsQuery = useTransactions({
+        year: selectedYear,
+        month: selectedMonth,
+        page: transactionPage,
+        limit: transactionsPerPage
+    });
+
     const yearlySummary = yearlyQuery.data;
+    const monthlySummary = monthlyQuery.data;
+    const transactionsResult = transactionsQuery.data;
+    const monthTitle = new Intl.DateTimeFormat("pt-BR", {
+        month: "long",
+        year: "numeric"
+    }).format(new Date(selectedYear, selectedMonth - 1, 1));
+    const capitalizedMonthTitle = monthTitle.charAt(0).toLocaleUpperCase("pt-BR") + monthTitle.slice(1);
+
+    function handleYearChange(year: number) {
+        if (!Number.isInteger(year) || year < 2000 || year > currentYear) {
+            return;
+        }
+
+        setSelectedYear(year);
+        setTransactionPage(1);
+
+        if (year === currentYear && selectedMonth > currentMonth) {
+            setSelectedMonth(currentMonth);
+        }
+    }
+
+    function handleMonthChange(month: number) {
+        if (!Number.isInteger(month) || month < 1 || month > 12) {
+            return;
+        }
+
+        setSelectedMonth(month);
+        setTransactionPage(1);
+    }
 
     return (
         <main className="financial-transactions-page">
@@ -98,24 +166,6 @@ export function FinancialTransactions() {
                                 Os indicadores abaixo acompanham o ano selecionado.
                             </p>
                         </div>
-
-                        <label className="financial-transactions-year-picker">
-                            <span>
-                                <FontAwesomeIcon icon={faCalendarDays} aria-hidden="true" />
-                                Ano de referência
-                            </span>
-                            <select
-                                aria-label="Selecionar ano do resumo financeiro"
-                                value={selectedYear}
-                                onChange={(event) => setSelectedYear(Number(event.target.value))}
-                            >
-                                {availableYears.map((year) => (
-                                    <option key={year} value={year}>
-                                        {year}
-                                    </option>
-                                ))}
-                            </select>
-                        </label>
                     </header>
 
                     {yearlyQuery.isError ? (
@@ -149,6 +199,225 @@ export function FinancialTransactions() {
                                 tone="balance"
                             />
                         </div>
+                    )}
+                </section>
+
+                <section
+                    className="financial-transactions-monthly"
+                    aria-labelledby="financial-transactions-monthly-title"
+                >
+                    <header className="financial-transactions-section-heading">
+                        <div>
+                            <span className="financial-transactions-eyebrow">
+                                Acompanhamento mensal
+                            </span>
+                            <h2 id="financial-transactions-monthly-title">
+                                Resumo de {capitalizedMonthTitle}
+                            </h2>
+                            <p>Veja o total de entradas, saídas e o saldo do período.</p>
+                        </div>
+                    </header>
+
+                    {monthlyQuery.isError ? (
+                        <div className="financial-transactions-feedback" role="alert">
+                            <p>Não foi possível carregar o resumo de {monthTitle}.</p>
+                            <button type="button" onClick={() => monthlyQuery.refetch()}>
+                                Tentar novamente
+                            </button>
+                        </div>
+                    ) : (
+                        <div className="financial-transactions-metrics" aria-live="polite">
+                            <YearMetric
+                                label="Entradas do mês"
+                                value={monthlyQuery.isPending ? "Carregando…" : formatCurrency(monthlySummary?.incomesValue)}
+                                description={`Receitas registradas em ${monthTitle}`}
+                                icon={faArrowTrendUp}
+                                tone="income"
+                            />
+                            <YearMetric
+                                label="Saídas do mês"
+                                value={monthlyQuery.isPending ? "Carregando…" : formatCurrency(monthlySummary?.expensesValue)}
+                                description={`Despesas registradas em ${monthTitle}`}
+                                icon={faArrowTrendDown}
+                                tone="expense"
+                            />
+                            <YearMetric
+                                label="Saldo do mês"
+                                value={monthlyQuery.isPending ? "Carregando…" : formatCurrency(monthlySummary?.balanceValue)}
+                                description="Entradas menos saídas"
+                                icon={faWallet}
+                                tone="balance"
+                            />
+                        </div>
+                    )}
+                </section>
+
+                <section className="financial-transactions-period" aria-label="Selecionar período">
+                    <div className="financial-transactions-period__copy">
+                        <span className="financial-transactions-eyebrow">Período dos lançamentos</span>
+                        <p>Escolha o mês e o ano que deseja consultar.</p>
+                    </div>
+
+                    <div className="financial-transactions-period__fields">
+                        <label className="financial-transactions-period__field">
+                            <span>Mês</span>
+                            <select
+                                aria-label="Selecionar mês dos lançamentos"
+                                value={selectedMonth}
+                                onChange={(event) => handleMonthChange(Number(event.target.value))}
+                            >
+                                {availableMonths.map((month) => (
+                                    <option
+                                        key={month.value}
+                                        value={month.value}
+                                        disabled={selectedYear === currentYear && month.value > currentMonth}
+                                    >
+                                        {month.label}
+                                    </option>
+                                ))}
+                            </select>
+                        </label>
+
+                        <label className="financial-transactions-period__field">
+                            <span>Ano</span>
+                            <select
+                                aria-label="Selecionar ano dos lançamentos"
+                                value={selectedYear}
+                                onChange={(event) => handleYearChange(Number(event.target.value))}
+                            >
+                                {availableYears.map((year) => (
+                                    <option key={year} value={year}>{year}</option>
+                                ))}
+                            </select>
+                        </label>
+                    </div>
+                </section>
+
+                <section
+                    className="financial-transactions-list-section"
+                    aria-labelledby="financial-transactions-list-title"
+                >
+                    <header className="financial-transactions-list-section__header">
+                        <div>
+                            <span className="financial-transactions-eyebrow">Histórico</span>
+                            <h2 id="financial-transactions-list-title">
+                                Lançamentos de {monthTitle}
+                            </h2>
+                            <p>
+                                {transactionsResult
+                                    ? `${transactionsResult.total} ${transactionsResult.total === 1 ? "lançamento encontrado" : "lançamentos encontrados"}`
+                                    : "Movimentações organizadas da mais antiga para a mais recente."}
+                            </p>
+                        </div>
+
+                        <button
+                            className="financial-transactions-add-button"
+                            type="button"
+                            disabled
+                            title="A ação será implementada na próxima etapa"
+                        >
+                            <FontAwesomeIcon icon={faPlus} aria-hidden="true" />
+                            Adicionar lançamento
+                        </button>
+                    </header>
+
+                    {transactionsQuery.isError ? (
+                        <div className="financial-transactions-feedback" role="alert">
+                            <p>Não foi possível carregar os lançamentos de {monthTitle}.</p>
+                            <button type="button" onClick={() => transactionsQuery.refetch()}>
+                                Tentar novamente
+                            </button>
+                        </div>
+                    ) : transactionsQuery.isPending ? (
+                        <div className="financial-transactions-list-feedback" role="status">
+                            Carregando lançamentos…
+                        </div>
+                    ) : transactionsResult.transactions.length === 0 ? (
+                        <div className="financial-transactions-empty">
+                            <span className="financial-transactions-empty__icon" aria-hidden="true">
+                                <FontAwesomeIcon icon={faArrowDown} />
+                            </span>
+                            <h3>Nenhum lançamento neste período</h3>
+                            <p>
+                                Não há entradas ou saídas registradas em {monthTitle}.
+                                Selecione outro mês para consultar o histórico.
+                            </p>
+                        </div>
+                    ) : (
+                        <>
+                            <div className="financial-transactions-table-wrap">
+                                <div className="financial-transactions-table" role="table" aria-label={`Lançamentos de ${monthTitle}`}>
+                                    <div className="financial-transactions-table__head" role="row">
+                                        <span role="columnheader">Lançamento</span>
+                                        <span role="columnheader">Categoria</span>
+                                        <span role="columnheader">Data de referência</span>
+                                        <span role="columnheader" className="financial-transactions-table__amount-heading">Valor</span>
+                                        <span role="columnheader" className="financial-transactions-table__actions-heading">Ações</span>
+                                    </div>
+
+                                    {transactionsResult.transactions.map((transaction) => (
+                                        <div className="financial-transactions-table__row" role="row" key={transaction.id}>
+                                            <div className="financial-transactions-table__description" role="cell">
+                                                <span className={`financial-transactions-table__type-icon financial-transactions-table__type-icon--${transaction.type}`} aria-hidden="true">
+                                                    <FontAwesomeIcon icon={transaction.type === "income" ? faArrowTrendUp : faArrowTrendDown} />
+                                                </span>
+                                                <div>
+                                                    <strong>{transaction.description}</strong>
+                                                    <span>{transaction.type === "income" ? "Entrada" : "Saída"}</span>
+                                                </div>
+                                            </div>
+
+                                            <span className="financial-transactions-table__category" role="cell">
+                                                {transaction.categoryName}
+                                            </span>
+
+                                            <span className="financial-transactions-table__date" role="cell">
+                                                {formatReferenceDate(transaction.referenceDate)}
+                                            </span>
+
+                                            <strong className={`financial-transactions-table__amount financial-transactions-table__amount--${transaction.type}`} role="cell">
+                                                {transaction.type === "income" ? "+" : "−"} {formatCurrency(transaction.value)}
+                                            </strong>
+
+                                            <div className="financial-transactions-table__actions" role="cell">
+                                                <button type="button" disabled title="Edição será implementada na próxima etapa" aria-label={`Editar lançamento: ${transaction.description}`}>
+                                                    <FontAwesomeIcon icon={faPencil} />
+                                                </button>
+                                                <button type="button" disabled title="Exclusão será implementada na próxima etapa" aria-label={`Excluir lançamento: ${transaction.description}`}>
+                                                    <FontAwesomeIcon icon={faTrash} />
+                                                </button>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+                            </div>
+
+                            {transactionsResult.totalPages > 1 && (
+                                <nav className="financial-transactions-pagination" aria-label="Paginação dos lançamentos">
+                                    <span>
+                                        Página {transactionsResult.page} de {transactionsResult.totalPages}
+                                    </span>
+                                    <div>
+                                        <button
+                                            type="button"
+                                            onClick={() => setTransactionPage((page) => Math.max(1, page - 1))}
+                                            disabled={transactionPage <= 1 || transactionsQuery.isFetching}
+                                            aria-label="Página anterior"
+                                        >
+                                            <FontAwesomeIcon icon={faChevronLeft} />
+                                        </button>
+                                        <button
+                                            type="button"
+                                            onClick={() => setTransactionPage((page) => Math.min(transactionsResult.totalPages, page + 1))}
+                                            disabled={transactionPage >= transactionsResult.totalPages || transactionsQuery.isFetching}
+                                            aria-label="Próxima página"
+                                        >
+                                            <FontAwesomeIcon icon={faChevronRight} />
+                                        </button>
+                                    </div>
+                                </nav>
+                            )}
+                        </>
                     )}
                 </section>
             </section>
