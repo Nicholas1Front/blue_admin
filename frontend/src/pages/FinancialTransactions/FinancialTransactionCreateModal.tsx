@@ -70,6 +70,7 @@ export function FinancialTransactionCreateModal({
 
     async function handleCreateTransaction(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
+        if (isSubmitting) return;
         setFormError("");
 
         const parsedValue = Number(value.replace(",", "."));
@@ -113,6 +114,7 @@ export function FinancialTransactionCreateModal({
 
     async function handleCreateCategory(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
+        if (isSubmitting) return;
         setFormError("");
 
         if (!newCategoryName.trim()) {
@@ -238,6 +240,7 @@ export function FinancialTransactionCreateModal({
                                     setShowCategoryForm((visible) => !visible);
                                     setFormError("");
                                 }}
+                                disabled={isSubmitting}
                             >
                                 {showCategoryForm ? "Cancelar categoria" : "Criar categoria"}
                             </button>
