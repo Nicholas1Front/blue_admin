@@ -69,7 +69,9 @@ export function FinancialTransactionCreateModal({
         String(selectedMonth).padStart(2, "0"),
         String(new Date(selectedYear, selectedMonth, 0).getDate()).padStart(2, "0")
     ].join("-");
-    const isSubmitting = transactionMutations.create.isPending || categoryMutations.create.isPending;
+    const isSubmitting = transactionMutations.create.isPending
+        || transactionMutations.update.isPending
+        || categoryMutations.create.isPending;
 
     function handleClose() {
         if (!isSubmitting) onClose();
