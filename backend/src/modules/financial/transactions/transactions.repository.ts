@@ -155,8 +155,8 @@ class TransactionsRepository{
                 skip : (page - 1) * limit,
                 take : limit,
                 orderBy : [
-                    { referenceDate : 'desc' },
-                    { createdAt : 'desc' },
+                    { referenceDate : 'asc' },
+                    { createdAt : 'asc' },
                     { id : 'desc' }
                 ],
                 include : {

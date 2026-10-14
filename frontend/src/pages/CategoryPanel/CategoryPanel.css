@@ -6,7 +6,7 @@
         var(--color-background);
 }
 .category-content { width: min(100% - 3rem, 84rem); margin: 0 auto; padding: var(--spacing-8) 0 var(--spacing-16); }
-.category-page-heading { margin-bottom: var(--spacing-7); }
+.category-page-heading { margin-bottom: var(--spacing-6); }
 .category-page-heading h1 { color: var(--color-text); font-size: clamp(1.9rem, 3.3vw, 2.65rem); letter-spacing: -0.045em; }
 .category-page-heading p, .category-section-heading p, .category-management__toolbar p, .category-list-section__heading p { margin-top: var(--spacing-2); color: var(--color-text-muted); font-size: var(--font-size-sm); line-height: var(--line-height-relaxed); }
 .category-eyebrow { display: block; margin-bottom: var(--spacing-2); color: var(--color-primary-400); font-size: var(--font-size-xs); font-weight: var(--font-weight-semibold); letter-spacing: 0.1em; text-transform: uppercase; }
