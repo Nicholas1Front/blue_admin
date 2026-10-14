@@ -274,13 +274,13 @@
 }
 
 .financial-transactions-add-button:hover {
-    background: var(--color-primary-600);
+    background: var(--color-primary-500);
     box-shadow: var(--shadow-sm);
     transform: translateY(-1px);
 }
 
 .financial-transactions-add-button:focus-visible {
-    outline: 2px solid var(--color-primary-300);
+    outline: 2px solid var(--color-primary-400);
     outline-offset: 3px;
 }
 
@@ -666,7 +666,7 @@
 .financial-transaction-form__text-button {
     justify-self: start;
     padding: var(--spacing-1) 0;
-    color: var(--color-primary-300);
+    color: var(--color-primary-400);
     background: transparent;
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-medium);
@@ -675,7 +675,7 @@
 }
 
 .financial-transaction-form__text-button:hover {
-    color: var(--color-primary-200);
+    color: var(--color-primary-400);
     text-decoration: underline;
 }
 
@@ -766,7 +766,7 @@
 
 .financial-transaction-form__submit-button:hover:not(:disabled),
 .financial-transaction-form__secondary-button:hover:not(:disabled) {
-    background: var(--color-primary-600);
+    background: var(--color-primary-500);
     transform: translateY(-1px);
 }
 
