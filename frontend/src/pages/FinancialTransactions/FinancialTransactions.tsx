@@ -1,4 +1,5 @@
 import { useState } from "react";
+import type { IconDefinition } from "@fortawesome/fontawesome-svg-core";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faArrowTrendDown,
@@ -31,7 +32,7 @@ function YearMetric({
     label: string;
     value: string;
     description: string;
-    icon: typeof faWallet;
+    icon: IconDefinition;
     tone: "income" | "expense" | "balance";
 }) {
     return (
