@@ -432,7 +432,10 @@ export function FinancialTransactions() {
                                                 </button>
                                                 <button
                                                     type="button"
-                                                    onClick={() => setTransactionToDelete(transaction)}
+                                                    onClick={() => {
+                                                        transactionMutations.remove.reset();
+                                                        setTransactionToDelete(transaction);
+                                                    }}
                                                     title="Excluir lançamento"
                                                     aria-label={`Excluir lançamento: ${transaction.description}`}
                                                 >
