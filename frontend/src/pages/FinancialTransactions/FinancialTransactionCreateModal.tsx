@@ -81,12 +81,20 @@ export function FinancialTransactionCreateModal({
             setFormError("Informe um valor válido maior ou igual a R$ 1,00.");
             return;
         }
-        if (!categoryId) {
-            setFormError("Selecione uma categoria para continuar.");
+        if (categoriesQuery.isError) {
+            setFormError("Não foi possível validar as categorias. Tente novamente antes de salvar.");
+            return;
+        }
+        if (!categoryId || !categories.some((category) => category.id === categoryId)) {
+            setFormError("Selecione uma categoria ativa para continuar.");
             return;
         }
         if (!referenceDate) {
             setFormError("Informe a data de referência.");
+            return;
+        }
+        if (referenceDate < monthStart || referenceDate > monthEnd) {
+            setFormError("A data de referência deve estar dentro do mês selecionado.");
             return;
         }
 
@@ -193,11 +201,34 @@ export function FinancialTransactionCreateModal({
                                     <option value="">
                                         {categoriesQuery.isPending ? "Carregando categorias…" : "Selecione uma categoria"}
                                     </option>
-                                    {categories.map((category) => (
-                                        <option key={category.id} value={category.id}>
-                                            {category.name} · {category.type === "income" ? "Entrada" : "Saída"}
-                                        </option>
-                                    ))}
+                                    <optgroup
+                                        className="financial-transaction-form__category-group financial-transaction-form__category-group--income"
+                                        label="↑ Entradas"
+                                    >
+                                        {categories.filter((category) => category.type === "income").map((category) => (
+                                            <option
+                                                className="financial-transaction-form__category-option financial-transaction-form__category-option--income"
+                                                key={category.id}
+                                                value={category.id}
+                                            >
+                                                ↗ {category.name}
+                                            </option>
+                                        ))}
+                                    </optgroup>
+                                    <optgroup
+                                        className="financial-transaction-form__category-group financial-transaction-form__category-group--expense"
+                                        label="↓ Saídas"
+                                    >
+                                        {categories.filter((category) => category.type === "expense").map((category) => (
+                                            <option
+                                                className="financial-transaction-form__category-option financial-transaction-form__category-option--expense"
+                                                key={category.id}
+                                                value={category.id}
+                                            >
+                                                ↘ {category.name}
+                                            </option>
+                                        ))}
+                                    </optgroup>
                                 </select>
                             </label>
                             <button
@@ -242,7 +273,7 @@ export function FinancialTransactionCreateModal({
                             <button
                                 className="financial-transaction-form__submit-button"
                                 type="submit"
-                                disabled={isSubmitting || categoriesQuery.isPending || categoriesQuery.isError || !categoryId}
+                                disabled={isSubmitting || showCategoryForm || categoriesQuery.isPending || categoriesQuery.isError || !categoryId}
                             >
                                 {transactionMutations.create.isPending ? "Salvando…" : "Salvar lançamento"}
                             </button>
