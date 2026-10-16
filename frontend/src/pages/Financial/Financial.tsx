@@ -9,18 +9,13 @@ import {
     faArrowTrendUp,
     faCalendarDays,
     faWallet,
-    faTags,
-    faChartLine
+    faTags
 } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
 import {
-    Bar,
     CartesianGrid,
-    Cell,
     ComposedChart,
     Line,
-    Pie,
-    PieChart,
     ResponsiveContainer,
     Tooltip,
     XAxis,
@@ -40,8 +35,6 @@ const currencyFormatter = new Intl.NumberFormat("pt-BR", {
     style: "currency",
     currency: "BRL"
 });
-
-const chartColors = ["#4d9bff", "#22c55e", "#f59e0b", "#a78bfa", "#38bdf8"];
 
 function formatCurrency(value: number | string | null | undefined) {
     return currencyFormatter.format(Number(value ?? 0));
@@ -136,23 +129,6 @@ export function Financial() {
         balance: item.balanceValue
     }));
 
-    const sortedExpenseCategories = (monthly?.categories ?? [])
-        .filter(category => category.type === "expense" && category.value > 0)
-        .sort((a, b) => b.value - a.value);
-
-    const expenseCategories = sortedExpenseCategories.length > 5
-        ? [
-            ...sortedExpenseCategories.slice(0, 4),
-            {
-                name: "Outras categorias",
-                type: "expense" as const,
-                description: null,
-                value: sortedExpenseCategories
-                    .slice(4)
-                    .reduce((total, category) => total + category.value, 0)
-            }
-        ]
-        : sortedExpenseCategories;
 
     function handleYearChange(year: number) {
         if (!Number.isInteger(year) || year < 2000 || year > currentYear) {
@@ -255,8 +231,12 @@ export function Financial() {
                     />
                 </section>
 
-                <section className="financial-main-grid">
-                    <article className="financial-panel financial-panel--wide">
+                <section className="financial-main-grid financial-main-grid--single">
+                    <Link
+                        className="financial-panel financial-panel--wide financial-panel--yearly-link"
+                        to="/financial/analytics"
+                        aria-label={`Abrir métricas e análises financeiras de ${selectedYear}`}
+                    >
                         <header className="financial-panel__header">
                             <div>
                                 <span className="financial-panel__eyebrow">Acompanhamento anual</span>
@@ -308,71 +288,12 @@ export function Financial() {
                             <span><i className="financial-legend-dot financial-legend-dot--expense" /> Saídas</span>
                             <span><i className="financial-legend-line" /> Saldo</span>
                         </footer>
-                    </article>
+                        <span className="financial-analytics-card__footer">
+                            Explorar métricas e análises
+                            <FontAwesomeIcon icon={faArrowRight} aria-hidden="true" />
+                        </span>
+                    </Link>
 
-                    <article className="financial-panel">
-                        <header className="financial-panel__header">
-                            <div>
-                                <span className="financial-panel__eyebrow">Onde você gasta</span>
-                                <h2>Despesas por categoria</h2>
-                                <p>Distribuição das saídas em {monthTitle}.</p>
-                            </div>
-                        </header>
-
-                        {monthlyQuery.isError ? (
-                            <div className="financial-empty-state">
-                                <strong>Não foi possível carregar as categorias</strong>
-                                <button type="button" onClick={() => monthlyQuery.refetch()}>Tentar novamente</button>
-                            </div>
-                        ) : monthlyQuery.isPending ? (
-                            <div className="financial-chart-loading">Carregando categorias…</div>
-                        ) : expenseCategories.length === 0 ? (
-                            <div className="financial-empty-state">
-                                <span className="financial-empty-state__icon">
-                                    <FontAwesomeIcon icon={faArrowTrendDown} />
-                                </span>
-                                <strong>Nenhuma despesa registrada</strong>
-                                <p>Quando houver saídas no período, a distribuição aparecerá aqui.</p>
-                            </div>
-                        ) : (
-                            <>
-                                <div className="financial-category-chart">
-                                    <ResponsiveContainer width="100%" height="100%">
-                                        <PieChart>
-                                            <Pie
-                                                data={expenseCategories}
-                                                dataKey="value"
-                                                nameKey="name"
-                                                innerRadius={62}
-                                                outerRadius={92}
-                                                paddingAngle={3}
-                                                stroke="none"
-                                            >
-                                                {expenseCategories.map((category, index) => (
-                                                    <Cell key={`${category.name}-${index}`} fill={chartColors[index % chartColors.length]} />
-                                                ))}
-                                            </Pie>
-                                            <Tooltip
-                                                contentStyle={{ background: "var(--color-surface-raised)", border: "1px solid var(--color-border)", borderRadius: 10, color: "var(--color-text)" }}
-                                                formatter={(value) => formatCurrency(Number(value ?? 0))}
-                                            />
-                                        </PieChart>
-                                    </ResponsiveContainer>
-                                </div>
-                                <div className="financial-category-list">
-                                    {expenseCategories.map((category, index) => (
-                                        <div className="financial-category-row" key={`${category.name}-${index}`}>
-                                            <span className="financial-category-row__name">
-                                                <i style={{ backgroundColor: chartColors[index % chartColors.length] }} />
-                                                {category.name}
-                                            </span>
-                                            <strong>{formatCurrency(category.value)}</strong>
-                                        </div>
-                                    ))}
-                                </div>
-                            </>
-                        )}
-                    </article>
                 </section>
 
                 <section className="financial-bottom-grid">
@@ -455,21 +376,6 @@ export function Financial() {
                                 </div>
                             </>
                         )}
-                    </Link>
-                </section>
-
-                <section className="financial-category-access" aria-label="Métricas e análises financeiras">
-                    <div>
-                        <span className="financial-panel__eyebrow">Análise detalhada</span>
-                        <h2>Métricas e Análises</h2>
-                        <p>
-                            Explore a evolução mensal e anual, compare categorias e analise
-                            qualquer intervalo de datas em uma visão completa.
-                        </p>
-                    </div>
-                    <Link className="financial-category-access__button" to="/financial/analytics">
-                        <FontAwesomeIcon icon={faChartLine} />
-                        Explorar métricas
                     </Link>
                 </section>
 
