@@ -13,6 +13,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
 import {
+    Bar,
     CartesianGrid,
     ComposedChart,
     Line,
