@@ -207,6 +207,10 @@
     margin-bottom: var(--spacing-5);
 }
 
+.financial-main-grid--single {
+    grid-template-columns: minmax(0, 1fr);
+}
+
 .financial-bottom-grid {
     display: grid;
     grid-template-columns: minmax(0, 1.65fr) minmax(18rem, 1fr);
@@ -252,7 +256,7 @@
 }
 
 .financial-year-chart {
-    height: 18rem;
+    height: 24rem;
     margin-top: var(--spacing-5);
 }
 
@@ -294,52 +298,6 @@
     width: 1rem;
     height: 2px;
     background: #4d9bff;
-}
-
-.financial-category-chart {
-    height: 12rem;
-    margin-top: var(--spacing-2);
-}
-
-.financial-category-list {
-    display: grid;
-    gap: var(--spacing-3);
-    margin-top: var(--spacing-2);
-}
-
-.financial-category-row,
-.financial-category-row__name {
-    display: flex;
-    align-items: center;
-}
-
-.financial-category-row {
-    justify-content: space-between;
-    gap: var(--spacing-3);
-    font-size: var(--font-size-sm);
-}
-
-.financial-category-row__name {
-    min-width: 0;
-    gap: var(--spacing-2);
-    color: var(--color-text-secondary);
-}
-
-.financial-category-row__name i {
-    width: 0.5rem;
-    height: 0.5rem;
-    flex-shrink: 0;
-    border-radius: 50%;
-}
-
-.financial-category-row__name {
-    overflow-wrap: anywhere;
-}
-
-.financial-category-row strong {
-    flex-shrink: 0;
-    color: var(--color-text);
-    font-size: var(--font-size-sm);
 }
 
 .financial-transactions-list {
@@ -609,7 +567,7 @@
     }
 
     .financial-year-chart {
-        height: 16rem;
+        height: 19rem;
     }
 
     .financial-alert {
@@ -810,3 +768,39 @@
     gap: var(--spacing-3);
 }
 
+
+
+.financial-panel--yearly-link {
+    display: block;
+    color: inherit;
+    text-decoration: none;
+    cursor: pointer;
+    transition:
+        transform var(--transition-fast),
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast);
+}
+
+.financial-panel--yearly-link:hover {
+    transform: translateY(-2px);
+    border-color: var(--color-primary-400);
+    box-shadow: var(--shadow-md);
+}
+
+.financial-panel--yearly-link:focus-visible {
+    outline: 2px solid var(--color-primary-400);
+    outline-offset: 3px;
+}
+
+.financial-analytics-card__footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: var(--spacing-2);
+    margin-top: var(--spacing-4);
+    padding-top: var(--spacing-4);
+    color: var(--color-primary-300);
+    border-top: 1px solid var(--color-border);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+}
