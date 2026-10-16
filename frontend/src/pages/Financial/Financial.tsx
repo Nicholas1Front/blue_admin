@@ -249,8 +249,7 @@ export function Financial() {
 
                         {yearlyQuery.isError ? (
                             <div className="financial-empty-state">
-                                Não foi possível carregar o histórico anual.
-                                <button type="button" onClick={() => yearlyQuery.refetch()}>Tentar novamente</button>
+                                Não foi possível carregar o histórico anual. Acesse métricas e análises para consultar novamente.
                             </div>
                         ) : yearlyQuery.isPending ? (
                             <div className="financial-chart-loading">Carregando histórico anual…</div>
