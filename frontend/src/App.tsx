@@ -15,6 +15,7 @@ import { Financial } from "./pages/Financial/Financial";
 import { FinancialTransactions } from "./pages/FinancialTransactions/FinancialTransactions";
 import { MonthlyExpenses } from "./pages/MonthlyExpenses/MonthlyExpenses";
 import { CategoryPanel } from "./pages/CategoryPanel/CategoryPanel";
+import { FinancialAnalytics } from "./pages/FinancialAnalytics/FinancialAnalytics";
 
 function App() {
     return (
@@ -63,6 +64,15 @@ function App() {
                         element={
                             <ProtectedRoute>
                                 <Financial />
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    <Route
+                        path="/financial/analytics"
+                        element={
+                            <ProtectedRoute>
+                                <FinancialAnalytics />
                             </ProtectedRoute>
                         }
                     />
