@@ -467,15 +467,15 @@ export function FinancialTransactions() {
                                                 </div>
                                             </div>
 
-                                            <span className="financial-transactions-table__category" role="cell" data-label="Categoria">
+                                            <span className="financial-transactions-table__category" role="cell" data-label="Categoria" aria-label={`Categoria: ${transaction.categoryName}`}>
                                                 {transaction.categoryName}
                                             </span>
 
-                                            <span className="financial-transactions-table__date" role="cell" data-label="Data">
+                                            <span className="financial-transactions-table__date" role="cell" data-label="Data" aria-label={`Data de referência: ${formatReferenceDate(transaction.referenceDate)}`}>
                                                 {formatReferenceDate(transaction.referenceDate)}
                                             </span>
 
-                                            <strong className={`financial-transactions-table__amount financial-transactions-table__amount--${transaction.type}`} role="cell" data-label="Valor">
+                                            <strong className={`financial-transactions-table__amount financial-transactions-table__amount--${transaction.type}`} role="cell" data-label="Valor" aria-label={`Valor: ${transaction.type === "income" ? "Entrada" : "Saída"} de ${formatCurrency(transaction.value)}`}>
                                                 {transaction.type === "income" ? "+" : "−"} {formatCurrency(transaction.value)}
                                             </strong>
 
@@ -712,9 +712,9 @@ export function FinancialTransactions() {
                                                     <span>{transaction.type === "income" ? "Entrada" : "Saída"}</span>
                                                 </div>
                                             </div>
-                                            <span className="financial-transactions-table__category" role="cell" data-label="Categoria">{transaction.categoryName}</span>
-                                            <span className="financial-transactions-table__date" role="cell" data-label="Data">{formatReferenceDate(transaction.referenceDate)}</span>
-                                            <strong className={`financial-transactions-table__amount financial-transactions-table__amount--${transaction.type}`} role="cell" data-label="Valor">
+                                            <span className="financial-transactions-table__category" role="cell" data-label="Categoria" aria-label={`Categoria: ${transaction.categoryName}`}>{transaction.categoryName}</span>
+                                            <span className="financial-transactions-table__date" role="cell" data-label="Data" aria-label={`Data de referência: ${formatReferenceDate(transaction.referenceDate)}`}>{formatReferenceDate(transaction.referenceDate)}</span>
+                                            <strong className={`financial-transactions-table__amount financial-transactions-table__amount--${transaction.type}`} role="cell" data-label="Valor" aria-label={`Valor: ${transaction.type === "income" ? "Entrada" : "Saída"} de ${formatCurrency(transaction.value)}`}>
                                                 {transaction.type === "income" ? "+" : "−"} {formatCurrency(transaction.value)}
                                             </strong>
                                             <div className="financial-transactions-table__actions" role="cell">
