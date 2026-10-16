@@ -376,6 +376,10 @@ export function Financial() {
                                 </div>
                             </>
                         )}
+                        <span className="financial-fixed-costs__footer">
+                            Ver todas as despesas mensais
+                            <FontAwesomeIcon icon={faArrowRight} aria-hidden="true" />
+                        </span>
                     </Link>
                 </section>
 
