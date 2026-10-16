@@ -1200,3 +1200,129 @@
         width: 100%;
     }
 }
+
+
+/* No mobile, cada lançamento vira um cartão sem alterar a tabela no desktop. */
+@media (max-width: 640px) {
+    .financial-transactions-table-wrap {
+        overflow: visible;
+        border: 0;
+        border-radius: 0;
+    }
+
+    .financial-transactions-table {
+        display: grid;
+        min-width: 0;
+        gap: var(--spacing-3);
+    }
+
+    .financial-transactions-table__head {
+        display: none;
+    }
+
+    .financial-transactions-table__row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+        grid-template-areas:
+            "description description"
+            "category date"
+            "amount actions";
+        align-items: start;
+        gap: var(--spacing-3);
+        min-height: 0;
+        padding: var(--spacing-4);
+        background: var(--color-surface);
+        border: 1px solid var(--color-border);
+        border-radius: var(--radius-lg);
+    }
+
+    .financial-transactions-table__row:last-child {
+        border-bottom: 1px solid var(--color-border);
+    }
+
+    .financial-transactions-table__row:hover {
+        background: var(--color-surface-hover);
+    }
+
+    .financial-transactions-table__description {
+        grid-area: description;
+        align-items: flex-start;
+    }
+
+    .financial-transactions-table__type-icon {
+        width: 2.25rem;
+        height: 2.25rem;
+    }
+
+    .financial-transactions-table__description strong {
+        overflow: visible;
+        overflow-wrap: anywhere;
+        text-overflow: clip;
+        white-space: normal;
+        line-height: var(--line-height-relaxed);
+    }
+
+    .financial-transactions-table__category,
+    .financial-transactions-table__date {
+        display: block;
+        min-width: 0;
+        color: var(--color-text-secondary);
+        font-size: var(--font-size-sm);
+        line-height: var(--line-height-relaxed);
+        overflow-wrap: anywhere;
+    }
+
+    .financial-transactions-table__category::before,
+    .financial-transactions-table__date::before,
+    .financial-transactions-table__amount::before {
+        display: block;
+        margin-bottom: var(--spacing-1);
+        color: var(--color-text-muted);
+        font-size: var(--font-size-xs);
+        font-weight: var(--font-weight-medium);
+        line-height: var(--line-height-normal);
+        text-align: left;
+    }
+
+    .financial-transactions-table__category {
+        grid-area: category;
+    }
+
+    .financial-transactions-table__category::before {
+        content: attr(data-label);
+    }
+
+    .financial-transactions-table__date {
+        grid-area: date;
+    }
+
+    .financial-transactions-table__date::before {
+        content: attr(data-label);
+    }
+
+    .financial-transactions-table__amount {
+        display: grid;
+        grid-area: amount;
+        align-self: center;
+        gap: var(--spacing-1);
+        text-align: left;
+        white-space: normal;
+        overflow-wrap: anywhere;
+    }
+
+    .financial-transactions-table__amount::before {
+        content: attr(data-label);
+    }
+
+    .financial-transactions-table__actions {
+        grid-area: actions;
+        align-self: center;
+        justify-content: flex-end;
+        gap: var(--spacing-2);
+    }
+
+    .financial-transactions-table__actions button {
+        width: 2.25rem;
+        height: 2.25rem;
+    }
+}
