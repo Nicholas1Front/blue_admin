@@ -177,7 +177,7 @@
     margin-top: var(--spacing-2);
     color: var(--color-text-muted);
     font-size: var(--font-size-xs);
-    line-height: var(--line-height-normal);
+    line-height: var(--line-height-relaxed);
 }
 
 .financial-transactions-period {
@@ -195,7 +195,7 @@
 .financial-transactions-period__copy p {
     color: var(--color-text-muted);
     font-size: var(--font-size-sm);
-    line-height: var(--line-height-normal);
+    line-height: var(--line-height-relaxed);
 }
 
 .financial-transactions-period__copy .financial-transactions-eyebrow {
@@ -1280,7 +1280,7 @@
         color: var(--color-text-muted);
         font-size: var(--font-size-xs);
         font-weight: var(--font-weight-medium);
-        line-height: var(--line-height-normal);
+        line-height: var(--line-height-relaxed);
         text-align: left;
     }
 
