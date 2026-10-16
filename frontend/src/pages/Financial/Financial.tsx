@@ -9,7 +9,8 @@ import {
     faArrowTrendUp,
     faCalendarDays,
     faWallet,
-    faTags
+    faTags,
+    faChartLine
 } from "@fortawesome/free-solid-svg-icons";
 import { Link } from "react-router-dom";
 import {
@@ -454,6 +455,21 @@ export function Financial() {
                                 </div>
                             </>
                         )}
+                    </Link>
+                </section>
+
+                <section className="financial-category-access" aria-label="Métricas e análises financeiras">
+                    <div>
+                        <span className="financial-panel__eyebrow">Análise detalhada</span>
+                        <h2>Métricas e Análises</h2>
+                        <p>
+                            Explore a evolução mensal e anual, compare categorias e analise
+                            qualquer intervalo de datas em uma visão completa.
+                        </p>
+                    </div>
+                    <Link className="financial-category-access__button" to="/financial/analytics">
+                        <FontAwesomeIcon icon={faChartLine} />
+                        Explorar métricas
                     </Link>
                 </section>
 
