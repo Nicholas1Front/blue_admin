@@ -467,15 +467,15 @@ export function FinancialTransactions() {
                                                 </div>
                                             </div>
 
-                                            <span className="financial-transactions-table__category" role="cell">
+                                            <span className="financial-transactions-table__category" role="cell" data-label="Categoria">
                                                 {transaction.categoryName}
                                             </span>
 
-                                            <span className="financial-transactions-table__date" role="cell">
+                                            <span className="financial-transactions-table__date" role="cell" data-label="Data">
                                                 {formatReferenceDate(transaction.referenceDate)}
                                             </span>
 
-                                            <strong className={`financial-transactions-table__amount financial-transactions-table__amount--${transaction.type}`} role="cell">
+                                            <strong className={`financial-transactions-table__amount financial-transactions-table__amount--${transaction.type}`} role="cell" data-label="Valor">
                                                 {transaction.type === "income" ? "+" : "−"} {formatCurrency(transaction.value)}
                                             </strong>
 
@@ -712,9 +712,9 @@ export function FinancialTransactions() {
                                                     <span>{transaction.type === "income" ? "Entrada" : "Saída"}</span>
                                                 </div>
                                             </div>
-                                            <span className="financial-transactions-table__category" role="cell">{transaction.categoryName}</span>
-                                            <span className="financial-transactions-table__date" role="cell">{formatReferenceDate(transaction.referenceDate)}</span>
-                                            <strong className={`financial-transactions-table__amount financial-transactions-table__amount--${transaction.type}`} role="cell">
+                                            <span className="financial-transactions-table__category" role="cell" data-label="Categoria">{transaction.categoryName}</span>
+                                            <span className="financial-transactions-table__date" role="cell" data-label="Data">{formatReferenceDate(transaction.referenceDate)}</span>
+                                            <strong className={`financial-transactions-table__amount financial-transactions-table__amount--${transaction.type}`} role="cell" data-label="Valor">
                                                 {transaction.type === "income" ? "+" : "−"} {formatCurrency(transaction.value)}
                                             </strong>
                                             <div className="financial-transactions-table__actions" role="cell">
