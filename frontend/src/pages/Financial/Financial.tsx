@@ -383,30 +383,49 @@ export function Financial() {
                     </Link>
                 </section>
 
-                <section className="financial-category-access" aria-label="Gestão de categorias">
-                    <div>
-                        <span className="financial-panel__eyebrow">Organização financeira</span>
-                        <h2>Suas categorias</h2>
-                        <p>Gerencie as categorias de entrada e saída utilizadas nos lançamentos.</p>
-                    </div>
-                    <Link className="financial-category-access__button" to="/financial/categories">
-                        <FontAwesomeIcon icon={faTags} />
-                        Gerenciar categorias
+                <section className="financial-dashboard-access" aria-label="Acessos aos painéis financeiros">
+                    <Link className="financial-dashboard-access__card" to="/financial/transactions">
+                        <span className="financial-dashboard-access__icon" aria-hidden="true">
+                            <FontAwesomeIcon icon={faMoneyBillTransfer} />
+                        </span>
+                        <span className="financial-dashboard-access__copy">
+                            <strong>Lançamentos</strong>
+                            <span>Consulte o histórico de entradas e saídas.</span>
+                        </span>
+                        <FontAwesomeIcon className="financial-dashboard-access__arrow" icon={faArrowRight} aria-hidden="true" />
                     </Link>
-                </section>
 
-                <section className="financial-category-access financial-transactions-access" aria-label="Gestão de lançamentos">
-                    <div className="financial-transactions-access__icon" aria-hidden="true">
-                        <FontAwesomeIcon icon={faMoneyBillTransfer} />
-                    </div>
-                    <div className="financial-transactions-access__copy">
-                        <span className="financial-panel__eyebrow">Movimentações financeiras</span>
-                        <h2>Seus lançamentos</h2>
-                        <p>Consulte o histórico completo e organize as entradas e saídas da empresa.</p>
-                    </div>
-                    <Link className="financial-category-access__button" to="/financial/transactions">
-                        Acessar lançamentos
-                        <FontAwesomeIcon icon={faArrowRight} />
+                    <Link className="financial-dashboard-access__card" to="/financial/analytics">
+                        <span className="financial-dashboard-access__icon" aria-hidden="true">
+                            <FontAwesomeIcon icon={faArrowTrendUp} />
+                        </span>
+                        <span className="financial-dashboard-access__copy">
+                            <strong>Métricas e dados</strong>
+                            <span>Analise resultados e tendências financeiras.</span>
+                        </span>
+                        <FontAwesomeIcon className="financial-dashboard-access__arrow" icon={faArrowRight} aria-hidden="true" />
+                    </Link>
+
+                    <Link className="financial-dashboard-access__card" to="/monthly-expenses">
+                        <span className="financial-dashboard-access__icon" aria-hidden="true">
+                            <FontAwesomeIcon icon={faCalendarDays} />
+                        </span>
+                        <span className="financial-dashboard-access__copy">
+                            <strong>Despesas mensais</strong>
+                            <span>Gerencie seus compromissos recorrentes.</span>
+                        </span>
+                        <FontAwesomeIcon className="financial-dashboard-access__arrow" icon={faArrowRight} aria-hidden="true" />
+                    </Link>
+
+                    <Link className="financial-dashboard-access__card" to="/financial/categories">
+                        <span className="financial-dashboard-access__icon" aria-hidden="true">
+                            <FontAwesomeIcon icon={faTags} />
+                        </span>
+                        <span className="financial-dashboard-access__copy">
+                            <strong>Categorias</strong>
+                            <span>Organize as categorias de entradas e saídas.</span>
+                        </span>
+                        <FontAwesomeIcon className="financial-dashboard-access__arrow" icon={faArrowRight} aria-hidden="true" />
                     </Link>
                 </section>
             </section>
