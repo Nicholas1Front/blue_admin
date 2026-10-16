@@ -437,37 +437,37 @@ export function FinancialAnalytics() {
                     <div className="analytics-metrics">
                         <MetricCard
                             label="Entradas do mês"
-                            value={monthlyQuery.isPending ? "Carregando…" : formatCurrency(monthly?.incomesValue)}
+                            value={monthlyQuery.isPending ? "Carregando…" : monthlyQuery.isError ? "Indisponível" : formatCurrency(monthly?.incomesValue)}
                             detail={monthTitle}
                             tone="green"
                         />
                         <MetricCard
                             label="Saídas do mês"
-                            value={monthlyQuery.isPending ? "Carregando…" : formatCurrency(monthly?.expensesValue)}
+                            value={monthlyQuery.isPending ? "Carregando…" : monthlyQuery.isError ? "Indisponível" : formatCurrency(monthly?.expensesValue)}
                             detail={monthTitle}
                             tone="red"
                         />
                         <MetricCard
                             label="Saldo do mês"
-                            value={monthlyQuery.isPending ? "Carregando…" : formatCurrency(monthly?.balanceValue)}
+                            value={monthlyQuery.isPending ? "Carregando…" : monthlyQuery.isError ? "Indisponível" : formatCurrency(monthly?.balanceValue)}
                             detail="Entradas menos saídas"
                             tone="blue"
                         />
                         <MetricCard
                             label="Entradas no ano"
-                            value={yearlyQuery.isPending ? "Carregando…" : formatCurrency(yearly?.incomesValue)}
+                            value={yearlyQuery.isPending ? "Carregando…" : yearlyQuery.isError ? "Indisponível" : formatCurrency(yearly?.incomesValue)}
                             detail={String(selectedYear)}
                             tone="green"
                         />
                         <MetricCard
                             label="Saídas no ano"
-                            value={yearlyQuery.isPending ? "Carregando…" : formatCurrency(yearly?.expensesValue)}
+                            value={yearlyQuery.isPending ? "Carregando…" : yearlyQuery.isError ? "Indisponível" : formatCurrency(yearly?.expensesValue)}
                             detail={String(selectedYear)}
                             tone="red"
                         />
                         <MetricCard
                             label="Saldo do ano"
-                            value={yearlyQuery.isPending ? "Carregando…" : formatCurrency(yearly?.balanceValue)}
+                            value={yearlyQuery.isPending ? "Carregando…" : yearlyQuery.isError ? "Indisponível" : formatCurrency(yearly?.balanceValue)}
                             detail="Resultado anual acumulado"
                             tone="violet"
                         />
@@ -679,19 +679,19 @@ export function FinancialAnalytics() {
                         <div className="analytics-metrics analytics-metrics--period">
                             <MetricCard
                                 label="Entradas no período"
-                                value={periodQuery.isPending ? "Carregando…" : formatCurrency(period?.incomesValue)}
+                                value={periodQuery.isPending ? "Carregando…" : periodQuery.isError ? "Indisponível" : formatCurrency(period?.incomesValue)}
                                 detail="Receitas registradas"
                                 tone="green"
                             />
                             <MetricCard
                                 label="Saídas no período"
-                                value={periodQuery.isPending ? "Carregando…" : formatCurrency(period?.expensesValue)}
+                                value={periodQuery.isPending ? "Carregando…" : periodQuery.isError ? "Indisponível" : formatCurrency(period?.expensesValue)}
                                 detail="Despesas registradas"
                                 tone="red"
                             />
                             <MetricCard
                                 label="Saldo do período"
-                                value={periodQuery.isPending ? "Carregando…" : formatCurrency(period?.balanceValue)}
+                                value={periodQuery.isPending ? "Carregando…" : periodQuery.isError ? "Indisponível" : formatCurrency(period?.balanceValue)}
                                 detail="Entradas menos saídas"
                                 tone="blue"
                             />
