@@ -57,7 +57,11 @@ export const ModelName = {
   Equipament: 'Equipament',
   FinancialCategory: 'FinancialCategory',
   FinancialTransaction: 'FinancialTransaction',
-  MonthlyExpense: 'MonthlyExpense'
+  MonthlyExpense: 'MonthlyExpense',
+  Service: 'Service',
+  ServiceHistory: 'ServiceHistory',
+  ServiceActivity: 'ServiceActivity',
+  ServiceEquipament: 'ServiceEquipament'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -168,6 +172,59 @@ export const MonthlyExpenseScalarFieldEnum = {
 } as const
 
 export type MonthlyExpenseScalarFieldEnum = (typeof MonthlyExpenseScalarFieldEnum)[keyof typeof MonthlyExpenseScalarFieldEnum]
+
+
+export const ServiceScalarFieldEnum = {
+  id: 'id',
+  clientId: 'clientId',
+  entryDate: 'entryDate',
+  exitDate: 'exitDate',
+  status: 'status',
+  hoursWorked: 'hoursWorked',
+  costPerHour: 'costPerHour',
+  titheStatus: 'titheStatus',
+  titheTransactionId: 'titheTransactionId',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ServiceScalarFieldEnum = (typeof ServiceScalarFieldEnum)[keyof typeof ServiceScalarFieldEnum]
+
+
+export const ServiceHistoryScalarFieldEnum = {
+  id: 'id',
+  serviceId: 'serviceId',
+  eventType: 'eventType',
+  description: 'description',
+  createdAt: 'createdAt'
+} as const
+
+export type ServiceHistoryScalarFieldEnum = (typeof ServiceHistoryScalarFieldEnum)[keyof typeof ServiceHistoryScalarFieldEnum]
+
+
+export const ServiceActivityScalarFieldEnum = {
+  id: 'id',
+  serviceId: 'serviceId',
+  title: 'title',
+  description: 'description',
+  startAt: 'startAt',
+  endAt: 'endAt',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type ServiceActivityScalarFieldEnum = (typeof ServiceActivityScalarFieldEnum)[keyof typeof ServiceActivityScalarFieldEnum]
+
+
+export const ServiceEquipamentScalarFieldEnum = {
+  id: 'id',
+  serviceId: 'serviceId',
+  equipamentId: 'equipamentId',
+  createdAt: 'createdAt'
+} as const
+
+export type ServiceEquipamentScalarFieldEnum = (typeof ServiceEquipamentScalarFieldEnum)[keyof typeof ServiceEquipamentScalarFieldEnum]
 
 
 export const SortOrder = {

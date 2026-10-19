@@ -76,3 +76,23 @@ export type FinancialTransaction = Prisma.FinancialTransactionModel
  * 
  */
 export type MonthlyExpense = Prisma.MonthlyExpenseModel
+/**
+ * Model Service
+ * 
+ */
+export type Service = Prisma.ServiceModel
+/**
+ * Model ServiceHistory
+ * 
+ */
+export type ServiceHistory = Prisma.ServiceHistoryModel
+/**
+ * Model ServiceActivity
+ * 
+ */
+export type ServiceActivity = Prisma.ServiceActivityModel
+/**
+ * Model ServiceEquipament
+ * 
+ */
+export type ServiceEquipament = Prisma.ServiceEquipamentModel

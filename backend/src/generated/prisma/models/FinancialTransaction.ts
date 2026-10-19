@@ -257,6 +257,7 @@ export type FinancialTransactionWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"FinancialTransaction"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinancialTransaction"> | Date | string
   category?: Prisma.XOR<Prisma.FinancialCategoryScalarRelationFilter, Prisma.FinancialCategoryWhereInput>
+  titheForService?: Prisma.XOR<Prisma.ServiceNullableScalarRelationFilter, Prisma.ServiceWhereInput> | null
 }
 
 export type FinancialTransactionOrderByWithRelationInput = {
@@ -271,6 +272,7 @@ export type FinancialTransactionOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   category?: Prisma.FinancialCategoryOrderByWithRelationInput
+  titheForService?: Prisma.ServiceOrderByWithRelationInput
 }
 
 export type FinancialTransactionWhereUniqueInput = Prisma.AtLeast<{
@@ -288,6 +290,7 @@ export type FinancialTransactionWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"FinancialTransaction"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"FinancialTransaction"> | Date | string
   category?: Prisma.XOR<Prisma.FinancialCategoryScalarRelationFilter, Prisma.FinancialCategoryWhereInput>
+  titheForService?: Prisma.XOR<Prisma.ServiceNullableScalarRelationFilter, Prisma.ServiceWhereInput> | null
 }, "id">
 
 export type FinancialTransactionOrderByWithAggregationInput = {
@@ -335,6 +338,7 @@ export type FinancialTransactionCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   category: Prisma.FinancialCategoryCreateNestedOneWithoutTransactionsInput
+  titheForService?: Prisma.ServiceCreateNestedOneWithoutTitheTransactionInput
 }
 
 export type FinancialTransactionUncheckedCreateInput = {
@@ -348,6 +352,7 @@ export type FinancialTransactionUncheckedCreateInput = {
   originId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  titheForService?: Prisma.ServiceUncheckedCreateNestedOneWithoutTitheTransactionInput
 }
 
 export type FinancialTransactionUpdateInput = {
@@ -361,6 +366,7 @@ export type FinancialTransactionUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.FinancialCategoryUpdateOneRequiredWithoutTransactionsNestedInput
+  titheForService?: Prisma.ServiceUpdateOneWithoutTitheTransactionNestedInput
 }
 
 export type FinancialTransactionUncheckedUpdateInput = {
@@ -374,6 +380,7 @@ export type FinancialTransactionUncheckedUpdateInput = {
   originId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  titheForService?: Prisma.ServiceUncheckedUpdateOneWithoutTitheTransactionNestedInput
 }
 
 export type FinancialTransactionCreateManyInput = {
@@ -471,6 +478,11 @@ export type FinancialTransactionSumOrderByAggregateInput = {
   value?: Prisma.SortOrder
 }
 
+export type FinancialTransactionNullableScalarRelationFilter = {
+  is?: Prisma.FinancialTransactionWhereInput | null
+  isNot?: Prisma.FinancialTransactionWhereInput | null
+}
+
 export type FinancialTransactionCreateNestedManyWithoutCategoryInput = {
   create?: Prisma.XOR<Prisma.FinancialTransactionCreateWithoutCategoryInput, Prisma.FinancialTransactionUncheckedCreateWithoutCategoryInput> | Prisma.FinancialTransactionCreateWithoutCategoryInput[] | Prisma.FinancialTransactionUncheckedCreateWithoutCategoryInput[]
   connectOrCreate?: Prisma.FinancialTransactionCreateOrConnectWithoutCategoryInput | Prisma.FinancialTransactionCreateOrConnectWithoutCategoryInput[]
@@ -521,6 +533,22 @@ export type DecimalFieldUpdateOperationsInput = {
   divide?: runtime.Decimal | runtime.DecimalJsLike | number | string
 }
 
+export type FinancialTransactionCreateNestedOneWithoutTitheForServiceInput = {
+  create?: Prisma.XOR<Prisma.FinancialTransactionCreateWithoutTitheForServiceInput, Prisma.FinancialTransactionUncheckedCreateWithoutTitheForServiceInput>
+  connectOrCreate?: Prisma.FinancialTransactionCreateOrConnectWithoutTitheForServiceInput
+  connect?: Prisma.FinancialTransactionWhereUniqueInput
+}
+
+export type FinancialTransactionUpdateOneWithoutTitheForServiceNestedInput = {
+  create?: Prisma.XOR<Prisma.FinancialTransactionCreateWithoutTitheForServiceInput, Prisma.FinancialTransactionUncheckedCreateWithoutTitheForServiceInput>
+  connectOrCreate?: Prisma.FinancialTransactionCreateOrConnectWithoutTitheForServiceInput
+  upsert?: Prisma.FinancialTransactionUpsertWithoutTitheForServiceInput
+  disconnect?: Prisma.FinancialTransactionWhereInput | boolean
+  delete?: Prisma.FinancialTransactionWhereInput | boolean
+  connect?: Prisma.FinancialTransactionWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinancialTransactionUpdateToOneWithWhereWithoutTitheForServiceInput, Prisma.FinancialTransactionUpdateWithoutTitheForServiceInput>, Prisma.FinancialTransactionUncheckedUpdateWithoutTitheForServiceInput>
+}
+
 export type FinancialTransactionCreateWithoutCategoryInput = {
   id?: string
   description: string
@@ -531,6 +559,7 @@ export type FinancialTransactionCreateWithoutCategoryInput = {
   originId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  titheForService?: Prisma.ServiceCreateNestedOneWithoutTitheTransactionInput
 }
 
 export type FinancialTransactionUncheckedCreateWithoutCategoryInput = {
@@ -543,6 +572,7 @@ export type FinancialTransactionUncheckedCreateWithoutCategoryInput = {
   originId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  titheForService?: Prisma.ServiceUncheckedCreateNestedOneWithoutTitheTransactionInput
 }
 
 export type FinancialTransactionCreateOrConnectWithoutCategoryInput = {
@@ -587,6 +617,74 @@ export type FinancialTransactionScalarWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"FinancialTransaction"> | Date | string
 }
 
+export type FinancialTransactionCreateWithoutTitheForServiceInput = {
+  id?: string
+  description: string
+  value: runtime.Decimal | runtime.DecimalJsLike | number | string
+  type: string
+  referenceDate: Date | string
+  originType?: string | null
+  originId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  category: Prisma.FinancialCategoryCreateNestedOneWithoutTransactionsInput
+}
+
+export type FinancialTransactionUncheckedCreateWithoutTitheForServiceInput = {
+  id?: string
+  description: string
+  value: runtime.Decimal | runtime.DecimalJsLike | number | string
+  type: string
+  categoryId: string
+  referenceDate: Date | string
+  originType?: string | null
+  originId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type FinancialTransactionCreateOrConnectWithoutTitheForServiceInput = {
+  where: Prisma.FinancialTransactionWhereUniqueInput
+  create: Prisma.XOR<Prisma.FinancialTransactionCreateWithoutTitheForServiceInput, Prisma.FinancialTransactionUncheckedCreateWithoutTitheForServiceInput>
+}
+
+export type FinancialTransactionUpsertWithoutTitheForServiceInput = {
+  update: Prisma.XOR<Prisma.FinancialTransactionUpdateWithoutTitheForServiceInput, Prisma.FinancialTransactionUncheckedUpdateWithoutTitheForServiceInput>
+  create: Prisma.XOR<Prisma.FinancialTransactionCreateWithoutTitheForServiceInput, Prisma.FinancialTransactionUncheckedCreateWithoutTitheForServiceInput>
+  where?: Prisma.FinancialTransactionWhereInput
+}
+
+export type FinancialTransactionUpdateToOneWithWhereWithoutTitheForServiceInput = {
+  where?: Prisma.FinancialTransactionWhereInput
+  data: Prisma.XOR<Prisma.FinancialTransactionUpdateWithoutTitheForServiceInput, Prisma.FinancialTransactionUncheckedUpdateWithoutTitheForServiceInput>
+}
+
+export type FinancialTransactionUpdateWithoutTitheForServiceInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  type?: Prisma.StringFieldUpdateOperationsInput | string
+  referenceDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  originType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  category?: Prisma.FinancialCategoryUpdateOneRequiredWithoutTransactionsNestedInput
+}
+
+export type FinancialTransactionUncheckedUpdateWithoutTitheForServiceInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
+  type?: Prisma.StringFieldUpdateOperationsInput | string
+  categoryId?: Prisma.StringFieldUpdateOperationsInput | string
+  referenceDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  originType?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  originId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
 export type FinancialTransactionCreateManyCategoryInput = {
   id?: string
   description: string
@@ -609,6 +707,7 @@ export type FinancialTransactionUpdateWithoutCategoryInput = {
   originId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  titheForService?: Prisma.ServiceUpdateOneWithoutTitheTransactionNestedInput
 }
 
 export type FinancialTransactionUncheckedUpdateWithoutCategoryInput = {
@@ -621,6 +720,7 @@ export type FinancialTransactionUncheckedUpdateWithoutCategoryInput = {
   originId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  titheForService?: Prisma.ServiceUncheckedUpdateOneWithoutTitheTransactionNestedInput
 }
 
 export type FinancialTransactionUncheckedUpdateManyWithoutCategoryInput = {
@@ -649,6 +749,7 @@ export type FinancialTransactionSelect<ExtArgs extends runtime.Types.Extensions.
   createdAt?: boolean
   updatedAt?: boolean
   category?: boolean | Prisma.FinancialCategoryDefaultArgs<ExtArgs>
+  titheForService?: boolean | Prisma.FinancialTransaction$titheForServiceArgs<ExtArgs>
 }, ExtArgs["result"]["financialTransaction"]>
 
 export type FinancialTransactionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -695,6 +796,7 @@ export type FinancialTransactionSelectScalar = {
 export type FinancialTransactionOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "description" | "value" | "type" | "categoryId" | "referenceDate" | "originType" | "originId" | "createdAt" | "updatedAt", ExtArgs["result"]["financialTransaction"]>
 export type FinancialTransactionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   category?: boolean | Prisma.FinancialCategoryDefaultArgs<ExtArgs>
+  titheForService?: boolean | Prisma.FinancialTransaction$titheForServiceArgs<ExtArgs>
 }
 export type FinancialTransactionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   category?: boolean | Prisma.FinancialCategoryDefaultArgs<ExtArgs>
@@ -707,6 +809,7 @@ export type $FinancialTransactionPayload<ExtArgs extends runtime.Types.Extension
   name: "FinancialTransaction"
   objects: {
     category: Prisma.$FinancialCategoryPayload<ExtArgs>
+    titheForService: Prisma.$ServicePayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1114,6 +1217,7 @@ readonly fields: FinancialTransactionFieldRefs;
 export interface Prisma__FinancialTransactionClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   category<T extends Prisma.FinancialCategoryDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinancialCategoryDefaultArgs<ExtArgs>>): Prisma.Prisma__FinancialCategoryClient<runtime.Types.Result.GetResult<Prisma.$FinancialCategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  titheForService<T extends Prisma.FinancialTransaction$titheForServiceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinancialTransaction$titheForServiceArgs<ExtArgs>>): Prisma.Prisma__ServiceClient<runtime.Types.Result.GetResult<Prisma.$ServicePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1551,6 +1655,25 @@ export type FinancialTransactionDeleteManyArgs<ExtArgs extends runtime.Types.Ext
    * Limit how many FinancialTransactions to delete.
    */
   limit?: number
+}
+
+/**
+ * FinancialTransaction.titheForService
+ */
+export type FinancialTransaction$titheForServiceArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Service
+   */
+  select?: Prisma.ServiceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Service
+   */
+  omit?: Prisma.ServiceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.ServiceInclude<ExtArgs> | null
+  where?: Prisma.ServiceWhereInput
 }
 
 /**
