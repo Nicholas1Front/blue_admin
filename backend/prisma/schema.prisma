@@ -1,3 +1,4 @@
+
 generator client {
   provider = "prisma-client"
   output   = "../src/generated/prisma"
@@ -25,6 +26,7 @@ model Client {
   updatedAt   DateTime        @updatedAt
   contacts    ClientContact[]
   equipaments Equipament[]
+  services    Service[]
 }
 
 model ClientContact {
@@ -33,6 +35,7 @@ model ClientContact {
   name        String
   email       String?
   phoneNumber String   @map("phone_number")
+
   client      Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
 }
 
@@ -46,7 +49,11 @@ model Equipament {
   additionalIdentification String?  @map("additional_identification")
   createdAt                DateTime @default(now())
   updatedAt                DateTime @updatedAt
-  client                   Client   @relation(fields: [clientId], references: [id], onDelete: Cascade)
+
+  client                   Client                @relation(fields: [clientId], references: [id], onDelete: Cascade)
+  serviceEquipaments       ServiceEquipament[]
+
+  @@map("equipaments")
 }
 
 model FinancialCategory {
@@ -63,22 +70,24 @@ model FinancialCategory {
 }
 
 model FinancialTransaction {
-  id            String                    @id @default(uuid())
+  id            String            @id @default(uuid())
   description   String
   value         Decimal
   type          String
-  categoryId    String                    @map("category_id")
-  referenceDate DateTime                  @map("reference_date")
-  originType    String?                   @map("origin_type")
-  originId      String?                   @map("origin_id")
-  createdAt     DateTime                  @default(now())
-  updatedAt     DateTime                  @updatedAt
+  categoryId    String            @map("category_id")
+  referenceDate DateTime          @map("reference_date")
+  originType    String?           @map("origin_type")
+  originId      String?           @map("origin_id")
+  createdAt     DateTime          @default(now())
+  updatedAt     DateTime          @updatedAt
 
-  category      FinancialCategory         @relation(fields: [categoryId], references: [id])
+  category      FinancialCategory @relation(fields: [categoryId], references: [id])
+  titheForService Service?        @relation("ServiceTitheTransaction")
 
   @@index([categoryId])
   @@index([referenceDate])
   @@index([type])
+  @@index([originType, originId])
   @@map("financial_transactions")
 }
 
@@ -87,7 +96,7 @@ model MonthlyExpense {
   name          String
   description   String?
   expectedValue Decimal  @map("expected_value")
-  dueDate       DateTime?      @map("due_date")
+  dueDate       DateTime? @map("due_date")
   notes         String?
   active        Boolean  @default(true)
   createdAt     DateTime @default(now())
@@ -95,4 +104,73 @@ model MonthlyExpense {
 
   @@index([active])
   @@map("monthly_expenses")
+}
+
+model Service {
+  id                String      @id @default(uuid())
+  clientId          String      @map("client_id")
+  entryDate         DateTime    @default(now()) @map("entry_date")
+  exitDate          DateTime?   @map("exit_date")
+  status            String
+  hoursWorked       Decimal?    @map("hours_worked")
+  costPerHour       Decimal?    @map("cost_per_hour")
+  titheStatus       String?     @default("pending") @map("tithe_status")
+  titheTransactionId String?    @unique @map("tithe_transaction_id")
+  createdAt         DateTime    @default(now()) @map("created_at")
+  updatedAt         DateTime    @updatedAt @map("updated_at")
+
+  client            Client                @relation(fields: [clientId], references: [id], onDelete: Restrict)
+  history           ServiceHistory[]
+  activities        ServiceActivity[]
+  equipaments       ServiceEquipament[]
+  titheTransaction  FinancialTransaction?  @relation("ServiceTitheTransaction", fields: [titheTransactionId], references: [id], onDelete: Restrict)
+
+  @@index([clientId])
+  @@index([status])
+  @@index([entryDate])
+  @@map("services")
+}
+
+model ServiceHistory {
+  id          String   @id @default(uuid())
+  serviceId   String   @map("service_id")
+  eventType   String   @map("event_type")
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  service     Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@index([serviceId, createdAt])
+  @@map("services_history")
+}
+
+model ServiceActivity {
+  id          String   @id @default(uuid())
+  serviceId   String   @map("service_id")
+  title       String
+  description String?
+  startAt     DateTime? @map("start_at")
+  endAt       DateTime? @map("end_at")
+  status      String   @default("concluded")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  service     Service  @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+
+  @@index([serviceId])
+  @@map("services_activities")
+}
+
+model ServiceEquipament {
+  id           String   @id @default(uuid())
+  serviceId    String   @map("service_id")
+  equipamentId String   @map("equipament_id")
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  service      Service   @relation(fields: [serviceId], references: [id], onDelete: Cascade)
+  equipament   Equipament @relation(fields: [equipamentId], references: [id], onDelete: Cascade)
+
+  @@unique([serviceId, equipamentId])
+  @@index([equipamentId])
+  @@map("services_equipaments")
 }
