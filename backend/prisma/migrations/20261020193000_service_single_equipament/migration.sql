@@ -1,9 +1,6 @@
 -- Each service now references exactly one equipment.
--- Preserve existing links when possible and fail safely if the old many-to-many
--- data cannot be represented without losing information.
-
-ALTER TABLE "services"
-ADD COLUMN "equipament_id" TEXT;
+-- Validate existing links before changing the schema, avoiding data loss when
+-- a service has zero or multiple linked equipment records.
 
 DO $$
 BEGIN
@@ -25,6 +22,9 @@ BEGIN
     RAISE EXCEPTION 'Cannot migrate services: at least one existing service has no linked equipment.';
   END IF;
 END $$;
+
+ALTER TABLE "services"
+ADD COLUMN "equipament_id" TEXT;
 
 UPDATE "services" AS s
 SET "equipament_id" = se."equipament_id"
