@@ -171,7 +171,27 @@ class ServicesService{
             throw new AppError('Internal server error', 500, 'INTERNAL_SERVER_ERROR')
         }
 
-        return rawServices
+        if(cleanedFilters.showHistory === false){
+            return rawServices
+        }
+
+        if(cleanedFilters.showHistory === true){
+            let servicesIds = new Array()
+
+            rawServices.forEach(service =>{
+                if(service.id){
+                    servicesIds.push(service.id)
+                }
+            })
+
+            const rawHistories = await servicesRepository.findHistoriesByServiceIds(servicesIds);
+
+            if(!rawHistories){
+                throw new AppError('Internal server error', 500, 'INTERNAL_SERVER_ERROR')
+            }
+
+            return rawServices
+        }
 
     }
 

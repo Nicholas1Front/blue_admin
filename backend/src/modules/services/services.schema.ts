@@ -39,7 +39,8 @@ export const findServicesByFilters = z.object({
     hoursWorked : z.coerce.number().nullable().optional(),
     costPerHour : z.coerce.boolean().nullable().optional(),
     titheTransactionId : z.string().min(1).nullable().optional(),
-    titheStatus : z.string().min(1).optional().nullable()
+    titheStatus : z.string().min(1).optional().nullable(),
+    showHistory : z.coerce.boolean().default(false)
 })
 
 //DTOs
