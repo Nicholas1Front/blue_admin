@@ -39,6 +39,7 @@ export type ServiceSumAggregateOutputType = {
 export type ServiceMinAggregateOutputType = {
   id: string | null
   clientId: string | null
+  equipamentId: string | null
   entryDate: Date | null
   exitDate: Date | null
   status: string | null
@@ -53,6 +54,7 @@ export type ServiceMinAggregateOutputType = {
 export type ServiceMaxAggregateOutputType = {
   id: string | null
   clientId: string | null
+  equipamentId: string | null
   entryDate: Date | null
   exitDate: Date | null
   status: string | null
@@ -67,6 +69,7 @@ export type ServiceMaxAggregateOutputType = {
 export type ServiceCountAggregateOutputType = {
   id: number
   clientId: number
+  equipamentId: number
   entryDate: number
   exitDate: number
   status: number
@@ -93,6 +96,7 @@ export type ServiceSumAggregateInputType = {
 export type ServiceMinAggregateInputType = {
   id?: true
   clientId?: true
+  equipamentId?: true
   entryDate?: true
   exitDate?: true
   status?: true
@@ -107,6 +111,7 @@ export type ServiceMinAggregateInputType = {
 export type ServiceMaxAggregateInputType = {
   id?: true
   clientId?: true
+  equipamentId?: true
   entryDate?: true
   exitDate?: true
   status?: true
@@ -121,6 +126,7 @@ export type ServiceMaxAggregateInputType = {
 export type ServiceCountAggregateInputType = {
   id?: true
   clientId?: true
+  equipamentId?: true
   entryDate?: true
   exitDate?: true
   status?: true
@@ -222,6 +228,7 @@ export type ServiceGroupByArgs<ExtArgs extends runtime.Types.Extensions.Internal
 export type ServiceGroupByOutputType = {
   id: string
   clientId: string
+  equipamentId: string
   entryDate: Date
   exitDate: Date | null
   status: string
@@ -259,6 +266,7 @@ export type ServiceWhereInput = {
   NOT?: Prisma.ServiceWhereInput | Prisma.ServiceWhereInput[]
   id?: Prisma.StringFilter<"Service"> | string
   clientId?: Prisma.StringFilter<"Service"> | string
+  equipamentId?: Prisma.StringFilter<"Service"> | string
   entryDate?: Prisma.DateTimeFilter<"Service"> | Date | string
   exitDate?: Prisma.DateTimeNullableFilter<"Service"> | Date | string | null
   status?: Prisma.StringFilter<"Service"> | string
@@ -269,15 +277,16 @@ export type ServiceWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Service"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Service"> | Date | string
   client?: Prisma.XOR<Prisma.ClientScalarRelationFilter, Prisma.ClientWhereInput>
+  equipament?: Prisma.XOR<Prisma.EquipamentScalarRelationFilter, Prisma.EquipamentWhereInput>
   history?: Prisma.ServiceHistoryListRelationFilter
   activities?: Prisma.ServiceActivityListRelationFilter
-  equipaments?: Prisma.ServiceEquipamentListRelationFilter
   titheTransaction?: Prisma.XOR<Prisma.FinancialTransactionNullableScalarRelationFilter, Prisma.FinancialTransactionWhereInput> | null
 }
 
 export type ServiceOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   clientId?: Prisma.SortOrder
+  equipamentId?: Prisma.SortOrder
   entryDate?: Prisma.SortOrder
   exitDate?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -288,9 +297,9 @@ export type ServiceOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   client?: Prisma.ClientOrderByWithRelationInput
+  equipament?: Prisma.EquipamentOrderByWithRelationInput
   history?: Prisma.ServiceHistoryOrderByRelationAggregateInput
   activities?: Prisma.ServiceActivityOrderByRelationAggregateInput
-  equipaments?: Prisma.ServiceEquipamentOrderByRelationAggregateInput
   titheTransaction?: Prisma.FinancialTransactionOrderByWithRelationInput
 }
 
@@ -301,6 +310,7 @@ export type ServiceWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.ServiceWhereInput[]
   NOT?: Prisma.ServiceWhereInput | Prisma.ServiceWhereInput[]
   clientId?: Prisma.StringFilter<"Service"> | string
+  equipamentId?: Prisma.StringFilter<"Service"> | string
   entryDate?: Prisma.DateTimeFilter<"Service"> | Date | string
   exitDate?: Prisma.DateTimeNullableFilter<"Service"> | Date | string | null
   status?: Prisma.StringFilter<"Service"> | string
@@ -310,15 +320,16 @@ export type ServiceWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"Service"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Service"> | Date | string
   client?: Prisma.XOR<Prisma.ClientScalarRelationFilter, Prisma.ClientWhereInput>
+  equipament?: Prisma.XOR<Prisma.EquipamentScalarRelationFilter, Prisma.EquipamentWhereInput>
   history?: Prisma.ServiceHistoryListRelationFilter
   activities?: Prisma.ServiceActivityListRelationFilter
-  equipaments?: Prisma.ServiceEquipamentListRelationFilter
   titheTransaction?: Prisma.XOR<Prisma.FinancialTransactionNullableScalarRelationFilter, Prisma.FinancialTransactionWhereInput> | null
 }, "id" | "titheTransactionId">
 
 export type ServiceOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   clientId?: Prisma.SortOrder
+  equipamentId?: Prisma.SortOrder
   entryDate?: Prisma.SortOrder
   exitDate?: Prisma.SortOrderInput | Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -341,6 +352,7 @@ export type ServiceScalarWhereWithAggregatesInput = {
   NOT?: Prisma.ServiceScalarWhereWithAggregatesInput | Prisma.ServiceScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Service"> | string
   clientId?: Prisma.StringWithAggregatesFilter<"Service"> | string
+  equipamentId?: Prisma.StringWithAggregatesFilter<"Service"> | string
   entryDate?: Prisma.DateTimeWithAggregatesFilter<"Service"> | Date | string
   exitDate?: Prisma.DateTimeNullableWithAggregatesFilter<"Service"> | Date | string | null
   status?: Prisma.StringWithAggregatesFilter<"Service"> | string
@@ -363,15 +375,16 @@ export type ServiceCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   client: Prisma.ClientCreateNestedOneWithoutServicesInput
+  equipament: Prisma.EquipamentCreateNestedOneWithoutServiceInput
   history?: Prisma.ServiceHistoryCreateNestedManyWithoutServiceInput
   activities?: Prisma.ServiceActivityCreateNestedManyWithoutServiceInput
-  equipaments?: Prisma.ServiceEquipamentCreateNestedManyWithoutServiceInput
   titheTransaction?: Prisma.FinancialTransactionCreateNestedOneWithoutTitheForServiceInput
 }
 
 export type ServiceUncheckedCreateInput = {
   id?: string
   clientId: string
+  equipamentId: string
   entryDate?: Date | string
   exitDate?: Date | string | null
   status: string
@@ -383,7 +396,6 @@ export type ServiceUncheckedCreateInput = {
   updatedAt?: Date | string
   history?: Prisma.ServiceHistoryUncheckedCreateNestedManyWithoutServiceInput
   activities?: Prisma.ServiceActivityUncheckedCreateNestedManyWithoutServiceInput
-  equipaments?: Prisma.ServiceEquipamentUncheckedCreateNestedManyWithoutServiceInput
 }
 
 export type ServiceUpdateInput = {
@@ -397,15 +409,16 @@ export type ServiceUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   client?: Prisma.ClientUpdateOneRequiredWithoutServicesNestedInput
+  equipament?: Prisma.EquipamentUpdateOneRequiredWithoutServiceNestedInput
   history?: Prisma.ServiceHistoryUpdateManyWithoutServiceNestedInput
   activities?: Prisma.ServiceActivityUpdateManyWithoutServiceNestedInput
-  equipaments?: Prisma.ServiceEquipamentUpdateManyWithoutServiceNestedInput
   titheTransaction?: Prisma.FinancialTransactionUpdateOneWithoutTitheForServiceNestedInput
 }
 
 export type ServiceUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   clientId?: Prisma.StringFieldUpdateOperationsInput | string
+  equipamentId?: Prisma.StringFieldUpdateOperationsInput | string
   entryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   exitDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -417,12 +430,12 @@ export type ServiceUncheckedUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   history?: Prisma.ServiceHistoryUncheckedUpdateManyWithoutServiceNestedInput
   activities?: Prisma.ServiceActivityUncheckedUpdateManyWithoutServiceNestedInput
-  equipaments?: Prisma.ServiceEquipamentUncheckedUpdateManyWithoutServiceNestedInput
 }
 
 export type ServiceCreateManyInput = {
   id?: string
   clientId: string
+  equipamentId: string
   entryDate?: Date | string
   exitDate?: Date | string | null
   status: string
@@ -449,6 +462,7 @@ export type ServiceUpdateManyMutationInput = {
 export type ServiceUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   clientId?: Prisma.StringFieldUpdateOperationsInput | string
+  equipamentId?: Prisma.StringFieldUpdateOperationsInput | string
   entryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   exitDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -478,6 +492,7 @@ export type ServiceNullableScalarRelationFilter = {
 export type ServiceCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   clientId?: Prisma.SortOrder
+  equipamentId?: Prisma.SortOrder
   entryDate?: Prisma.SortOrder
   exitDate?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -497,6 +512,7 @@ export type ServiceAvgOrderByAggregateInput = {
 export type ServiceMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   clientId?: Prisma.SortOrder
+  equipamentId?: Prisma.SortOrder
   entryDate?: Prisma.SortOrder
   exitDate?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -511,6 +527,7 @@ export type ServiceMaxOrderByAggregateInput = {
 export type ServiceMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   clientId?: Prisma.SortOrder
+  equipamentId?: Prisma.SortOrder
   entryDate?: Prisma.SortOrder
   exitDate?: Prisma.SortOrder
   status?: Prisma.SortOrder
@@ -571,6 +588,48 @@ export type ServiceUncheckedUpdateManyWithoutClientNestedInput = {
   connect?: Prisma.ServiceWhereUniqueInput | Prisma.ServiceWhereUniqueInput[]
   update?: Prisma.ServiceUpdateWithWhereUniqueWithoutClientInput | Prisma.ServiceUpdateWithWhereUniqueWithoutClientInput[]
   updateMany?: Prisma.ServiceUpdateManyWithWhereWithoutClientInput | Prisma.ServiceUpdateManyWithWhereWithoutClientInput[]
+  deleteMany?: Prisma.ServiceScalarWhereInput | Prisma.ServiceScalarWhereInput[]
+}
+
+export type ServiceCreateNestedManyWithoutEquipamentInput = {
+  create?: Prisma.XOR<Prisma.ServiceCreateWithoutEquipamentInput, Prisma.ServiceUncheckedCreateWithoutEquipamentInput> | Prisma.ServiceCreateWithoutEquipamentInput[] | Prisma.ServiceUncheckedCreateWithoutEquipamentInput[]
+  connectOrCreate?: Prisma.ServiceCreateOrConnectWithoutEquipamentInput | Prisma.ServiceCreateOrConnectWithoutEquipamentInput[]
+  createMany?: Prisma.ServiceCreateManyEquipamentInputEnvelope
+  connect?: Prisma.ServiceWhereUniqueInput | Prisma.ServiceWhereUniqueInput[]
+}
+
+export type ServiceUncheckedCreateNestedManyWithoutEquipamentInput = {
+  create?: Prisma.XOR<Prisma.ServiceCreateWithoutEquipamentInput, Prisma.ServiceUncheckedCreateWithoutEquipamentInput> | Prisma.ServiceCreateWithoutEquipamentInput[] | Prisma.ServiceUncheckedCreateWithoutEquipamentInput[]
+  connectOrCreate?: Prisma.ServiceCreateOrConnectWithoutEquipamentInput | Prisma.ServiceCreateOrConnectWithoutEquipamentInput[]
+  createMany?: Prisma.ServiceCreateManyEquipamentInputEnvelope
+  connect?: Prisma.ServiceWhereUniqueInput | Prisma.ServiceWhereUniqueInput[]
+}
+
+export type ServiceUpdateManyWithoutEquipamentNestedInput = {
+  create?: Prisma.XOR<Prisma.ServiceCreateWithoutEquipamentInput, Prisma.ServiceUncheckedCreateWithoutEquipamentInput> | Prisma.ServiceCreateWithoutEquipamentInput[] | Prisma.ServiceUncheckedCreateWithoutEquipamentInput[]
+  connectOrCreate?: Prisma.ServiceCreateOrConnectWithoutEquipamentInput | Prisma.ServiceCreateOrConnectWithoutEquipamentInput[]
+  upsert?: Prisma.ServiceUpsertWithWhereUniqueWithoutEquipamentInput | Prisma.ServiceUpsertWithWhereUniqueWithoutEquipamentInput[]
+  createMany?: Prisma.ServiceCreateManyEquipamentInputEnvelope
+  set?: Prisma.ServiceWhereUniqueInput | Prisma.ServiceWhereUniqueInput[]
+  disconnect?: Prisma.ServiceWhereUniqueInput | Prisma.ServiceWhereUniqueInput[]
+  delete?: Prisma.ServiceWhereUniqueInput | Prisma.ServiceWhereUniqueInput[]
+  connect?: Prisma.ServiceWhereUniqueInput | Prisma.ServiceWhereUniqueInput[]
+  update?: Prisma.ServiceUpdateWithWhereUniqueWithoutEquipamentInput | Prisma.ServiceUpdateWithWhereUniqueWithoutEquipamentInput[]
+  updateMany?: Prisma.ServiceUpdateManyWithWhereWithoutEquipamentInput | Prisma.ServiceUpdateManyWithWhereWithoutEquipamentInput[]
+  deleteMany?: Prisma.ServiceScalarWhereInput | Prisma.ServiceScalarWhereInput[]
+}
+
+export type ServiceUncheckedUpdateManyWithoutEquipamentNestedInput = {
+  create?: Prisma.XOR<Prisma.ServiceCreateWithoutEquipamentInput, Prisma.ServiceUncheckedCreateWithoutEquipamentInput> | Prisma.ServiceCreateWithoutEquipamentInput[] | Prisma.ServiceUncheckedCreateWithoutEquipamentInput[]
+  connectOrCreate?: Prisma.ServiceCreateOrConnectWithoutEquipamentInput | Prisma.ServiceCreateOrConnectWithoutEquipamentInput[]
+  upsert?: Prisma.ServiceUpsertWithWhereUniqueWithoutEquipamentInput | Prisma.ServiceUpsertWithWhereUniqueWithoutEquipamentInput[]
+  createMany?: Prisma.ServiceCreateManyEquipamentInputEnvelope
+  set?: Prisma.ServiceWhereUniqueInput | Prisma.ServiceWhereUniqueInput[]
+  disconnect?: Prisma.ServiceWhereUniqueInput | Prisma.ServiceWhereUniqueInput[]
+  delete?: Prisma.ServiceWhereUniqueInput | Prisma.ServiceWhereUniqueInput[]
+  connect?: Prisma.ServiceWhereUniqueInput | Prisma.ServiceWhereUniqueInput[]
+  update?: Prisma.ServiceUpdateWithWhereUniqueWithoutEquipamentInput | Prisma.ServiceUpdateWithWhereUniqueWithoutEquipamentInput[]
+  updateMany?: Prisma.ServiceUpdateManyWithWhereWithoutEquipamentInput | Prisma.ServiceUpdateManyWithWhereWithoutEquipamentInput[]
   deleteMany?: Prisma.ServiceScalarWhereInput | Prisma.ServiceScalarWhereInput[]
 }
 
@@ -642,20 +701,6 @@ export type ServiceUpdateOneRequiredWithoutActivitiesNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.ServiceUpdateToOneWithWhereWithoutActivitiesInput, Prisma.ServiceUpdateWithoutActivitiesInput>, Prisma.ServiceUncheckedUpdateWithoutActivitiesInput>
 }
 
-export type ServiceCreateNestedOneWithoutEquipamentsInput = {
-  create?: Prisma.XOR<Prisma.ServiceCreateWithoutEquipamentsInput, Prisma.ServiceUncheckedCreateWithoutEquipamentsInput>
-  connectOrCreate?: Prisma.ServiceCreateOrConnectWithoutEquipamentsInput
-  connect?: Prisma.ServiceWhereUniqueInput
-}
-
-export type ServiceUpdateOneRequiredWithoutEquipamentsNestedInput = {
-  create?: Prisma.XOR<Prisma.ServiceCreateWithoutEquipamentsInput, Prisma.ServiceUncheckedCreateWithoutEquipamentsInput>
-  connectOrCreate?: Prisma.ServiceCreateOrConnectWithoutEquipamentsInput
-  upsert?: Prisma.ServiceUpsertWithoutEquipamentsInput
-  connect?: Prisma.ServiceWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.ServiceUpdateToOneWithWhereWithoutEquipamentsInput, Prisma.ServiceUpdateWithoutEquipamentsInput>, Prisma.ServiceUncheckedUpdateWithoutEquipamentsInput>
-}
-
 export type ServiceCreateWithoutClientInput = {
   id?: string
   entryDate?: Date | string
@@ -666,14 +711,15 @@ export type ServiceCreateWithoutClientInput = {
   titheStatus?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  equipament: Prisma.EquipamentCreateNestedOneWithoutServiceInput
   history?: Prisma.ServiceHistoryCreateNestedManyWithoutServiceInput
   activities?: Prisma.ServiceActivityCreateNestedManyWithoutServiceInput
-  equipaments?: Prisma.ServiceEquipamentCreateNestedManyWithoutServiceInput
   titheTransaction?: Prisma.FinancialTransactionCreateNestedOneWithoutTitheForServiceInput
 }
 
 export type ServiceUncheckedCreateWithoutClientInput = {
   id?: string
+  equipamentId: string
   entryDate?: Date | string
   exitDate?: Date | string | null
   status: string
@@ -685,7 +731,6 @@ export type ServiceUncheckedCreateWithoutClientInput = {
   updatedAt?: Date | string
   history?: Prisma.ServiceHistoryUncheckedCreateNestedManyWithoutServiceInput
   activities?: Prisma.ServiceActivityUncheckedCreateNestedManyWithoutServiceInput
-  equipaments?: Prisma.ServiceEquipamentUncheckedCreateNestedManyWithoutServiceInput
 }
 
 export type ServiceCreateOrConnectWithoutClientInput = {
@@ -720,6 +765,7 @@ export type ServiceScalarWhereInput = {
   NOT?: Prisma.ServiceScalarWhereInput | Prisma.ServiceScalarWhereInput[]
   id?: Prisma.StringFilter<"Service"> | string
   clientId?: Prisma.StringFilter<"Service"> | string
+  equipamentId?: Prisma.StringFilter<"Service"> | string
   entryDate?: Prisma.DateTimeFilter<"Service"> | Date | string
   exitDate?: Prisma.DateTimeNullableFilter<"Service"> | Date | string | null
   status?: Prisma.StringFilter<"Service"> | string
@@ -729,6 +775,64 @@ export type ServiceScalarWhereInput = {
   titheTransactionId?: Prisma.StringNullableFilter<"Service"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Service"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Service"> | Date | string
+}
+
+export type ServiceCreateWithoutEquipamentInput = {
+  id?: string
+  entryDate?: Date | string
+  exitDate?: Date | string | null
+  status: string
+  hoursWorked?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  costPerHour?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  titheStatus?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  client: Prisma.ClientCreateNestedOneWithoutServicesInput
+  history?: Prisma.ServiceHistoryCreateNestedManyWithoutServiceInput
+  activities?: Prisma.ServiceActivityCreateNestedManyWithoutServiceInput
+  titheTransaction?: Prisma.FinancialTransactionCreateNestedOneWithoutTitheForServiceInput
+}
+
+export type ServiceUncheckedCreateWithoutEquipamentInput = {
+  id?: string
+  clientId: string
+  entryDate?: Date | string
+  exitDate?: Date | string | null
+  status: string
+  hoursWorked?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  costPerHour?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  titheStatus?: string | null
+  titheTransactionId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  history?: Prisma.ServiceHistoryUncheckedCreateNestedManyWithoutServiceInput
+  activities?: Prisma.ServiceActivityUncheckedCreateNestedManyWithoutServiceInput
+}
+
+export type ServiceCreateOrConnectWithoutEquipamentInput = {
+  where: Prisma.ServiceWhereUniqueInput
+  create: Prisma.XOR<Prisma.ServiceCreateWithoutEquipamentInput, Prisma.ServiceUncheckedCreateWithoutEquipamentInput>
+}
+
+export type ServiceCreateManyEquipamentInputEnvelope = {
+  data: Prisma.ServiceCreateManyEquipamentInput | Prisma.ServiceCreateManyEquipamentInput[]
+  skipDuplicates?: boolean
+}
+
+export type ServiceUpsertWithWhereUniqueWithoutEquipamentInput = {
+  where: Prisma.ServiceWhereUniqueInput
+  update: Prisma.XOR<Prisma.ServiceUpdateWithoutEquipamentInput, Prisma.ServiceUncheckedUpdateWithoutEquipamentInput>
+  create: Prisma.XOR<Prisma.ServiceCreateWithoutEquipamentInput, Prisma.ServiceUncheckedCreateWithoutEquipamentInput>
+}
+
+export type ServiceUpdateWithWhereUniqueWithoutEquipamentInput = {
+  where: Prisma.ServiceWhereUniqueInput
+  data: Prisma.XOR<Prisma.ServiceUpdateWithoutEquipamentInput, Prisma.ServiceUncheckedUpdateWithoutEquipamentInput>
+}
+
+export type ServiceUpdateManyWithWhereWithoutEquipamentInput = {
+  where: Prisma.ServiceScalarWhereInput
+  data: Prisma.XOR<Prisma.ServiceUpdateManyMutationInput, Prisma.ServiceUncheckedUpdateManyWithoutEquipamentInput>
 }
 
 export type ServiceCreateWithoutTitheTransactionInput = {
@@ -742,14 +846,15 @@ export type ServiceCreateWithoutTitheTransactionInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   client: Prisma.ClientCreateNestedOneWithoutServicesInput
+  equipament: Prisma.EquipamentCreateNestedOneWithoutServiceInput
   history?: Prisma.ServiceHistoryCreateNestedManyWithoutServiceInput
   activities?: Prisma.ServiceActivityCreateNestedManyWithoutServiceInput
-  equipaments?: Prisma.ServiceEquipamentCreateNestedManyWithoutServiceInput
 }
 
 export type ServiceUncheckedCreateWithoutTitheTransactionInput = {
   id?: string
   clientId: string
+  equipamentId: string
   entryDate?: Date | string
   exitDate?: Date | string | null
   status: string
@@ -760,7 +865,6 @@ export type ServiceUncheckedCreateWithoutTitheTransactionInput = {
   updatedAt?: Date | string
   history?: Prisma.ServiceHistoryUncheckedCreateNestedManyWithoutServiceInput
   activities?: Prisma.ServiceActivityUncheckedCreateNestedManyWithoutServiceInput
-  equipaments?: Prisma.ServiceEquipamentUncheckedCreateNestedManyWithoutServiceInput
 }
 
 export type ServiceCreateOrConnectWithoutTitheTransactionInput = {
@@ -790,14 +894,15 @@ export type ServiceUpdateWithoutTitheTransactionInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   client?: Prisma.ClientUpdateOneRequiredWithoutServicesNestedInput
+  equipament?: Prisma.EquipamentUpdateOneRequiredWithoutServiceNestedInput
   history?: Prisma.ServiceHistoryUpdateManyWithoutServiceNestedInput
   activities?: Prisma.ServiceActivityUpdateManyWithoutServiceNestedInput
-  equipaments?: Prisma.ServiceEquipamentUpdateManyWithoutServiceNestedInput
 }
 
 export type ServiceUncheckedUpdateWithoutTitheTransactionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   clientId?: Prisma.StringFieldUpdateOperationsInput | string
+  equipamentId?: Prisma.StringFieldUpdateOperationsInput | string
   entryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   exitDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -808,7 +913,6 @@ export type ServiceUncheckedUpdateWithoutTitheTransactionInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   history?: Prisma.ServiceHistoryUncheckedUpdateManyWithoutServiceNestedInput
   activities?: Prisma.ServiceActivityUncheckedUpdateManyWithoutServiceNestedInput
-  equipaments?: Prisma.ServiceEquipamentUncheckedUpdateManyWithoutServiceNestedInput
 }
 
 export type ServiceCreateWithoutHistoryInput = {
@@ -822,14 +926,15 @@ export type ServiceCreateWithoutHistoryInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   client: Prisma.ClientCreateNestedOneWithoutServicesInput
+  equipament: Prisma.EquipamentCreateNestedOneWithoutServiceInput
   activities?: Prisma.ServiceActivityCreateNestedManyWithoutServiceInput
-  equipaments?: Prisma.ServiceEquipamentCreateNestedManyWithoutServiceInput
   titheTransaction?: Prisma.FinancialTransactionCreateNestedOneWithoutTitheForServiceInput
 }
 
 export type ServiceUncheckedCreateWithoutHistoryInput = {
   id?: string
   clientId: string
+  equipamentId: string
   entryDate?: Date | string
   exitDate?: Date | string | null
   status: string
@@ -840,7 +945,6 @@ export type ServiceUncheckedCreateWithoutHistoryInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   activities?: Prisma.ServiceActivityUncheckedCreateNestedManyWithoutServiceInput
-  equipaments?: Prisma.ServiceEquipamentUncheckedCreateNestedManyWithoutServiceInput
 }
 
 export type ServiceCreateOrConnectWithoutHistoryInput = {
@@ -870,14 +974,15 @@ export type ServiceUpdateWithoutHistoryInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   client?: Prisma.ClientUpdateOneRequiredWithoutServicesNestedInput
+  equipament?: Prisma.EquipamentUpdateOneRequiredWithoutServiceNestedInput
   activities?: Prisma.ServiceActivityUpdateManyWithoutServiceNestedInput
-  equipaments?: Prisma.ServiceEquipamentUpdateManyWithoutServiceNestedInput
   titheTransaction?: Prisma.FinancialTransactionUpdateOneWithoutTitheForServiceNestedInput
 }
 
 export type ServiceUncheckedUpdateWithoutHistoryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   clientId?: Prisma.StringFieldUpdateOperationsInput | string
+  equipamentId?: Prisma.StringFieldUpdateOperationsInput | string
   entryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   exitDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -888,7 +993,6 @@ export type ServiceUncheckedUpdateWithoutHistoryInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   activities?: Prisma.ServiceActivityUncheckedUpdateManyWithoutServiceNestedInput
-  equipaments?: Prisma.ServiceEquipamentUncheckedUpdateManyWithoutServiceNestedInput
 }
 
 export type ServiceCreateWithoutActivitiesInput = {
@@ -902,14 +1006,15 @@ export type ServiceCreateWithoutActivitiesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   client: Prisma.ClientCreateNestedOneWithoutServicesInput
+  equipament: Prisma.EquipamentCreateNestedOneWithoutServiceInput
   history?: Prisma.ServiceHistoryCreateNestedManyWithoutServiceInput
-  equipaments?: Prisma.ServiceEquipamentCreateNestedManyWithoutServiceInput
   titheTransaction?: Prisma.FinancialTransactionCreateNestedOneWithoutTitheForServiceInput
 }
 
 export type ServiceUncheckedCreateWithoutActivitiesInput = {
   id?: string
   clientId: string
+  equipamentId: string
   entryDate?: Date | string
   exitDate?: Date | string | null
   status: string
@@ -920,7 +1025,6 @@ export type ServiceUncheckedCreateWithoutActivitiesInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   history?: Prisma.ServiceHistoryUncheckedCreateNestedManyWithoutServiceInput
-  equipaments?: Prisma.ServiceEquipamentUncheckedCreateNestedManyWithoutServiceInput
 }
 
 export type ServiceCreateOrConnectWithoutActivitiesInput = {
@@ -950,14 +1054,15 @@ export type ServiceUpdateWithoutActivitiesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   client?: Prisma.ClientUpdateOneRequiredWithoutServicesNestedInput
+  equipament?: Prisma.EquipamentUpdateOneRequiredWithoutServiceNestedInput
   history?: Prisma.ServiceHistoryUpdateManyWithoutServiceNestedInput
-  equipaments?: Prisma.ServiceEquipamentUpdateManyWithoutServiceNestedInput
   titheTransaction?: Prisma.FinancialTransactionUpdateOneWithoutTitheForServiceNestedInput
 }
 
 export type ServiceUncheckedUpdateWithoutActivitiesInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   clientId?: Prisma.StringFieldUpdateOperationsInput | string
+  equipamentId?: Prisma.StringFieldUpdateOperationsInput | string
   entryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   exitDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -968,91 +1073,11 @@ export type ServiceUncheckedUpdateWithoutActivitiesInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   history?: Prisma.ServiceHistoryUncheckedUpdateManyWithoutServiceNestedInput
-  equipaments?: Prisma.ServiceEquipamentUncheckedUpdateManyWithoutServiceNestedInput
-}
-
-export type ServiceCreateWithoutEquipamentsInput = {
-  id?: string
-  entryDate?: Date | string
-  exitDate?: Date | string | null
-  status: string
-  hoursWorked?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  costPerHour?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  titheStatus?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  client: Prisma.ClientCreateNestedOneWithoutServicesInput
-  history?: Prisma.ServiceHistoryCreateNestedManyWithoutServiceInput
-  activities?: Prisma.ServiceActivityCreateNestedManyWithoutServiceInput
-  titheTransaction?: Prisma.FinancialTransactionCreateNestedOneWithoutTitheForServiceInput
-}
-
-export type ServiceUncheckedCreateWithoutEquipamentsInput = {
-  id?: string
-  clientId: string
-  entryDate?: Date | string
-  exitDate?: Date | string | null
-  status: string
-  hoursWorked?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  costPerHour?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  titheStatus?: string | null
-  titheTransactionId?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  history?: Prisma.ServiceHistoryUncheckedCreateNestedManyWithoutServiceInput
-  activities?: Prisma.ServiceActivityUncheckedCreateNestedManyWithoutServiceInput
-}
-
-export type ServiceCreateOrConnectWithoutEquipamentsInput = {
-  where: Prisma.ServiceWhereUniqueInput
-  create: Prisma.XOR<Prisma.ServiceCreateWithoutEquipamentsInput, Prisma.ServiceUncheckedCreateWithoutEquipamentsInput>
-}
-
-export type ServiceUpsertWithoutEquipamentsInput = {
-  update: Prisma.XOR<Prisma.ServiceUpdateWithoutEquipamentsInput, Prisma.ServiceUncheckedUpdateWithoutEquipamentsInput>
-  create: Prisma.XOR<Prisma.ServiceCreateWithoutEquipamentsInput, Prisma.ServiceUncheckedCreateWithoutEquipamentsInput>
-  where?: Prisma.ServiceWhereInput
-}
-
-export type ServiceUpdateToOneWithWhereWithoutEquipamentsInput = {
-  where?: Prisma.ServiceWhereInput
-  data: Prisma.XOR<Prisma.ServiceUpdateWithoutEquipamentsInput, Prisma.ServiceUncheckedUpdateWithoutEquipamentsInput>
-}
-
-export type ServiceUpdateWithoutEquipamentsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  entryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  exitDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  hoursWorked?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  costPerHour?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  titheStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  client?: Prisma.ClientUpdateOneRequiredWithoutServicesNestedInput
-  history?: Prisma.ServiceHistoryUpdateManyWithoutServiceNestedInput
-  activities?: Prisma.ServiceActivityUpdateManyWithoutServiceNestedInput
-  titheTransaction?: Prisma.FinancialTransactionUpdateOneWithoutTitheForServiceNestedInput
-}
-
-export type ServiceUncheckedUpdateWithoutEquipamentsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  clientId?: Prisma.StringFieldUpdateOperationsInput | string
-  entryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  exitDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  hoursWorked?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  costPerHour?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  titheStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  titheTransactionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  history?: Prisma.ServiceHistoryUncheckedUpdateManyWithoutServiceNestedInput
-  activities?: Prisma.ServiceActivityUncheckedUpdateManyWithoutServiceNestedInput
 }
 
 export type ServiceCreateManyClientInput = {
   id?: string
+  equipamentId: string
   entryDate?: Date | string
   exitDate?: Date | string | null
   status: string
@@ -1074,14 +1099,15 @@ export type ServiceUpdateWithoutClientInput = {
   titheStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  equipament?: Prisma.EquipamentUpdateOneRequiredWithoutServiceNestedInput
   history?: Prisma.ServiceHistoryUpdateManyWithoutServiceNestedInput
   activities?: Prisma.ServiceActivityUpdateManyWithoutServiceNestedInput
-  equipaments?: Prisma.ServiceEquipamentUpdateManyWithoutServiceNestedInput
   titheTransaction?: Prisma.FinancialTransactionUpdateOneWithoutTitheForServiceNestedInput
 }
 
 export type ServiceUncheckedUpdateWithoutClientInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  equipamentId?: Prisma.StringFieldUpdateOperationsInput | string
   entryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   exitDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1093,11 +1119,71 @@ export type ServiceUncheckedUpdateWithoutClientInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   history?: Prisma.ServiceHistoryUncheckedUpdateManyWithoutServiceNestedInput
   activities?: Prisma.ServiceActivityUncheckedUpdateManyWithoutServiceNestedInput
-  equipaments?: Prisma.ServiceEquipamentUncheckedUpdateManyWithoutServiceNestedInput
 }
 
 export type ServiceUncheckedUpdateManyWithoutClientInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
+  equipamentId?: Prisma.StringFieldUpdateOperationsInput | string
+  entryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  exitDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  hoursWorked?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  costPerHour?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  titheStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  titheTransactionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type ServiceCreateManyEquipamentInput = {
+  id?: string
+  clientId: string
+  entryDate?: Date | string
+  exitDate?: Date | string | null
+  status: string
+  hoursWorked?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  costPerHour?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  titheStatus?: string | null
+  titheTransactionId?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+}
+
+export type ServiceUpdateWithoutEquipamentInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  entryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  exitDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  hoursWorked?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  costPerHour?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  titheStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  client?: Prisma.ClientUpdateOneRequiredWithoutServicesNestedInput
+  history?: Prisma.ServiceHistoryUpdateManyWithoutServiceNestedInput
+  activities?: Prisma.ServiceActivityUpdateManyWithoutServiceNestedInput
+  titheTransaction?: Prisma.FinancialTransactionUpdateOneWithoutTitheForServiceNestedInput
+}
+
+export type ServiceUncheckedUpdateWithoutEquipamentInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  clientId?: Prisma.StringFieldUpdateOperationsInput | string
+  entryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  exitDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  status?: Prisma.StringFieldUpdateOperationsInput | string
+  hoursWorked?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  costPerHour?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  titheStatus?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  titheTransactionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  history?: Prisma.ServiceHistoryUncheckedUpdateManyWithoutServiceNestedInput
+  activities?: Prisma.ServiceActivityUncheckedUpdateManyWithoutServiceNestedInput
+}
+
+export type ServiceUncheckedUpdateManyWithoutEquipamentInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  clientId?: Prisma.StringFieldUpdateOperationsInput | string
   entryDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   exitDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   status?: Prisma.StringFieldUpdateOperationsInput | string
@@ -1117,13 +1203,11 @@ export type ServiceUncheckedUpdateManyWithoutClientInput = {
 export type ServiceCountOutputType = {
   history: number
   activities: number
-  equipaments: number
 }
 
 export type ServiceCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   history?: boolean | ServiceCountOutputTypeCountHistoryArgs
   activities?: boolean | ServiceCountOutputTypeCountActivitiesArgs
-  equipaments?: boolean | ServiceCountOutputTypeCountEquipamentsArgs
 }
 
 /**
@@ -1150,17 +1234,11 @@ export type ServiceCountOutputTypeCountActivitiesArgs<ExtArgs extends runtime.Ty
   where?: Prisma.ServiceActivityWhereInput
 }
 
-/**
- * ServiceCountOutputType without action
- */
-export type ServiceCountOutputTypeCountEquipamentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ServiceEquipamentWhereInput
-}
-
 
 export type ServiceSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   clientId?: boolean
+  equipamentId?: boolean
   entryDate?: boolean
   exitDate?: boolean
   status?: boolean
@@ -1171,9 +1249,9 @@ export type ServiceSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
   createdAt?: boolean
   updatedAt?: boolean
   client?: boolean | Prisma.ClientDefaultArgs<ExtArgs>
+  equipament?: boolean | Prisma.EquipamentDefaultArgs<ExtArgs>
   history?: boolean | Prisma.Service$historyArgs<ExtArgs>
   activities?: boolean | Prisma.Service$activitiesArgs<ExtArgs>
-  equipaments?: boolean | Prisma.Service$equipamentsArgs<ExtArgs>
   titheTransaction?: boolean | Prisma.Service$titheTransactionArgs<ExtArgs>
   _count?: boolean | Prisma.ServiceCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["service"]>
@@ -1181,6 +1259,7 @@ export type ServiceSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
 export type ServiceSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   clientId?: boolean
+  equipamentId?: boolean
   entryDate?: boolean
   exitDate?: boolean
   status?: boolean
@@ -1191,12 +1270,14 @@ export type ServiceSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exten
   createdAt?: boolean
   updatedAt?: boolean
   client?: boolean | Prisma.ClientDefaultArgs<ExtArgs>
+  equipament?: boolean | Prisma.EquipamentDefaultArgs<ExtArgs>
   titheTransaction?: boolean | Prisma.Service$titheTransactionArgs<ExtArgs>
 }, ExtArgs["result"]["service"]>
 
 export type ServiceSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   clientId?: boolean
+  equipamentId?: boolean
   entryDate?: boolean
   exitDate?: boolean
   status?: boolean
@@ -1207,12 +1288,14 @@ export type ServiceSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exten
   createdAt?: boolean
   updatedAt?: boolean
   client?: boolean | Prisma.ClientDefaultArgs<ExtArgs>
+  equipament?: boolean | Prisma.EquipamentDefaultArgs<ExtArgs>
   titheTransaction?: boolean | Prisma.Service$titheTransactionArgs<ExtArgs>
 }, ExtArgs["result"]["service"]>
 
 export type ServiceSelectScalar = {
   id?: boolean
   clientId?: boolean
+  equipamentId?: boolean
   entryDate?: boolean
   exitDate?: boolean
   status?: boolean
@@ -1224,21 +1307,23 @@ export type ServiceSelectScalar = {
   updatedAt?: boolean
 }
 
-export type ServiceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "clientId" | "entryDate" | "exitDate" | "status" | "hoursWorked" | "costPerHour" | "titheStatus" | "titheTransactionId" | "createdAt" | "updatedAt", ExtArgs["result"]["service"]>
+export type ServiceOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "clientId" | "equipamentId" | "entryDate" | "exitDate" | "status" | "hoursWorked" | "costPerHour" | "titheStatus" | "titheTransactionId" | "createdAt" | "updatedAt", ExtArgs["result"]["service"]>
 export type ServiceInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   client?: boolean | Prisma.ClientDefaultArgs<ExtArgs>
+  equipament?: boolean | Prisma.EquipamentDefaultArgs<ExtArgs>
   history?: boolean | Prisma.Service$historyArgs<ExtArgs>
   activities?: boolean | Prisma.Service$activitiesArgs<ExtArgs>
-  equipaments?: boolean | Prisma.Service$equipamentsArgs<ExtArgs>
   titheTransaction?: boolean | Prisma.Service$titheTransactionArgs<ExtArgs>
   _count?: boolean | Prisma.ServiceCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type ServiceIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   client?: boolean | Prisma.ClientDefaultArgs<ExtArgs>
+  equipament?: boolean | Prisma.EquipamentDefaultArgs<ExtArgs>
   titheTransaction?: boolean | Prisma.Service$titheTransactionArgs<ExtArgs>
 }
 export type ServiceIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   client?: boolean | Prisma.ClientDefaultArgs<ExtArgs>
+  equipament?: boolean | Prisma.EquipamentDefaultArgs<ExtArgs>
   titheTransaction?: boolean | Prisma.Service$titheTransactionArgs<ExtArgs>
 }
 
@@ -1246,14 +1331,15 @@ export type $ServicePayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   name: "Service"
   objects: {
     client: Prisma.$ClientPayload<ExtArgs>
+    equipament: Prisma.$EquipamentPayload<ExtArgs>
     history: Prisma.$ServiceHistoryPayload<ExtArgs>[]
     activities: Prisma.$ServiceActivityPayload<ExtArgs>[]
-    equipaments: Prisma.$ServiceEquipamentPayload<ExtArgs>[]
     titheTransaction: Prisma.$FinancialTransactionPayload<ExtArgs> | null
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     clientId: string
+    equipamentId: string
     entryDate: Date
     exitDate: Date | null
     status: string
@@ -1658,9 +1744,9 @@ readonly fields: ServiceFieldRefs;
 export interface Prisma__ServiceClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   client<T extends Prisma.ClientDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ClientDefaultArgs<ExtArgs>>): Prisma.Prisma__ClientClient<runtime.Types.Result.GetResult<Prisma.$ClientPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
+  equipament<T extends Prisma.EquipamentDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EquipamentDefaultArgs<ExtArgs>>): Prisma.Prisma__EquipamentClient<runtime.Types.Result.GetResult<Prisma.$EquipamentPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   history<T extends Prisma.Service$historyArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Service$historyArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ServiceHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   activities<T extends Prisma.Service$activitiesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Service$activitiesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ServiceActivityPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
-  equipaments<T extends Prisma.Service$equipamentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Service$equipamentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ServiceEquipamentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   titheTransaction<T extends Prisma.Service$titheTransactionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Service$titheTransactionArgs<ExtArgs>>): Prisma.Prisma__FinancialTransactionClient<runtime.Types.Result.GetResult<Prisma.$FinancialTransactionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1693,6 +1779,7 @@ export interface Prisma__ServiceClient<T, Null = never, ExtArgs extends runtime.
 export interface ServiceFieldRefs {
   readonly id: Prisma.FieldRef<"Service", 'String'>
   readonly clientId: Prisma.FieldRef<"Service", 'String'>
+  readonly equipamentId: Prisma.FieldRef<"Service", 'String'>
   readonly entryDate: Prisma.FieldRef<"Service", 'DateTime'>
   readonly exitDate: Prisma.FieldRef<"Service", 'DateTime'>
   readonly status: Prisma.FieldRef<"Service", 'String'>
@@ -2148,30 +2235,6 @@ export type Service$activitiesArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   distinct?: Prisma.ServiceActivityScalarFieldEnum | Prisma.ServiceActivityScalarFieldEnum[]
-}
-
-/**
- * Service.equipaments
- */
-export type Service$equipamentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the ServiceEquipament
-   */
-  select?: Prisma.ServiceEquipamentSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the ServiceEquipament
-   */
-  omit?: Prisma.ServiceEquipamentOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.ServiceEquipamentInclude<ExtArgs> | null
-  where?: Prisma.ServiceEquipamentWhereInput
-  orderBy?: Prisma.ServiceEquipamentOrderByWithRelationInput | Prisma.ServiceEquipamentOrderByWithRelationInput[]
-  cursor?: Prisma.ServiceEquipamentWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.ServiceEquipamentScalarFieldEnum | Prisma.ServiceEquipamentScalarFieldEnum[]
 }
 
 /**

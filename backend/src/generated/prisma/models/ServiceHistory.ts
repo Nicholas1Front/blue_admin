@@ -151,7 +151,7 @@ export type ServiceHistoryGroupByOutputType = {
   id: string
   serviceId: string
   eventType: string
-  description: string | null
+  description: string
   createdAt: Date
   _count: ServiceHistoryCountAggregateOutputType | null
   _min: ServiceHistoryMinAggregateOutputType | null
@@ -180,7 +180,7 @@ export type ServiceHistoryWhereInput = {
   id?: Prisma.StringFilter<"ServiceHistory"> | string
   serviceId?: Prisma.StringFilter<"ServiceHistory"> | string
   eventType?: Prisma.StringFilter<"ServiceHistory"> | string
-  description?: Prisma.StringNullableFilter<"ServiceHistory"> | string | null
+  description?: Prisma.StringFilter<"ServiceHistory"> | string
   createdAt?: Prisma.DateTimeFilter<"ServiceHistory"> | Date | string
   service?: Prisma.XOR<Prisma.ServiceScalarRelationFilter, Prisma.ServiceWhereInput>
 }
@@ -189,7 +189,7 @@ export type ServiceHistoryOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   serviceId?: Prisma.SortOrder
   eventType?: Prisma.SortOrder
-  description?: Prisma.SortOrderInput | Prisma.SortOrder
+  description?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   service?: Prisma.ServiceOrderByWithRelationInput
 }
@@ -201,7 +201,7 @@ export type ServiceHistoryWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.ServiceHistoryWhereInput | Prisma.ServiceHistoryWhereInput[]
   serviceId?: Prisma.StringFilter<"ServiceHistory"> | string
   eventType?: Prisma.StringFilter<"ServiceHistory"> | string
-  description?: Prisma.StringNullableFilter<"ServiceHistory"> | string | null
+  description?: Prisma.StringFilter<"ServiceHistory"> | string
   createdAt?: Prisma.DateTimeFilter<"ServiceHistory"> | Date | string
   service?: Prisma.XOR<Prisma.ServiceScalarRelationFilter, Prisma.ServiceWhereInput>
 }, "id">
@@ -210,7 +210,7 @@ export type ServiceHistoryOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   serviceId?: Prisma.SortOrder
   eventType?: Prisma.SortOrder
-  description?: Prisma.SortOrderInput | Prisma.SortOrder
+  description?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   _count?: Prisma.ServiceHistoryCountOrderByAggregateInput
   _max?: Prisma.ServiceHistoryMaxOrderByAggregateInput
@@ -224,14 +224,14 @@ export type ServiceHistoryScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"ServiceHistory"> | string
   serviceId?: Prisma.StringWithAggregatesFilter<"ServiceHistory"> | string
   eventType?: Prisma.StringWithAggregatesFilter<"ServiceHistory"> | string
-  description?: Prisma.StringNullableWithAggregatesFilter<"ServiceHistory"> | string | null
+  description?: Prisma.StringWithAggregatesFilter<"ServiceHistory"> | string
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"ServiceHistory"> | Date | string
 }
 
 export type ServiceHistoryCreateInput = {
   id?: string
   eventType: string
-  description?: string | null
+  description: string
   createdAt?: Date | string
   service: Prisma.ServiceCreateNestedOneWithoutHistoryInput
 }
@@ -240,14 +240,14 @@ export type ServiceHistoryUncheckedCreateInput = {
   id?: string
   serviceId: string
   eventType: string
-  description?: string | null
+  description: string
   createdAt?: Date | string
 }
 
 export type ServiceHistoryUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   eventType?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   service?: Prisma.ServiceUpdateOneRequiredWithoutHistoryNestedInput
 }
@@ -256,7 +256,7 @@ export type ServiceHistoryUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   serviceId?: Prisma.StringFieldUpdateOperationsInput | string
   eventType?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -264,14 +264,14 @@ export type ServiceHistoryCreateManyInput = {
   id?: string
   serviceId: string
   eventType: string
-  description?: string | null
+  description: string
   createdAt?: Date | string
 }
 
 export type ServiceHistoryUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   eventType?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -279,7 +279,7 @@ export type ServiceHistoryUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   serviceId?: Prisma.StringFieldUpdateOperationsInput | string
   eventType?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -362,14 +362,14 @@ export type ServiceHistoryUncheckedUpdateManyWithoutServiceNestedInput = {
 export type ServiceHistoryCreateWithoutServiceInput = {
   id?: string
   eventType: string
-  description?: string | null
+  description: string
   createdAt?: Date | string
 }
 
 export type ServiceHistoryUncheckedCreateWithoutServiceInput = {
   id?: string
   eventType: string
-  description?: string | null
+  description: string
   createdAt?: Date | string
 }
 
@@ -406,35 +406,35 @@ export type ServiceHistoryScalarWhereInput = {
   id?: Prisma.StringFilter<"ServiceHistory"> | string
   serviceId?: Prisma.StringFilter<"ServiceHistory"> | string
   eventType?: Prisma.StringFilter<"ServiceHistory"> | string
-  description?: Prisma.StringNullableFilter<"ServiceHistory"> | string | null
+  description?: Prisma.StringFilter<"ServiceHistory"> | string
   createdAt?: Prisma.DateTimeFilter<"ServiceHistory"> | Date | string
 }
 
 export type ServiceHistoryCreateManyServiceInput = {
   id?: string
   eventType: string
-  description?: string | null
+  description: string
   createdAt?: Date | string
 }
 
 export type ServiceHistoryUpdateWithoutServiceInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   eventType?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ServiceHistoryUncheckedUpdateWithoutServiceInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   eventType?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type ServiceHistoryUncheckedUpdateManyWithoutServiceInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   eventType?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  description?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
@@ -495,7 +495,7 @@ export type $ServiceHistoryPayload<ExtArgs extends runtime.Types.Extensions.Inte
     id: string
     serviceId: string
     eventType: string
-    description: string | null
+    description: string
     createdAt: Date
   }, ExtArgs["result"]["serviceHistory"]>
   composites: {}

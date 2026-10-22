@@ -406,8 +406,7 @@ export const ModelName = {
   MonthlyExpense: 'MonthlyExpense',
   Service: 'Service',
   ServiceHistory: 'ServiceHistory',
-  ServiceActivity: 'ServiceActivity',
-  ServiceEquipament: 'ServiceEquipament'
+  ServiceActivity: 'ServiceActivity'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -423,7 +422,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "client" | "clientContact" | "equipament" | "financialCategory" | "financialTransaction" | "monthlyExpense" | "service" | "serviceHistory" | "serviceActivity" | "serviceEquipament"
+    modelProps: "user" | "client" | "clientContact" | "equipament" | "financialCategory" | "financialTransaction" | "monthlyExpense" | "service" | "serviceHistory" | "serviceActivity"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1167,80 +1166,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    ServiceEquipament: {
-      payload: Prisma.$ServiceEquipamentPayload<ExtArgs>
-      fields: Prisma.ServiceEquipamentFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.ServiceEquipamentFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceEquipamentPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.ServiceEquipamentFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceEquipamentPayload>
-        }
-        findFirst: {
-          args: Prisma.ServiceEquipamentFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceEquipamentPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.ServiceEquipamentFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceEquipamentPayload>
-        }
-        findMany: {
-          args: Prisma.ServiceEquipamentFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceEquipamentPayload>[]
-        }
-        create: {
-          args: Prisma.ServiceEquipamentCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceEquipamentPayload>
-        }
-        createMany: {
-          args: Prisma.ServiceEquipamentCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.ServiceEquipamentCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceEquipamentPayload>[]
-        }
-        delete: {
-          args: Prisma.ServiceEquipamentDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceEquipamentPayload>
-        }
-        update: {
-          args: Prisma.ServiceEquipamentUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceEquipamentPayload>
-        }
-        deleteMany: {
-          args: Prisma.ServiceEquipamentDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.ServiceEquipamentUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.ServiceEquipamentUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceEquipamentPayload>[]
-        }
-        upsert: {
-          args: Prisma.ServiceEquipamentUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$ServiceEquipamentPayload>
-        }
-        aggregate: {
-          args: Prisma.ServiceEquipamentAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateServiceEquipament>
-        }
-        groupBy: {
-          args: Prisma.ServiceEquipamentGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ServiceEquipamentGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.ServiceEquipamentCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.ServiceEquipamentCountAggregateOutputType> | number
-        }
-      }
-    }
   }
 } & {
   other: {
@@ -1377,6 +1302,7 @@ export type MonthlyExpenseScalarFieldEnum = (typeof MonthlyExpenseScalarFieldEnu
 export const ServiceScalarFieldEnum = {
   id: 'id',
   clientId: 'clientId',
+  equipamentId: 'equipamentId',
   entryDate: 'entryDate',
   exitDate: 'exitDate',
   status: 'status',
@@ -1415,16 +1341,6 @@ export const ServiceActivityScalarFieldEnum = {
 } as const
 
 export type ServiceActivityScalarFieldEnum = (typeof ServiceActivityScalarFieldEnum)[keyof typeof ServiceActivityScalarFieldEnum]
-
-
-export const ServiceEquipamentScalarFieldEnum = {
-  id: 'id',
-  serviceId: 'serviceId',
-  equipamentId: 'equipamentId',
-  createdAt: 'createdAt'
-} as const
-
-export type ServiceEquipamentScalarFieldEnum = (typeof ServiceEquipamentScalarFieldEnum)[keyof typeof ServiceEquipamentScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -1680,7 +1596,6 @@ export type GlobalOmitConfig = {
   service?: Prisma.ServiceOmit
   serviceHistory?: Prisma.ServiceHistoryOmit
   serviceActivity?: Prisma.ServiceActivityOmit
-  serviceEquipament?: Prisma.ServiceEquipamentOmit
 }
 
 /* Types for Logging */

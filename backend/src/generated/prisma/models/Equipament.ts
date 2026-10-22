@@ -215,7 +215,7 @@ export type EquipamentWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"Equipament"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Equipament"> | Date | string
   client?: Prisma.XOR<Prisma.ClientScalarRelationFilter, Prisma.ClientWhereInput>
-  serviceEquipaments?: Prisma.ServiceEquipamentListRelationFilter
+  service?: Prisma.ServiceListRelationFilter
 }
 
 export type EquipamentOrderByWithRelationInput = {
@@ -229,7 +229,7 @@ export type EquipamentOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   client?: Prisma.ClientOrderByWithRelationInput
-  serviceEquipaments?: Prisma.ServiceEquipamentOrderByRelationAggregateInput
+  service?: Prisma.ServiceOrderByRelationAggregateInput
 }
 
 export type EquipamentWhereUniqueInput = Prisma.AtLeast<{
@@ -246,7 +246,7 @@ export type EquipamentWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"Equipament"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Equipament"> | Date | string
   client?: Prisma.XOR<Prisma.ClientScalarRelationFilter, Prisma.ClientWhereInput>
-  serviceEquipaments?: Prisma.ServiceEquipamentListRelationFilter
+  service?: Prisma.ServiceListRelationFilter
 }, "id">
 
 export type EquipamentOrderByWithAggregationInput = {
@@ -289,7 +289,7 @@ export type EquipamentCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   client: Prisma.ClientCreateNestedOneWithoutEquipamentsInput
-  serviceEquipaments?: Prisma.ServiceEquipamentCreateNestedManyWithoutEquipamentInput
+  service?: Prisma.ServiceCreateNestedManyWithoutEquipamentInput
 }
 
 export type EquipamentUncheckedCreateInput = {
@@ -302,7 +302,7 @@ export type EquipamentUncheckedCreateInput = {
   additionalIdentification?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  serviceEquipaments?: Prisma.ServiceEquipamentUncheckedCreateNestedManyWithoutEquipamentInput
+  service?: Prisma.ServiceUncheckedCreateNestedManyWithoutEquipamentInput
 }
 
 export type EquipamentUpdateInput = {
@@ -315,7 +315,7 @@ export type EquipamentUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   client?: Prisma.ClientUpdateOneRequiredWithoutEquipamentsNestedInput
-  serviceEquipaments?: Prisma.ServiceEquipamentUpdateManyWithoutEquipamentNestedInput
+  service?: Prisma.ServiceUpdateManyWithoutEquipamentNestedInput
 }
 
 export type EquipamentUncheckedUpdateInput = {
@@ -328,7 +328,7 @@ export type EquipamentUncheckedUpdateInput = {
   additionalIdentification?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  serviceEquipaments?: Prisma.ServiceEquipamentUncheckedUpdateManyWithoutEquipamentNestedInput
+  service?: Prisma.ServiceUncheckedUpdateManyWithoutEquipamentNestedInput
 }
 
 export type EquipamentCreateManyInput = {
@@ -459,18 +459,18 @@ export type EquipamentUncheckedUpdateManyWithoutClientNestedInput = {
   deleteMany?: Prisma.EquipamentScalarWhereInput | Prisma.EquipamentScalarWhereInput[]
 }
 
-export type EquipamentCreateNestedOneWithoutServiceEquipamentsInput = {
-  create?: Prisma.XOR<Prisma.EquipamentCreateWithoutServiceEquipamentsInput, Prisma.EquipamentUncheckedCreateWithoutServiceEquipamentsInput>
-  connectOrCreate?: Prisma.EquipamentCreateOrConnectWithoutServiceEquipamentsInput
+export type EquipamentCreateNestedOneWithoutServiceInput = {
+  create?: Prisma.XOR<Prisma.EquipamentCreateWithoutServiceInput, Prisma.EquipamentUncheckedCreateWithoutServiceInput>
+  connectOrCreate?: Prisma.EquipamentCreateOrConnectWithoutServiceInput
   connect?: Prisma.EquipamentWhereUniqueInput
 }
 
-export type EquipamentUpdateOneRequiredWithoutServiceEquipamentsNestedInput = {
-  create?: Prisma.XOR<Prisma.EquipamentCreateWithoutServiceEquipamentsInput, Prisma.EquipamentUncheckedCreateWithoutServiceEquipamentsInput>
-  connectOrCreate?: Prisma.EquipamentCreateOrConnectWithoutServiceEquipamentsInput
-  upsert?: Prisma.EquipamentUpsertWithoutServiceEquipamentsInput
+export type EquipamentUpdateOneRequiredWithoutServiceNestedInput = {
+  create?: Prisma.XOR<Prisma.EquipamentCreateWithoutServiceInput, Prisma.EquipamentUncheckedCreateWithoutServiceInput>
+  connectOrCreate?: Prisma.EquipamentCreateOrConnectWithoutServiceInput
+  upsert?: Prisma.EquipamentUpsertWithoutServiceInput
   connect?: Prisma.EquipamentWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.EquipamentUpdateToOneWithWhereWithoutServiceEquipamentsInput, Prisma.EquipamentUpdateWithoutServiceEquipamentsInput>, Prisma.EquipamentUncheckedUpdateWithoutServiceEquipamentsInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.EquipamentUpdateToOneWithWhereWithoutServiceInput, Prisma.EquipamentUpdateWithoutServiceInput>, Prisma.EquipamentUncheckedUpdateWithoutServiceInput>
 }
 
 export type EquipamentCreateWithoutClientInput = {
@@ -482,7 +482,7 @@ export type EquipamentCreateWithoutClientInput = {
   additionalIdentification?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  serviceEquipaments?: Prisma.ServiceEquipamentCreateNestedManyWithoutEquipamentInput
+  service?: Prisma.ServiceCreateNestedManyWithoutEquipamentInput
 }
 
 export type EquipamentUncheckedCreateWithoutClientInput = {
@@ -494,7 +494,7 @@ export type EquipamentUncheckedCreateWithoutClientInput = {
   additionalIdentification?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  serviceEquipaments?: Prisma.ServiceEquipamentUncheckedCreateNestedManyWithoutEquipamentInput
+  service?: Prisma.ServiceUncheckedCreateNestedManyWithoutEquipamentInput
 }
 
 export type EquipamentCreateOrConnectWithoutClientInput = {
@@ -538,7 +538,7 @@ export type EquipamentScalarWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Equipament"> | Date | string
 }
 
-export type EquipamentCreateWithoutServiceEquipamentsInput = {
+export type EquipamentCreateWithoutServiceInput = {
   id?: string
   type: string
   brand: string
@@ -550,7 +550,7 @@ export type EquipamentCreateWithoutServiceEquipamentsInput = {
   client: Prisma.ClientCreateNestedOneWithoutEquipamentsInput
 }
 
-export type EquipamentUncheckedCreateWithoutServiceEquipamentsInput = {
+export type EquipamentUncheckedCreateWithoutServiceInput = {
   id?: string
   clientId: string
   type: string
@@ -562,23 +562,23 @@ export type EquipamentUncheckedCreateWithoutServiceEquipamentsInput = {
   updatedAt?: Date | string
 }
 
-export type EquipamentCreateOrConnectWithoutServiceEquipamentsInput = {
+export type EquipamentCreateOrConnectWithoutServiceInput = {
   where: Prisma.EquipamentWhereUniqueInput
-  create: Prisma.XOR<Prisma.EquipamentCreateWithoutServiceEquipamentsInput, Prisma.EquipamentUncheckedCreateWithoutServiceEquipamentsInput>
+  create: Prisma.XOR<Prisma.EquipamentCreateWithoutServiceInput, Prisma.EquipamentUncheckedCreateWithoutServiceInput>
 }
 
-export type EquipamentUpsertWithoutServiceEquipamentsInput = {
-  update: Prisma.XOR<Prisma.EquipamentUpdateWithoutServiceEquipamentsInput, Prisma.EquipamentUncheckedUpdateWithoutServiceEquipamentsInput>
-  create: Prisma.XOR<Prisma.EquipamentCreateWithoutServiceEquipamentsInput, Prisma.EquipamentUncheckedCreateWithoutServiceEquipamentsInput>
+export type EquipamentUpsertWithoutServiceInput = {
+  update: Prisma.XOR<Prisma.EquipamentUpdateWithoutServiceInput, Prisma.EquipamentUncheckedUpdateWithoutServiceInput>
+  create: Prisma.XOR<Prisma.EquipamentCreateWithoutServiceInput, Prisma.EquipamentUncheckedCreateWithoutServiceInput>
   where?: Prisma.EquipamentWhereInput
 }
 
-export type EquipamentUpdateToOneWithWhereWithoutServiceEquipamentsInput = {
+export type EquipamentUpdateToOneWithWhereWithoutServiceInput = {
   where?: Prisma.EquipamentWhereInput
-  data: Prisma.XOR<Prisma.EquipamentUpdateWithoutServiceEquipamentsInput, Prisma.EquipamentUncheckedUpdateWithoutServiceEquipamentsInput>
+  data: Prisma.XOR<Prisma.EquipamentUpdateWithoutServiceInput, Prisma.EquipamentUncheckedUpdateWithoutServiceInput>
 }
 
-export type EquipamentUpdateWithoutServiceEquipamentsInput = {
+export type EquipamentUpdateWithoutServiceInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   brand?: Prisma.StringFieldUpdateOperationsInput | string
@@ -590,7 +590,7 @@ export type EquipamentUpdateWithoutServiceEquipamentsInput = {
   client?: Prisma.ClientUpdateOneRequiredWithoutEquipamentsNestedInput
 }
 
-export type EquipamentUncheckedUpdateWithoutServiceEquipamentsInput = {
+export type EquipamentUncheckedUpdateWithoutServiceInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   clientId?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
@@ -622,7 +622,7 @@ export type EquipamentUpdateWithoutClientInput = {
   additionalIdentification?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  serviceEquipaments?: Prisma.ServiceEquipamentUpdateManyWithoutEquipamentNestedInput
+  service?: Prisma.ServiceUpdateManyWithoutEquipamentNestedInput
 }
 
 export type EquipamentUncheckedUpdateWithoutClientInput = {
@@ -634,7 +634,7 @@ export type EquipamentUncheckedUpdateWithoutClientInput = {
   additionalIdentification?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  serviceEquipaments?: Prisma.ServiceEquipamentUncheckedUpdateManyWithoutEquipamentNestedInput
+  service?: Prisma.ServiceUncheckedUpdateManyWithoutEquipamentNestedInput
 }
 
 export type EquipamentUncheckedUpdateManyWithoutClientInput = {
@@ -654,11 +654,11 @@ export type EquipamentUncheckedUpdateManyWithoutClientInput = {
  */
 
 export type EquipamentCountOutputType = {
-  serviceEquipaments: number
+  service: number
 }
 
 export type EquipamentCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  serviceEquipaments?: boolean | EquipamentCountOutputTypeCountServiceEquipamentsArgs
+  service?: boolean | EquipamentCountOutputTypeCountServiceArgs
 }
 
 /**
@@ -674,8 +674,8 @@ export type EquipamentCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.E
 /**
  * EquipamentCountOutputType without action
  */
-export type EquipamentCountOutputTypeCountServiceEquipamentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.ServiceEquipamentWhereInput
+export type EquipamentCountOutputTypeCountServiceArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.ServiceWhereInput
 }
 
 
@@ -690,7 +690,7 @@ export type EquipamentSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   createdAt?: boolean
   updatedAt?: boolean
   client?: boolean | Prisma.ClientDefaultArgs<ExtArgs>
-  serviceEquipaments?: boolean | Prisma.Equipament$serviceEquipamentsArgs<ExtArgs>
+  service?: boolean | Prisma.Equipament$serviceArgs<ExtArgs>
   _count?: boolean | Prisma.EquipamentCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["equipament"]>
 
@@ -735,7 +735,7 @@ export type EquipamentSelectScalar = {
 export type EquipamentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "clientId" | "type" | "brand" | "model" | "mainIdentification" | "additionalIdentification" | "createdAt" | "updatedAt", ExtArgs["result"]["equipament"]>
 export type EquipamentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   client?: boolean | Prisma.ClientDefaultArgs<ExtArgs>
-  serviceEquipaments?: boolean | Prisma.Equipament$serviceEquipamentsArgs<ExtArgs>
+  service?: boolean | Prisma.Equipament$serviceArgs<ExtArgs>
   _count?: boolean | Prisma.EquipamentCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type EquipamentIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -749,7 +749,7 @@ export type $EquipamentPayload<ExtArgs extends runtime.Types.Extensions.Internal
   name: "Equipament"
   objects: {
     client: Prisma.$ClientPayload<ExtArgs>
-    serviceEquipaments: Prisma.$ServiceEquipamentPayload<ExtArgs>[]
+    service: Prisma.$ServicePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1156,7 +1156,7 @@ readonly fields: EquipamentFieldRefs;
 export interface Prisma__EquipamentClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   client<T extends Prisma.ClientDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ClientDefaultArgs<ExtArgs>>): Prisma.Prisma__ClientClient<runtime.Types.Result.GetResult<Prisma.$ClientPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  serviceEquipaments<T extends Prisma.Equipament$serviceEquipamentsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Equipament$serviceEquipamentsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ServiceEquipamentPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  service<T extends Prisma.Equipament$serviceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Equipament$serviceArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ServicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1596,27 +1596,27 @@ export type EquipamentDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.In
 }
 
 /**
- * Equipament.serviceEquipaments
+ * Equipament.service
  */
-export type Equipament$serviceEquipamentsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type Equipament$serviceArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
-   * Select specific fields to fetch from the ServiceEquipament
+   * Select specific fields to fetch from the Service
    */
-  select?: Prisma.ServiceEquipamentSelect<ExtArgs> | null
+  select?: Prisma.ServiceSelect<ExtArgs> | null
   /**
-   * Omit specific fields from the ServiceEquipament
+   * Omit specific fields from the Service
    */
-  omit?: Prisma.ServiceEquipamentOmit<ExtArgs> | null
+  omit?: Prisma.ServiceOmit<ExtArgs> | null
   /**
    * Choose, which related nodes to fetch as well
    */
-  include?: Prisma.ServiceEquipamentInclude<ExtArgs> | null
-  where?: Prisma.ServiceEquipamentWhereInput
-  orderBy?: Prisma.ServiceEquipamentOrderByWithRelationInput | Prisma.ServiceEquipamentOrderByWithRelationInput[]
-  cursor?: Prisma.ServiceEquipamentWhereUniqueInput
+  include?: Prisma.ServiceInclude<ExtArgs> | null
+  where?: Prisma.ServiceWhereInput
+  orderBy?: Prisma.ServiceOrderByWithRelationInput | Prisma.ServiceOrderByWithRelationInput[]
+  cursor?: Prisma.ServiceWhereUniqueInput
   take?: number
   skip?: number
-  distinct?: Prisma.ServiceEquipamentScalarFieldEnum | Prisma.ServiceEquipamentScalarFieldEnum[]
+  distinct?: Prisma.ServiceScalarFieldEnum | Prisma.ServiceScalarFieldEnum[]
 }
 
 /**

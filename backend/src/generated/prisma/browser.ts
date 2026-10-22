@@ -67,8 +67,3 @@ export type ServiceHistory = Prisma.ServiceHistoryModel
  * 
  */
 export type ServiceActivity = Prisma.ServiceActivityModel
-/**
- * Model ServiceEquipament
- * 
- */
-export type ServiceEquipament = Prisma.ServiceEquipamentModel

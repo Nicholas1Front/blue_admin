@@ -60,8 +60,7 @@ export const ModelName = {
   MonthlyExpense: 'MonthlyExpense',
   Service: 'Service',
   ServiceHistory: 'ServiceHistory',
-  ServiceActivity: 'ServiceActivity',
-  ServiceEquipament: 'ServiceEquipament'
+  ServiceActivity: 'ServiceActivity'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -177,6 +176,7 @@ export type MonthlyExpenseScalarFieldEnum = (typeof MonthlyExpenseScalarFieldEnu
 export const ServiceScalarFieldEnum = {
   id: 'id',
   clientId: 'clientId',
+  equipamentId: 'equipamentId',
   entryDate: 'entryDate',
   exitDate: 'exitDate',
   status: 'status',
@@ -215,16 +215,6 @@ export const ServiceActivityScalarFieldEnum = {
 } as const
 
 export type ServiceActivityScalarFieldEnum = (typeof ServiceActivityScalarFieldEnum)[keyof typeof ServiceActivityScalarFieldEnum]
-
-
-export const ServiceEquipamentScalarFieldEnum = {
-  id: 'id',
-  serviceId: 'serviceId',
-  equipamentId: 'equipamentId',
-  createdAt: 'createdAt'
-} as const
-
-export type ServiceEquipamentScalarFieldEnum = (typeof ServiceEquipamentScalarFieldEnum)[keyof typeof ServiceEquipamentScalarFieldEnum]
 
 
 export const SortOrder = {
