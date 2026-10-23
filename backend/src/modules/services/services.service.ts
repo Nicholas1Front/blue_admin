@@ -40,6 +40,10 @@ class ServicesService{
             throw new AppError('Invalid service status', 400, 'INVALID_SERVICE_STATUS')
         }
 
+        if(cleanedData.exitDate !== null && cleanedData.exitDate < cleanedData.entryDate){
+            throw new AppError('Exit date cannot be before entry date', 400, 'INVALID_SERVICE_PERIOD')
+        }
+
         if(cleanedData.costPerHour === true){
             // A zero value is valid when there are no active monthly expenses.
             cleanedData.costPerHour = await servicesRepository.calculateCostPerHour()
@@ -80,6 +84,15 @@ class ServicesService{
                 serviceExists,
                 cleanedData
             )
+        }
+
+        const effectiveEntryDate = cleanedData.entryDate ?? serviceExists.service.entryDate
+        const effectiveExitDate = cleanedData.exitDate !== undefined
+            ? cleanedData.exitDate
+            : serviceExists.service.exitDate
+
+        if(effectiveExitDate !== null && effectiveExitDate < effectiveEntryDate){
+            throw new AppError('Exit date cannot be before entry date', 400, 'INVALID_SERVICE_PERIOD')
         }
 
         if(cleanedData.costPerHour !== undefined && cleanedData.costPerHour === true){
