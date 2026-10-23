@@ -9,7 +9,6 @@ import type {
 } from './transactions.dto.js';
 import {removeUndefined} from '../../../shared/helpers/objects/removeUndefined.js';
 import {undefinedToNull} from '../../../shared/helpers/objects/undefinedToNull.js';
-// import {allowedOrigensList, verifyOrigin} from '../shared/allowedOrigensList.js';
 import {allowedTypes} from '../shared/allowedTypesList.js';
 
 class TransactionsService{
@@ -29,7 +28,6 @@ class TransactionsService{
         let cleanedData = undefinedToNull(data)
 
         cleanedData.type = categoryExists.type
-
 
         const transaction = await transactionsRepository.createTransaction(
             cleanedData.categoryId,
@@ -59,7 +57,6 @@ class TransactionsService{
         }
 
         if(cleanedData.categoryId !== undefined){
-
             const categoryExists = await categoryRepository.findCategoryById(cleanedData.categoryId)
 
             if(!categoryExists){
@@ -127,6 +124,18 @@ class TransactionsService{
 
         if(!transactionExists){
             throw new AppError('Transaction not found', 404, 'TRANSACTION_NOT_FOUND')
+        }
+
+        if (
+            transactionExists.originId !== null ||
+            transactionExists.originType !== null ||
+            transactionExists.titheForService !== null
+        ) {
+            throw new AppError(
+                'Cannot delete a transaction while it is linked to a service or another origin',
+                409,
+                'TRANSACTION_LINKED_TO_ORIGIN'
+            )
         }
 
         const result = await transactionsRepository.deleteTransaction(id)
