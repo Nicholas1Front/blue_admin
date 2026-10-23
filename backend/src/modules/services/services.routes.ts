@@ -15,6 +15,6 @@ router.post('/create-service', servicesController.createService)
 router.put('/update-service/:id', servicesController.updateService)
 router.patch('/update-status/:id', servicesController.updateServiceStatus)
 router.get('/find-services-by-filters', servicesController.findServiceByFilters)
-router.delete('/delete-service', servicesController.deleteServiceById)
+router.delete('/delete-service/:id', servicesController.deleteServiceById)
 
 export default router
