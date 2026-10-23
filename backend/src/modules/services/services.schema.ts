@@ -37,14 +37,13 @@ export const findServicesByFilters = z.object({
     exitDate : z.coerce.date().nullable().optional(),
     status : z.string().min(1).optional(),
     hoursWorked : z.coerce.number().nullable().optional(),
-    costPerHour : z.coerce.boolean().nullable().optional(),
+    costPerHour : z.coerce.number().nullable().optional(),
     titheTransactionId : z.string().min(1).nullable().optional(),
     titheStatus : z.string().min(1).optional().nullable(),
     showHistory : z.coerce.boolean().default(false)
 })
 
-//DTOs
-
+// DTOs
 export type createServiceDTO = z.infer<typeof createServiceSchema>
 export type updateServiceDTO = z.infer<typeof updateServiceSchema>
 export type updateStatusServiceDTO = z.infer<typeof updateStatusServiceSchema>
