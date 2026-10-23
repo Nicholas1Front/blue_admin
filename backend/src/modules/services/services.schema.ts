@@ -6,10 +6,10 @@ export const createServiceSchema = z.object({
     entryDate : z.coerce.date(),
     exitDate : z.coerce.date().nullable().optional(),
     status : z.string().min(1).default('pendente'),
-    hoursWorked : z.coerce.number().nullable().optional(),
+    hoursWorked : z.coerce.number().min(0).nullable().optional(),
     costPerHour : z.coerce.boolean().nullable().optional(),
     eventType : z.string().min(1).default('service_created'),
-    description : z.string().min(1),
+    description : z.string().trim().min(1),
 })
 
 export const updateServiceSchema = z.object({
@@ -17,16 +17,16 @@ export const updateServiceSchema = z.object({
     equipamentId : z.string().min(1).optional(),
     entryDate : z.coerce.date().optional(),
     exitDate : z.coerce.date().nullable().optional(),
-    hoursWorked : z.coerce.number().nullable().optional(),
+    hoursWorked : z.coerce.number().min(0).nullable().optional(),
     costPerHour : z.coerce.boolean().nullable().optional(),
     eventType : z.string().min(1).default('service_created'),
-    description : z.string().min(1),
+    description : z.string().trim().min(1),
 })
 
 export const updateStatusServiceSchema = z.object({
     status : z.string().min(1),
     eventType : z.string().min(1).default('service_updated'),
-    description : z.string().min(1)
+    description : z.string().trim().min(1)
 })
 
 export const findServicesByFilters = z.object({
@@ -36,7 +36,7 @@ export const findServicesByFilters = z.object({
     entryDate : z.coerce.date().optional(),
     exitDate : z.coerce.date().nullable().optional(),
     status : z.string().min(1).optional(),
-    hoursWorked : z.coerce.number().nullable().optional(),
+    hoursWorked : z.coerce.number().min(0).nullable().optional(),
     costPerHour : z.coerce.number().nullable().optional(),
     titheTransactionId : z.string().min(1).nullable().optional(),
     titheStatus : z.string().min(1).optional().nullable(),
