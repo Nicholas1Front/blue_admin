@@ -1,10 +1,10 @@
-import { AppError } from '../../shared/errors/AppError.js'
+import {AppError} from '../../shared/errors/AppError.js'
 
-// helpers
+//helpers
 import { undefinedToNull } from '../../shared/helpers/objects/undefinedToNull.js'
-import { removeUndefined } from '../../shared/helpers/objects/removeUndefined.js'
-import { verifyForUpdate } from './shared/verifyClientAndEquipament.js'
-import { allowedServiceStatus } from './shared/allowedServiceStatus.js'
+import { removeUndefined } from './../../shared/helpers/objects/removeUndefined.js';
+import {verifyForUpdate} from './shared/verifyClientAndEquipament.js'
+import {allowedServiceStatus} from './shared/allowedServiceStatus.js'
 
 import servicesRepository from './services.repository.js'
 
@@ -15,12 +15,15 @@ import type {
     findServicesByFiltersDTO
 } from './services.schema.js'
 
-class ServicesService {
-    async createService(data: createServiceDTO) {
-        const cleanedData = undefinedToNull(data)
+class ServicesService{
+    async createService(
+        data : createServiceDTO
+    ){
+        let cleanedData = undefinedToNull(data)
 
         const clientExists = await servicesRepository.clientExists(cleanedData.clientId)
-        if (!clientExists) {
+
+        if(!clientExists){
             throw new AppError('Client not found', 404, 'CLIENT_NOT_FOUND')
         }
 
@@ -28,27 +31,24 @@ class ServicesService {
             cleanedData.clientId,
             cleanedData.equipamentId
         )
-        if (!clientHasEquipament) {
-            throw new AppError(
-                'Client does not have this equipament',
-                400,
-                'CLIENT_DOES_NOT_HAVE_EQUIPAMENT'
-            )
+
+        if(!clientHasEquipament){
+            throw new AppError('Client does not have this equipament', 400, 'CLIENT_DOES_NOT_HAVE_EQUIPAMENT')
         }
 
-        if (!allowedServiceStatus.includes(cleanedData.status)) {
+        if(!allowedServiceStatus.includes(cleanedData.status)){
             throw new AppError('Invalid service status', 400, 'INVALID_SERVICE_STATUS')
         }
 
-        if (cleanedData.costPerHour === true) {
-            // Zero is a valid result when no active monthly expenses exist.
+        if(cleanedData.costPerHour === true){
+            // A zero value is valid when there are no active monthly expenses.
             cleanedData.costPerHour = await servicesRepository.calculateCostPerHour()
-        } else {
-            // The boolean input is a UI instruction, not a database value.
+        }else{
+            // The boolean is a UI instruction, not the stored hourly cost.
             cleanedData.costPerHour = null
         }
 
-        return servicesRepository.createService(
+        const service = await servicesRepository.createService(
             cleanedData.clientId,
             cleanedData.equipamentId,
             cleanedData.entryDate,
@@ -59,51 +59,79 @@ class ServicesService {
             'service_created',
             cleanedData.description
         )
+
+        return service
     }
 
-    async updateService(id: string, data: updateServiceDTO) {
+    async updateService(
+        id : string,
+        data : updateServiceDTO
+    ){
         const serviceExists = await servicesRepository.findServiceById(id)
-        if (!serviceExists.service) {
+
+        if(!serviceExists.service){
             throw new AppError('Service not found', 404, 'SERVICE_NOT_FOUND')
         }
 
         const cleanedData = removeUndefined(data)
 
-        if (cleanedData.clientId !== undefined || cleanedData.equipamentId !== undefined) {
-            await verifyForUpdate(serviceExists, cleanedData)
+        if(cleanedData.clientId !== undefined || cleanedData.equipamentId !== undefined){
+            await verifyForUpdate(
+                serviceExists,
+                cleanedData
+            )
         }
 
-        if (cleanedData.costPerHour === true) {
+        if(cleanedData.costPerHour !== undefined && cleanedData.costPerHour === true){
             cleanedData.costPerHour = await servicesRepository.calculateCostPerHour()
-        } else if (cleanedData.costPerHour === false || cleanedData.costPerHour === null) {
+        }
+
+        if(cleanedData.costPerHour !== undefined && (cleanedData.costPerHour === false || cleanedData.costPerHour === null)){
             cleanedData.costPerHour = null
         }
 
-        return servicesRepository.updateService(id, {
-            ...cleanedData,
-            eventType: 'service_updated'
-        })
+        const updatedService = await servicesRepository.updateService(
+            id,
+            {
+                ...cleanedData,
+                eventType : 'service_updated'
+            }
+        )
+
+        return updatedService
     }
 
-    async updateServiceStatus(id: string, data: updateStatusServiceDTO) {
+    async updateServiceStatus(
+        id : string,
+        data : updateStatusServiceDTO
+    ){
         const serviceExists = await servicesRepository.findServiceById(id)
-        if (!serviceExists.service) {
+
+        if(!serviceExists.service){
             throw new AppError('Service not found', 404, 'SERVICE_NOT_FOUND')
         }
 
-        const cleanedData = removeUndefined(data)
-        if (!allowedServiceStatus.includes(cleanedData.status)) {
+        const cleanedData = removeUndefined(data);
+
+        if(!allowedServiceStatus.includes(cleanedData.status)){
             throw new AppError('Invalid service status', 400, 'INVALID_SERVICE_STATUS')
         }
 
-        return servicesRepository.updateServiceStatus(id, {
-            ...cleanedData,
-            eventType: 'service_status_updated'
-        })
+        const updatedService = await servicesRepository.updateServiceStatus(
+            id,
+            {
+                ...cleanedData,
+                eventType : 'service_status_updated'
+            }
+        )
+
+        return updatedService
     }
 
-    async findServicesByFilters(filters: findServicesByFiltersDTO) {
-        const cleanedFilters = removeUndefined(filters)
+    async findServicesByFilters(
+        filters : findServicesByFiltersDTO
+    ){
+        const cleanedFilters = removeUndefined(filters);
 
         const rawServices = await servicesRepository.findServiceByFilters(
             cleanedFilters.id,
@@ -118,7 +146,7 @@ class ServicesService {
             cleanedFilters.titheStatus
         )
 
-        if (cleanedFilters.showHistory !== true) {
+        if(cleanedFilters.showHistory !== true){
             return rawServices
         }
 
@@ -126,26 +154,27 @@ class ServicesService {
             rawServices.map(service => service.id)
         )
 
-        const historiesByServiceId = new Map<string, typeof rawHistories>()
-        for (const history of rawHistories) {
-            const existing = historiesByServiceId.get(history.serviceId) ?? []
-            existing.push(history)
-            historiesByServiceId.set(history.serviceId, existing)
-        }
-
         return rawServices.map(service => ({
             ...service,
-            history: historiesByServiceId.get(service.id) ?? []
+            history : rawHistories.filter(history => history.serviceId === service.id)
         }))
     }
 
-    async deleteServiceById(id: string) {
-        const serviceExists = await servicesRepository.findServiceById(id)
-        if (!serviceExists.service) {
-            throw new AppError('Service not found', 404, 'SERVICE_NOT_FOUND')
+    async deleteServiceById(
+        id : string
+    ){
+        const serviceExists = await servicesRepository.findServiceById(id);
+
+        if(!serviceExists.service){
+            throw new AppError('Service not found', 404, "SERVICE_NOT_FOUND")
         }
 
-        await servicesRepository.deleteServiceById(id)
+        const result = await servicesRepository.deleteServiceById(id)
+
+        if(!result){
+            throw new AppError('Internal Server Error', 500, 'INTERNAL_SERVER_ERROR')
+        }
+
         return true
     }
 }
