@@ -94,26 +94,8 @@ class TransactionsRepository{
                         equals : referenceDate
                     }
                 }),
-                ...(originId !== undefined && (
-                    originId === null
-                        ? { originId : null }
-                        : {
-                            originId : {
-                                contains : originId,
-                                mode : 'insensitive'
-                            }
-                        }
-                )),
-                ...(originType !== undefined && (
-                    originType === null
-                        ? { originType : null }
-                        : {
-                            originType : {
-                                contains : originType,
-                                mode : 'insensitive'
-                            }
-                        }
-                ))
+                ...(originId !== undefined && { originId }),
+                ...(originType !== undefined && { originType })
             },
             include : {
                 category : {
