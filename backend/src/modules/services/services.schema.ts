@@ -8,7 +8,6 @@ export const createServiceSchema = z.object({
     status : z.string().min(1).default('pendente'),
     hoursWorked : z.coerce.number().min(0).nullable().optional(),
     costPerHour : z.coerce.boolean().nullable().optional(),
-    eventType : z.string().min(1).default('service_created'),
     description : z.string().trim().min(1),
 })
 
@@ -19,13 +18,11 @@ export const updateServiceSchema = z.object({
     exitDate : z.coerce.date().nullable().optional(),
     hoursWorked : z.coerce.number().min(0).nullable().optional(),
     costPerHour : z.coerce.boolean().nullable().optional(),
-    eventType : z.string().min(1).default('service_created'),
     description : z.string().trim().min(1),
 })
 
 export const updateStatusServiceSchema = z.object({
     status : z.string().min(1),
-    eventType : z.string().min(1).default('service_updated'),
     description : z.string().trim().min(1)
 })
 
