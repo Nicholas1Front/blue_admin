@@ -1,27 +1,42 @@
 import {prisma} from '../../../shared/database/prisma.js';
 
-class ActivityRepository {
-    async findServiceById(id: string) {
-        return prisma.service.findUnique({ where: { id } })
+class ActivityRepository{
+
+    async findServiceById(
+        id : string
+    ){
+        const service = await prisma.service.findUnique({
+            where : {id}
+        })
+
+        return service
     }
 
-    async findServicesByIds(servicesIds: string[]) {
-        return prisma.service.findMany({
-            where: { id: { in: servicesIds } }
+    async findServicesByIds(
+        servicesIds : string[]
+    ){
+        const services = await prisma.service.findMany({
+            where : {
+                id : {
+                    in : servicesIds
+                }
+            }
         })
+
+        return services
     }
 
     async addActivity(
-        serviceId: string,
-        title: string,
-        description: string | null,
-        startAt: Date | null,
-        endAt: Date | null,
-        status: string
-    ) {
-        return prisma.$transaction(async (tx) => {
+        serviceId : string,
+        title : string,
+        description : string | null,
+        startAt : Date | null,
+        endAt : Date | null,
+        status : string
+    ){
+        return prisma.$transaction(async tx => {
             const activity = await tx.serviceActivity.create({
-                data: {
+                data : {
                     serviceId,
                     title,
                     description,
@@ -32,10 +47,10 @@ class ActivityRepository {
             })
 
             await tx.serviceHistory.create({
-                data: {
+                data : {
                     serviceId,
-                    eventType: 'activity_created',
-                    description: `Activity created: ${title}`
+                    eventType : 'activity_created',
+                    description : `Activity created: ${title}`
                 }
             })
 
@@ -43,85 +58,132 @@ class ActivityRepository {
         })
     }
 
-    async findActivityById(id: string) {
-        return prisma.serviceActivity.findUnique({ where: { id } })
-    }
-
-    async findActivitiesByServiceId(serviceId: string) {
-        return prisma.serviceActivity.findMany({
-            where: { serviceId },
-            orderBy: [{ createdAt: 'asc' }, { id: 'asc' }]
+    async findActivityById(
+        id : string
+    ){
+        const activity = await prisma.serviceActivity.findUnique({
+            where : {
+                id
+            }
         })
+
+        return activity
+    } 
+
+    async findActivitiesByServiceId(
+        serviceId : string
+    ){
+        const activities = await prisma.serviceActivity.findMany({
+            where : {
+                serviceId 
+            },
+            orderBy : [
+                { createdAt : 'asc' },
+                { id : 'asc' }
+            ]
+        })
+
+        return activities
     }
 
     async findActivitiesByFilters(
-        id: string | undefined,
-        serviceId: string | undefined,
-        title: string | undefined,
-        description: string | null | undefined,
-        startAt: Date | undefined | null,
-        endAt: Date | undefined | null,
-        status: string | undefined
-    ) {
-        return prisma.serviceActivity.findMany({
-            where: {
+        id : string | undefined,
+        serviceId : string | undefined,
+        title : string | undefined,
+        description : string | null | undefined,
+        startAt : Date | undefined | null,
+        endAt : Date | undefined | null,
+        status : string | undefined
+    ){
+        const activities = await prisma.serviceActivity.findMany({
+            where : {
                 ...(id !== undefined && {
-                    id: { contains: id, mode: 'insensitive' }
+                    id : {
+                        contains : id,
+                        mode : 'insensitive'
+                    }
                 }),
                 ...(serviceId !== undefined && {
-                    serviceId: { contains: serviceId, mode: 'insensitive' }
+                    serviceId : {
+                        contains : serviceId,
+                        mode : 'insensitive'
+                    }
                 }),
                 ...(title !== undefined && {
-                    title: { contains: title, mode: 'insensitive' }
+                    title : {
+                        contains : title,
+                        mode : 'insensitive'
+                    }
                 }),
                 ...(description !== undefined && (
                     description === null
-                        ? { description: null }
+                        ? { description : null }
                         : {
-                            description: {
-                                contains: description,
-                                mode: 'insensitive'
+                            description : {
+                                contains : description,
+                                mode : 'insensitive'
                             }
                         }
                 )),
                 ...(startAt !== undefined && (
                     startAt === null
-                        ? { startAt: null }
-                        : { startAt: { gte: startAt } }
+                        ? { startAt : null }
+                        : {
+                            startAt : {
+                                gte : startAt
+                            }
+                        }
                 )),
                 ...(endAt !== undefined && (
                     endAt === null
-                        ? { endAt: null }
-                        : { endAt: { lt: endAt } }
+                        ? { endAt : null }
+                        : {
+                            endAt : {
+                                lt : endAt
+                            }
+                        }
                 )),
                 ...(status !== undefined && {
-                    status: { contains: status, mode: 'insensitive' }
+                    status : {
+                        contains : status,
+                        mode : 'insensitive'
+                    }
                 })
             },
-            orderBy: [{ createdAt: 'asc' }, { id: 'asc' }]
+            orderBy : [
+                { createdAt : 'asc' },
+                { id : 'asc' }
+            ]
         })
+
+        return activities
     }
 
-    async updateActivity(id: string, data: any) {
-        return prisma.$transaction(async (tx) => {
+    async updateActivity(
+        id : string,
+        data : any
+    ){
+        return prisma.$transaction(async tx => {
             const existingActivity = await tx.serviceActivity.findUnique({
-                where: { id }
+                where : {id}
             })
 
-            if (!existingActivity) {
+            if(!existingActivity){
                 return null
             }
 
             const activity = await tx.serviceActivity.update({
-                where: { id },
-                data: { ...data }
+                where : {id},
+                data : {
+                    ...data
+                }
             })
 
             await tx.serviceHistory.create({
-                data: {
-                    serviceId: existingActivity.serviceId,
-                    eventType: 'activity_updated',
-                    description: `Activity updated: ${existingActivity.title}`
+                data : {
+                    serviceId : existingActivity.serviceId,
+                    eventType : 'activity_updated',
+                    description : `Activity updated: ${existingActivity.title}. Changed fields: ${Object.keys(data).join(', ')}.`
                 }
             })
 
@@ -129,29 +191,32 @@ class ActivityRepository {
         })
     }
 
-    async deleteActivity(id: string) {
-        return prisma.$transaction(async (tx) => {
+    async deleteActivity(id :string){
+        return prisma.$transaction(async tx => {
             const activity = await tx.serviceActivity.findUnique({
-                where: { id }
+                where : {id}
             })
 
-            if (!activity) {
+            if(!activity){
                 return false
             }
 
-            await tx.serviceActivity.delete({ where: { id } })
+            await tx.serviceActivity.delete({
+                where : {id}
+            })
 
             await tx.serviceHistory.create({
-                data: {
-                    serviceId: activity.serviceId,
-                    eventType: 'activity_deleted',
-                    description: `Activity deleted: ${activity.title}`
+                data : {
+                    serviceId : activity.serviceId,
+                    eventType : 'activity_deleted',
+                    description : `Activity deleted: ${activity.title}`
                 }
             })
 
             return true
         })
     }
+
 }
 
 export default new ActivityRepository()
