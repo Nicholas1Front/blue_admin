@@ -282,7 +282,7 @@ export type ServiceActivityCreateInput = {
   description?: string | null
   startAt?: Date | string | null
   endAt?: Date | string | null
-  status?: string
+  status: string
   createdAt?: Date | string
   updatedAt?: Date | string
   service: Prisma.ServiceCreateNestedOneWithoutActivitiesInput
@@ -295,7 +295,7 @@ export type ServiceActivityUncheckedCreateInput = {
   description?: string | null
   startAt?: Date | string | null
   endAt?: Date | string | null
-  status?: string
+  status: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -331,7 +331,7 @@ export type ServiceActivityCreateManyInput = {
   description?: string | null
   startAt?: Date | string | null
   endAt?: Date | string | null
-  status?: string
+  status: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -453,7 +453,7 @@ export type ServiceActivityCreateWithoutServiceInput = {
   description?: string | null
   startAt?: Date | string | null
   endAt?: Date | string | null
-  status?: string
+  status: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -464,7 +464,7 @@ export type ServiceActivityUncheckedCreateWithoutServiceInput = {
   description?: string | null
   startAt?: Date | string | null
   endAt?: Date | string | null
-  status?: string
+  status: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -516,7 +516,7 @@ export type ServiceActivityCreateManyServiceInput = {
   description?: string | null
   startAt?: Date | string | null
   endAt?: Date | string | null
-  status?: string
+  status: string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
