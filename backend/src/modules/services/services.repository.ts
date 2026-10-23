@@ -267,6 +267,21 @@ class ServiceRepository{
         })
     }
 
+    async hasLinkedTransactions(
+        serviceId : string
+    ){
+        const transaction = await prisma.financialTransaction.findFirst({
+            where : {
+                originId : serviceId
+            },
+            select : {
+                id : true
+            }
+        })
+
+        return transaction !== null
+    }
+
     async deleteServiceById(
         id : string
     ){
