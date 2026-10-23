@@ -1,48 +1,61 @@
 import {prisma} from '../../../shared/database/prisma.js'
 
-class TransactionsRepository{
-    async findTransactionById(id : string){
-        const transaction = await prisma.financialTransaction.findUnique({
-            where : {id}
-        })
-
-        return transaction
+class TransactionsRepository {
+    async findTransactionById(id: string) {
+        return prisma.financialTransaction.findUnique({ where: { id } })
     }
 
-    async findServiceById(id : string){
-        const service = await prisma.service.findUnique({
-            where : {id}
-        })
-
-        return service
+    async findServiceById(id: string) {
+        return prisma.service.findUnique({ where: { id } })
     }
 
-    async updateTransactionOrigin(
-        id : string,
-        originId : string | null,
-        originType : string | null
-    ){
-        const transaction = await prisma.financialTransaction.update({
-            where : {id},
-            data : {
-                originId,
-                originType
+    async linkTransactionToService(id: string, serviceId: string) {
+        const result = await prisma.financialTransaction.updateMany({
+            where: {
+                id,
+                originId: null,
+                originType: null
+            },
+            data: {
+                originId: serviceId,
+                originType: 'services'
             }
         })
 
-        return transaction
+        if (result.count !== 1) {
+            return null
+        }
+
+        return prisma.financialTransaction.findUnique({ where: { id } })
     }
 
-    async findAllTransactionsByServiceId(
-        serviceId : string
-    ){
-        const transactions = await prisma.financialTransaction.findMany({
-            where : {
-                originId : serviceId
+    async removeServiceOrigin(id: string, serviceId: string) {
+        const result = await prisma.financialTransaction.updateMany({
+            where: {
+                id,
+                originId: serviceId,
+                originType: 'services'
+            },
+            data: {
+                originId: null,
+                originType: null
             }
         })
 
-        return transactions
+        return result.count === 1
+    }
+
+    async findAllTransactionsByServiceId(serviceId: string) {
+        return prisma.financialTransaction.findMany({
+            where: {
+                originId: serviceId,
+                originType: 'services'
+            },
+            orderBy: [
+                { referenceDate: 'desc' },
+                { createdAt: 'desc' }
+            ]
+        })
     }
 }
 
