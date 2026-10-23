@@ -6,9 +6,7 @@ class TransactionsRepository{
         description: string,
         value: number,
         type: string,
-        referenceDate: Date,
-        originId: string | null,
-        originType: string | null
+        referenceDate: Date
     ){
         return prisma.financialTransaction.create({
             data : {
@@ -17,8 +15,8 @@ class TransactionsRepository{
                 value,
                 type,
                 referenceDate,
-                originId,
-                originType
+                originId : null,
+                originType : null
             }
         })
     }
@@ -34,9 +32,7 @@ class TransactionsRepository{
                 description : data.description,
                 value : data.value,
                 type : data.type,
-                referenceDate : data.referenceDate,
-                originId : data.originId,
-                originType : data.originType
+                referenceDate : data.referenceDate
             }
         })
     }

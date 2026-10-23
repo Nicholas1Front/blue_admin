@@ -30,21 +30,13 @@ class TransactionsService{
 
         cleanedData.type = categoryExists.type
 
-        // todo : needs to create a function to check if the originId and originType are valid in allowedOrigensList
-        /* if(cleanedData.originId !== null && cleanedData.originType !== null){
-            if(!allowedOrigensList.includes(cleanedData.originType)){
-                throw new AppError('Invalid origin type', 400, 'INVALID_ORIGIN_TYPE')
-            }
-        } */
 
         const transaction = await transactionsRepository.createTransaction(
             cleanedData.categoryId,
             cleanedData.description,
             cleanedData.value,
             cleanedData.type,
-            cleanedData.referenceDate,
-            cleanedData.originId,
-            cleanedData.originType
+            cleanedData.referenceDate
         )
 
         if(!transaction){
@@ -80,12 +72,6 @@ class TransactionsService{
 
             cleanedData.type = categoryExists.type
         }
-
-        /* if(cleanedData.originId !== undefined && cleanedData.originType !== undefined){
-            if(!allowedOrigensList.includes(cleanedData.originType)){
-                throw new AppError('Invalid origin type', 400, 'INVALID_ORIGIN_TYPE')
-            }
-        } */
 
         const transaction = await transactionsRepository.updateTransaction(id, cleanedData)
 
