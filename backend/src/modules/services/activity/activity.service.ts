@@ -118,7 +118,6 @@ class ActivityService {
 
         const servicesIds = [...new Set(rawActivities.map(activity => activity.serviceId))]
         const rawServices = await activityRepository.findServicesByIds(servicesIds)
-        const servicesById = new Map(rawServices.map(service => [service.id, service]))
 
         return rawServices.map(service => ({
             service,
