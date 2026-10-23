@@ -1,11 +1,10 @@
+import { AppError } from '../../shared/errors/AppError.js'
 
-import {AppError} from '../../shared/errors/AppError.js'
-
-//helpers
+// helpers
 import { undefinedToNull } from '../../shared/helpers/objects/undefinedToNull.js'
-import { removeUndefined } from './../../shared/helpers/objects/removeUndefined.js';
-import {verifyForUpdate} from './shared/verifyClientAndEquipament.js'
-import {allowedServiceStatus} from './shared/allowedServiceStatus.js'
+import { removeUndefined } from '../../shared/helpers/objects/removeUndefined.js'
+import { verifyForUpdate } from './shared/verifyClientAndEquipament.js'
+import { allowedServiceStatus } from './shared/allowedServiceStatus.js'
 
 import servicesRepository from './services.repository.js'
 
@@ -16,15 +15,12 @@ import type {
     findServicesByFiltersDTO
 } from './services.schema.js'
 
-class ServicesService{
-    async createService(
-        data : createServiceDTO
-    ){
-        let cleanedData = undefinedToNull(data)
+class ServicesService {
+    async createService(data: createServiceDTO) {
+        const cleanedData = undefinedToNull(data)
 
         const clientExists = await servicesRepository.clientExists(cleanedData.clientId)
-
-        if(!clientExists){
+        if (!clientExists) {
             throw new AppError('Client not found', 404, 'CLIENT_NOT_FOUND')
         }
 
@@ -32,22 +28,27 @@ class ServicesService{
             cleanedData.clientId,
             cleanedData.equipamentId
         )
-
-        if(!clientHasEquipament){
-            throw new AppError('Client does not have this equipament', 404, 'CLIENT_DOES_NOT_HAVE_EQUIPAMENT')
+        if (!clientHasEquipament) {
+            throw new AppError(
+                'Client does not have this equipament',
+                400,
+                'CLIENT_DOES_NOT_HAVE_EQUIPAMENT'
+            )
         }
 
-        if(cleanedData.costPerHour === true){
-            const costPerHourValue = await servicesRepository.calculateCostPerHour()
-
-            if(!costPerHourValue){
-                throw new AppError('Internal server error', 500, 'INTERNAL_SERVER_ERROR')
-            }
-
-            cleanedData.costPerHour = costPerHourValue
+        if (!allowedServiceStatus.includes(cleanedData.status)) {
+            throw new AppError('Invalid service status', 400, 'INVALID_SERVICE_STATUS')
         }
 
-        const service = await servicesRepository.createService(
+        if (cleanedData.costPerHour === true) {
+            // Zero is a valid result when no active monthly expenses exist.
+            cleanedData.costPerHour = await servicesRepository.calculateCostPerHour()
+        } else {
+            // The boolean input is a UI instruction, not a database value.
+            cleanedData.costPerHour = null
+        }
+
+        return servicesRepository.createService(
             cleanedData.clientId,
             cleanedData.equipamentId,
             cleanedData.entryDate,
@@ -55,104 +56,54 @@ class ServicesService{
             cleanedData.status,
             cleanedData.hoursWorked,
             cleanedData.costPerHour,
-            cleanedData.eventType,
+            'service_created',
             cleanedData.description
         )
-
-        if(!service){
-            throw new AppError('Internal server error', 500, 'INTERNAL_SERVER_ERROR')
-        }
-
-        return service
     }
 
-    async updateService(
-        id : string,
-        data : updateServiceDTO
-    ){
+    async updateService(id: string, data: updateServiceDTO) {
         const serviceExists = await servicesRepository.findServiceById(id)
-
-        if(!serviceExists){
+        if (!serviceExists.service) {
             throw new AppError('Service not found', 404, 'SERVICE_NOT_FOUND')
-        }
-
-        if(serviceExists.history === undefined){
-            throw new AppError('Internal server error', 500, 'INTERNAL_SERVER_ERROR')
         }
 
         const cleanedData = removeUndefined(data)
 
-        if(cleanedData.clientId !== undefined){
-            await verifyForUpdate(
-                serviceExists,
-                cleanedData
-            )
+        if (cleanedData.clientId !== undefined || cleanedData.equipamentId !== undefined) {
+            await verifyForUpdate(serviceExists, cleanedData)
         }
 
-        if(cleanedData.costPerHour !== undefined && cleanedData.costPerHour === true){
-            const costPerHourValue = await servicesRepository.calculateCostPerHour()
-
-            if(!costPerHourValue){
-                throw new AppError('Internal server error', 500, 'INTERNAL_SERVER_ERROR')
-            }
-
-            cleanedData.costPerHour = costPerHourValue
-        }
-
-        if(cleanedData.costPerHour !== undefined && cleanedData.costPerHour === false){
+        if (cleanedData.costPerHour === true) {
+            cleanedData.costPerHour = await servicesRepository.calculateCostPerHour()
+        } else if (cleanedData.costPerHour === false || cleanedData.costPerHour === null) {
             cleanedData.costPerHour = null
         }
 
-        const updatedService = await servicesRepository.updateService(
-            id,
-            serviceExists.history.id,
-            cleanedData
-        )
-
-        if(!updatedService){
-            throw new AppError('Internal server error', 500, 'INTERNAL_SERVER_ERROR')
-        }
-
-        return updatedService
+        return servicesRepository.updateService(id, {
+            ...cleanedData,
+            eventType: 'service_updated'
+        })
     }
 
-    async updateServiceStatus(
-        id : string,
-        data : updateStatusServiceDTO
-    ){
+    async updateServiceStatus(id: string, data: updateStatusServiceDTO) {
         const serviceExists = await servicesRepository.findServiceById(id)
-
-        if(!serviceExists){
+        if (!serviceExists.service) {
             throw new AppError('Service not found', 404, 'SERVICE_NOT_FOUND')
         }
 
-        if(serviceExists.history === undefined){
-            throw new AppError('Internal server error', 500, 'INTERNAL_SERVER_ERROR')
-        }
-
-        const cleanedData = removeUndefined(data);
-
-        if(!allowedServiceStatus.includes(cleanedData.status)){
+        const cleanedData = removeUndefined(data)
+        if (!allowedServiceStatus.includes(cleanedData.status)) {
             throw new AppError('Invalid service status', 400, 'INVALID_SERVICE_STATUS')
         }
 
-        const updatedService = await servicesRepository.updateServiceStatus(
-            id,
-            serviceExists.history.id,
-            cleanedData
-        )
-
-        if(!updatedService){
-            throw new AppError('Internal server error', 500, 'INTERNAL_SERVER_ERROR')
-        }
-
-        return updatedService
+        return servicesRepository.updateServiceStatus(id, {
+            ...cleanedData,
+            eventType: 'service_status_updated'
+        })
     }
 
-    async findServicesByFilters(
-        filters : findServicesByFiltersDTO
-    ){
-        const cleanedFilters = removeUndefined(filters);
+    async findServicesByFilters(filters: findServicesByFiltersDTO) {
+        const cleanedFilters = removeUndefined(filters)
 
         const rawServices = await servicesRepository.findServiceByFilters(
             cleanedFilters.id,
@@ -167,49 +118,34 @@ class ServicesService{
             cleanedFilters.titheStatus
         )
 
-        if(!rawServices){
-            throw new AppError('Internal server error', 500, 'INTERNAL_SERVER_ERROR')
-        }
-
-        if(cleanedFilters.showHistory === false){
+        if (cleanedFilters.showHistory !== true) {
             return rawServices
         }
 
-        if(cleanedFilters.showHistory === true){
-            let servicesIds = new Array()
+        const rawHistories = await servicesRepository.findHistoriesByServiceIds(
+            rawServices.map(service => service.id)
+        )
 
-            rawServices.forEach(service =>{
-                if(service.id){
-                    servicesIds.push(service.id)
-                }
-            })
-
-            const rawHistories = await servicesRepository.findHistoriesByServiceIds(servicesIds);
-
-            if(!rawHistories){
-                throw new AppError('Internal server error', 500, 'INTERNAL_SERVER_ERROR')
-            }
-
-            return rawServices
+        const historiesByServiceId = new Map<string, typeof rawHistories>()
+        for (const history of rawHistories) {
+            const existing = historiesByServiceId.get(history.serviceId) ?? []
+            existing.push(history)
+            historiesByServiceId.set(history.serviceId, existing)
         }
 
+        return rawServices.map(service => ({
+            ...service,
+            history: historiesByServiceId.get(service.id) ?? []
+        }))
     }
 
-    async deleteServiceById(
-        id : string
-    ){
-        const serviceExists = await servicesRepository.findServiceById(id);
-
-        if(!serviceExists){
-            throw new AppError('Service not found', 404, "SERVICE_NOT_FOUND")
+    async deleteServiceById(id: string) {
+        const serviceExists = await servicesRepository.findServiceById(id)
+        if (!serviceExists.service) {
+            throw new AppError('Service not found', 404, 'SERVICE_NOT_FOUND')
         }
 
-        const result = await servicesRepository.deleteServiceById(id)
-
-        if(!result){
-            throw new AppError('Internal Server Error', 500, 'INTERNAL_SERVER_ERROR')
-        }
-
+        await servicesRepository.deleteServiceById(id)
         return true
     }
 }
