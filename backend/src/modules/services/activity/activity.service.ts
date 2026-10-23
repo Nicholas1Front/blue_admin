@@ -9,24 +9,28 @@ import { removeUndefined } from "../../../shared/helpers/objects/removeUndefined
 import { undefinedToNull } from "../../../shared/helpers/objects/undefinedToNull.js";
 import { allowedActivityStatus } from './../shared/allowedActivityStatus.js';
 
-class ActivityService {
-    async addActivity(serviceId: string, data: addActivityDTO) {
+class ActivityService{
+    async addActivity(
+        serviceId : string,
+        data : addActivityDTO
+    ){
         const cleanedData = undefinedToNull(data)
 
-        const serviceExists = await activityRepository.findServiceById(serviceId)
-        if (!serviceExists) {
+        const serviceExists = await activityRepository.findServiceById(serviceId);
+
+        if(!serviceExists){
             throw new AppError('Service not found', 404, 'SERVICE_NOT_FOUND')
         }
 
-        if (!allowedActivityStatus.includes(cleanedData.status)) {
+        if(!allowedActivityStatus.includes(cleanedData.status)){
             throw new AppError('Invalid activity status', 400, 'INVALID_ACTIVITY_STATUS')
         }
 
-        if (
+        if(
             cleanedData.startAt !== null &&
             cleanedData.endAt !== null &&
             cleanedData.startAt > cleanedData.endAt
-        ) {
+        ){
             throw new AppError('Activity start must be before its end', 400, 'INVALID_ACTIVITY_PERIOD')
         }
 
@@ -39,71 +43,95 @@ class ActivityService {
             cleanedData.status
         )
 
+        if(!activity){
+            throw new AppError('Internal server error', 500, 'INTERNAL_SERVER_ERROR')
+        }
+
         return {
-            service: serviceExists,
-            activity
+            service : serviceExists,
+            activity : activity
         }
     }
 
-    async updateActivity(id: string, data: updateActivityDTO) {
+    async updateActivity(
+        id : string,
+        data : updateActivityDTO
+    ){
         const activityExists = await activityRepository.findActivityById(id)
-        if (!activityExists) {
-            throw new AppError('Activity not found', 404, 'ACTIVITY_NOT_FOUND')
+
+        if(!activityExists){
+            throw new AppError('Activity not found', 404, "ACTIVITY_NOT_FOUND")
         }
 
-        const cleanedData = removeUndefined(data)
+        const cleanedData = removeUndefined(data);
 
-        if (
+        if(
             cleanedData.status !== undefined &&
             !allowedActivityStatus.includes(cleanedData.status)
-        ) {
+        ){
             throw new AppError('Invalid activity status', 400, 'INVALID_ACTIVITY_STATUS')
         }
 
-        const effectiveStartAt =
-            cleanedData.startAt !== undefined ? cleanedData.startAt : activityExists.startAt
-        const effectiveEndAt =
-            cleanedData.endAt !== undefined ? cleanedData.endAt : activityExists.endAt
+        const effectiveStartAt = cleanedData.startAt !== undefined
+            ? cleanedData.startAt
+            : activityExists.startAt
+        const effectiveEndAt = cleanedData.endAt !== undefined
+            ? cleanedData.endAt
+            : activityExists.endAt
 
-        if (
+        if(
             effectiveStartAt !== null &&
             effectiveEndAt !== null &&
             effectiveStartAt > effectiveEndAt
-        ) {
+        ){
             throw new AppError('Activity start must be before its end', 400, 'INVALID_ACTIVITY_PERIOD')
         }
 
-        const activity = await activityRepository.updateActivity(id, cleanedData)
-        if (!activity) {
+        const activity = await activityRepository.updateActivity(
+            id,
+            cleanedData
+        )
+
+        if(!activity){
             throw new AppError('Activity not found', 404, 'ACTIVITY_NOT_FOUND')
         }
 
         const service = await activityRepository.findServiceById(activity.serviceId)
-        if (!service) {
-            throw new AppError('Service not found', 404, 'SERVICE_NOT_FOUND')
+
+        if(!service){
+            throw new AppError('Internal server error', 500, 'INTERNAL_SERVER_ERROR')
         }
 
         return {
-            service,
-            activity
+            service : service,
+            activity : activity
         }
     }
 
-    async findActivitiesByServiceId(serviceId: string) {
-        const serviceExists = await activityRepository.findServiceById(serviceId)
-        if (!serviceExists) {
-            throw new AppError('Service not found', 404, 'SERVICE_NOT_FOUND')
+    async findActivitiesByServiceId(
+        serviceId : string
+    ){
+        const serviceExists = await activityRepository.findServiceById(serviceId);
+
+        if(!serviceExists){
+            throw new AppError('Service not found', 404, "SERVICE_NOT_FOUND")
         }
 
         const activities = await activityRepository.findActivitiesByServiceId(serviceId)
 
+        if(!activities){
+            throw new AppError('Internal server error', 500, 'INTERNAL_SERVER_ERROR')
+        }
+
         return {
-            service: serviceExists,
-            activity: activities
+            service : serviceExists,
+            activity : activities
         }
     }
 
-    async findActivitiesByFilters(filters: findActivitiesByFiltersDTO) {
+    async findActivitiesByFilters(
+        filters : findActivitiesByFiltersDTO
+    ){
         const cleanedFilters = removeUndefined(filters)
 
         const rawActivities = await activityRepository.findActivitiesByFilters(
@@ -119,20 +147,36 @@ class ActivityService {
         const servicesIds = [...new Set(rawActivities.map(activity => activity.serviceId))]
         const rawServices = await activityRepository.findServicesByIds(servicesIds)
 
-        return rawServices.map(service => ({
-            service,
-            activities: rawActivities.filter(activity => activity.serviceId === service.id)
-        }))
+        let results = new Array()
+
+        rawServices.forEach(service =>{
+            let result = {
+                service : service,
+                activities : new Array()
+            }
+            rawActivities.forEach(activity => {
+                if(activity.serviceId === service.id){
+                    result.activities.push(activity)
+                }
+            })
+            results.push(result)
+        })
+
+        return results
     }
 
-    async deleteActivityById(id: string) {
+    async deleteActivityById(
+        id : string
+    ){
         const activityExists = await activityRepository.findActivityById(id)
-        if (!activityExists) {
+
+        if(!activityExists){
             throw new AppError('Activity not found', 404, 'ACTIVITY_NOT_FOUND')
         }
 
-        const deleted = await activityRepository.deleteActivity(id)
-        if (!deleted) {
+        const result = await activityRepository.deleteActivity(id)
+
+        if(!result){
             throw new AppError('Activity not found', 404, 'ACTIVITY_NOT_FOUND')
         }
 
