@@ -147,6 +147,10 @@ class ActivityService{
         const servicesIds = [...new Set(rawActivities.map(activity => activity.serviceId))]
         const rawServices = await activityRepository.findServicesByIds(servicesIds)
 
+        if(!rawServices){
+            throw new AppError('Internal server error', 500, "INTERNAL_SERVER_ERROR")
+        }
+
         let results = new Array()
 
         rawServices.forEach(service =>{
@@ -177,7 +181,7 @@ class ActivityService{
         const result = await activityRepository.deleteActivity(id)
 
         if(!result){
-            throw new AppError('Activity not found', 404, 'ACTIVITY_NOT_FOUND')
+            throw new AppError('Internal server error', 500, 'INTERNAL_SERVER_ERROR')
         }
 
         return true
