@@ -182,6 +182,15 @@ class ServicesService{
             throw new AppError('Service not found', 404, "SERVICE_NOT_FOUND")
         }
 
+        const hasLinkedTransactions = await servicesRepository.hasLinkedTransactions(id)
+        if(hasLinkedTransactions || serviceExists.service.titheTransactionId !== null){
+            throw new AppError(
+                'Cannot delete a service while financial transactions are linked to it',
+                409,
+                'SERVICE_HAS_LINKED_TRANSACTIONS'
+            )
+        }
+
         const result = await servicesRepository.deleteServiceById(id)
 
         if(!result){
