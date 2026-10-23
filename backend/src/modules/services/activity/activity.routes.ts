@@ -10,6 +10,6 @@ router.post('/add-activity/:serviceId', activityController.addActivity)
 router.put('/update-activity/:id', activityController.updateActivity)
 router.get('/find-activities-by-service', activityController.findActivitiesByServiceId)
 router.get('/find-activities-by-filters', activityController.findActivitiesByFilters)
-router.delete('/delete-activity', activityController.deleteActivity)
+router.delete('/delete-activity/:id', activityController.deleteActivity)
 
 export default router
