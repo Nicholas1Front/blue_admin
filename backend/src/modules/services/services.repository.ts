@@ -66,7 +66,8 @@ class ServiceRepository{
             status : status,
             hoursWorked : hoursWorked,
             costPerHour : costPerHour,
-            titheTransactionId : null
+            titheTransactionId : null,
+            titheStatus : 'aguardando'
         }
 
         return prisma.$transaction(async tx => {
@@ -267,29 +268,29 @@ class ServiceRepository{
         })
     }
 
-    async hasLinkedTransactions(
-        serviceId : string
-    ){
-        const transaction = await prisma.financialTransaction.findFirst({
-            where : {
-                originId : serviceId
-            },
-            select : {
-                id : true
-            }
-        })
-
-        return transaction !== null
-    }
-
     async deleteServiceById(
         id : string
     ){
-        await prisma.service.delete({
-            where : {id}
-        })
+        return prisma.$transaction(async tx => {
+            // Preserve financial records while removing every origin reference
+            // to this service. The service and its dependent history/activity
+            // rows are deleted in the same transaction.
+            await tx.financialTransaction.updateMany({
+                where : {
+                    originId : id
+                },
+                data : {
+                    originId : null,
+                    originType : null
+                }
+            })
 
-        return true
+            await tx.service.delete({
+                where : {id}
+            })
+
+            return true
+        })
     }
 }
 
