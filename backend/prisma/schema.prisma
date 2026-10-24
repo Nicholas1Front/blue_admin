@@ -115,7 +115,7 @@ model Service {
   status             String
   hoursWorked        Decimal?    @map("hours_worked")
   costPerHour        Decimal?    @map("cost_per_hour")
-  titheStatus        String?     @default("pending") @map("tithe_status")
+  titheStatus        String?     @default("aguardando") @map("tithe_status")
   titheTransactionId String?     @unique @map("tithe_transaction_id")
   createdAt          DateTime    @default(now()) @map("created_at")
   updatedAt          DateTime    @updatedAt @map("updated_at")
