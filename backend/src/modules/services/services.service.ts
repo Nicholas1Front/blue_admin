@@ -44,14 +44,6 @@ class ServicesService{
             throw new AppError('Exit date cannot be before entry date', 400, 'INVALID_SERVICE_PERIOD')
         }
 
-        if(cleanedData.costPerHour === true){
-            // A zero value is valid when there are no active monthly expenses.
-            cleanedData.costPerHour = await servicesRepository.calculateCostPerHour()
-        }else{
-            // The boolean is a UI instruction, not the stored hourly cost.
-            cleanedData.costPerHour = null
-        }
-
         const service = await servicesRepository.createService(
             cleanedData.clientId,
             cleanedData.equipamentId,
@@ -59,7 +51,7 @@ class ServicesService{
             cleanedData.exitDate,
             cleanedData.status,
             cleanedData.hoursWorked,
-            cleanedData.costPerHour,
+            null,
             'service_created',
             cleanedData.description
         )
@@ -180,15 +172,6 @@ class ServicesService{
 
         if(!serviceExists.service){
             throw new AppError('Service not found', 404, "SERVICE_NOT_FOUND")
-        }
-
-        const hasLinkedTransactions = await servicesRepository.hasLinkedTransactions(id)
-        if(hasLinkedTransactions || serviceExists.service.titheTransactionId !== null){
-            throw new AppError(
-                'Cannot delete a service while financial transactions are linked to it',
-                409,
-                'SERVICE_HAS_LINKED_TRANSACTIONS'
-            )
         }
 
         const result = await servicesRepository.deleteServiceById(id)
