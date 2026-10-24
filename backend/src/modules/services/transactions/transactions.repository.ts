@@ -85,6 +85,86 @@ class TransactionsRepository {
             ]
         })
     }
+
+    async updateTithe(
+        transactionId : string,
+        serviceId : string
+    ){
+        return prisma.$transaction(async (tx)=>{
+            const transaction = await tx.financialTransaction.update({
+                where : {
+                    id : transactionId
+                },
+                data : {
+                    originId : serviceId,
+                    originType : 'services'
+                }
+            })
+
+            const service = await tx.service.update({
+                where : {
+                    id : serviceId
+                },
+                data : {
+                    titheTransactionId : transactionId,
+                    titheStatus : 'paid'
+                }
+            })
+
+            const history = await tx.serviceHistory.create({
+                data : {
+                    serviceId : serviceId,
+                    eventType : 'tithe_paid',
+                    description : `Tithe transaction linked - transaction : ${transactionId}`
+                }
+            })
+
+            return {
+                service : service,
+                transaction : transaction
+            }
+        })
+    }
+
+    async removeTithe(
+        transactionId : string,
+        serviceId : string
+    ){
+        return await prisma.$transaction(async (tx)=>{
+            const transaction = await tx.financialTransaction.update({
+                where : {
+                    id : transactionId
+                },
+                data : {
+                    originId : null,
+                    originType : null
+                }
+            })
+
+            const service = await tx.service.update({
+                where : {
+                    id : serviceId
+                },
+                data : {
+                    titheTransactionId : null,
+                    titheStatus : null
+                }
+            })
+
+            const history = await tx.serviceHistory.create({
+                data : {
+                    serviceId : serviceId,
+                    eventType : 'tithe_removed',
+                    description : `Tithe transaction remove linked - transaction : ${transactionId}`
+                }
+            })
+
+            return {
+                service : service,
+                transaction : transaction
+            }
+        })
+    }
 }
 
 export default new TransactionsRepository()

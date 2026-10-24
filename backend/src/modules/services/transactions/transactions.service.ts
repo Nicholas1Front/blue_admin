@@ -96,6 +96,74 @@ class TransactionsService {
             transactions
         };
     }
+
+    async updateTithe(
+        transactionId : string,
+        serviceId : string
+    ){
+        const transactionExists = await transactionsRepository.findTransactionById(transactionId)
+
+        if(!transactionExists){
+            throw new AppError('Transaction not found', 404, 'TRANSACTION_NOT_FOUND')
+        }
+
+        if(transactionExists.originId !== null && transactionExists.originType !== null){
+            throw new AppError(
+                'Transaction is already linked to an origin and cannot be added again',
+                409,
+                'TRANSACTION_ALREADY_HAS_ORIGIN'
+            );
+        }
+
+        const serviceExists = await transactionsRepository.findServiceById(serviceId)
+
+        if(!serviceExists){
+            throw new AppError('Service not found', 404, 'SERVICE_NOT_FOUND')
+        }
+
+        const result = await transactionsRepository.updateTithe(
+            transactionId,
+            serviceId
+        )
+
+        if(!result){
+            throw new AppError('Internal server error', 500, 'INTERNAL_SERVER_ERROR')
+        }
+
+        return result
+    }
+
+    async removeTithe(
+        transactionId : string,
+        serviceId : string
+    ){
+        const transactionExists = await transactionsRepository.findTransactionById(transactionId)
+
+        if(!transactionExists){
+            throw new AppError('Transaction not found', 404, "TRANSACTION_NOT_EXISTS")
+        }
+
+        if(transactionExists.originId === null && transactionExists.originType === null){
+            throw new AppError('Transaction origin is already null', 400, 'TRANSACTION_ORIGIN_ALREADY_NULL')
+        }
+
+        const serviceExists = await transactionsRepository.findServiceById(serviceId)
+
+        if(!serviceExists){
+            throw new AppError('Service not found', 404, 'SERVICE_NOT_FOUND')
+        }
+
+        const result = await transactionsRepository.removeTithe(
+            transactionId,
+            serviceId
+        )
+
+        if(!result){
+            throw new AppError('Internal server error', 500, 'INTERNAL_SERVER_ERROR')
+        }
+
+        return result
+    }
 }
 
 export default new TransactionsService()

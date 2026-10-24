@@ -62,6 +62,44 @@ class TransactionsController{
             data : response
         })
     }
+
+    async updateTithe(
+        req : Request,
+        res : Response
+    ){
+        if(!req.user){
+            throw new AppError('User not authenticated', 401, 'USER_NOT_AUTHENTICATED')
+        }
+
+        const response = await transactionsService.updateTithe(
+            req.params.transactionId as string,
+            req.params.serviceId as string
+        )
+
+        return res.status(200).json({
+            message : 'Tithe successfully updated in service',
+            data : response
+        })
+    }
+
+    async removeTithe(
+        req : Request,
+        res : Response
+    ){
+        if(!req.user){
+            throw new AppError('User not authenticated', 401, 'USER_NOT_AUTHENTICATED')
+        }
+
+        const response = await transactionsService.removeTithe(
+            req.params.transactionId as string,
+            req.params.serviceId as string
+        )
+
+        return res.status(200).json({
+            message : 'Tithe successfully removed from service',
+            data : response
+        })
+    }
 }
 
 export default new TransactionsController()
