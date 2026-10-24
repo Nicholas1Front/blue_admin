@@ -19,7 +19,11 @@ class TransactionsService {
 
         // A transaction may only have one origin. Reject both complete and
         // partially populated origin pairs rather than silently reassigning it.
-        if (transactionExists.originId !== null || transactionExists.originType !== null) {
+        if (
+            transactionExists.originId !== null ||
+            transactionExists.originType !== null ||
+            transactionExists.titheForService !== null
+        ) {
             throw new AppError(
                 'Transaction is already linked to an origin and cannot be added again',
                 409,
@@ -50,6 +54,14 @@ class TransactionsService {
         const transactionExists = await transactionsRepository.findTransactionById(transactionId);
         if (!transactionExists) {
             throw new AppError('Transaction not found', 404, 'TRANSACTION_NOT_FOUND');
+        }
+
+        if (transactionExists.titheForService !== null) {
+            throw new AppError(
+                'Use the tithe unlink operation to remove a tithe transaction',
+                409,
+                'TRANSACTION_IS_SERVICE_TITHE'
+            );
         }
 
         if (
@@ -107,12 +119,16 @@ class TransactionsService {
             throw new AppError('Transaction not found', 404, 'TRANSACTION_NOT_FOUND')
         }
 
-        if(transactionExists.originId !== null && transactionExists.originType !== null){
+        if (
+            transactionExists.originId !== null ||
+            transactionExists.originType !== null ||
+            transactionExists.titheForService !== null
+        ) {
             throw new AppError(
                 'Transaction is already linked to an origin and cannot be added again',
                 409,
                 'TRANSACTION_ALREADY_HAS_ORIGIN'
-            );
+            )
         }
 
         const serviceExists = await transactionsRepository.findServiceById(serviceId)
@@ -121,13 +137,34 @@ class TransactionsService {
             throw new AppError('Service not found', 404, 'SERVICE_NOT_FOUND')
         }
 
-        const result = await transactionsRepository.updateTithe(
-            transactionId,
-            serviceId
-        )
+        if(serviceExists.titheTransactionId !== null){
+            throw new AppError(
+                'This service already has a tithe transaction linked',
+                409,
+                'SERVICE_ALREADY_HAS_TITHE'
+            )
+        }
+
+        let result
+        try {
+            result = await transactionsRepository.updateTithe(transactionId, serviceId)
+        } catch(error) {
+            if(error instanceof Error && error.message === 'TITHE_LINK_CONFLICT'){
+                throw new AppError(
+                    'The service or transaction changed while linking the tithe',
+                    409,
+                    'TITHE_LINK_CONFLICT'
+                )
+            }
+            throw error
+        }
 
         if(!result){
-            throw new AppError('Internal server error', 500, 'INTERNAL_SERVER_ERROR')
+            throw new AppError(
+                'The transaction is already linked or changed by another request',
+                409,
+                'TITHE_LINK_CONFLICT'
+            )
         }
 
         return result
@@ -140,11 +177,7 @@ class TransactionsService {
         const transactionExists = await transactionsRepository.findTransactionById(transactionId)
 
         if(!transactionExists){
-            throw new AppError('Transaction not found', 404, "TRANSACTION_NOT_EXISTS")
-        }
-
-        if(transactionExists.originId === null && transactionExists.originType === null){
-            throw new AppError('Transaction origin is already null', 400, 'TRANSACTION_ORIGIN_ALREADY_NULL')
+            throw new AppError('Transaction not found', 404, 'TRANSACTION_NOT_FOUND')
         }
 
         const serviceExists = await transactionsRepository.findServiceById(serviceId)
@@ -153,13 +186,38 @@ class TransactionsService {
             throw new AppError('Service not found', 404, 'SERVICE_NOT_FOUND')
         }
 
-        const result = await transactionsRepository.removeTithe(
-            transactionId,
-            serviceId
-        )
+        if(
+            serviceExists.titheTransactionId !== transactionId ||
+            transactionExists.originId !== serviceId ||
+            transactionExists.originType !== 'services'
+        ){
+            throw new AppError(
+                'This transaction is not the tithe linked to this service',
+                409,
+                'TITHE_LINK_MISMATCH'
+            )
+        }
+
+        let result
+        try {
+            result = await transactionsRepository.removeTithe(transactionId, serviceId)
+        } catch(error) {
+            if(error instanceof Error && error.message === 'TITHE_LINK_CONFLICT'){
+                throw new AppError(
+                    'The service or transaction changed while removing the tithe',
+                    409,
+                    'TITHE_LINK_CONFLICT'
+                )
+            }
+            throw error
+        }
 
         if(!result){
-            throw new AppError('Internal server error', 500, 'INTERNAL_SERVER_ERROR')
+            throw new AppError(
+                'The tithe link changed before it could be removed',
+                409,
+                'TITHE_LINK_CONFLICT'
+            )
         }
 
         return result
