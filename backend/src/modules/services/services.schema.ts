@@ -7,7 +7,6 @@ export const createServiceSchema = z.object({
     exitDate : z.coerce.date().nullable().optional(),
     status : z.string().min(1).default('pendente'),
     hoursWorked : z.coerce.number().min(0).nullable().optional(),
-    costPerHour : z.coerce.boolean().nullable().optional(),
     description : z.string().trim().min(1),
 })
 
