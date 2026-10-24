@@ -2,7 +2,14 @@ import {prisma} from '../../../shared/database/prisma.js'
 
 class TransactionsRepository {
     async findTransactionById(id: string) {
-        return prisma.financialTransaction.findUnique({ where: { id } })
+        return prisma.financialTransaction.findUnique({
+            where: { id },
+            include: {
+                titheForService: {
+                    select: { id: true }
+                }
+            }
+        })
     }
 
     async findServiceById(id: string) {
@@ -90,10 +97,12 @@ class TransactionsRepository {
         transactionId : string,
         serviceId : string
     ){
-        return prisma.$transaction(async (tx)=>{
-            const transaction = await tx.financialTransaction.update({
+        return prisma.$transaction(async tx => {
+            const transactionUpdate = await tx.financialTransaction.updateMany({
                 where : {
-                    id : transactionId
+                    id : transactionId,
+                    originId : null,
+                    originType : null
                 },
                 data : {
                     originId : serviceId,
@@ -101,28 +110,40 @@ class TransactionsRepository {
                 }
             })
 
-            const service = await tx.service.update({
+            if(transactionUpdate.count !== 1){
+                return null
+            }
+
+            const serviceUpdate = await tx.service.updateMany({
                 where : {
-                    id : serviceId
+                    id : serviceId,
+                    titheTransactionId : null
                 },
                 data : {
                     titheTransactionId : transactionId,
-                    titheStatus : 'paid'
+                    titheStatus : 'concluído'
                 }
             })
 
-            const history = await tx.serviceHistory.create({
+            if(serviceUpdate.count !== 1){
+                // Throwing rolls back the transaction-origin update above.
+                throw new Error('TITHE_LINK_CONFLICT')
+            }
+
+            await tx.serviceHistory.create({
                 data : {
-                    serviceId : serviceId,
+                    serviceId,
                     eventType : 'tithe_paid',
                     description : `Tithe transaction linked - transaction : ${transactionId}`
                 }
             })
 
-            return {
-                service : service,
-                transaction : transaction
-            }
+            const [service, transaction] = await Promise.all([
+                tx.service.findUnique({ where : {id : serviceId} }),
+                tx.financialTransaction.findUnique({ where : {id : transactionId} })
+            ])
+
+            return { service, transaction }
         })
     }
 
@@ -130,10 +151,27 @@ class TransactionsRepository {
         transactionId : string,
         serviceId : string
     ){
-        return await prisma.$transaction(async (tx)=>{
-            const transaction = await tx.financialTransaction.update({
+        return prisma.$transaction(async tx => {
+            const serviceUpdate = await tx.service.updateMany({
                 where : {
-                    id : transactionId
+                    id : serviceId,
+                    titheTransactionId : transactionId
+                },
+                data : {
+                    titheTransactionId : null,
+                    titheStatus : 'não concluído'
+                }
+            })
+
+            if(serviceUpdate.count !== 1){
+                return null
+            }
+
+            const transactionUpdate = await tx.financialTransaction.updateMany({
+                where : {
+                    id : transactionId,
+                    originId : serviceId,
+                    originType : 'services'
                 },
                 data : {
                     originId : null,
@@ -141,28 +179,25 @@ class TransactionsRepository {
                 }
             })
 
-            const service = await tx.service.update({
-                where : {
-                    id : serviceId
-                },
-                data : {
-                    titheTransactionId : null,
-                    titheStatus : null
-                }
-            })
-
-            const history = await tx.serviceHistory.create({
-                data : {
-                    serviceId : serviceId,
-                    eventType : 'tithe_removed',
-                    description : `Tithe transaction remove linked - transaction : ${transactionId}`
-                }
-            })
-
-            return {
-                service : service,
-                transaction : transaction
+            if(transactionUpdate.count !== 1){
+                // Throwing rolls back the service tithe fields above.
+                throw new Error('TITHE_LINK_CONFLICT')
             }
+
+            await tx.serviceHistory.create({
+                data : {
+                    serviceId,
+                    eventType : 'tithe_removed',
+                    description : `Tithe transaction unlinked - transaction : ${transactionId}`
+                }
+            })
+
+            const [service, transaction] = await Promise.all([
+                tx.service.findUnique({ where : {id : serviceId} }),
+                tx.financialTransaction.findUnique({ where : {id : transactionId} })
+            ])
+
+            return { service, transaction }
         })
     }
 }
