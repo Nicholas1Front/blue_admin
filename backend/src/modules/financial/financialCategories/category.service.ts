@@ -53,7 +53,7 @@ class CategoryService {
         if(cleanedData.name !== undefined){
             const categoryExists = await categoryRepository.findCategoryByName(cleanedData.name)
 
-            if(categoryExists.length > 0){
+            if(categoryExists.some(category => category.id !== id)){
                 throw new AppError('This category name already is in use', 400, 'CATEGORY_ALREADY_IN_USE')
             }
         }
