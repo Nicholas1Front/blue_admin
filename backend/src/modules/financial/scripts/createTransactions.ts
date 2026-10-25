@@ -49,10 +49,23 @@ async function createTransactions(){
 
     const removed = await prisma.financialTransaction.deleteMany({
         where : {
-            originType : transactionOriginType,
-            originId : {
-                startsWith : originIdPrefix
-            }
+            OR : [
+                {
+                    // Remove test records created by the previous version of this script.
+                    originType : transactionOriginType,
+                    originId : {
+                        startsWith : originIdPrefix
+                    }
+                },
+                {
+                    // Remove this script's unlinked test records when rerunning it.
+                    description : {
+                        startsWith : `TESTE RESUMO MENSAL ${year}-`
+                    },
+                    originId : null,
+                    originType : null
+                }
+            ]
         }
     });
 
@@ -98,8 +111,8 @@ async function createTransactions(){
                 type : category.type,
                 categoryId : category.id,
                 referenceDate,
-                originType : transactionOriginType,
-                originId : `${originIdPrefix}${String(month).padStart(2, '0')}-${String(index + 1).padStart(2, '0')}`
+                originType : null,
+                originId : null
             });
         }
     }
@@ -109,7 +122,7 @@ async function createTransactions(){
     });
 
     console.log(`Concluído. Criados ${result.count} lançamentos de teste para ${year} (12 por mês: 6 entradas e 6 saídas).`);
-    console.log('Os lançamentos foram identificados com originType "blue_admin_test_seed".');
+    console.log('Todos os lançamentos foram criados sem vínculo de origem (originId e originType nulos).');
 }
 
 createTransactions()
