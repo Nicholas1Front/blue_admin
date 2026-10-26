@@ -106,7 +106,7 @@ class TransactionsRepository {
                 },
                 data : {
                     originId : serviceId,
-                    originType : 'services'
+                    originType : 'service_tithe'
                 }
             })
 
