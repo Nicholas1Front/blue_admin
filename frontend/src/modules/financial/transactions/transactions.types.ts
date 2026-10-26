@@ -22,8 +22,6 @@ export interface CreateTransactionRequest {
     description: string;
     value: number;
     referenceDate: string;
-    originId?: string | null;
-    originType?: string | null;
 }
 
 export interface UpdateTransactionRequest {
@@ -31,8 +29,6 @@ export interface UpdateTransactionRequest {
     description?: string;
     value?: number;
     referenceDate?: string;
-    originId?: string | null;
-    originType?: string | null;
 }
 
 export interface FindTransactionsByFilters {
