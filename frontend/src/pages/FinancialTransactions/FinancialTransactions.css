@@ -1326,3 +1326,115 @@
         height: 2.25rem;
     }
 }
+
+
+/* Consulta somente leitura dos metadados do lançamento e de sua origem. */
+.financial-transaction-details {
+    display: grid;
+    gap: var(--spacing-5);
+    min-width: 0;
+}
+
+.financial-transaction-details__intro {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-relaxed);
+}
+
+.financial-transaction-details__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--spacing-3);
+}
+
+.financial-transaction-details__field {
+    display: grid;
+    align-content: start;
+    gap: var(--spacing-2);
+    min-width: 0;
+    padding: var(--spacing-3);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+}
+
+.financial-transaction-details__field--wide {
+    grid-column: 1 / -1;
+}
+
+.financial-transaction-details__field > span {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+}
+
+.financial-transaction-details__field > div {
+    min-width: 0;
+    color: var(--color-text);
+    font-size: var(--font-size-sm);
+    overflow-wrap: anywhere;
+}
+
+.financial-transaction-details__field code {
+    color: var(--color-text);
+    font-family: var(--font-family-mono, ui-monospace, SFMono-Regular, Menlo, monospace);
+    font-size: var(--font-size-xs);
+    overflow-wrap: anywhere;
+    white-space: normal;
+}
+
+.financial-transaction-details__type {
+    display: inline-flex;
+    align-items: center;
+    width: fit-content;
+    padding: var(--spacing-1) var(--spacing-2);
+    border-radius: var(--radius-sm);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+}
+
+.financial-transaction-details__type--income {
+    color: #4ade80;
+    background: rgb(34 197 94 / 0.1);
+}
+
+.financial-transaction-details__type--expense {
+    color: #fb8585;
+    background: rgb(239 68 68 / 0.1);
+}
+
+.financial-transaction-details__empty {
+    color: var(--color-text-muted);
+    font-style: italic;
+}
+
+.financial-transaction-details__actions {
+    display: flex;
+    justify-content: flex-end;
+    padding-top: var(--spacing-2);
+}
+
+.financial-transaction-details__actions button {
+    min-height: var(--control-height-md);
+    padding: 0 var(--spacing-4);
+    color: var(--color-text);
+    background: var(--color-surface-hover);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font: inherit;
+    cursor: pointer;
+}
+
+.financial-transaction-details__actions button:hover {
+    border-color: var(--color-border-strong);
+}
+
+@media (max-width: 480px) {
+    .financial-transaction-details__grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .financial-transaction-details__field--wide {
+        grid-column: auto;
+    }
+}
