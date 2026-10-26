@@ -189,7 +189,7 @@ class TransactionsService {
         if(
             serviceExists.titheTransactionId !== transactionId ||
             transactionExists.originId !== serviceId ||
-            transactionExists.originType !== 'services'
+            transactionExists.originType !== 'service_tithe'
         ){
             throw new AppError(
                 'This transaction is not the tithe linked to this service',
