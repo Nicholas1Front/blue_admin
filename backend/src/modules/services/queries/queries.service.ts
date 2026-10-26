@@ -37,24 +37,26 @@ class QueriesService {
             return counts
         }, Object.fromEntries(ACTIVITY_STATUSES.map(status => [status, 0])))
 
-        const incomeTotal = transactions.reduce(
-            (total, transaction) => transaction.type === 'income' ? total + transaction.value : total,
-            0
-        )
+        const roundMoney = (value : number) => Math.round((value + Number.EPSILON) * 100) / 100
 
-        const expenseTotal = transactions.reduce(
-            (total, transaction) => transaction.type === 'expense' ? total + transaction.value : total,
+        const sumTransactions = (type : string) => transactions.reduce(
+            (totalCents, transaction) => transaction.type === type
+                ? totalCents + Math.round(transaction.value * 100)
+                : totalCents,
             0
-        )
+        ) / 100
+
+        const incomeTotal = sumTransactions('income')
+        const expenseTotal = sumTransactions('expense')
 
         const normalizedHoursWorked = hoursWorked === null ? null : Number(hoursWorked)
         const normalizedCostPerHour = costPerHour === null ? null : Number(costPerHour)
 
         const operationalCost = normalizedHoursWorked !== null && normalizedCostPerHour !== null
-            ? normalizedHoursWorked * normalizedCostPerHour
+            ? roundMoney(normalizedHoursWorked * normalizedCostPerHour)
             : 0
 
-        const titheValue = (incomeTotal - (expenseTotal + operationalCost)) / 10
+        const titheValue = roundMoney((incomeTotal - (expenseTotal + operationalCost)) / 10)
         const titheStatus = service.titheStatus ?? 'aguardando'
 
         return {
