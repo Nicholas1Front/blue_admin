@@ -89,11 +89,22 @@ class TransactionsRepository{
                         mode : 'insensitive'
                     }
                 }),
-                ...(referenceDate !== undefined && {
-                    referenceDate : {
-                        equals : referenceDate
-                    }
-                }),
+                ...(referenceDate !== undefined && (() => {
+                    const startOfDay = new Date(Date.UTC(
+                        referenceDate.getUTCFullYear(),
+                        referenceDate.getUTCMonth(),
+                        referenceDate.getUTCDate()
+                    ));
+                    const startOfNextDay = new Date(startOfDay);
+                    startOfNextDay.setUTCDate(startOfNextDay.getUTCDate() + 1);
+
+                    return {
+                        referenceDate : {
+                            gte : startOfDay,
+                            lt : startOfNextDay
+                        }
+                    };
+                })()),
                 ...(originId !== undefined && { originId }),
                 ...(originType !== undefined && { originType })
             },
