@@ -7,6 +7,7 @@ import {
     faArrowTrendUp,
     faChevronLeft,
     faChevronRight,
+    faEye,
     faMagnifyingGlass,
     faPencil,
     faRotateLeft,
@@ -19,6 +20,7 @@ import { AppHeader } from "../../components/AppHeader/AppHeader";
 import { BackLink } from "../../components/BackLink/BackLink";
 import { Modal } from "../../components/Modal/Modal";
 import { FinancialTransactionCreateModal } from "./FinancialTransactionCreateModal";
+import { FinancialTransactionDetailsModal } from "./FinancialTransactionDetailsModal";
 import {
     useCategories,
     useMonthlyFinancialSummary,
@@ -94,6 +96,7 @@ export function FinancialTransactions() {
     const [searchReferenceDate, setSearchReferenceDate] = useState("");
     const [searchAppliedFilters, setSearchAppliedFilters] = useState<FindTransactionsByFilters>({});
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [transactionToView, setTransactionToView] = useState<FinancialTransactionListItem | null>(null);
     const [transactionToEdit, setTransactionToEdit] = useState<FinancialTransactionListItem | null>(null);
     const [transactionToDelete, setTransactionToDelete] = useState<FinancialTransactionListItem | null>(null);
     const transactionMutations = useTransactionMutations();
@@ -482,6 +485,14 @@ export function FinancialTransactions() {
                                             <div className="financial-transactions-table__actions" role="cell">
                                                 <button
                                                     type="button"
+                                                    onClick={() => setTransactionToView(transaction)}
+                                                    title="Consultar lançamento"
+                                                    aria-label={`Consultar lançamento: ${transaction.description}`}
+                                                >
+                                                    <FontAwesomeIcon icon={faEye} />
+                                                </button>
+                                                <button
+                                                    type="button"
                                                     onClick={() => setTransactionToEdit(transaction)}
                                                     title="Editar lançamento"
                                                     aria-label={`Editar lançamento: ${transaction.description}`}
@@ -720,6 +731,14 @@ export function FinancialTransactions() {
                                             <div className="financial-transactions-table__actions" role="cell">
                                                 <button
                                                     type="button"
+                                                    onClick={() => setTransactionToView(transaction)}
+                                                    title="Consultar lançamento"
+                                                    aria-label={`Consultar lançamento: ${transaction.description}`}
+                                                >
+                                                    <FontAwesomeIcon icon={faEye} />
+                                                </button>
+                                                <button
+                                                    type="button"
                                                     onClick={() => setTransactionToEdit(transaction)}
                                                     title="Editar lançamento"
                                                     aria-label={`Editar lançamento: ${transaction.description}`}
@@ -772,6 +791,14 @@ export function FinancialTransactions() {
                     )}
                 </section>
             </section>
+
+            {transactionToView && (
+                <FinancialTransactionDetailsModal
+                    isOpen
+                    transaction={transactionToView}
+                    onClose={() => setTransactionToView(null)}
+                />
+            )}
 
             {(isCreateModalOpen || transactionToEdit) && (
                 <FinancialTransactionCreateModal
