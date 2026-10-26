@@ -171,7 +171,7 @@ class TransactionsRepository {
                 where : {
                     id : transactionId,
                     originId : serviceId,
-                    originType : 'services'
+                    originType : 'service_tithe'
                 },
                 data : {
                     originId : null,
