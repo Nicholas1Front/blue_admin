@@ -2,68 +2,69 @@ import {prisma} from '../../../shared/database/prisma.js'
 
 class QueriesRepository {
     async findServiceDetailsById(serviceId : string) {
-        const service = await prisma.service.findUnique({
-            where : {
-                id : serviceId
-            },
-            include : {
-                client : {
-                    include : {
-                        contacts : true
-                    }
+        const [service, transactions] = await Promise.all([
+            prisma.service.findUnique({
+                where : {
+                    id : serviceId
                 },
-                equipament : true,
-                activities : {
-                    orderBy : [
-                        { startAt : 'asc' },
-                        { createdAt : 'asc' },
-                        { id : 'asc' }
-                    ]
-                },
-                history : {
-                    orderBy : [
-                        { createdAt : 'desc' },
-                        { id : 'desc' }
-                    ]
-                },
-                titheTransaction : {
-                    include : {
-                        category : {
-                            select : {
-                                id : true,
-                                name : true,
-                                type : true
+                include : {
+                    client : {
+                        include : {
+                            contacts : true
+                        }
+                    },
+                    equipament : true,
+                    activities : {
+                        orderBy : [
+                            { startAt : 'asc' },
+                            { createdAt : 'asc' },
+                            { id : 'asc' }
+                        ]
+                    },
+                    history : {
+                        orderBy : [
+                            { createdAt : 'desc' },
+                            { id : 'desc' }
+                        ]
+                    },
+                    titheTransaction : {
+                        include : {
+                            category : {
+                                select : {
+                                    id : true,
+                                    name : true,
+                                    type : true
+                                }
                             }
                         }
                     }
                 }
-            }
-        })
+            }),
+            prisma.financialTransaction.findMany({
+                where : {
+                    originId : serviceId,
+                    originType : 'services'
+                },
+                include : {
+                    category : {
+                        select : {
+                            id : true,
+                            name : true,
+                            type : true
+                        }
+                    }
+                },
+                orderBy : [
+                    { referenceDate : 'desc' },
+                    { createdAt : 'desc' },
+                    { id : 'asc' }
+                ]
+            })
+        ])
 
         if(!service){
             return null
         }
-
-        const transactions = await prisma.financialTransaction.findMany({
-            where : {
-                originId : serviceId,
-                originType : 'services'
-            },
-            include : {
-                category : {
-                    select : {
-                        id : true,
-                        name : true,
-                        type : true
-                    }
-                }
-            },
-            orderBy : [
-                { referenceDate : 'desc' },
-                { createdAt : 'desc' },
-                { id : 'asc' }
-            ]
-        })
 
         return {
             service,
