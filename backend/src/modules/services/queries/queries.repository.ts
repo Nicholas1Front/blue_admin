@@ -1,4 +1,4 @@
-import {Prisma} from '../../../generated/prisma/client.js'
+import type {Prisma} from '../../../generated/prisma/client.js'
 import {prisma} from '../../../shared/database/prisma.js'
 import type {FindServicesByFiltersQueryDTO, ServiceDashboardQueryDTO} from './queries.schema.js'
 
@@ -64,14 +64,22 @@ const contains = (value: string) => ({
     mode : 'insensitive' as const
 })
 
+const utcDate = (year: number, month: number) => {
+    const date = new Date(0)
+    date.setUTCFullYear(year, month, 1)
+    date.setUTCHours(0, 0, 0, 0)
+    return date
+}
+
 class QueriesRepository {
     async findServiceDashboard(filters : ServiceDashboardQueryDTO) {
-        const startDate = filters.month === undefined
-            ? new Date(Date.UTC(filters.year, 0, 1))
-            : new Date(Date.UTC(filters.year, filters.month - 1, 1))
+        const startDate = utcDate(
+            filters.year,
+            filters.month === undefined ? 0 : filters.month - 1
+        )
         const endDate = filters.month === undefined
-            ? new Date(Date.UTC(filters.year + 1, 0, 1))
-            : new Date(Date.UTC(filters.year, filters.month, 1))
+            ? utcDate(filters.year + 1, 0)
+            : utcDate(filters.year, filters.month)
 
         const serviceWhere : Prisma.ServiceWhereInput = {
             entryDate : {
@@ -223,34 +231,35 @@ class QueriesRepository {
             andFilters.push({titheStatus : contains(filters.titheStatus)})
         }
 
+        const activityStartDate = toDateRange(filters.activityStartFrom, filters.activityStartTo)
+        const activityEndDate = toDateRange(filters.activityEndFrom, filters.activityEndTo)
         const activityWhere : Prisma.ServiceActivityWhereInput = {
             ...(filters.activityTitle !== undefined && {title : contains(filters.activityTitle)}),
             ...(filters.activityDescription !== undefined && {description : contains(filters.activityDescription)}),
             ...(filters.activityStatus !== undefined && {status : contains(filters.activityStatus)}),
-            ...(toDateRange(filters.activityStartFrom, filters.activityStartTo) !== undefined && {
-                startAt : toDateRange(filters.activityStartFrom, filters.activityStartTo)
-            }),
-            ...(toDateRange(filters.activityEndFrom, filters.activityEndTo) !== undefined && {
-                endAt : toDateRange(filters.activityEndFrom, filters.activityEndTo)
-            })
+            ...(activityStartDate !== undefined && {startAt : activityStartDate}),
+            ...(activityEndDate !== undefined && {endAt : activityEndDate})
         }
 
         if(Object.keys(activityWhere).length > 0){
             andFilters.push({activities : {some : activityWhere}})
         }
 
+        const historyDate = toDateRange(filters.historyDateFrom, filters.historyDateTo)
         const historyWhere : Prisma.ServiceHistoryWhereInput = {
             ...(filters.historyEventType !== undefined && {eventType : contains(filters.historyEventType)}),
             ...(filters.historyDescription !== undefined && {description : contains(filters.historyDescription)}),
-            ...(toDateRange(filters.historyDateFrom, filters.historyDateTo) !== undefined && {
-                createdAt : toDateRange(filters.historyDateFrom, filters.historyDateTo)
-            })
+            ...(historyDate !== undefined && {createdAt : historyDate})
         }
 
         if(Object.keys(historyWhere).length > 0){
             andFilters.push({history : {some : historyWhere}})
         }
 
+        const transactionReferenceDate = toDateRange(
+            filters.transactionReferenceDateFrom,
+            filters.transactionReferenceDateTo
+        )
         const transactionWhere : Prisma.FinancialTransactionWhereInput = {
             ...(filters.transactionType !== undefined && {type : filters.transactionType}),
             ...(filters.transactionCategoryId !== undefined && {categoryId : filters.transactionCategoryId}),
@@ -270,9 +279,7 @@ class QueriesRepository {
                     ...(filters.transactionValueMax !== undefined && {lte : filters.transactionValueMax})
                 }
             }),
-            ...(toDateRange(filters.transactionReferenceDateFrom, filters.transactionReferenceDateTo) !== undefined && {
-                referenceDate : toDateRange(filters.transactionReferenceDateFrom, filters.transactionReferenceDateTo)
-            })
+            ...(transactionReferenceDate !== undefined && {referenceDate : transactionReferenceDate})
         }
 
         const hasTransactionFilters = Object.keys(transactionWhere).length > 0
