@@ -9,7 +9,11 @@
     "start": "node dist/server.js",
     "test": "jest",
     "seed:financial:categories": "tsx src/modules/financial/scripts/createCategories.ts",
-    "seed:financial:transactions": "tsx src/modules/financial/scripts/createTransactions.ts"
+    "seed:financial:transactions": "tsx src/modules/financial/scripts/createTransactions.ts",
+    "seed:services:clients": "tsx src/modules/services/scripts/createClients.ts",
+    "seed:services:equipaments": "tsx src/modules/services/scripts/createEquipaments.ts",
+    "seed:services:services": "tsx src/modules/services/scripts/createServices.ts",
+    "seed:services:test": "npm run seed:services:clients && npm run seed:services:equipaments && npm run seed:services:services"
   },
   "keywords": [],
   "author": "",
