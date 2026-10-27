@@ -115,8 +115,10 @@ async function createOrReuseService(data: {
                 entryDate: data.entryDate,
                 exitDate: data.exitDate,
                 status: data.status,
-                hoursWorked: data.hoursWorked,
-                costPerHour: data.costPerHour
+                ...(existing.titheTransactionId === null && {
+                    hoursWorked: data.hoursWorked,
+                    costPerHour: data.costPerHour
+                })
             }
         });
 
