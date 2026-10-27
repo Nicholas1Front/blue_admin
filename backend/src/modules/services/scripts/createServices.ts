@@ -276,6 +276,7 @@ async function linkDirectTransactions(service: TestService, year: number, month:
                 }
             },
             orderBy: [
+                {value: type === 'income' ? 'desc' : 'asc'},
                 {referenceDate: 'asc'},
                 {createdAt: 'asc'},
                 {id: 'asc'}
