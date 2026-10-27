@@ -148,7 +148,8 @@ async function createOrReuseService(data: {
             data: {
                 serviceId: createdService.id,
                 eventType: 'service_created',
-                description: data.key
+                description: data.key,
+                createdAt: data.entryDate
             }
         });
 
@@ -174,17 +175,27 @@ async function createActivitiesAndHistory(service: TestService, serviceIndex: nu
         });
 
         if(!existingActivity){
+            const proposedStartAt = new Date(service.entryDate);
+            proposedStartAt.setUTCDate(proposedStartAt.getUTCDate() + activityIndex);
+            proposedStartAt.setUTCHours(12, 0, 0, 0);
+
+            const boundedStartAt = service.exitDate !== null && proposedStartAt > service.exitDate
+                ? new Date(service.exitDate)
+                : proposedStartAt;
+
             const startAt = activityIndex === 0 && serviceIndex % 4 === 0
                 ? null
-                : getDateForService(
-                    service.entryDate.getUTCFullYear(),
-                    service.entryDate.getUTCMonth(),
-                    Math.min(service.entryDate.getUTCDate() + activityIndex, 28)
-                );
+                : boundedStartAt;
 
-            const endAt = startAt === null || (activityIndex === 3 && serviceIndex % 3 === 0)
+            const proposedEndAt = startAt === null
                 ? null
                 : new Date(startAt.getTime() + (1 + activityIndex) * 60 * 60 * 1000);
+
+            const endAt = proposedEndAt === null || (activityIndex === 3 && serviceIndex % 3 === 0)
+                ? null
+                : service.exitDate !== null && proposedEndAt > service.exitDate
+                    ? new Date(service.exitDate)
+                    : proposedEndAt;
 
             await prisma.$transaction(async tx => {
                 await tx.serviceActivity.create({
@@ -194,7 +205,8 @@ async function createActivitiesAndHistory(service: TestService, serviceIndex: nu
                         description: template.description,
                         startAt,
                         endAt,
-                        status: activityStatuses[(serviceIndex + activityIndex) % activityStatuses.length]!
+                        status: activityStatuses[(serviceIndex + activityIndex) % activityStatuses.length]!,
+                        createdAt: startAt ?? service.entryDate
                     }
                 });
 
@@ -202,7 +214,8 @@ async function createActivitiesAndHistory(service: TestService, serviceIndex: nu
                     data: {
                         serviceId: service.id,
                         eventType: 'activity_created',
-                        description: `Activity created: ${title}`
+                        description: `Activity created: ${title}`,
+                        createdAt: startAt ?? service.entryDate
                     }
                 });
             });
@@ -223,7 +236,8 @@ async function createActivitiesAndHistory(service: TestService, serviceIndex: nu
                 data: {
                     serviceId: service.id,
                     eventType: serviceIndex % 2 === 0 ? 'service_status_updated' : 'service_updated',
-                    description: historyDescription
+                    description: historyDescription,
+                    createdAt: new Date(service.entryDate.getTime() + 2 * 24 * 60 * 60 * 1000)
                 }
             });
         }
@@ -291,7 +305,8 @@ async function linkDirectTransactions(service: TestService, year: number, month:
                     data: {
                         serviceId: service.id,
                         eventType: 'transaction_linked',
-                        description: `TESTE QUERIES - Lançamento financeiro vinculado: ${candidate.id}`
+                        description: `TESTE QUERIES - Lançamento financeiro vinculado: ${candidate.id}`,
+                        createdAt: candidate.referenceDate
                     }
                 });
 
@@ -415,7 +430,8 @@ async function linkTithe(service: TestService, year: number, month: number){
             data: {
                 serviceId: service.id,
                 eventType: 'tithe_paid',
-                description: `TESTE QUERIES - Dízimo vinculado - transação: ${candidate.id}; valor: ${titheValue.toFixed(2)}`
+                description: `TESTE QUERIES - Dízimo vinculado - transação: ${candidate.id}; valor: ${titheValue.toFixed(2)}`,
+                createdAt: candidate.referenceDate
             }
         });
 
