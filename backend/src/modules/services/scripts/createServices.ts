@@ -446,7 +446,9 @@ async function linkTithe(service: TestService, year: number, month: number){
 }
 
 async function createServices(){
-    const currentYear = new Date().getFullYear();
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth() + 1;
 
     const [clients, equipaments, activeExpenses] = await Promise.all([
         prisma.client.findMany({
@@ -490,7 +492,9 @@ async function createServices(){
     for(let yearOffset = 0; yearOffset < 3; yearOffset++){
         const year = currentYear - 2 + yearOffset;
 
-        for(let month = 1; month <= 12; month++){
+        const monthsToCreate = year === currentYear ? currentMonth : 12;
+
+        for(let month = 1; month <= monthsToCreate; month++){
             const index = yearOffset * 12 + month - 1;
             const client = orderedClients[index % orderedClients.length]!;
             const clientEquipaments = equipamentsByClient.get(client.id) ?? [];
