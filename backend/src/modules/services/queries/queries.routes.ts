@@ -6,6 +6,8 @@ const router = Router()
 
 router.use(authMiddleware)
 
+router.get('/dashboard', queriesController.findServiceDashboard)
+router.get('/find-services-by-filters', queriesController.findServicesByAdvancedFilters)
 router.get('/find-service-by-id/:serviceId', queriesController.findServiceById)
 
 export default router
