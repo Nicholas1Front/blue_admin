@@ -9,16 +9,16 @@ class QueriesRepository {
                 },
                 include : {
                     client : {
-                        include : {
-                            contacts : true
+                        select : {
+                            name : true,
+                            document : true
                         }
                     },
                     equipament : true,
                     activities : {
                         orderBy : [
-                            { startAt : 'asc' },
-                            { createdAt : 'asc' },
-                            { id : 'asc' }
+                            { createdAt : 'desc' },
+                            { id : 'desc' }
                         ]
                     },
                     history : {
@@ -31,9 +31,7 @@ class QueriesRepository {
                         include : {
                             category : {
                                 select : {
-                                    id : true,
-                                    name : true,
-                                    type : true
+                                    name : true
                                 }
                             }
                         }
@@ -48,9 +46,7 @@ class QueriesRepository {
                 include : {
                     category : {
                         select : {
-                            id : true,
-                            name : true,
-                            type : true
+                            name : true
                         }
                     }
                 },
@@ -71,11 +67,6 @@ class QueriesRepository {
             transactions : transactions.map(({category, value, ...transaction}) => ({
                 ...transaction,
                 value : Number(value),
-                category : {
-                    id : category.id,
-                    name : category.name,
-                    type : category.type
-                },
                 categoryName : category.name
             }))
         }
