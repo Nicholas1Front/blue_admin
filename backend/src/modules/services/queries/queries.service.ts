@@ -56,8 +56,21 @@ class QueriesService {
             ? roundMoney(normalizedHoursWorked * normalizedCostPerHour)
             : 0
 
-        const titheValue = roundMoney((incomeTotal - (expenseTotal + operationalCost)) / 10)
+        const hasOperationalCost = operationalCost > 0
+        const hasDirectCosts = expenseTotal > 0
+        const titheBase = hasOperationalCost && hasDirectCosts
+            ? incomeTotal - expenseTotal - operationalCost
+            : incomeTotal
+        const titheValue = Math.max(0, roundMoney(titheBase / 10))
         const titheStatus = service.titheStatus ?? 'aguardando'
+
+        const normalizedTitheTransaction = titheTransaction
+            ? (({category, value, ...transaction}) => ({
+                ...transaction,
+                value : Number(value),
+                categoryName : category.name
+            }))(titheTransaction)
+            : null
 
         return {
             service : {
@@ -69,10 +82,6 @@ class QueriesService {
             equipament,
             activities : {
                 total : activities.length,
-                activities_concluded : activitiesByStatus.concluida ?? 0,
-                activities_pending : activitiesByStatus.pendente ?? 0,
-                activities_in_progress : activitiesByStatus['em_execução'] ?? 0,
-                activities_cancelled : activitiesByStatus.cancelada ?? 0,
                 byStatus : activitiesByStatus,
                 list : activities
             },
@@ -84,11 +93,7 @@ class QueriesService {
                     status : titheStatus,
                     isPaid : titheStatus === 'concluído',
                     value : titheValue,
-                    transaction : titheTransaction ? {
-                        ...titheTransaction,
-                        value : Number(titheTransaction.value),
-                        categoryName : titheTransaction.category.name
-                    } : null
+                    transaction : normalizedTitheTransaction
                 },
                 transactions
             },
