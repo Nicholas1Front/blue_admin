@@ -12,11 +12,11 @@ const ACTIVITY_STATUSES = [
 
 const roundMoney = (value : number) => Math.round((value + Number.EPSILON) * 100) / 100
 
-const normalizeServiceSummaries = (services : Array<{
+const normalizeServiceSummaries = <T extends {
     hoursWorked: unknown
     costPerHour: unknown
     _count: {activities: number}
-} & Record<string, unknown>>) => services.map(service => {
+}>(services : T[]) => services.map(service => {
     const {
         _count,
         hoursWorked,
