@@ -34,9 +34,11 @@ export const findServicesByFiltersQuerySchema = z.object({
     entryDateTo : z.iso.date().optional(),
     exitDateFrom : z.iso.date().optional(),
     exitDateTo : z.iso.date().optional(),
+    exitDateIsNull : z.enum(['true', 'false']).transform(value => value === 'true').optional(),
     hoursWorkedMin : z.coerce.number().min(0).optional(),
     hoursWorkedMax : z.coerce.number().min(0).optional(),
     titheStatus : z.string().trim().min(1).optional(),
+    titheTransactionId : z.string().trim().min(1).optional(),
 
     activityTitle : z.string().trim().min(1).optional(),
     activityDescription : z.string().trim().min(1).optional(),
