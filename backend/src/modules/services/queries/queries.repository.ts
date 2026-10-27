@@ -244,6 +244,7 @@ class QueriesRepository {
         const activityStartDate = toDateRange(filters.activityStartFrom, filters.activityStartTo)
         const activityEndDate = toDateRange(filters.activityEndFrom, filters.activityEndTo)
         const activityWhere : Prisma.ServiceActivityWhereInput = {
+            ...(filters.activityId !== undefined && {id : contains(filters.activityId)}),
             ...(filters.activityTitle !== undefined && {title : contains(filters.activityTitle)}),
             ...(filters.activityDescription !== undefined && {description : contains(filters.activityDescription)}),
             ...(filters.activityStatus !== undefined && {status : contains(filters.activityStatus)}),
@@ -257,6 +258,7 @@ class QueriesRepository {
 
         const historyDate = toDateRange(filters.historyDateFrom, filters.historyDateTo)
         const historyWhere : Prisma.ServiceHistoryWhereInput = {
+            ...(filters.historyId !== undefined && {id : contains(filters.historyId)}),
             ...(filters.historyEventType !== undefined && {eventType : contains(filters.historyEventType)}),
             ...(filters.historyDescription !== undefined && {description : contains(filters.historyDescription)}),
             ...(historyDate !== undefined && {createdAt : historyDate})
