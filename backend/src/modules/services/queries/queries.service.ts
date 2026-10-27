@@ -64,13 +64,19 @@ class QueriesService {
         const titheValue = Math.max(0, roundMoney(titheBase / 10))
         const titheStatus = service.titheStatus ?? 'aguardando'
 
-        const normalizedTitheTransaction = titheTransaction
-            ? (({category, value, ...transaction}) => ({
+        const normalizedTitheTransaction = (() => {
+            if(!titheTransaction){
+                return null
+            }
+
+            const {category, value, ...transaction} = titheTransaction
+
+            return {
                 ...transaction,
                 value : Number(value),
                 categoryName : category.name
-            }))(titheTransaction)
-            : null
+            }
+        })()
 
         return {
             service : {
