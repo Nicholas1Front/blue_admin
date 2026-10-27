@@ -30,7 +30,7 @@ async function createEquipaments(){
     const clientByName = new Map(clients.map(client => [
         client.name.slice(CLIENT_PREFIX.length + 1),
         client
-    ]));
+    ] as const));
 
     let created = 0;
     let reused = 0;
