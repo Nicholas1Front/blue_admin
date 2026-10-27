@@ -40,6 +40,7 @@ export const findServicesByFiltersQuerySchema = z.object({
     titheStatus : z.string().trim().min(1).optional(),
     titheTransactionId : z.string().trim().min(1).optional(),
 
+    activityId : z.string().trim().min(1).optional(),
     activityTitle : z.string().trim().min(1).optional(),
     activityDescription : z.string().trim().min(1).optional(),
     activityStatus : z.string().trim().min(1).optional(),
@@ -57,6 +58,7 @@ export const findServicesByFiltersQuerySchema = z.object({
     transactionReferenceDateFrom : z.iso.date().optional(),
     transactionReferenceDateTo : z.iso.date().optional(),
 
+    historyId : z.string().trim().min(1).optional(),
     historyEventType : z.string().trim().min(1).optional(),
     historyDescription : z.string().trim().min(1).optional(),
     historyDateFrom : z.iso.date().optional(),
