@@ -218,6 +218,12 @@ class QueriesRepository {
             andFilters.push({exitDate})
         }
 
+        if(filters.exitDateIsNull !== undefined){
+            andFilters.push({
+                exitDate : filters.exitDateIsNull ? null : {not : null}
+            })
+        }
+
         if(filters.hoursWorkedMin !== undefined || filters.hoursWorkedMax !== undefined){
             andFilters.push({
                 hoursWorked : {
@@ -229,6 +235,10 @@ class QueriesRepository {
 
         if(filters.titheStatus !== undefined){
             andFilters.push({titheStatus : contains(filters.titheStatus)})
+        }
+
+        if(filters.titheTransactionId !== undefined){
+            andFilters.push({titheTransactionId : contains(filters.titheTransactionId)})
         }
 
         const activityStartDate = toDateRange(filters.activityStartFrom, filters.activityStartTo)
@@ -290,7 +300,11 @@ class QueriesRepository {
         let searchTransactionIdsPromise : Promise<string[] | null> = Promise.resolve(null)
         if(filters.search !== undefined){
             searchTransactionIdsPromise = this.findMatchingTransactionServiceIds({
-                description : contains(filters.search)
+                OR : [
+                    {id : contains(filters.search)},
+                    {description : contains(filters.search)},
+                    {category : {is : {name : contains(filters.search)}}}
+                ]
             })
         }
 
