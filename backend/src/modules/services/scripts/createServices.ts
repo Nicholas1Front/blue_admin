@@ -324,28 +324,20 @@ async function linkDirectTransactions(service: TestService, year: number, month:
 async function linkTithe(service: TestService, year: number, month: number){
     const currentService = await prisma.service.findUnique({
         where: {id: service.id},
-        include: {
-            titheTransaction: {select: {id: true}}
-        }
+        select: {id: true, titheTransactionId: true}
     });
 
     if(!currentService || currentService.titheTransactionId !== null){
         return false;
     }
 
-    const [directTransactions, activeExpenses] = await Promise.all([
-        prisma.financialTransaction.findMany({
-            where: {
-                originType: 'services',
-                originId: service.id
-            },
-            select: {type: true, value: true}
-        }),
-        prisma.monthlyExpense.findMany({
-            where: {active: true},
-            select: {expectedValue: true}
-        })
-    ]);
+    const directTransactions = await prisma.financialTransaction.findMany({
+        where: {
+            originType: 'services',
+            originId: service.id
+        },
+        select: {type: true, value: true}
+    });
 
     const incomeTotal = roundMoney(directTransactions
         .filter(transaction => transaction.type === 'income')
