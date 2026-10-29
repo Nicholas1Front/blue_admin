@@ -1,4 +1,4 @@
-import { useEffect, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faPenToSquare, faTrash, faMagnifyingGlass, faArrowRight } from "@fortawesome/free-solid-svg-icons";
@@ -42,6 +42,56 @@ const statuses: Array<{ value: ServiceStatus; label: string }> = [
     { value: "cancelado", label: "Cancelado" }
 ];
 
+const managementSearchFields: Array<{
+    key: Exclude<keyof FindServicesByAdvancedFilters, "page" | "limit">;
+    label: string;
+    type?: "text" | "date" | "number";
+    options?: Array<{ value: string; label: string }>;
+}> = [
+    { key: "search", label: "Busca geral", type: "text" },
+    { key: "serviceStatus", label: "Status do serviço", options: statuses },
+    { key: "entryDateFrom", label: "Entrada a partir de", type: "date" },
+    { key: "entryDateTo", label: "Entrada até", type: "date" },
+    { key: "clientName", label: "Nome do cliente", type: "text" },
+    { key: "clientDocument", label: "Documento do cliente", type: "text" },
+    { key: "clientId", label: "ID do cliente", type: "text" },
+    { key: "equipamentId", label: "ID do equipamento", type: "text" },
+    { key: "equipamentSearch", label: "Buscar equipamento", type: "text" },
+    { key: "serviceId", label: "ID do serviço", type: "text" },
+    { key: "exitDateFrom", label: "Saída a partir de", type: "date" },
+    { key: "exitDateTo", label: "Saída até", type: "date" },
+    { key: "exitDateIsNull", label: "Situação da saída", options: [{ value: "true", label: "Ainda sem saída" }, { value: "false", label: "Já saiu" }] },
+    { key: "hoursWorkedMin", label: "Horas mínimas", type: "number" },
+    { key: "hoursWorkedMax", label: "Horas máximas", type: "number" },
+    { key: "titheStatus", label: "Status do dízimo", options: [{ value: "aguardando", label: "Aguardando" }, { value: "não concluído", label: "Não concluído" }, { value: "concluído", label: "Concluído" }] },
+    { key: "titheTransactionId", label: "ID da transação do dízimo", type: "text" },
+    { key: "activityId", label: "ID da atividade", type: "text" },
+    { key: "activityTitle", label: "Título da atividade", type: "text" },
+    { key: "activityDescription", label: "Descrição da atividade", type: "text" },
+    { key: "activityStatus", label: "Status da atividade", options: [{ value: "pendente", label: "Pendente" }, { value: "em_execução", label: "Em execução" }, { value: "concluida", label: "Concluída" }, { value: "cancelada", label: "Cancelada" }] },
+    { key: "activityStartFrom", label: "Atividade iniciada a partir de", type: "date" },
+    { key: "activityStartTo", label: "Atividade iniciada até", type: "date" },
+    { key: "activityEndFrom", label: "Atividade encerrada a partir de", type: "date" },
+    { key: "activityEndTo", label: "Atividade encerrada até", type: "date" },
+    { key: "transactionType", label: "Tipo de lançamento", options: [{ value: "income", label: "Entrada" }, { value: "expense", label: "Saída" }] },
+    { key: "transactionCategoryId", label: "ID da categoria", type: "text" },
+    { key: "transactionCategoryName", label: "Nome da categoria", type: "text" },
+    { key: "transactionDescription", label: "Descrição do lançamento", type: "text" },
+    { key: "transactionValueMin", label: "Valor mínimo", type: "number" },
+    { key: "transactionValueMax", label: "Valor máximo", type: "number" },
+    { key: "transactionReferenceDateFrom", label: "Lançamento a partir de", type: "date" },
+    { key: "transactionReferenceDateTo", label: "Lançamento até", type: "date" },
+    { key: "historyId", label: "ID do evento", type: "text" },
+    { key: "historyEventType", label: "Tipo do evento", type: "text" },
+    { key: "historyDescription", label: "Descrição do evento", type: "text" },
+    { key: "historyDateFrom", label: "Evento a partir de", type: "date" },
+    { key: "historyDateTo", label: "Evento até", type: "date" }
+];
+
+function emptyManagementSearch(): Record<string, string> {
+    return Object.fromEntries(managementSearchFields.map(field => [field.key, ""]));
+}
+
 function getLocalDateInputValue() {
     const date = new Date();
     const localDate = new Date(date.getTime() - date.getTimezoneOffset() * 60_000);
@@ -83,16 +133,7 @@ export function ServiceManagementActions() {
     const [createError, setCreateError] = useState<string | null>(null);
 
     const [managementMode, setManagementMode] = useState<ManagementMode>(null);
-    const [searchDraft, setSearchDraft] = useState({
-        search: "",
-        clientName: "",
-        equipamentSearch: "",
-        serviceId: "",
-        serviceStatus: "" as ServiceStatus | "",
-        entryDateFrom: "",
-        entryDateTo: "",
-        exitDateIsNull: "" as "" | "true" | "false"
-    });
+    const [searchDraft, setSearchDraft] = useState<Record<string, string>>(emptyManagementSearch());
     const [appliedFilters, setAppliedFilters] = useState<FindServicesByAdvancedFilters | null>(null);
     const [selectedService, setSelectedService] = useState<ServiceSummary | null>(null);
     const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -101,10 +142,6 @@ export function ServiceManagementActions() {
         appliedFilters ?? { page: 1, limit: 10 },
         managementMode !== null && appliedFilters !== null
     );
-
-    useEffect(() => {
-        if (isClientSelectOpen) void clients.loadClients();
-    }, [isClientSelectOpen]);
 
     function resetCreateFlow() {
         setCreateStep("client");
@@ -124,6 +161,7 @@ export function ServiceManagementActions() {
 
     function startCreateFlow() {
         resetCreateFlow();
+        void clients.loadClients();
         setIsClientSelectOpen(true);
     }
 
@@ -173,33 +211,24 @@ export function ServiceManagementActions() {
         setSelectedService(null);
         setAppliedFilters(null);
         setDeleteError(null);
-        setSearchDraft({
-            search: "",
-            clientName: "",
-            equipamentSearch: "",
-            serviceId: "",
-            serviceStatus: "",
-            entryDateFrom: "",
-            entryDateTo: "",
-            exitDateIsNull: ""
-        });
+        setSearchDraft(emptyManagementSearch());
     }
 
     function submitServiceSearch(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
-        const filters: FindServicesByAdvancedFilters = {
-            page: 1,
-            limit: 10,
-            ...(searchDraft.search.trim() && { search: searchDraft.search.trim() }),
-            ...(searchDraft.clientName.trim() && { clientName: searchDraft.clientName.trim() }),
-            ...(searchDraft.equipamentSearch.trim() && { equipamentSearch: searchDraft.equipamentSearch.trim() }),
-            ...(searchDraft.serviceId.trim() && { serviceId: searchDraft.serviceId.trim() }),
-            ...(searchDraft.serviceStatus && { serviceStatus: searchDraft.serviceStatus }),
-            ...(searchDraft.entryDateFrom && { entryDateFrom: searchDraft.entryDateFrom }),
-            ...(searchDraft.entryDateTo && { entryDateTo: searchDraft.entryDateTo }),
-            ...(searchDraft.exitDateIsNull && { exitDateIsNull: searchDraft.exitDateIsNull === "true" })
-        };
-        setAppliedFilters(filters);
+        const values: Record<string, unknown> = { page: 1, limit: 10 };
+        Object.entries(searchDraft).forEach(([key, rawValue]) => {
+            const value = rawValue.trim();
+            if (!value) return;
+            if (key === "exitDateIsNull") {
+                values[key] = value === "true";
+            } else if (["hoursWorkedMin", "hoursWorkedMax", "transactionValueMin", "transactionValueMax"].includes(key)) {
+                values[key] = Number(value);
+            } else {
+                values[key] = value;
+            }
+        });
+        setAppliedFilters(values as FindServicesByAdvancedFilters);
     }
 
     function chooseService(service: ServiceSummary) {
@@ -323,17 +352,31 @@ export function ServiceManagementActions() {
                 <div className="service-management-search">
                     <p>Use os filtros para localizar o serviço. A edição abre a página de detalhes; a exclusão pede confirmação antes de remover o registro.</p>
                     <form onSubmit={submitServiceSearch}>
-                        <label><span>Busca geral</span><input value={searchDraft.search} onChange={event => setSearchDraft(current => ({ ...current, search: event.target.value }))} placeholder="Cliente, documento, equipamento, atividade ou código" /></label>
-                        <div className="service-management-search__grid">
-                            <label><span>Nome do cliente</span><input value={searchDraft.clientName} onChange={event => setSearchDraft(current => ({ ...current, clientName: event.target.value }))} /></label>
-                            <label><span>Equipamento</span><input value={searchDraft.equipamentSearch} onChange={event => setSearchDraft(current => ({ ...current, equipamentSearch: event.target.value }))} /></label>
-                            <label><span>ID do serviço</span><input value={searchDraft.serviceId} onChange={event => setSearchDraft(current => ({ ...current, serviceId: event.target.value }))} /></label>
-                            <label><span>Status</span><select value={searchDraft.serviceStatus} onChange={event => setSearchDraft(current => ({ ...current, serviceStatus: event.target.value as ServiceStatus | "" }))}><option value="">Todos</option>{statuses.map(item => <option key={item.value} value={item.value}>{item.label}</option>)}</select></label>
-                            <label><span>Entrada a partir de</span><input type="date" value={searchDraft.entryDateFrom} onChange={event => setSearchDraft(current => ({ ...current, entryDateFrom: event.target.value }))} /></label>
-                            <label><span>Entrada até</span><input type="date" value={searchDraft.entryDateTo} onChange={event => setSearchDraft(current => ({ ...current, entryDateTo: event.target.value }))} /></label>
-                            <label><span>Saída</span><select value={searchDraft.exitDateIsNull} onChange={event => setSearchDraft(current => ({ ...current, exitDateIsNull: event.target.value as "" | "true" | "false" }))}><option value="">Todas</option><option value="true">Ainda sem saída</option><option value="false">Já saiu</option></select></label>
+                        <div className="service-management-search__grid service-management-search__grid--all">
+                            {managementSearchFields.map(field => (
+                                <label key={field.key}>
+                                    <span>{field.label}</span>
+                                    {field.options ? (
+                                        <select
+                                            value={searchDraft[field.key] ?? ""}
+                                            onChange={event => setSearchDraft(current => ({ ...current, [field.key]: event.target.value }))}
+                                        >
+                                            <option value="">Todos</option>
+                                            {field.options.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}
+                                        </select>
+                                    ) : (
+                                        <input
+                                            type={field.type ?? "text"}
+                                            min={field.type === "number" ? "0" : undefined}
+                                            step={field.type === "number" ? "any" : undefined}
+                                            value={searchDraft[field.key] ?? ""}
+                                            onChange={event => setSearchDraft(current => ({ ...current, [field.key]: event.target.value }))}
+                                        />
+                                    )}
+                                </label>
+                            ))}
                         </div>
-                        <button className="service-management__button service-management__button--create" type="submit"><FontAwesomeIcon icon={faMagnifyingGlass} aria-hidden="true" /> Pesquisar</button>
+                        <button className="service-management__button service-management__button--create" type="submit"><FontAwesomeIcon icon={faMagnifyingGlass} aria-hidden="true" /> Pesquisar serviços</button>
                     </form>
                     {serviceSearchQuery.isError && <p className="service-management-form__error" role="alert">Não foi possível pesquisar serviços.</p>}
                     {appliedFilters && (
