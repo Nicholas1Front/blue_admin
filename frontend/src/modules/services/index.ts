@@ -23,6 +23,7 @@ export {
 
 // Transaction and tithe operations.
 export {
+    findAvailableFinancialTransactions,
     linkTransactionToService,
     unlinkTransactionFromService,
     getServiceTransactions,
@@ -30,6 +31,7 @@ export {
     unlinkTitheTransaction
 } from "./transactions/transactions.api";
 export {
+    useAvailableFinancialTransactions,
     useServiceTransactions,
     useLinkTransactionToService,
     useUnlinkTransactionFromService,
