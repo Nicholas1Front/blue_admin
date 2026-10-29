@@ -23,6 +23,7 @@ import type {
     ServiceSummary,
     ServiceTitheStatus
 } from "../../modules/services";
+import { ServiceManagementActions } from "./components/ServiceManagementActions";
 import "./Services.css";
 
 const PAGE_SIZE = 10;
@@ -465,6 +466,8 @@ export function Services() {
                         </button>
                     </div>
                 )}
+
+                <ServiceManagementActions />
 
                 <section className="services-main-grid">
                     <article className="services-panel">
