@@ -2,6 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 
 import { servicesQueryKeys } from "../services.queryKeys";
 import {
+    findAvailableFinancialTransactions,
     getServiceTransactions,
     linkTitheTransaction,
     linkTransactionToService,
@@ -9,6 +10,13 @@ import {
     unlinkTransactionFromService
 } from "./transactions.api";
 import type { LinkServiceTransactionRequest } from "./transactions.types";
+
+export function useAvailableFinancialTransactions() {
+    return useQuery({
+        queryKey: servicesQueryKeys.transactions.available,
+        queryFn: findAvailableFinancialTransactions
+    });
+}
 
 export function useServiceTransactions(serviceId: string | undefined) {
     return useQuery({
