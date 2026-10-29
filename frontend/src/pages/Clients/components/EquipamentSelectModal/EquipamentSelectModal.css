@@ -11,3 +11,6 @@
 .equipament-select__feedback { padding: var(--spacing-6); color: var(--color-text-secondary); border: 1px solid var(--color-border); border-radius: var(--radius-md); text-align: center; }
 .equipament-select__actions { display: flex; justify-content: flex-end; gap: var(--spacing-3); }
 .equipament-select__cancel { min-height: var(--control-height-md); padding: 0 var(--spacing-4); color: var(--color-text); background: transparent; border: 1px solid var(--color-border); border-radius: var(--radius-md); font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); cursor: pointer; }
+
+.equipament-select__create { min-height: var(--control-height-md); padding: 0 var(--spacing-4); color: var(--color-primary-400); background: transparent; border: 1px solid var(--color-primary-400); border-radius: var(--radius-md); font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); cursor: pointer; }
+.equipament-select__create:hover { background: rgb(11 116 229 / 0.08); }
