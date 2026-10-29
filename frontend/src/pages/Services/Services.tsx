@@ -2,12 +2,9 @@ import { useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faCalendarDays,
-    faClock,
     faClipboardList,
     faCoins,
-    faScrewdriverWrench,
-    faTriangleExclamation,
-    faWallet
+    faTriangleExclamation
 } from "@fortawesome/free-solid-svg-icons";
 
 import { AppHeader } from "../../components/AppHeader/AppHeader";
@@ -106,7 +103,7 @@ export function Services() {
         year: selectedYear,
         month: selectedMonth,
         page: 1,
-        limit: 5
+        limit: 10
     });
     const dashboard = dashboardQuery.data;
     const statusCounts = dashboard?.statusCounts;
@@ -130,18 +127,6 @@ export function Services() {
         if (year === currentYear && selectedMonth > currentMonth) {
             setSelectedMonth(currentMonth);
         }
-    }
-
-    function metricValue(value: number | undefined) {
-        if (dashboardQuery.isPending) return "Carregando…";
-        if (dashboardQuery.isError) return "—";
-        return String(value ?? 0);
-    }
-
-    function metricCurrency(value: number | undefined) {
-        if (dashboardQuery.isPending) return "Carregando…";
-        if (dashboardQuery.isError) return "—";
-        return formatCurrency(value);
     }
 
     return (
@@ -215,68 +200,6 @@ export function Services() {
                     </div>
                 )}
 
-                <section className="services-metrics" aria-label="Indicadores do período">
-                    <article className="services-metric services-metric--blue">
-                        <div className="services-metric__top">
-                            <span className="services-metric__label">Serviços no período</span>
-                            <span className="services-metric__icon" aria-hidden="true">
-                                <FontAwesomeIcon icon={faClipboardList} />
-                            </span>
-                        </div>
-                        <strong className="services-metric__value">
-                            {metricValue(dashboard?.serviceCount)}
-                        </strong>
-                        <span className="services-metric__detail">
-                            Serviços com entrada em {periodTitle}
-                        </span>
-                    </article>
-
-                    <article className="services-metric services-metric--violet">
-                        <div className="services-metric__top">
-                            <span className="services-metric__label">Em execução</span>
-                            <span className="services-metric__icon" aria-hidden="true">
-                                <FontAwesomeIcon icon={faScrewdriverWrench} />
-                            </span>
-                        </div>
-                        <strong className="services-metric__value">
-                            {metricValue(statusCounts?.["em_execução"])}
-                        </strong>
-                        <span className="services-metric__detail">
-                            Serviços em andamento na oficina
-                        </span>
-                    </article>
-
-                    <article className="services-metric services-metric--amber">
-                        <div className="services-metric__top">
-                            <span className="services-metric__label">Aguardando pagamento</span>
-                            <span className="services-metric__icon" aria-hidden="true">
-                                <FontAwesomeIcon icon={faClock} />
-                            </span>
-                        </div>
-                        <strong className="services-metric__value">
-                            {metricValue(statusCounts?.aguardando_pagamento)}
-                        </strong>
-                        <span className="services-metric__detail">
-                            Serviços com pagamento pendente
-                        </span>
-                    </article>
-
-                    <article className="services-metric services-metric--green">
-                        <div className="services-metric__top">
-                            <span className="services-metric__label">Saldo dos serviços</span>
-                            <span className="services-metric__icon" aria-hidden="true">
-                                <FontAwesomeIcon icon={faWallet} />
-                            </span>
-                        </div>
-                        <strong className="services-metric__value">
-                            {metricCurrency(dashboard?.financial.balanceTotal)}
-                        </strong>
-                        <span className="services-metric__detail">
-                            Entradas menos saídas vinculadas
-                        </span>
-                    </article>
-                </section>
-
                 <section className="services-main-grid">
                     <article className="services-panel">
                         <header className="services-panel__header">
@@ -285,7 +208,9 @@ export function Services() {
                                 <h2>Distribuição por status</h2>
                                 <p>Veja como os serviços do período estão distribuídos.</p>
                             </div>
-                            <span className="services-panel__period">{periodTitle}</span>
+                            <span className="services-panel__period">
+                                {dashboard ? `${dashboard.serviceCount} serviços no período` : periodTitle}
+                            </span>
                         </header>
 
                         {dashboardQuery.isPending ? (
@@ -386,7 +311,7 @@ export function Services() {
                         <div>
                             <span className="services-panel__eyebrow">Acompanhamento</span>
                             <h2>Serviços do período</h2>
-                            <p>Uma amostra de até cinco serviços do período selecionado.</p>
+                            <p>Até dez serviços do período selecionado, com detalhes de cada atendimento.</p>
                         </div>
                         <span className="services-panel__period">
                             {dashboard ? `${dashboard.serviceCount} no total` : periodTitle}
@@ -402,17 +327,44 @@ export function Services() {
                             {dashboard.services.map(service => (
                                 <article className="services-list-row" key={service.id}>
                                     <div className="services-list-row__main">
-                                        <strong>{service.client.name}</strong>
-                                        <span>{formatEquipment(service.equipament)}</span>
-                                        <span className="services-list-row__meta">
-                                            Entrada em {formatReferenceDate(service.entryDate)}
-                                            <i aria-hidden="true" />
-                                            {service.activityCount} {service.activityCount === 1 ? "atividade" : "atividades"}
-                                        </span>
+                                        <div className="services-list-row__identity">
+                                            <div className="services-list-row__client">
+                                                <strong>{service.client.name}</strong>
+                                                {service.client.document && (
+                                                    <span>Documento: {service.client.document}</span>
+                                                )}
+                                            </div>
+                                            <span className={`services-status-pill services-status-pill--${statusTones[service.status]}`}>
+                                                {statusLabels[service.status]}
+                                            </span>
+                                        </div>
+
+                                        <div className="services-list-row__equipment">
+                                            <span className="services-list-row__field-label">Equipamento</span>
+                                            <strong>{formatEquipment(service.equipament) || "Equipamento não identificado"}</strong>
+                                        </div>
+
+                                        <div className="services-list-row__details">
+                                            <span>
+                                                <span className="services-list-row__field-label">Entrada</span>
+                                                <strong>{formatReferenceDate(service.entryDate)}</strong>
+                                            </span>
+                                            <span>
+                                                <span className="services-list-row__field-label">Saída</span>
+                                                <strong>{service.exitDate ? formatReferenceDate(service.exitDate) : "Em andamento"}</strong>
+                                            </span>
+                                            <span>
+                                                <span className="services-list-row__field-label">Atividades</span>
+                                                <strong>{service.activityCount} {service.activityCount === 1 ? "atividade" : "atividades"}</strong>
+                                            </span>
+                                            <span>
+                                                <span className="services-list-row__field-label">Horas trabalhadas</span>
+                                                <strong>{service.hoursWorked == null ? "Não informado" : `${service.hoursWorked} h`}</strong>
+                                            </span>
+                                        </div>
+
+                                        <span className="services-list-row__id">Serviço #{service.id.slice(0, 8)}</span>
                                     </div>
-                                    <span className={`services-status-pill services-status-pill--${statusTones[service.status]}`}>
-                                        {statusLabels[service.status]}
-                                    </span>
                                 </article>
                             ))}
                         </div>
