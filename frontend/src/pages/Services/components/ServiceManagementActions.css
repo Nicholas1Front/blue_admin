@@ -238,3 +238,14 @@
         flex: 1 1 100%;
     }
 }
+
+.service-management-search__grid--all {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+@media (max-width: 900px) {
+    .service-management-search__grid--all {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
