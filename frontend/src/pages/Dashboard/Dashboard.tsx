@@ -2,7 +2,8 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faUsers,
     faBuilding,
-    faChartLine
+    faChartLine,
+    faScrewdriverWrench
 } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 
@@ -75,6 +76,28 @@ export function Dashboard() {
 
                             <p>
                                 Consulte clientes, contatos e equipamentos em um só lugar.
+                            </p>
+                        </div>
+                    </button>
+
+                    <button
+                        className="dashboard-card dashboard-card--action"
+                        type="button"
+                        onClick={() => navigate("/services")}
+                    >
+                        <div className="dashboard-card__icon dashboard-card__icon--services">
+                            <FontAwesomeIcon icon={faScrewdriverWrench} />
+                        </div>
+
+                        <div>
+                            <span className="dashboard-card__label">
+                                Operação da oficina
+                            </span>
+
+                            <strong>Serviços</strong>
+
+                            <p>
+                                Acompanhe os atendimentos, os status e os resultados dos serviços.
                             </p>
                         </div>
                     </button>
