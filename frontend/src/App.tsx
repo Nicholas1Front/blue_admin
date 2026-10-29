@@ -12,6 +12,7 @@ import { Dashboard } from "./pages/Dashboard/Dashboard";
 import { Users } from "./pages/Users/Users";
 import { Clients } from "./pages/Clients/Clients";
 import { Financial } from "./pages/Financial/Financial";
+import { Services } from "./pages/Services/Services";
 import { FinancialTransactions } from "./pages/FinancialTransactions/FinancialTransactions";
 import { MonthlyExpenses } from "./pages/MonthlyExpenses/MonthlyExpenses";
 import { CategoryPanel } from "./pages/CategoryPanel/CategoryPanel";
@@ -64,6 +65,15 @@ function App() {
                         element={
                             <ProtectedRoute>
                                 <Financial />
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    <Route
+                        path="/services"
+                        element={
+                            <ProtectedRoute>
+                                <Services />
                             </ProtectedRoute>
                         }
                     />
