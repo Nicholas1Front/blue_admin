@@ -1,6 +1,4 @@
-import type { ServiceHistoryEvent } from "../services.types";
-
-export type { ServiceHistoryEvent };
+export type { ServiceHistoryEvent } from "../services.types";
 
 export interface ServiceHistoryFilters {
     historyId?: string;
