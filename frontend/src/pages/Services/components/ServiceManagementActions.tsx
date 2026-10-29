@@ -228,7 +228,7 @@ export function ServiceManagementActions() {
                 values[key] = value;
             }
         });
-        setAppliedFilters(values as FindServicesByAdvancedFilters);
+        setAppliedFilters(values as unknown as FindServicesByAdvancedFilters);
     }
 
     function chooseService(service: ServiceSummary) {
