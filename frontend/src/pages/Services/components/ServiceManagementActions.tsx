@@ -5,7 +5,7 @@ import { faPlus, faPenToSquare, faTrash, faMagnifyingGlass, faArrowRight } from 
 
 import { Modal } from "../../../components/Modal/Modal";
 import { useClients } from "../../../modules/clients/useClients";
-import type { Client } from "../../../modules/clients/clients.types";
+import type { Client, CreateClientRequest } from "../../../modules/clients/clients.types";
 import { useEquipaments } from "../../../modules/equipaments/useEquipaments";
 import type { CreateEquipamentRequest, Equipament } from "../../../modules/equipaments/equipaments.types";
 import {
@@ -127,7 +127,7 @@ export function ServiceManagementActions() {
         setIsClientSelectOpen(true);
     }
 
-    async function handleCreateClient(data: import("../../../modules/clients/clients.types").CreateClientRequest) {
+    async function handleCreateClient(data: CreateClientRequest) {
         const client = await clients.addClient(data);
         setSelectedClient(client);
         setIsClientCreateOpen(false);
@@ -316,7 +316,7 @@ export function ServiceManagementActions() {
             </Modal>
 
             <Modal
-                isOpen={managementMode !== null}
+                isOpen={managementMode !== null && !(managementMode === "delete" && selectedService !== null)}
                 title={managementMode === "edit" ? "Selecionar serviço para editar" : "Selecionar serviço para excluir"}
                 onClose={() => { setManagementMode(null); setAppliedFilters(null); }}
             >
