@@ -167,12 +167,9 @@ export function ServiceDetails() {
     const detailsQuery = useServiceById(serviceId);
     const details = detailsQuery.data;
 
-    document.title = details
-        ? `Serviço #${details.service.id.slice(0, 8)} | Blue Admin`
-        : "Detalhes do serviço | Blue Admin";
-
     return (
         <main className="service-details-page">
+            <title>{details ? `Serviço #${details.service.id.slice(0, 8)} | Blue Admin` : "Detalhes do serviço | Blue Admin"}</title>
             <AppHeader />
             <nav className="page-back-row" aria-label="Navegação da página">
                 <BackLink to="/services" label="Voltar aos serviços" />
