@@ -230,9 +230,9 @@ export function ServiceDetails() {
                                 <strong>Custo operacional</strong>
                                 <p>O custo por hora ficou em branco conforme a regra de negócio. Se quiser, você pode calcular agora usando as despesas mensais ativas.</p>
                                 {costCalculationError && <p className="service-created-next-steps__error" role="alert">{costCalculationError}</p>}
-                                {costCalculationSuccess && <p className="service-created-next-steps__success" role="status">Custo por hora calculado e serviço atualizado.</p>}
-                                <button type="button" onClick={() => void calculateOperationalCost()} disabled={isCalculatingCost}>
-                                    {isCalculatingCost ? "Calculando..." : "Calcular custo operacional"}
+                                {costCalculationSuccess && <p className="service-created-next-steps__success" role="status">Custo por hora calculado e serviço atualizado. O custo operacional considera as horas informadas.</p>}
+                                <button type="button" onClick={() => void calculateOperationalCost()} disabled={isCalculatingCost || costCalculationSuccess}>
+                                    {isCalculatingCost ? "Calculando..." : costCalculationSuccess ? "Custo por hora calculado" : "Calcular custo operacional"}
                                 </button>
                             </div>
                             <div className="service-created-next-steps__footer">
