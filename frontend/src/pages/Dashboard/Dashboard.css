@@ -213,3 +213,9 @@
     border-color: var(--color-primary-400);
     box-shadow: var(--shadow-md);
 }
+
+
+.dashboard-card__icon--services {
+    color: var(--color-success);
+    background: var(--color-success-bg);
+}
