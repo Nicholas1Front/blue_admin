@@ -13,6 +13,7 @@ interface ClientSelectModalProps {
     error: string | null;
     onClose: () => void;
     onSelect: (client: Client) => void;
+    onCreate?: () => void;
 }
 
 export function ClientSelectModal({
@@ -22,7 +23,8 @@ export function ClientSelectModal({
     isLoading,
     error,
     onClose,
-    onSelect
+    onSelect,
+    onCreate
 }: ClientSelectModalProps) {
     const [search, setSearch] = useState("");
 
@@ -105,6 +107,11 @@ export function ClientSelectModal({
                 )}
 
                 <div className="client-select__actions">
+                    {onCreate && (
+                        <button className="client-select__create" type="button" onClick={onCreate} disabled={isLoading}>
+                            Cadastrar cliente
+                        </button>
+                    )}
                     <button
                         className="client-select__cancel"
                         type="button"
