@@ -373,9 +373,9 @@ export function Services() {
                             </div>
                         )}
 
-                        {dashboard?.financial.includedOrigins && (
+                        {dashboard?.financial.includedOrigins.length > 0 && (
                             <div className="services-financial-origins">
-                                Inclui lançamentos de serviços e dízimos vinculados.
+                                Considera lançamentos vinculados de {dashboard.financial.includedOrigins.map(origin => origin === "services" ? "serviços" : "dízimos").join(" e ")}.
                             </div>
                         )}
                     </article>
@@ -386,7 +386,7 @@ export function Services() {
                         <div>
                             <span className="services-panel__eyebrow">Acompanhamento</span>
                             <h2>Serviços do período</h2>
-                            <p>Os cinco registros mais recentes retornados para o período selecionado.</p>
+                            <p>Uma amostra de até cinco serviços do período selecionado.</p>
                         </div>
                         <span className="services-panel__period">
                             {dashboard ? `${dashboard.serviceCount} no total` : periodTitle}
