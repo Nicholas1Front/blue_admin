@@ -11,10 +11,11 @@ interface Props {
     error: string | null;
     onClose: () => void;
     onSelect: (equipament: Equipament) => void;
+    onCreate?: () => void;
 }
 
 export function EquipamentSelectModal({
-    isOpen, title, equipaments, isLoading, error, onClose, onSelect
+    isOpen, title, equipaments, isLoading, error, onClose, onSelect, onCreate
 }: Props) {
     const [search, setSearch] = useState("");
 
@@ -70,6 +71,7 @@ export function EquipamentSelectModal({
                 )}
 
                 <div className="equipament-select__actions">
+                    {onCreate && <button className="equipament-select__create" type="button" onClick={onCreate} disabled={isLoading}>Cadastrar equipamento</button>}
                     <button className="equipament-select__cancel" type="button" onClick={onClose} disabled={isLoading}>Cancelar</button>
                 </div>
             </div>
