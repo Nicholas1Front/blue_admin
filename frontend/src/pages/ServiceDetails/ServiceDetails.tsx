@@ -241,10 +241,10 @@ export function ServiceDetails() {
                             </article>
                             <article className="service-details-metric">
                                 <span className="service-details-metric__label"><FontAwesomeIcon icon={faCoins} aria-hidden="true" /> Saldo financeiro</span>
-                                <strong className={`service-details-metric__value ${details.financial.incomeTotal - details.financial.expenseTotal >= 0 ? "service-details-metric__value--income" : "service-details-metric__value--expense"}`}>
-                                    {formatCurrency(details.financial.incomeTotal - details.financial.expenseTotal)}
+                                <strong className={`service-details-metric__value ${details.financial.incomeTotal - details.financial.expenseTotal - details.financial.operationalCost >= 0 ? "service-details-metric__value--income" : "service-details-metric__value--expense"}`}>
+                                    {formatCurrency(details.financial.incomeTotal - details.financial.expenseTotal - details.financial.operationalCost)}
                                 </strong>
-                                <p>Recebimentos menos custos diretos</p>
+                                <p>Recebimentos menos custos diretos e operacional</p>
                             </article>
                         </section>
 
