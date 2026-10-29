@@ -20,10 +20,14 @@ export function useServiceDashboard(filters: ServiceDashboardFilters) {
     });
 }
 
-export function useServicesByFilters(filters: FindServicesByAdvancedFilters) {
+export function useServicesByFilters(
+    filters: FindServicesByAdvancedFilters,
+    enabled = true
+) {
     return useQuery({
         queryKey: servicesQueryKeys.queries.filtered(filters),
-        queryFn: () => findServicesByAdvancedFilters(filters)
+        queryFn: () => findServicesByAdvancedFilters(filters),
+        enabled
     });
 }
 
