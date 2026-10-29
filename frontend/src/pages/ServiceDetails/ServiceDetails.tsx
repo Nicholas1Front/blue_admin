@@ -90,7 +90,8 @@ function formatCurrency(value: number | string | null | undefined) {
 
 function formatDate(value: string | null | undefined) {
     if (!value) return "Não informado";
-    const date = new Date(value);
+    const dateOnly = value.slice(0, 10);
+    const date = new Date(`${dateOnly}T12:00:00`);
     return Number.isNaN(date.getTime()) ? "Não informado" : dateFormatter.format(date);
 }
 
