@@ -1,17 +1,30 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faCalendarDays,
     faClipboardList,
     faCoins,
+    faMagnifyingGlass,
+    faRotateLeft,
     faTriangleExclamation
 } from "@fortawesome/free-solid-svg-icons";
 
 import { AppHeader } from "../../components/AppHeader/AppHeader";
 import { BackLink } from "../../components/BackLink/BackLink";
-import { useServiceDashboard } from "../../modules/services";
-import type { ServiceStatus } from "../../modules/services";
+import {
+    useServiceDashboard,
+    useServicesByFilters
+} from "../../modules/services";
+import type {
+    FindServicesByAdvancedFilters,
+    ServiceActivityStatus,
+    ServiceStatus,
+    ServiceSummary,
+    ServiceTitheStatus
+} from "../../modules/services";
 import "./Services.css";
+
+const PAGE_SIZE = 10;
 
 const currencyFormatter = new Intl.NumberFormat("pt-BR", {
     style: "currency",
@@ -57,6 +70,21 @@ const statusTones: Record<ServiceStatus, string> = {
     pagamento_recebido: "success"
 };
 
+const activityStatusLabels: Record<ServiceActivityStatus, string> = {
+    pendente: "Pendente",
+    "em_execução": "Em execução",
+    concluida: "Concluída",
+    cancelada: "Cancelada"
+};
+
+const titheStatusLabels: Record<ServiceTitheStatus, string> = {
+    aguardando: "Aguardando",
+    "não concluído": "Não concluído",
+    "concluído": "Concluído"
+};
+
+type ServiceSearchForm = Omit<FindServicesByAdvancedFilters, "page" | "limit">;
+
 function formatCurrency(value: number | null | undefined) {
     return currencyFormatter.format(Number(value ?? 0));
 }
@@ -81,12 +109,61 @@ function formatEquipment(
     return [equipment.type, name, identification].filter(Boolean).join(" · ");
 }
 
+interface PaginationProps {
+    page: number;
+    totalPages: number;
+    total: number;
+    onPageChange: (page: number) => void;
+}
+
+function ServicesPagination({
+    page,
+    totalPages,
+    total,
+    onPageChange
+}: PaginationProps) {
+    if (total === 0) {
+        return null;
+    }
+
+    return (
+        <nav className="services-pagination" aria-label="Paginação dos serviços">
+            <span className="services-pagination__summary">
+                Página <strong>{page}</strong> de <strong>{Math.max(totalPages, 1)}</strong>
+                <span> · {total} {total === 1 ? "serviço" : "serviços"}</span>
+            </span>
+            <div className="services-pagination__actions">
+                <button
+                    type="button"
+                    className="services-pagination__button"
+                    disabled={page <= 1}
+                    onClick={() => onPageChange(page - 1)}
+                >
+                    Anterior
+                </button>
+                <button
+                    type="button"
+                    className="services-pagination__button services-pagination__button--next"
+                    disabled={totalPages === 0 || page >= totalPages}
+                    onClick={() => onPageChange(page + 1)}
+                >
+                    Próxima
+                </button>
+            </div>
+        </nav>
+    );
+}
+
 export function Services() {
     const now = new Date();
     const currentYear = now.getFullYear();
     const currentMonth = now.getMonth() + 1;
     const [selectedMonth, setSelectedMonth] = useState(currentMonth);
     const [selectedYear, setSelectedYear] = useState(currentYear);
+    const [monthlyPage, setMonthlyPage] = useState(1);
+    const [searchDraft, setSearchDraft] = useState<ServiceSearchForm>({});
+    const [appliedSearchFilters, setAppliedSearchFilters] =
+        useState<FindServicesByAdvancedFilters | null>(null);
 
     const availableYears = Array.from(
         { length: currentYear - 1999 },
@@ -102,8 +179,8 @@ export function Services() {
     const dashboardQuery = useServiceDashboard({
         year: selectedYear,
         month: selectedMonth,
-        page: 1,
-        limit: 10
+        page: monthlyPage,
+        limit: PAGE_SIZE
     });
     const dashboard = dashboardQuery.data;
     const statusCounts = dashboard?.statusCounts;
@@ -112,10 +189,21 @@ export function Services() {
         ...serviceStatuses.map(status => statusCounts?.[status] ?? 0)
     );
 
+    const searchQuery = useServicesByFilters(
+        appliedSearchFilters ?? { page: 1, limit: PAGE_SIZE },
+        appliedSearchFilters !== null
+    );
+    const searchResults = searchQuery.data;
+
     const periodTitle = new Intl.DateTimeFormat("pt-BR", {
         month: "long",
         year: "numeric"
     }).format(new Date(selectedYear, selectedMonth - 1, 1));
+
+    function handleMonthChange(month: number) {
+        setSelectedMonth(month);
+        setMonthlyPage(1);
+    }
 
     function handleYearChange(year: number) {
         if (!Number.isInteger(year) || year < 2000 || year > currentYear) {
@@ -123,10 +211,175 @@ export function Services() {
         }
 
         setSelectedYear(year);
+        setMonthlyPage(1);
 
         if (year === currentYear && selectedMonth > currentMonth) {
             setSelectedMonth(currentMonth);
         }
+    }
+
+    function updateSearchField(
+        key: keyof ServiceSearchForm,
+        value: string | number | boolean | undefined
+    ) {
+        setSearchDraft(current => ({
+            ...current,
+            [key]: value === "" ? undefined : value
+        }) as ServiceSearchForm);
+    }
+
+    function handleSearchSubmit(event: FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+
+        const normalizedFilters = Object.fromEntries(
+            Object.entries(searchDraft).filter(([, value]) =>
+                value !== undefined && value !== null && value !== ""
+            )
+        ) as ServiceSearchForm;
+
+        setAppliedSearchFilters({
+            ...normalizedFilters,
+            page: 1,
+            limit: PAGE_SIZE
+        });
+    }
+
+    function clearSearch() {
+        setSearchDraft({});
+        setAppliedSearchFilters(null);
+    }
+
+    function changeSearchPage(page: number) {
+        if (!appliedSearchFilters || page < 1) {
+            return;
+        }
+
+        setAppliedSearchFilters(current => current
+            ? { ...current, page }
+            : current
+        );
+    }
+
+    function renderTextField(
+        label: string,
+        key: keyof ServiceSearchForm,
+        placeholder?: string
+    ) {
+        return (
+            <label className="services-filter-field" key={key}>
+                <span>{label}</span>
+                <input
+                    type="text"
+                    value={String(searchDraft[key] ?? "")}
+                    placeholder={placeholder ?? label}
+                    onChange={event => updateSearchField(key, event.target.value)}
+                />
+            </label>
+        );
+    }
+
+    function renderDateField(label: string, key: keyof ServiceSearchForm) {
+        return (
+            <label className="services-filter-field" key={key}>
+                <span>{label}</span>
+                <input
+                    type="date"
+                    value={String(searchDraft[key] ?? "")}
+                    onChange={event => updateSearchField(key, event.target.value)}
+                />
+            </label>
+        );
+    }
+
+    function renderNumberField(label: string, key: keyof ServiceSearchForm) {
+        return (
+            <label className="services-filter-field" key={key}>
+                <span>{label}</span>
+                <input
+                    type="number"
+                    min="0"
+                    step="any"
+                    value={String(searchDraft[key] ?? "")}
+                    onChange={event => updateSearchField(
+                        key,
+                        event.target.value === "" ? undefined : Number(event.target.value)
+                    )}
+                />
+            </label>
+        );
+    }
+
+    function renderSelectField(
+        label: string,
+        key: keyof ServiceSearchForm,
+        options: Array<{ value: string; label: string }>
+    ) {
+        return (
+            <label className="services-filter-field" key={key}>
+                <span>{label}</span>
+                <select
+                    value={String(searchDraft[key] ?? "")}
+                    onChange={event => updateSearchField(key, event.target.value || undefined)}
+                >
+                    <option value="">Todos</option>
+                    {options.map(option => (
+                        <option value={option.value} key={option.value}>
+                            {option.label}
+                        </option>
+                    ))}
+                </select>
+            </label>
+        );
+    }
+
+    function renderServiceCards(services: ServiceSummary[]) {
+        return (
+            <div className="services-list">
+                {services.map(service => (
+                    <article className="services-list-row" key={service.id}>
+                        <div className="services-list-row__main">
+                            <div className="services-list-row__identity">
+                                <div className="services-list-row__client">
+                                    <strong>{service.client.name}</strong>
+                                    {service.client.document && (
+                                        <span>Documento: {service.client.document}</span>
+                                    )}
+                                </div>
+                                <span className={`services-status-pill services-status-pill--${statusTones[service.status]}`}>
+                                    {statusLabels[service.status]}
+                                </span>
+                            </div>
+
+                            <div className="services-list-row__equipment">
+                                <span className="services-list-row__field-label">Equipamento</span>
+                                <strong>{formatEquipment(service.equipament) || "Equipamento não identificado"}</strong>
+                            </div>
+
+                            <div className="services-list-row__details">
+                                <span>
+                                    <span className="services-list-row__field-label">Entrada</span>
+                                    <strong>{formatReferenceDate(service.entryDate)}</strong>
+                                </span>
+                                <span>
+                                    <span className="services-list-row__field-label">Saída</span>
+                                    <strong>{service.exitDate ? formatReferenceDate(service.exitDate) : "Em andamento"}</strong>
+                                </span>
+                                <span>
+                                    <span className="services-list-row__field-label">Atividades</span>
+                                    <strong>{service.activityCount} {service.activityCount === 1 ? "atividade" : "atividades"}</strong>
+                                </span>
+                                <span>
+                                    <span className="services-list-row__field-label">Horas trabalhadas</span>
+                                    <strong>{service.hoursWorked == null ? "Não informado" : `${service.hoursWorked} h`}</strong>
+                                </span>
+                            </div>
+
+                            <span className="services-list-row__id">Serviço #{service.id.slice(0, 8)}</span>
+                        </div>
+                    </article>
+                ))}
+            </div>
+        );
     }
 
     return (
@@ -159,7 +412,7 @@ export function Services() {
                                 <select
                                     aria-label="Selecionar mês dos serviços"
                                     value={selectedMonth}
-                                    onChange={event => setSelectedMonth(Number(event.target.value))}
+                                    onChange={event => handleMonthChange(Number(event.target.value))}
                                 >
                                     {availableMonths.map(month => (
                                         <option
@@ -311,7 +564,7 @@ export function Services() {
                         <div>
                             <span className="services-panel__eyebrow">Acompanhamento</span>
                             <h2>Serviços do período</h2>
-                            <p>Até dez serviços do período selecionado, com detalhes de cada atendimento.</p>
+                            <p>Todos os serviços com entrada no mês selecionado, organizados por página.</p>
                         </div>
                         <span className="services-panel__period">
                             {dashboard ? `${dashboard.serviceCount} no total` : periodTitle}
@@ -323,51 +576,15 @@ export function Services() {
                     ) : dashboardQuery.isError ? (
                         <div className="services-state">Não foi possível carregar os serviços.</div>
                     ) : dashboard?.services.length ? (
-                        <div className="services-list">
-                            {dashboard.services.map(service => (
-                                <article className="services-list-row" key={service.id}>
-                                    <div className="services-list-row__main">
-                                        <div className="services-list-row__identity">
-                                            <div className="services-list-row__client">
-                                                <strong>{service.client.name}</strong>
-                                                {service.client.document && (
-                                                    <span>Documento: {service.client.document}</span>
-                                                )}
-                                            </div>
-                                            <span className={`services-status-pill services-status-pill--${statusTones[service.status]}`}>
-                                                {statusLabels[service.status]}
-                                            </span>
-                                        </div>
-
-                                        <div className="services-list-row__equipment">
-                                            <span className="services-list-row__field-label">Equipamento</span>
-                                            <strong>{formatEquipment(service.equipament) || "Equipamento não identificado"}</strong>
-                                        </div>
-
-                                        <div className="services-list-row__details">
-                                            <span>
-                                                <span className="services-list-row__field-label">Entrada</span>
-                                                <strong>{formatReferenceDate(service.entryDate)}</strong>
-                                            </span>
-                                            <span>
-                                                <span className="services-list-row__field-label">Saída</span>
-                                                <strong>{service.exitDate ? formatReferenceDate(service.exitDate) : "Em andamento"}</strong>
-                                            </span>
-                                            <span>
-                                                <span className="services-list-row__field-label">Atividades</span>
-                                                <strong>{service.activityCount} {service.activityCount === 1 ? "atividade" : "atividades"}</strong>
-                                            </span>
-                                            <span>
-                                                <span className="services-list-row__field-label">Horas trabalhadas</span>
-                                                <strong>{service.hoursWorked == null ? "Não informado" : `${service.hoursWorked} h`}</strong>
-                                            </span>
-                                        </div>
-
-                                        <span className="services-list-row__id">Serviço #{service.id.slice(0, 8)}</span>
-                                    </div>
-                                </article>
-                            ))}
-                        </div>
+                        <>
+                            {renderServiceCards(dashboard.services)}
+                            <ServicesPagination
+                                page={dashboard.pagination.page}
+                                totalPages={dashboard.pagination.totalPages}
+                                total={dashboard.pagination.total}
+                                onPageChange={setMonthlyPage}
+                            />
+                        </>
                     ) : (
                         <div className="services-state">
                             <span className="services-state__icon" aria-hidden="true">
@@ -375,6 +592,175 @@ export function Services() {
                             </span>
                             <strong>Nenhum serviço encontrado</strong>
                             <p>Não há serviços com data de entrada no período selecionado.</p>
+                        </div>
+                    )}
+                </section>
+
+                <section className="services-panel services-search-panel">
+                    <header className="services-panel__header">
+                        <div>
+                            <span className="services-panel__eyebrow">Consulta avançada</span>
+                            <h2>Pesquisar serviços</h2>
+                            <p>Comece pelos campos principais ou abra os filtros adicionais para refinar a consulta.</p>
+                        </div>
+                        <span className="services-search-panel__icon" aria-hidden="true">
+                            <FontAwesomeIcon icon={faMagnifyingGlass} />
+                        </span>
+                    </header>
+
+                    <form className="services-search-form" onSubmit={handleSearchSubmit}>
+                        <div className="services-search-primary">
+                            <label className="services-filter-field services-filter-field--search">
+                                <span>Busca geral</span>
+                                <input
+                                    type="search"
+                                    value={searchDraft.search ?? ""}
+                                    placeholder="Cliente, documento, equipamento, atividade ou código…"
+                                    onChange={event => updateSearchField("search", event.target.value)}
+                                />
+                            </label>
+                            {renderSelectField(
+                                "Status do serviço",
+                                "serviceStatus",
+                                serviceStatuses.map(status => ({ value: status, label: statusLabels[status] }))
+                            )}
+                            {renderDateField("Entrada a partir de", "entryDateFrom")}
+                            {renderDateField("Entrada até", "entryDateTo")}
+                        </div>
+
+                        <details className="services-search-advanced">
+                            <summary>
+                                <span>Mais filtros</span>
+                                <span className="services-search-advanced__hint">Cliente, equipamento, atividades, financeiro e histórico</span>
+                            </summary>
+
+                            <div className="services-filter-group">
+                                <h3>Cliente e equipamento</h3>
+                                <div className="services-filter-grid">
+                                    {renderTextField("Nome do cliente", "clientName")}
+                                    {renderTextField("Documento do cliente", "clientDocument")}
+                                    {renderTextField("ID do cliente", "clientId")}
+                                    {renderTextField("ID do equipamento", "equipamentId")}
+                                    {renderTextField("Buscar equipamento", "equipamentSearch", "Tipo, marca, modelo ou identificação")}
+                                    {renderTextField("ID do serviço", "serviceId")}
+                                </div>
+                            </div>
+
+                            <div className="services-filter-group">
+                                <h3>Datas, horas e dízimo</h3>
+                                <div className="services-filter-grid">
+                                    {renderDateField("Saída a partir de", "exitDateFrom")}
+                                    {renderDateField("Saída até", "exitDateTo")}
+                                    {renderSelectField("Situação da saída", "exitDateIsNull", [
+                                        { value: "true", label: "Ainda sem saída" },
+                                        { value: "false", label: "Já saiu" }
+                                    ])}
+                                    {renderNumberField("Horas mínimas", "hoursWorkedMin")}
+                                    {renderNumberField("Horas máximas", "hoursWorkedMax")}
+                                    {renderSelectField("Status do dízimo", "titheStatus", Object.entries(titheStatusLabels).map(([value, label]) => ({ value, label })))}
+                                    {renderTextField("ID da transação do dízimo", "titheTransactionId")}
+                                </div>
+                            </div>
+
+                            <div className="services-filter-group">
+                                <h3>Atividades</h3>
+                                <div className="services-filter-grid">
+                                    {renderTextField("ID da atividade", "activityId")}
+                                    {renderTextField("Título da atividade", "activityTitle")}
+                                    {renderTextField("Descrição da atividade", "activityDescription")}
+                                    {renderSelectField("Status da atividade", "activityStatus", Object.entries(activityStatusLabels).map(([value, label]) => ({ value, label })))}
+                                    {renderDateField("Atividade iniciada a partir de", "activityStartFrom")}
+                                    {renderDateField("Atividade iniciada até", "activityStartTo")}
+                                    {renderDateField("Atividade encerrada a partir de", "activityEndFrom")}
+                                    {renderDateField("Atividade encerrada até", "activityEndTo")}
+                                </div>
+                            </div>
+
+                            <div className="services-filter-group">
+                                <h3>Lançamentos financeiros</h3>
+                                <div className="services-filter-grid">
+                                    {renderSelectField("Tipo de lançamento", "transactionType", [
+                                        { value: "income", label: "Entrada" },
+                                        { value: "expense", label: "Saída" }
+                                    ])}
+                                    {renderTextField("ID da categoria", "transactionCategoryId")}
+                                    {renderTextField("Nome da categoria", "transactionCategoryName")}
+                                    {renderTextField("Descrição do lançamento", "transactionDescription")}
+                                    {renderNumberField("Valor mínimo", "transactionValueMin")}
+                                    {renderNumberField("Valor máximo", "transactionValueMax")}
+                                    {renderDateField("Lançamento a partir de", "transactionReferenceDateFrom")}
+                                    {renderDateField("Lançamento até", "transactionReferenceDateTo")}
+                                </div>
+                            </div>
+
+                            <div className="services-filter-group">
+                                <h3>Histórico do serviço</h3>
+                                <div className="services-filter-grid">
+                                    {renderTextField("ID do evento", "historyId")}
+                                    {renderTextField("Tipo do evento", "historyEventType")}
+                                    {renderTextField("Descrição do evento", "historyDescription")}
+                                    {renderDateField("Evento a partir de", "historyDateFrom")}
+                                    {renderDateField("Evento até", "historyDateTo")}
+                                </div>
+                            </div>
+                        </details>
+
+                        <div className="services-search-actions">
+                            <button className="services-search-submit" type="submit">
+                                <FontAwesomeIcon icon={faMagnifyingGlass} aria-hidden="true" />
+                                Pesquisar
+                            </button>
+                            <button className="services-search-reset" type="button" onClick={clearSearch}>
+                                <FontAwesomeIcon icon={faRotateLeft} aria-hidden="true" />
+                                Limpar filtros
+                            </button>
+                        </div>
+                    </form>
+
+                    {searchQuery.isError && (
+                        <div className="services-alert services-search-alert" role="alert">
+                            <span>Não foi possível concluir a pesquisa. Confira os filtros e tente novamente.</span>
+                            <button type="button" onClick={() => searchQuery.refetch()}>
+                                Tentar novamente
+                            </button>
+                        </div>
+                    )}
+
+                    {appliedSearchFilters !== null && (
+                        <div className="services-search-results">
+                            <div className="services-search-results__heading">
+                                <div>
+                                    <h3>Resultados da pesquisa</h3>
+                                    <p>
+                                        {searchResults
+                                            ? `${searchResults.pagination.total} ${searchResults.pagination.total === 1 ? "serviço encontrado" : "serviços encontrados"}`
+                                            : "Preparando resultados…"}
+                                    </p>
+                                </div>
+                                {searchQuery.isFetching && <span className="services-search-loading">Atualizando…</span>}
+                            </div>
+
+                            {searchQuery.isPending ? (
+                                <div className="services-state">Pesquisando serviços…</div>
+                            ) : searchResults?.services.length ? (
+                                <>
+                                    {renderServiceCards(searchResults.services)}
+                                    <ServicesPagination
+                                        page={searchResults.pagination.page}
+                                        totalPages={searchResults.pagination.totalPages}
+                                        total={searchResults.pagination.total}
+                                        onPageChange={changeSearchPage}
+                                    />
+                                </>
+                            ) : !searchQuery.isError ? (
+                                <div className="services-state">
+                                    <span className="services-state__icon" aria-hidden="true">
+                                        <FontAwesomeIcon icon={faClipboardList} />
+                                    </span>
+                                    <strong>Nenhum serviço corresponde aos filtros</strong>
+                                    <p>Tente remover algum critério ou use a busca geral para ampliar a consulta.</p>
+                                </div>
+                            ) : null}
                         </div>
                     )}
                 </section>
