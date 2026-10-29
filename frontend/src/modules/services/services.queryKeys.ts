@@ -27,7 +27,8 @@ export const servicesQueryKeys = {
     transactions: {
         all: ["services", "transactions"] as const,
         byService: (serviceId: string | undefined) =>
-            ["services", "transactions", "by-service", serviceId ?? null] as const
+            ["services", "transactions", "by-service", serviceId ?? null] as const,
+        available: ["services", "transactions", "available"] as const
     },
     history: {
         byService: (serviceId: string | undefined) =>
