@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { servicesQueryKeys } from "./services.queryKeys";
 import {
     findServicesByAdvancedFilters,
-    findServicesByFilters,
+    findServicesByLegacyFilters,
     getServiceById,
     getServiceDashboard
 } from "./services.api";
@@ -27,10 +27,10 @@ export function useServicesByFilters(filters: FindServicesByAdvancedFilters) {
     });
 }
 
-export function useServiceList(filters: FindServicesByFilters) {
+export function useServiceList(filters: FindServicesByLegacyFilters) {
     return useQuery({
         queryKey: servicesQueryKeys.queries.legacyList(filters),
-        queryFn: () => findServicesByFilters(filters)
+        queryFn: () => findServicesByLegacyFilters(filters)
     });
 }
 
