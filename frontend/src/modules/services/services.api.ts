@@ -5,6 +5,7 @@ import type {
     FindServicesByAdvancedFilters,
     FindServicesByAdvancedFiltersResponse,
     FindServicesByFilters,
+    FindServicesByLegacyFilters,
     ServiceDashboardFilters,
     ServiceDashboardResponse,
     ServiceDetailsResponse,
@@ -54,8 +55,8 @@ export async function updateServiceStatus(
  * Legacy service filter endpoint. Unlike the advanced query endpoint, this
  * returns raw Service records and can optionally include history per service.
  */
-export async function findServicesByFilters(
-    filters: FindServicesByFilters
+export async function findServicesByLegacyFilters(
+    filters: FindServicesByLegacyFilters
 ): Promise<Array<ServiceRecord & { history?: ServiceHistoryEvent[] }>> {
     const result = await api.get<ApiResponse<Array<ServiceRecord & { history?: ServiceHistoryEvent[] }>>>(
         "/services/find-services-by-filters",
@@ -80,8 +81,8 @@ export async function getServiceDashboard(
     return result.data.data;
 }
 
-export async function findServicesByAdvancedFilters(
-    filters: FindServicesByAdvancedFilters
+export async function findServicesByFilters(
+    filters: FindServicesByFilters
 ): Promise<FindServicesByAdvancedFiltersResponse> {
     const result = await api.get<ApiResponse<FindServicesByAdvancedFiltersResponse>>(
         "/services/queries/find-services-by-filters",
@@ -90,6 +91,8 @@ export async function findServicesByAdvancedFilters(
 
     return result.data.data;
 }
+
+export const findServicesByAdvancedFilters = findServicesByFilters;
 
 export async function getServiceById(
     serviceId: string
