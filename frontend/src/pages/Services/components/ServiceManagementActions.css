@@ -249,3 +249,44 @@
     }
 }
 
+
+.service-management-search__pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--spacing-3);
+    padding: var(--spacing-2) 0;
+}
+
+.service-management-search__pagination > div {
+    display: flex;
+    gap: var(--spacing-2);
+}
+
+.service-management-search__pagination button {
+    min-height: var(--control-height-sm, 2rem);
+    padding: 0 var(--spacing-3);
+    color: var(--color-text);
+    background: var(--color-background);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-xs);
+    cursor: pointer;
+}
+
+.service-management-search__pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+@media (max-width: 480px) {
+    .service-management-search__grid--all {
+        grid-template-columns: 1fr;
+    }
+
+    .service-management-search__pagination {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+}
