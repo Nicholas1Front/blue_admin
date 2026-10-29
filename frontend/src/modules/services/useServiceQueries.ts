@@ -9,7 +9,7 @@ import {
 } from "./services.api";
 import type {
     FindServicesByAdvancedFilters,
-    FindServicesByFilters,
+    FindServicesByLegacyFilters,
     ServiceDashboardFilters
 } from "./services.types";
 
