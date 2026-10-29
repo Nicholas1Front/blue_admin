@@ -87,7 +87,7 @@ export interface UpdateServiceStatusRequest {
     description: string;
 }
 
-export interface FindServicesByFilters {
+export interface FindServicesByLegacyFilters {
     id?: string;
     clientId?: string;
     equipamentId?: string;
@@ -278,6 +278,6 @@ export interface ServiceDeleteResponse {
     message: string;
 }
 
-/** Backwards-compatible names for the original query-only frontend contract. */
+/** Backwards-compatible names for the original advanced-query contract. */
 export type FindServicesByFilters = FindServicesByAdvancedFilters;
 export type FindServicesByFiltersResponse = FindServicesByAdvancedFiltersResponse;
