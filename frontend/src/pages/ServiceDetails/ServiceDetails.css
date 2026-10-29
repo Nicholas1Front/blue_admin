@@ -730,3 +730,93 @@
         animation-duration: 1.8s;
     }
 }
+
+
+/* Consistência de dimensões entre os cards e os grids da página. */
+.service-details-metrics {
+    grid-auto-rows: 1fr;
+    align-items: stretch;
+}
+
+.service-details-metric {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.service-details-metric__label {
+    min-height: 2.5rem;
+    align-items: flex-start;
+}
+
+.service-details-metric__value {
+    min-height: 2.25rem;
+    display: flex;
+    align-items: center;
+    margin-top: var(--spacing-3);
+}
+
+.service-details-metric p {
+    min-height: 2.5rem;
+    margin-top: auto;
+    padding-top: var(--spacing-2);
+}
+
+.service-details-grid {
+    align-items: stretch;
+    grid-auto-rows: 1fr;
+}
+
+.service-details-grid > .service-details-section {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.service-details-grid .service-details-section__heading {
+    min-height: 7.5rem;
+}
+
+.service-details-grid .service-details-fields {
+    align-content: start;
+}
+
+.service-details-grid > .service-details-section > .service-details-fields,
+.service-details-grid > .service-details-section > .service-details-tithe {
+    flex: 1;
+}
+
+.service-details-activity-summary {
+    grid-auto-rows: 1fr;
+    align-items: stretch;
+}
+
+.service-details-activity-summary__item {
+    min-height: 3.75rem;
+}
+
+@media (max-width: 760px) {
+    .service-details-grid {
+        grid-auto-rows: auto;
+    }
+
+    .service-details-grid .service-details-section__heading {
+        min-height: 0;
+    }
+}
+
+@media (max-width: 480px) {
+    .service-details-metric__label,
+    .service-details-metric p {
+        min-height: 0;
+    }
+
+    .service-details-metric p {
+        margin-top: var(--spacing-2);
+        padding-top: 0;
+    }
+
+    .service-details-metric__value {
+        min-height: 0;
+    }
+}
