@@ -363,7 +363,7 @@ export function ServiceDetails() {
                                 </div>
                             </section>
 
-                            <section className="service-details-section">
+                            <section id="service-tithe" className="service-details-section">
                                 <SectionHeading
                                     icon={faCoins}
                                     eyebrow="Controle do dízimo"
