@@ -18,6 +18,7 @@ export type ServiceActivityStatus =
 
 export type ServiceTitheStatus = "aguardando" | "não concluído" | "concluído";
 export type ServiceFinancialType = "income" | "expense";
+export type ServiceNumericValue = number | string;
 
 export interface ServiceClientSummary {
     id: string;
@@ -34,22 +35,70 @@ export interface ServiceEquipamentSummary {
     additionalIdentification: string | null;
 }
 
-export interface ServiceSummary {
+export interface ServiceRecord {
     id: string;
     clientId: string;
     equipamentId: string;
     entryDate: string;
     exitDate: string | null;
     status: ServiceStatus;
-    hoursWorked: number | null;
-    costPerHour: number | null;
+    hoursWorked: ServiceNumericValue | null;
+    costPerHour: ServiceNumericValue | null;
     titheStatus: ServiceTitheStatus | null;
     titheTransactionId: string | null;
     createdAt: string;
     updatedAt: string;
+}
+
+export interface ServiceSummary extends Omit<ServiceRecord, "hoursWorked" | "costPerHour"> {
+    hoursWorked: number | null;
+    costPerHour: number | null;
     client: ServiceClientSummary;
     equipament: ServiceEquipamentSummary;
     activityCount: number;
+}
+
+export interface CreateServiceRequest {
+    clientId: string;
+    equipamentId: string;
+    entryDate: string;
+    exitDate?: string | null;
+    status?: ServiceStatus;
+    hoursWorked?: number | null;
+    description: string;
+}
+
+export interface UpdateServiceRequest {
+    clientId?: string;
+    equipamentId?: string;
+    entryDate?: string;
+    exitDate?: string | null;
+    hoursWorked?: number | null;
+    /**
+     * The backend accepts a boolean to calculate costPerHour from active
+     * monthly expenses, false/null to clear it, rather than a numeric value.
+     */
+    costPerHour?: boolean | null;
+    description: string;
+}
+
+export interface UpdateServiceStatusRequest {
+    status: ServiceStatus;
+    description: string;
+}
+
+export interface FindServicesByFilters {
+    id?: string;
+    clientId?: string;
+    equipamentId?: string;
+    entryDate?: string;
+    exitDate?: string | null;
+    status?: string;
+    hoursWorked?: number | null;
+    costPerHour?: number | null;
+    titheTransactionId?: string | null;
+    titheStatus?: string | null;
+    showHistory?: boolean;
 }
 
 export interface ServiceDashboardFilters {
@@ -83,7 +132,7 @@ export interface ServiceDashboardResponse {
     services: ServiceSummary[];
 }
 
-export interface FindServicesByFilters {
+export interface FindServicesByAdvancedFilters {
     search?: string;
     serviceId?: string;
     clientId?: string;
@@ -127,11 +176,11 @@ export interface FindServicesByFilters {
 }
 
 type ServiceAppliedFilters = {
-    [Key in keyof Omit<FindServicesByFilters, "page" | "limit">]-?:
-        Omit<FindServicesByFilters, "page" | "limit">[Key] | null;
+    [Key in keyof Omit<FindServicesByAdvancedFilters, "page" | "limit">]-?:
+        Omit<FindServicesByAdvancedFilters, "page" | "limit">[Key] | null;
 };
 
-export interface FindServicesByFiltersResponse {
+export interface FindServicesByAdvancedFiltersResponse {
     filters: ServiceAppliedFilters;
     pagination: {
         page: number;
@@ -140,21 +189,6 @@ export interface FindServicesByFiltersResponse {
         totalPages: number;
     };
     services: ServiceSummary[];
-}
-
-export interface ServiceRecord {
-    id: string;
-    clientId: string;
-    equipamentId: string;
-    entryDate: string;
-    exitDate: string | null;
-    status: ServiceStatus;
-    hoursWorked: number | null;
-    costPerHour: number | null;
-    titheStatus: ServiceTitheStatus | null;
-    titheTransactionId: string | null;
-    createdAt: string;
-    updatedAt: string;
 }
 
 export interface ServiceClientDetails {
@@ -209,7 +243,10 @@ export interface ServiceFinancialTransaction {
 }
 
 export interface ServiceDetailsResponse {
-    service: ServiceRecord;
+    service: Omit<ServiceRecord, "hoursWorked" | "costPerHour"> & {
+        hoursWorked: number | null;
+        costPerHour: number | null;
+    };
     client: ServiceClientDetails;
     equipament: ServiceEquipamentDetails;
     activities: {
@@ -230,4 +267,13 @@ export interface ServiceDetailsResponse {
         transactions: ServiceFinancialTransaction[];
     };
     history: ServiceHistoryEvent[];
+}
+
+export interface ServiceMutationResponse {
+    service: ServiceRecord;
+    history: ServiceHistoryEvent;
+}
+
+export interface ServiceDeleteResponse {
+    message: string;
 }
