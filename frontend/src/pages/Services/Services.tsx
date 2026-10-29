@@ -373,7 +373,7 @@ export function Services() {
                             </div>
                         )}
 
-                        {dashboard?.financial.includedOrigins.length > 0 && (
+                        {dashboard && dashboard.financial.includedOrigins.length > 0 && (
                             <div className="services-financial-origins">
                                 Considera lançamentos vinculados de {dashboard.financial.includedOrigins.map(origin => origin === "services" ? "serviços" : "dízimos").join(" e ")}.
                             </div>
