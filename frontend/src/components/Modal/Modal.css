@@ -88,3 +88,6 @@
         padding: var(--spacing-5);
     }
 }
+.modal--wide {
+    width: min(100%, 56rem);
+}
