@@ -820,3 +820,85 @@
         min-height: 0;
     }
 }
+
+.service-created-next-steps {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+}
+
+.service-created-next-steps > p,
+.service-created-next-steps__cost p {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-relaxed);
+}
+
+.service-created-next-steps__actions {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--spacing-2);
+}
+
+.service-created-next-steps__actions button,
+.service-created-next-steps__cost button,
+.service-created-next-steps__footer button {
+    min-height: var(--control-height-md);
+    padding: var(--spacing-2) var(--spacing-3);
+    color: var(--color-text);
+    background: var(--color-background);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+}
+
+.service-created-next-steps__actions button:hover,
+.service-created-next-steps__footer button:hover {
+    border-color: var(--color-primary-400);
+}
+
+.service-created-next-steps__cost {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+    padding: var(--spacing-4);
+    background: var(--color-background);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+}
+
+.service-created-next-steps__cost > strong {
+    color: var(--color-text);
+}
+
+.service-created-next-steps__cost button {
+    color: #fff;
+    background: var(--color-primary-500, var(--color-primary-400));
+    border-color: var(--color-primary-400);
+}
+
+.service-created-next-steps__cost button:disabled {
+    opacity: 0.65;
+    cursor: wait;
+}
+
+.service-created-next-steps__error {
+    color: var(--color-danger, #f87171) !important;
+}
+
+.service-created-next-steps__success {
+    color: var(--color-success, #4ade80) !important;
+}
+
+.service-created-next-steps__footer {
+    display: flex;
+    justify-content: flex-end;
+}
+
+@media (max-width: 480px) {
+    .service-created-next-steps__actions {
+        grid-template-columns: 1fr;
+    }
+}
