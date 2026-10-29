@@ -288,7 +288,7 @@ export function ServiceManagementActions() {
                 isOpen={isClientCreateOpen}
                 isSubmitting={clients.isCreating}
                 error={clients.createError}
-                onClose={() => setIsClientCreateOpen(false)}
+                onClose={() => { setIsClientCreateOpen(false); setIsClientSelectOpen(true); }}
                 onSubmit={handleCreateClient}
             />
 
@@ -315,7 +315,7 @@ export function ServiceManagementActions() {
                     isOpen={isEquipamentCreateOpen}
                     isSubmitting={equipaments.isCreating}
                     error={equipaments.createError}
-                    onClose={() => setIsEquipamentCreateOpen(false)}
+                    onClose={() => { setIsEquipamentCreateOpen(false); setIsEquipamentSelectOpen(true); }}
                     onSubmit={handleCreateEquipament}
                 />
             )}
