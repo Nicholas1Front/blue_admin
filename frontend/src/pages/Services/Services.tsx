@@ -319,7 +319,14 @@ export function Services() {
                 <span>{label}</span>
                 <select
                     value={String(searchDraft[key] ?? "")}
-                    onChange={event => updateSearchField(key, event.target.value || undefined)}
+                    onChange={event => updateSearchField(
+                        key,
+                        event.target.value === ""
+                            ? undefined
+                            : key === "exitDateIsNull"
+                                ? event.target.value === "true"
+                                : event.target.value
+                    )}
                 >
                     <option value="">Todos</option>
                     {options.map(option => (
