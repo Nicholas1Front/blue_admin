@@ -13,13 +13,15 @@ interface ModalProps {
     title: string;
     children: ReactNode;
     onClose: () => void;
+    size?: "default" | "wide";
 }
 
 export function Modal({
     isOpen,
     title,
     children,
-    onClose
+    onClose,
+    size = "default"
 }: ModalProps) {
     useEffect(() => {
         if (!isOpen) {
@@ -54,7 +56,7 @@ export function Modal({
             }}
         >
             <section
-                className="modal"
+                className={`modal${size === "wide" ? " modal--wide" : ""}`}
                 role="dialog"
                 aria-modal="true"
                 aria-labelledby="modal-title"
