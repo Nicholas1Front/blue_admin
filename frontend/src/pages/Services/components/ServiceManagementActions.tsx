@@ -281,7 +281,7 @@ export function ServiceManagementActions() {
                     await equipaments.loadEquipaments(client.id);
                     setIsEquipamentSelectOpen(true);
                 }}
-                onCreate={() => { setIsClientSelectOpen(false); setIsClientCreateOpen(true); }}
+                onCreate={() => { clients.clearCreateError(); setIsClientSelectOpen(false); setIsClientCreateOpen(true); }}
             />
 
             <ClientCreateModal
@@ -305,7 +305,7 @@ export function ServiceManagementActions() {
                         setIsEquipamentSelectOpen(false);
                         setCreateStep("details");
                     }}
-                    onCreate={() => { setIsEquipamentSelectOpen(false); setIsEquipamentCreateOpen(true); }}
+                    onCreate={() => { equipaments.clearCreateError(); setIsEquipamentSelectOpen(false); setIsEquipamentCreateOpen(true); }}
                 />
             )}
 
@@ -388,7 +388,15 @@ export function ServiceManagementActions() {
                                     <FontAwesomeIcon icon={faArrowRight} aria-hidden="true" />
                                 </button>
                             )) : <p>Nenhum serviço encontrado com esses filtros.</p>}
-                            {serviceSearchQuery.data && serviceSearchQuery.data.pagination.totalPages > 1 && <p className="service-management-search__pagination">Exibindo a primeira página de {serviceSearchQuery.data.pagination.total} resultados. Refine os filtros para localizar o serviço.</p>}
+                            {serviceSearchQuery.data && serviceSearchQuery.data.pagination.totalPages > 1 && (
+                                <div className="service-management-search__pagination">
+                                    <span>Página {serviceSearchQuery.data.pagination.page} de {serviceSearchQuery.data.pagination.totalPages} · {serviceSearchQuery.data.pagination.total} resultados</span>
+                                    <div>
+                                        <button type="button" disabled={serviceSearchQuery.data.pagination.page <= 1} onClick={() => setAppliedFilters(current => current ? { ...current, page: Math.max(1, (current.page ?? 1) - 1) } : current)}>Anterior</button>
+                                        <button type="button" disabled={serviceSearchQuery.data.pagination.page >= serviceSearchQuery.data.pagination.totalPages} onClick={() => setAppliedFilters(current => current ? { ...current, page: (current.page ?? 1) + 1 } : current)}>Próxima</button>
+                                    </div>
+                                </div>
+                            )}
                         </div>
                     )}
                 </div>
