@@ -126,10 +126,13 @@ export interface FindServicesByFilters {
     limit?: number;
 }
 
+type ServiceAppliedFilters = {
+    [Key in keyof Omit<FindServicesByFilters, "page" | "limit">]-?:
+        Omit<FindServicesByFilters, "page" | "limit">[Key] | null;
+};
+
 export interface FindServicesByFiltersResponse {
-    filters: Omit<FindServicesByFilters, "exitDateIsNull"> & {
-        exitDateIsNull?: boolean | null;
-    };
+    filters: ServiceAppliedFilters;
     pagination: {
         page: number;
         limit: number;
