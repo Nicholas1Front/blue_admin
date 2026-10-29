@@ -277,3 +277,7 @@ export interface ServiceMutationResponse {
 export interface ServiceDeleteResponse {
     message: string;
 }
+
+/** Backwards-compatible names for the original query-only frontend contract. */
+export type FindServicesByFilters = FindServicesByAdvancedFilters;
+export type FindServicesByFiltersResponse = FindServicesByAdvancedFiltersResponse;
