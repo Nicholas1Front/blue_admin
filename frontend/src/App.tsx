@@ -13,6 +13,7 @@ import { Users } from "./pages/Users/Users";
 import { Clients } from "./pages/Clients/Clients";
 import { Financial } from "./pages/Financial/Financial";
 import { Services } from "./pages/Services/Services";
+import { ServiceDetails } from "./pages/ServiceDetails/ServiceDetails";
 import { FinancialTransactions } from "./pages/FinancialTransactions/FinancialTransactions";
 import { MonthlyExpenses } from "./pages/MonthlyExpenses/MonthlyExpenses";
 import { CategoryPanel } from "./pages/CategoryPanel/CategoryPanel";
@@ -74,6 +75,15 @@ function App() {
                         element={
                             <ProtectedRoute>
                                 <Services />
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    <Route
+                        path="/services/:serviceId"
+                        element={
+                            <ProtectedRoute>
+                                <ServiceDetails />
                             </ProtectedRoute>
                         }
                     />
