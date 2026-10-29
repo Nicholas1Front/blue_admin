@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faCalendarDays,
@@ -343,7 +344,12 @@ export function Services() {
         return (
             <div className="services-list">
                 {services.map(service => (
-                    <article className="services-list-row" key={service.id}>
+                    <Link
+                        className="services-list-row"
+                        key={service.id}
+                        to={`/services/${encodeURIComponent(service.id)}`}
+                        aria-label={`Ver detalhes do serviço de ${service.client.name}`}
+                    >
                         <div className="services-list-row__main">
                             <div className="services-list-row__identity">
                                 <div className="services-list-row__client">
@@ -383,7 +389,7 @@ export function Services() {
 
                             <span className="services-list-row__id">Serviço #{service.id.slice(0, 8)}</span>
                         </div>
-                    </article>
+                    </Link>
                 ))}
             </div>
         );
