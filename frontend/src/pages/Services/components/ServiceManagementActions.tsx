@@ -345,6 +345,7 @@ export function ServiceManagementActions() {
             </Modal>
 
             <Modal
+                size="wide"
                 isOpen={managementMode !== null && !(managementMode === "delete" && selectedService !== null)}
                 title={managementMode === "edit" ? "Selecionar serviço para editar" : "Selecionar serviço para excluir"}
                 onClose={() => { setManagementMode(null); setAppliedFilters(null); }}
