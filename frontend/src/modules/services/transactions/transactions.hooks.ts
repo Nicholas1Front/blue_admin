@@ -34,7 +34,7 @@ export function useUnlinkTransactionFromService() {
     const queryClient = useQueryClient();
 
     return useMutation({
-        mutationFn: ({ transactionId }: { transactionId: string; serviceId?: string }) =>
+        mutationFn: ({ transactionId }: { transactionId: string }) =>
             unlinkTransactionFromService(transactionId),
         onSuccess: async () => {
             await queryClient.invalidateQueries({ queryKey: servicesQueryKeys.all });
