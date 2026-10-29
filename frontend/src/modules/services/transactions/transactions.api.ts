@@ -1,3 +1,5 @@
+import { findTransactionsByFilters } from "../../financial/transactions/transactions.api";
+import type { FinancialTransactionListItem } from "../../financial/transactions/transactions.types";
 import { api } from "../../../api/axios";
 import type { ApiResponse } from "../../../api/api.types";
 import type {
@@ -60,4 +62,21 @@ export async function unlinkTitheTransaction(
     );
 
     return result.data.data;
+}
+
+
+/**
+ * The Services backend exposes linking/unlinking operations, but not a separate
+ * endpoint for available transactions. Reuse the Financial module API and
+ * filter out any transaction already associated with an origin.
+ */
+export async function findAvailableFinancialTransactions(): Promise<FinancialTransactionListItem[]> {
+    const [incomes, expenses] = await Promise.all([
+        findTransactionsByFilters({ type: "income" }),
+        findTransactionsByFilters({ type: "expense" })
+    ]);
+
+    return [...incomes, ...expenses].filter(
+        transaction => transaction.originId === null && transaction.originType === null
+    );
 }
