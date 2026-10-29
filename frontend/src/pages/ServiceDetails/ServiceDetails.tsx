@@ -13,11 +13,13 @@ import {
     faUser,
     faTruck
 } from "@fortawesome/free-solid-svg-icons";
-import { useParams } from "react-router-dom";
+import { useParams, useSearchParams } from "react-router-dom";
+import { useState } from "react";
 
 import { AppHeader } from "../../components/AppHeader/AppHeader";
 import { BackLink } from "../../components/BackLink/BackLink";
-import { useServiceById } from "../../modules/services";
+import { Modal } from "../../components/Modal/Modal";
+import { useServiceById, useUpdateService } from "../../modules/services";
 import type {
     ServiceActivityStatus,
     ServiceStatus,
@@ -164,8 +166,48 @@ function TransactionRow({ transaction }: { transaction: ServiceFinancialTransact
 
 export function ServiceDetails() {
     const { serviceId } = useParams<{ serviceId: string }>();
+    const [searchParams, setSearchParams] = useSearchParams();
+    const [showCreatedModal, setShowCreatedModal] = useState(() => searchParams.get("created") === "1");
+    const [isCalculatingCost, setIsCalculatingCost] = useState(false);
+    const [costCalculationError, setCostCalculationError] = useState<string | null>(null);
+    const [costCalculationSuccess, setCostCalculationSuccess] = useState(false);
     const detailsQuery = useServiceById(serviceId);
+    const updateServiceMutation = useUpdateService();
     const details = detailsQuery.data;
+
+    function closeCreatedModal() {
+        setShowCreatedModal(false);
+        const nextParams = new URLSearchParams(searchParams);
+        nextParams.delete("created");
+        setSearchParams(nextParams, { replace: true });
+    }
+
+    async function calculateOperationalCost() {
+        if (!details) return;
+        setIsCalculatingCost(true);
+        setCostCalculationError(null);
+        setCostCalculationSuccess(false);
+        try {
+            await updateServiceMutation.mutateAsync({
+                id: details.service.id,
+                data: {
+                    costPerHour: true,
+                    description: "Custo operacional calculado após a criação do serviço"
+                }
+            });
+            await detailsQuery.refetch();
+            setCostCalculationSuccess(true);
+        } catch (error) {
+            setCostCalculationError(error instanceof Error ? error.message : "Não foi possível calcular o custo operacional.");
+        } finally {
+            setIsCalculatingCost(false);
+        }
+    }
+
+    function scrollToSection(sectionId: string) {
+        closeCreatedModal();
+        window.setTimeout(() => document.getElementById(sectionId)?.scrollIntoView({ behavior: "smooth", block: "start" }), 0);
+    }
 
     return (
         <main className="service-details-page">
@@ -174,6 +216,31 @@ export function ServiceDetails() {
             <nav className="page-back-row" aria-label="Navegação da página">
                 <BackLink to="/services" label="Voltar aos serviços" />
             </nav>
+
+                {details && (
+                    <Modal isOpen={showCreatedModal} title="Serviço criado com sucesso" onClose={closeCreatedModal}>
+                        <div className="service-created-next-steps">
+                            <p>O serviço já está registrado e seu histórico foi criado. Você pode complementar as informações agora ou voltar a isso depois.</p>
+                            <div className="service-created-next-steps__actions">
+                                <button type="button" onClick={() => scrollToSection("service-transactions")}>Ver transações</button>
+                                <button type="button" onClick={() => scrollToSection("service-activities")}>Ver atividades</button>
+                                <button type="button" onClick={() => scrollToSection("service-tithe")}>Ver dízimo</button>
+                            </div>
+                            <div className="service-created-next-steps__cost">
+                                <strong>Custo operacional</strong>
+                                <p>O custo por hora ficou em branco conforme a regra de negócio. Se quiser, você pode calcular agora usando as despesas mensais ativas.</p>
+                                {costCalculationError && <p className="service-created-next-steps__error" role="alert">{costCalculationError}</p>}
+                                {costCalculationSuccess && <p className="service-created-next-steps__success" role="status">Custo por hora calculado e serviço atualizado.</p>}
+                                <button type="button" onClick={() => void calculateOperationalCost()} disabled={isCalculatingCost}>
+                                    {isCalculatingCost ? "Calculando..." : "Calcular custo operacional"}
+                                </button>
+                            </div>
+                            <div className="service-created-next-steps__footer">
+                                <button type="button" onClick={closeCreatedModal}>Continuar para os detalhes</button>
+                            </div>
+                        </div>
+                    </Modal>
+                )}
 
             <div className="service-details-content">
                 {detailsQuery.isPending && (
@@ -324,7 +391,7 @@ export function ServiceDetails() {
                             </section>
                         </div>
 
-                        <section className="service-details-section service-details-section--wide">
+                        <section id="service-transactions" className="service-details-section service-details-section--wide">
                             <SectionHeading
                                 icon={faFileInvoiceDollar}
                                 eyebrow="Entradas e saídas"
@@ -347,7 +414,7 @@ export function ServiceDetails() {
                             )}
                         </section>
 
-                        <section className="service-details-section service-details-section--wide">
+                        <section id="service-activities" className="service-details-section service-details-section--wide">
                             <SectionHeading
                                 icon={faListCheck}
                                 eyebrow="Execução do trabalho"
