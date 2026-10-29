@@ -7,7 +7,7 @@ import {
     faCoins,
     faFileInvoiceDollar,
     faGaugeHigh,
-    faHistory,
+    faClockRotateLeft,
     faListCheck,
     faScrewdriverWrench,
     faUser,
@@ -398,7 +398,7 @@ export function ServiceDetails() {
 
                         <section className="service-details-section service-details-section--wide">
                             <SectionHeading
-                                icon={faHistory}
+                                icon={faClockRotateLeft}
                                 eyebrow="Rastreabilidade"
                                 title="Histórico do serviço"
                                 description="Registro cronológico das alterações e eventos gerados pelo sistema."
@@ -406,7 +406,7 @@ export function ServiceDetails() {
                             />
                             {details.history.length === 0 ? (
                                 <div className="service-details-empty">
-                                    <FontAwesomeIcon icon={faHistory} aria-hidden="true" />
+                                    <FontAwesomeIcon icon={faClockRotateLeft} aria-hidden="true" />
                                     <strong>Nenhum evento no histórico</strong>
                                     <p>Os registros de auditoria aparecerão aqui conforme o serviço evoluir.</p>
                                 </div>
