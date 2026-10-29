@@ -1,6 +1,5 @@
 import type {
     FindServicesByAdvancedFilters,
-    FindServicesByFilters,
     FindServicesByLegacyFilters,
     ServiceDashboardFilters
 } from "./services.types";
