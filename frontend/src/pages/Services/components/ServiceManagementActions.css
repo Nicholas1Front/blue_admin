@@ -1,0 +1,240 @@
+.service-management {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--spacing-3);
+    margin: calc(var(--spacing-5) * -1) 0 var(--spacing-6);
+}
+
+.service-management__button,
+.service-management__secondary {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-2);
+    min-height: var(--control-height-lg);
+    padding: 0 var(--spacing-4);
+    color: var(--color-text);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+    transition: border-color var(--transition-fast), background-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.service-management__button:hover,
+.service-management__secondary:hover {
+    border-color: var(--color-primary-400);
+    transform: translateY(-1px);
+}
+
+.service-management__button--create {
+    color: #fff;
+    background: var(--color-primary-500, var(--color-primary-400));
+    border-color: var(--color-primary-400);
+}
+
+.service-management__button--create:hover {
+    background: var(--color-primary-400);
+}
+
+.service-management__button--delete {
+    color: var(--color-danger, #f87171);
+    border-color: rgb(239 68 68 / 0.35);
+}
+
+.service-management__button--delete:hover {
+    background: var(--color-danger-bg);
+    border-color: var(--color-danger, #f87171);
+}
+
+.service-management__button:disabled,
+.service-management__secondary:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+    transform: none;
+}
+
+.service-management-form,
+.service-management-search {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+}
+
+.service-management-form label,
+.service-management-search label {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+    min-width: 0;
+}
+
+.service-management-form label > span,
+.service-management-search label > span {
+    color: var(--color-text);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+}
+
+.service-management-form input,
+.service-management-form select,
+.service-management-form textarea,
+.service-management-search input,
+.service-management-search select {
+    width: 100%;
+    min-width: 0;
+    min-height: var(--control-height-md);
+    padding: var(--spacing-2) var(--spacing-3);
+    color: var(--color-text);
+    background: var(--color-background);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font: inherit;
+}
+
+.service-management-form textarea {
+    resize: vertical;
+}
+
+.service-management-form input:focus-visible,
+.service-management-form select:focus-visible,
+.service-management-form textarea:focus-visible,
+.service-management-search input:focus-visible,
+.service-management-search select:focus-visible {
+    outline: 2px solid var(--color-primary-400);
+    outline-offset: 2px;
+}
+
+.service-management-form label small {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-xs);
+}
+
+.service-management-form__context {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-1);
+    padding: var(--spacing-3);
+    background: var(--color-background);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+}
+
+.service-management-form__context span {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+}
+
+.service-management-form__note,
+.service-management-search > p,
+.service-management-confirm > p {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-relaxed);
+}
+
+.service-management-form__error {
+    color: var(--color-danger, #f87171);
+    font-size: var(--font-size-sm);
+}
+
+.service-management-form__actions {
+    display: flex;
+    justify-content: flex-end;
+    flex-wrap: wrap;
+    gap: var(--spacing-3);
+    margin-top: var(--spacing-2);
+}
+
+.service-management-search__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--spacing-3);
+}
+
+.service-management-search__results {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+    max-height: 18rem;
+    overflow-y: auto;
+}
+
+.service-management-search__results > button {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-3);
+    width: 100%;
+    padding: var(--spacing-3);
+    color: var(--color-text);
+    background: var(--color-background);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    text-align: left;
+    cursor: pointer;
+}
+
+.service-management-search__results > button:hover {
+    border-color: var(--color-primary-400);
+}
+
+.service-management-search__results > button > span {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-1);
+    min-width: 0;
+}
+
+.service-management-search__results strong {
+    font-size: var(--font-size-sm);
+}
+
+.service-management-search__results small,
+.service-management-search__pagination {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-xs);
+    overflow-wrap: anywhere;
+}
+
+.service-management-search__results > p {
+    padding: var(--spacing-4);
+    color: var(--color-text-secondary);
+    background: var(--color-background);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+}
+
+.service-management-confirm {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-4);
+}
+
+.service-management-confirm > strong {
+    overflow-wrap: anywhere;
+    color: var(--color-text);
+}
+
+@media (max-width: 700px) {
+    .service-management {
+        grid-template-columns: 1fr;
+        margin-top: calc(var(--spacing-4) * -1);
+    }
+
+    .service-management__button {
+        min-height: var(--control-height-md);
+    }
+}
+
+@media (max-width: 480px) {
+    .service-management-search__grid {
+        grid-template-columns: 1fr;
+    }
+
+    .service-management-form__actions > button {
+        flex: 1 1 100%;
+    }
+}
