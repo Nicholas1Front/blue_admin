@@ -1,4 +1,4 @@
-import { useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faCalendarDays,
@@ -66,6 +66,7 @@ type TransactionTarget = "tithe" | "income" | "expense";
 interface Props {
     details: ServiceDetailsResponse;
     onUpdated: () => Promise<unknown>;
+    costDialogRequest: number;
 }
 
 const statusOptions: Array<{ value: ServiceStatus; label: string }> = [
@@ -113,7 +114,7 @@ function getErrorMessage(error: unknown, fallback: string) {
     return error instanceof Error ? error.message : fallback;
 }
 
-export function ServiceDetailsManagement({ details, onUpdated }: Props) {
+export function ServiceDetailsManagement({ details, onUpdated, costDialogRequest }: Props) {
     const serviceId = details.service.id;
     const clients = useClients();
     const equipaments = useEquipaments();
@@ -186,6 +187,14 @@ export function ServiceDetailsManagement({ details, onUpdated }: Props) {
         setError(null);
         setDialog(next);
     }
+
+    useEffect(() => {
+        if (costDialogRequest === 0) return;
+        setHoursWorked(details.service.hoursWorked == null ? "" : String(details.service.hoursWorked));
+        setCostPerHourInput(details.service.costPerHour == null ? "" : String(details.service.costPerHour));
+        setCostAction("keep");
+        open("cost");
+    }, [costDialogRequest, details.service.hoursWorked, details.service.costPerHour]);
 
     async function refreshAndClose() {
         await onUpdated();
