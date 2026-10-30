@@ -16,6 +16,66 @@ class TransactionsRepository {
         return prisma.service.findUnique({ where: { id } })
     }
 
+    async findAvailableTransactions(filters: {
+        year?: number;
+        month?: number;
+        page: number;
+        limit: number;
+        categoryId?: string;
+        type?: 'income' | 'expense';
+        search?: string;
+    }) {
+        const referenceDate = filters.year === undefined
+            ? undefined
+            : {
+                gte: new Date(Date.UTC(filters.year, (filters.month ?? 1) - 1, 1)),
+                lt: filters.month === undefined
+                    ? new Date(Date.UTC(filters.year + 1, 0, 1))
+                    : new Date(Date.UTC(filters.year, filters.month, 1))
+            };
+
+        const where = {
+            originId: null,
+            originType: null,
+            titheForService: { is: null },
+            ...(referenceDate && { referenceDate }),
+            ...(filters.categoryId && { categoryId: filters.categoryId }),
+            ...(filters.type && { type: filters.type }),
+            ...(filters.search && {
+                OR: [
+                    { description: { contains: filters.search, mode: 'insensitive' as const } },
+                    { id: { contains: filters.search, mode: 'insensitive' as const } }
+                ]
+            })
+        };
+
+        const [transactions, total] = await Promise.all([
+            prisma.financialTransaction.findMany({
+                where,
+                skip: (filters.page - 1) * filters.limit,
+                take: filters.limit,
+                orderBy: [
+                    { referenceDate: 'desc' },
+                    { createdAt: 'desc' },
+                    { id: 'asc' }
+                ],
+                include: {
+                    category: { select: { name: true } }
+                }
+            }),
+            prisma.financialTransaction.count({ where })
+        ]);
+
+        return {
+            transactions: transactions.map(({ category, value, ...transaction }) => ({
+                ...transaction,
+                value: Number(value),
+                categoryName: category.name
+            })),
+            total
+        };
+    }
+
     async linkTransactionToService(id: string, serviceId: string) {
         return prisma.$transaction(async (tx) => {
             const result = await tx.financialTransaction.updateMany({
