@@ -102,7 +102,29 @@ export const findServicesByFiltersQuerySchema = z.object({
     }
 )
 
+export const serviceMetricsQuerySchema = z.object({
+    year : z.coerce.number().int().min(1).max(9999),
+    month : z.coerce.number().int().min(1).max(12).optional()
+})
+
+export const serviceCalendarQuerySchema = z.object({
+    startDate : z.iso.date(),
+    endDate : z.iso.date()
+}).refine(filters => filters.startDate <= filters.endDate, {
+    message : 'A data inicial deve ser anterior ou igual à data final',
+    path : ['endDate']
+}).refine(filters => {
+    const start = new Date(`${filters.startDate}T00:00:00.000Z`)
+    const end = new Date(`${filters.endDate}T00:00:00.000Z`)
+    return (end.getTime() - start.getTime()) / 86400000 <= 62
+}, {
+    message : 'O calendário permite consultar no máximo 63 dias por requisição',
+    path : ['endDate']
+})
+
 // DTOs
 export type findServiceByIdParamsDTO = z.infer<typeof findServiceByIdParamsSchema>
 export type ServiceDashboardQueryDTO = z.infer<typeof serviceDashboardQuerySchema>
+export type ServiceMetricsQueryDTO = z.infer<typeof serviceMetricsQuerySchema>
+export type ServiceCalendarQueryDTO = z.infer<typeof serviceCalendarQuerySchema>
 export type FindServicesByFiltersQueryDTO = z.infer<typeof findServicesByFiltersQuerySchema>
