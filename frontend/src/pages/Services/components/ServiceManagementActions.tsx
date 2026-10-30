@@ -420,7 +420,7 @@ export function ServiceManagementActions() {
                             ))}
                         </div>
                         <div className="service-management-search__form-actions">
-                            <button type="button" className="service-management__secondary" onClick={() => setSearchDraft(emptyManagementSearch())}>Limpar filtros</button>
+                            <button type="button" className="service-management__secondary" onClick={() => { setSearchDraft(emptyManagementSearch()); setAppliedFilters(null); }}>Limpar filtros</button>
                             <button className="service-management__button service-management__button--create" type="submit">
                                 <FontAwesomeIcon icon={faMagnifyingGlass} aria-hidden="true" /> Pesquisar serviços
                             </button>
