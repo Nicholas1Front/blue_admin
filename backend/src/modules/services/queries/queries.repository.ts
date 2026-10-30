@@ -436,7 +436,16 @@ class QueriesRepository {
         return prisma.service.findMany({
             where : {
                 entryDate : {lt : endDateExclusive},
-                OR : [{exitDate : null}, {exitDate : {gte : startDate}}]
+                OR : [
+                    {entryDate : {gte : startDate}},
+                    {exitDate : {gte : startDate}},
+                    {
+                        AND : [
+                            {exitDate : null},
+                            {status : {notIn : ['cancelado', 'equipamento_saiu']}}
+                        ]
+                    }
+                ]
             },
             select : serviceSummarySelect,
             orderBy : [{entryDate : 'asc'}, {createdAt : 'asc'}, {id : 'asc'}]
