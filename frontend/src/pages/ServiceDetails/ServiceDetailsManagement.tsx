@@ -120,7 +120,7 @@ export function ServiceDetailsManagement({ details, onUpdated, costDialogRequest
     const updateService = useUpdateService();
     const updateStatus = useUpdateServiceStatus();
     const linkTransaction = useLinkTransactionToService();
-    const unlinkTransaction = useUnlinkTransactionFromService();
+    const unlinkTransactionMutation = useUnlinkTransactionFromService();
     const linkTithe = useLinkTitheTransaction();
     const unlinkTithe = useUnlinkTitheTransaction();
     const addActivity = useAddServiceActivity();
@@ -451,7 +451,7 @@ export function ServiceDetailsManagement({ details, onUpdated, costDialogRequest
             if (isTithe) {
                 await unlinkTithe.mutateAsync({ transactionId, serviceId });
             } else {
-                await unlinkTransaction.mutateAsync({ transactionId });
+                await unlinkTransactionMutation.mutateAsync({ transactionId });
             }
             await refreshAndClose();
         } catch (caught) {
@@ -468,7 +468,7 @@ export function ServiceDetailsManagement({ details, onUpdated, costDialogRequest
             if (isTithe) {
                 await unlinkTithe.mutateAsync({ transactionId: transaction.id, serviceId });
             } else {
-                await unlinkTransaction.mutateAsync({ transactionId: transaction.id });
+                await unlinkTransactionMutation.mutateAsync({ transactionId: transaction.id });
             }
             await transactions.remove.mutateAsync(transaction.id);
             setTransactionPendingDelete(null);
