@@ -922,3 +922,88 @@
     }
 }
 
+
+
+.services-insights-link {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-4);
+    min-width: 0;
+    margin: 0 0 var(--spacing-5);
+    padding: var(--spacing-4) var(--spacing-5);
+    color: inherit;
+    background: linear-gradient(110deg, rgb(11 116 229 / 0.12), rgb(24 35 44 / 0.92) 58%);
+    border: 1px solid rgb(77 155 255 / 0.24);
+    border-radius: var(--radius-xl);
+    text-decoration: none;
+    transition: border-color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.services-insights-link:hover {
+    background: linear-gradient(110deg, rgb(11 116 229 / 0.18), rgb(29 41 51 / 0.96) 58%);
+    border-color: var(--color-primary-400);
+}
+
+.services-insights-link:focus-visible {
+    outline: 2px solid var(--color-primary-400);
+    outline-offset: 3px;
+}
+
+.services-insights-link__icon {
+    display: grid;
+    place-items: center;
+    width: 2.75rem;
+    height: 2.75rem;
+    flex-shrink: 0;
+    color: var(--color-primary-300);
+    background: rgb(77 155 255 / 0.13);
+    border-radius: var(--radius-lg);
+}
+
+.services-insights-link__content {
+    display: flex;
+    flex: 1;
+    flex-direction: column;
+    gap: var(--spacing-1);
+    min-width: 0;
+}
+
+.services-insights-link__content strong {
+    color: var(--color-text);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+}
+
+.services-insights-link__content small {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+    line-height: var(--line-height-normal);
+}
+
+.services-insights-link__action {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    flex-shrink: 0;
+    color: var(--color-primary-300);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+}
+
+@media (max-width: 480px) {
+    .services-insights-link {
+        align-items: flex-start;
+        gap: var(--spacing-3);
+        padding: var(--spacing-3);
+    }
+
+    .services-insights-link__icon {
+        width: 2.4rem;
+        height: 2.4rem;
+    }
+
+    .services-insights-link__action {
+        align-self: center;
+        font-size: var(--font-size-xs);
+    }
+}
