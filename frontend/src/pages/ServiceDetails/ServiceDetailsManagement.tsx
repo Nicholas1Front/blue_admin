@@ -666,9 +666,6 @@ export function ServiceDetailsManagement({ details, onUpdated }: Props) {
                 </Modal>
             )}
 
-            {dialog === "transactions" || dialog === "tithe" ? (
-                <Modal isOpen={false} title="Consulta financeira" onClose={() => setDialog(null)} />
-            ) : null}
 
             <Modal isOpen={dialog === "activities"} title="Gerenciar atividades" onClose={() => setDialog(null)} size="wide">
                 <div className="service-details-management-stack">
