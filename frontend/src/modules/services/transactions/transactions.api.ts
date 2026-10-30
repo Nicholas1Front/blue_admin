@@ -1,5 +1,3 @@
-import { findTransactionsByFilters } from "../../financial/transactions/transactions.api";
-import type { FinancialTransactionListItem } from "../../financial/transactions/transactions.types";
 import { api } from "../../../api/axios";
 import type { ApiResponse } from "../../../api/api.types";
 import type {
@@ -7,7 +5,9 @@ import type {
     ServiceTitheLinkResponse,
     ServiceTransaction,
     ServiceTransactionLinkResponse,
-    UnlinkServiceTransactionResponse
+    UnlinkServiceTransactionResponse,
+    AvailableTransactionsFilters,
+    AvailableTransactionsResponse
 } from "./transactions.types";
 
 export async function linkTransactionToService(
@@ -65,18 +65,13 @@ export async function unlinkTitheTransaction(
 }
 
 
-/**
- * The Services backend exposes linking/unlinking operations, but not a separate
- * endpoint for available transactions. Reuse the Financial module API and
- * filter out any transaction already associated with an origin.
- */
-export async function findAvailableFinancialTransactions(): Promise<FinancialTransactionListItem[]> {
-    const [incomes, expenses] = await Promise.all([
-        findTransactionsByFilters({ type: "income" }),
-        findTransactionsByFilters({ type: "expense" })
-    ]);
-
-    return [...incomes, ...expenses].filter(
-        transaction => transaction.originId === null && transaction.originType === null
+export async function findAvailableFinancialTransactions(
+    filters: AvailableTransactionsFilters
+): Promise<AvailableTransactionsResponse> {
+    const result = await api.get<ApiResponse<AvailableTransactionsResponse>>(
+        "/services/transactions/find-available-transactions",
+        { params: filters }
     );
+
+    return result.data.data;
 }
