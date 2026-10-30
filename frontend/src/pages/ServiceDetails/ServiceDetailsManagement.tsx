@@ -162,6 +162,7 @@ export function ServiceDetailsManagement({ details, onUpdated, children }: Props
     const [transactionSearch, setTransactionSearch] = useState("");
     const [transactionFilterYear, setTransactionFilterYear] = useState(String(new Date().getFullYear()));
     const [transactionFilterMonth, setTransactionFilterMonth] = useState("");
+    const [transactionFilterDate, setTransactionFilterDate] = useState("");
     const [transactionFilterCategoryId, setTransactionFilterCategoryId] = useState("");
     const [transactionFilterValue, setTransactionFilterValue] = useState("");
     const [transactionPage, setTransactionPage] = useState(1);
@@ -179,6 +180,7 @@ export function ServiceDetailsManagement({ details, onUpdated, children }: Props
     const availableTransactions = useAvailableFinancialTransactions({
         year: transactionFilterYear.trim() ? Number(transactionFilterYear) : undefined,
         month: transactionFilterMonth ? Number(transactionFilterMonth) : undefined,
+        referenceDate: transactionFilterDate || undefined,
         page: transactionPage,
         limit: 8,
         categoryId: transactionFilterCategoryId || undefined,
@@ -355,6 +357,7 @@ export function ServiceDetailsManagement({ details, onUpdated, children }: Props
         setTransactionSearch("");
         setTransactionFilterYear(String(new Date().getFullYear()));
         setTransactionFilterMonth("");
+        setTransactionFilterDate("");
         setTransactionFilterCategoryId("");
         setTransactionFilterValue("");
         setTransactionPage(1);
@@ -700,6 +703,7 @@ export function ServiceDetailsManagement({ details, onUpdated, children }: Props
                             <div className="service-details-management-selector__fields">
                                 <label>Ano<input type="number" min="1" max="9999" inputMode="numeric" value={transactionFilterYear} onChange={event => { setTransactionFilterYear(event.target.value); if (!event.target.value) setTransactionFilterMonth(""); setTransactionPage(1); }} placeholder="Todos" /></label>
                                 <label>Mês<select value={transactionFilterMonth} disabled={!transactionFilterYear.trim()} onChange={event => { setTransactionFilterMonth(event.target.value); setTransactionPage(1); }}><option value="">Todos os meses</option><option value="1">Janeiro</option><option value="2">Fevereiro</option><option value="3">Março</option><option value="4">Abril</option><option value="5">Maio</option><option value="6">Junho</option><option value="7">Julho</option><option value="8">Agosto</option><option value="9">Setembro</option><option value="10">Outubro</option><option value="11">Novembro</option><option value="12">Dezembro</option></select></label>
+                                <label>Data exata<input type="date" value={transactionFilterDate} onChange={event => { setTransactionFilterDate(event.target.value); setTransactionPage(1); }} /></label>
                             </div>
                         </fieldset>
 
