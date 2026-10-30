@@ -294,7 +294,7 @@
 }
 
 .service-details-management-selector__results .service-details-management-record {
-    grid-template-columns: minmax(0, 1fr) auto;
+    grid-template-columns: minmax(0, 1fr);
     align-items: start;
     gap: var(--spacing-2) var(--spacing-4);
     padding: var(--spacing-3) var(--spacing-4);
