@@ -22,6 +22,7 @@ class TransactionsRepository {
         page: number;
         limit: number;
         categoryId?: string;
+        value?: number;
         type?: 'income' | 'expense';
         search?: string;
     }) {
@@ -49,6 +50,7 @@ class TransactionsRepository {
             titheForService: { is: null },
             ...(referenceDate && { referenceDate }),
             ...(filters.categoryId && { categoryId: filters.categoryId }),
+            ...(filters.value !== undefined && { value: { equals: filters.value } }),
             ...(filters.type && { type: filters.type }),
             ...(filters.search && {
                 OR: [
