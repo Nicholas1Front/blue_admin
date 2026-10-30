@@ -131,7 +131,8 @@ export function ServiceDetailsManagement({ details, onUpdated }: Props) {
     const [status, setStatus] = useState<ServiceStatus>(details.service.status);
     const [serviceDescription, setServiceDescription] = useState("Informações do serviço atualizadas");
     const [hoursWorked, setHoursWorked] = useState(details.service.hoursWorked == null ? "" : String(details.service.hoursWorked));
-    const [costAction, setCostAction] = useState<"keep" | "recalculate" | "clear">("keep");
+    const [costAction, setCostAction] = useState<"keep" | "recalculate" | "manual" | "clear">("keep");
+    const [costPerHourInput, setCostPerHourInput] = useState(details.service.costPerHour == null ? "" : String(details.service.costPerHour));
 
     const [clientSelectOpen, setClientSelectOpen] = useState(false);
     const [equipamentSelectOpen, setEquipamentSelectOpen] = useState(false);
@@ -292,6 +293,9 @@ export function ServiceDetailsManagement({ details, onUpdated }: Props) {
         if (hoursWorked.trim() !== "" && (!Number.isFinite(Number(hoursWorked)) || Number(hoursWorked) < 0)) {
             return setError("Informe uma quantidade de horas válida.");
         }
+        if (costAction === "manual" && (costPerHourInput.trim() === "" || !Number.isFinite(Number(costPerHourInput)) || Number(costPerHourInput) < 0)) {
+            return setError("Informe um custo por hora válido.");
+        }
         setIsSaving(true);
         setError(null);
         try {
@@ -300,12 +304,15 @@ export function ServiceDetailsManagement({ details, onUpdated }: Props) {
                 data: {
                     hoursWorked: hoursWorked.trim() === "" ? null : Number(hoursWorked),
                     ...(costAction === "recalculate" ? { costPerHour: true } : {}),
+                    ...(costAction === "manual" ? { costPerHour: Number(costPerHourInput) } : {}),
                     ...(costAction === "clear" ? { costPerHour: null } : {}),
                     description: costAction === "recalculate"
                         ? "Horas trabalhadas atualizadas e custo por hora recalculado"
-                        : costAction === "clear"
-                            ? "Horas trabalhadas atualizadas e custo por hora removido"
-                            : "Horas trabalhadas atualizadas"
+                        : costAction === "manual"
+                            ? "Horas trabalhadas e custo por hora definidos manualmente"
+                            : costAction === "clear"
+                                ? "Horas trabalhadas atualizadas e custo por hora removido"
+                                : "Horas trabalhadas atualizadas"
                 }
             });
             await refreshAndClose();
@@ -526,7 +533,7 @@ export function ServiceDetailsManagement({ details, onUpdated }: Props) {
                 <button type="button" onClick={() => { setStatus(details.service.status); setServiceDescription("Dados do serviço atualizados"); open("service"); }}>
                     <FontAwesomeIcon icon={faWrench} /> Dados do serviço
                 </button>
-                <button type="button" onClick={() => { setHoursWorked(details.service.hoursWorked == null ? "" : String(details.service.hoursWorked)); setCostAction("keep"); open("cost"); }}>
+                <button type="button" onClick={() => { setHoursWorked(details.service.hoursWorked == null ? "" : String(details.service.hoursWorked)); setCostPerHourInput(details.service.costPerHour == null ? "" : String(details.service.costPerHour)); setCostAction("keep"); open("cost"); }}>
                     <FontAwesomeIcon icon={faGaugeHigh} /> Custo operacional
                 </button>
                 <button type="button" onClick={() => open("tithe")}>
@@ -594,7 +601,8 @@ export function ServiceDetailsManagement({ details, onUpdated }: Props) {
                 <form className="service-details-management-form" onSubmit={saveOperationalCost}>
                     <p>O custo operacional é calculado multiplicando as horas trabalhadas pelo custo por hora salvo neste serviço.</p>
                     <label>Horas trabalhadas<input type="number" min="0" step="0.25" value={hoursWorked} onChange={event => setHoursWorked(event.target.value)} placeholder="Deixe vazio se ainda não souber" /></label>
-                    <label>Custo por hora<select value={costAction} onChange={event => setCostAction(event.target.value as typeof costAction)}><option value="keep">Manter valor atual ({details.service.costPerHour == null ? "não definido" : currency.format(Number(details.service.costPerHour))})</option><option value="recalculate">Recalcular pelas despesas mensais ativas</option><option value="clear">Remover custo por hora</option></select></label>
+                    <label>Configuração do custo por hora<select value={costAction} onChange={event => setCostAction(event.target.value as typeof costAction)}><option value="keep">Manter valor atual ({details.service.costPerHour == null ? "não definido" : currency.format(Number(details.service.costPerHour))})</option><option value="recalculate">Recalcular pelas despesas mensais ativas</option><option value="manual">Definir valor manualmente</option><option value="clear">Remover custo por hora</option></select></label>
+                    {costAction === "manual" && <label>Novo custo por hora<input type="number" min="0" step="0.01" value={costPerHourInput} onChange={event => setCostPerHourInput(event.target.value)} placeholder="Ex.: 85,00" required /></label>}
                     {error && <p className="service-details-management__error" role="alert">{error}</p>}
                     <div className="service-details-management__actions"><button type="button" onClick={() => setDialog(null)}>Cancelar</button><button type="submit" disabled={isSaving}>{isSaving ? "Salvando..." : "Atualizar custo"}</button></div>
                 </form>
