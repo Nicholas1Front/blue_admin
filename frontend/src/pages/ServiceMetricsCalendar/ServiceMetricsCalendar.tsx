@@ -90,13 +90,6 @@ const statusTones: Record<string, string> = {
     pagamento_recebido: "success"
 };
 
-const activityLabels: Record<string, string> = {
-    pendente: "Pendentes",
-    "em_execução": "Em execução",
-    concluida: "Concluídas",
-    cancelada: "Canceladas"
-};
-
 const eventLabels: Record<ServiceCalendarEvent["eventType"], string> = {
     entry: "Entrada",
     exit: "Saída",
