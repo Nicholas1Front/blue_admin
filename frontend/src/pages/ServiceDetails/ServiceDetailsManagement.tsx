@@ -344,7 +344,6 @@ export function ServiceDetailsManagement({ details, onUpdated, costDialogRequest
     }
 
     async function selectTransaction(transaction: FinancialTransactionListItem) {
-        setTransactionSelectorOpen(false);
         setIsSaving(true);
         setError(null);
         try {
@@ -353,6 +352,7 @@ export function ServiceDetailsManagement({ details, onUpdated, costDialogRequest
             } else {
                 await linkTransaction.mutateAsync({ serviceId, data: { id: transaction.id } });
             }
+            setTransactionSelectorOpen(false);
             await refreshAndClose();
         } catch (caught) {
             setError(getErrorMessage(caught, "Não foi possível vincular a transação."));
