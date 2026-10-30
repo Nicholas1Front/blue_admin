@@ -6,6 +6,8 @@ const router = Router()
 
 router.use(authMiddleware)
 
+router.get('/find-available-transactions', transactionsController.findAvailableTransactions)
+
 router.put('/update-origins/:serviceId', transactionsController.updateOrigins)
 router.delete('/remove-origins/:transactionId', transactionsController.removeOrigins)
 
