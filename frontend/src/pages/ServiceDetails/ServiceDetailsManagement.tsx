@@ -18,10 +18,11 @@ import {
 import { Modal } from "../../components/Modal/Modal";
 import { ClientSelectModal } from "../Clients/components/ClientSelectModal/ClientSelectModal";
 import { EquipamentSelectModal } from "../Clients/components/EquipamentSelectModal/EquipamentSelectModal";
+import { EquipamentCreateModal } from "../Clients/components/EquipamentCreateModal/EquipamentCreateModal";
 import { useClients } from "../../modules/clients/useClients";
 import { useEquipaments } from "../../modules/equipaments/useEquipaments";
 import type { Client } from "../../modules/clients/clients.types";
-import type { Equipament } from "../../modules/equipaments/equipaments.types";
+import type { CreateEquipamentRequest, Equipament } from "../../modules/equipaments/equipaments.types";
 import { useCategories } from "../../modules/financial/categories/useCategories";
 import type { FinancialType } from "../../modules/financial/shared/financial.types";
 import { useTransactionMutations } from "../../modules/financial/transactions/useTransactionMutations";
@@ -134,6 +135,7 @@ export function ServiceDetailsManagement({ details, onUpdated }: Props) {
 
     const [clientSelectOpen, setClientSelectOpen] = useState(false);
     const [equipamentSelectOpen, setEquipamentSelectOpen] = useState(false);
+    const [equipamentCreateOpen, setEquipamentCreateOpen] = useState(false);
     const [selectedClient, setSelectedClient] = useState<Client | null>(null);
     const [relationshipMode, setRelationshipMode] = useState<"client" | "equipament">("equipament");
 
@@ -228,6 +230,17 @@ export function ServiceDetailsManagement({ details, onUpdated }: Props) {
         setClientSelectOpen(false);
         await equipaments.loadEquipaments(client.id);
         setEquipamentSelectOpen(true);
+    }
+
+    async function createAndSelectEquipament(data: CreateEquipamentRequest) {
+        if (!selectedClient) return;
+        try {
+            const equipament = await equipaments.addEquipament(selectedClient.id, data);
+            setEquipamentCreateOpen(false);
+            await selectNewEquipament(equipament);
+        } catch (caught) {
+            setError(getErrorMessage(caught, "Não foi possível cadastrar o equipamento."));
+        }
     }
 
     async function selectNewEquipament(equipament: Equipament) {
@@ -552,7 +565,18 @@ export function ServiceDetailsManagement({ details, onUpdated }: Props) {
                 error={equipaments.error}
                 onClose={() => { setEquipamentSelectOpen(false); setSelectedClient(null); setDialog(null); }}
                 onSelect={equipament => void selectNewEquipament(equipament)}
+                onCreate={() => setEquipamentCreateOpen(true)}
             />
+            {selectedClient && (
+                <EquipamentCreateModal
+                    clientId={selectedClient.id}
+                    isOpen={equipamentCreateOpen}
+                    isSubmitting={equipaments.isCreating}
+                    error={equipaments.createError}
+                    onClose={() => setEquipamentCreateOpen(false)}
+                    onSubmit={createAndSelectEquipament}
+                />
+            )}
 
             <Modal isOpen={dialog === "service"} title="Dados e status do serviço" onClose={() => setDialog(null)}>
                 <form className="service-details-management-form" onSubmit={saveServiceData}>
