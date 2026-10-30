@@ -1,4 +1,5 @@
 import type { ServiceFinancialType, ServiceNumericValue, ServiceRecord, ServiceTitheStatus } from "../services.types";
+import type { FinancialType } from "../../financial/shared/financial.types";
 
 export interface ServiceTransaction {
     id: string;
@@ -38,4 +39,23 @@ export interface ServiceTitheLinkResponse {
         titheTransactionId: string | null;
     };
     transaction: ServiceTransaction | null;
+}
+
+
+export interface AvailableTransactionsFilters {
+    year?: number;
+    month?: number;
+    page: number;
+    limit: number;
+    categoryId?: string;
+    type: FinancialType;
+    search?: string;
+}
+
+export interface AvailableTransactionsResponse {
+    transactions: import("../../financial/transactions/transactions.types").FinancialTransactionListItem[];
+    page: number;
+    limit: number;
+    total: number;
+    totalPages: number;
 }
