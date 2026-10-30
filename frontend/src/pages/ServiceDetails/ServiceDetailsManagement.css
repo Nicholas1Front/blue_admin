@@ -77,7 +77,7 @@
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
     font: inherit;
-    font-weight: var(--font-weight-normal);
+    font-weight: var(--font-weight-regular);
 }
 
 .service-details-management-form textarea {
