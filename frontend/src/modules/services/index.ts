@@ -57,6 +57,8 @@ export type {
     LinkServiceTransactionRequest,
     ServiceTransactionLinkResponse,
     UnlinkServiceTransactionResponse,
-    ServiceTitheLinkResponse
+    ServiceTitheLinkResponse,
+    AvailableTransactionsFilters,
+    AvailableTransactionsResponse
 } from "./transactions/transactions.types";
 export type { ServiceHistoryFilters } from "./history/history.types";
