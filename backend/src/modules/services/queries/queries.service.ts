@@ -242,7 +242,7 @@ class QueriesService {
             const exitDate = service.exitDate
             if(entryDate >= startDate && entryDate < endDateExclusive){
                 eventsForService.push({date : entryDate.toISOString().slice(0, 10), eventType : 'entry', serviceId : service.id})
-            } else if(entryDate < startDate && (exitDate === null || exitDate >= startDate)){
+            } else if(entryDate < startDate && (exitDate === null || exitDate >= startDate) && !['cancelado', 'equipamento_saiu'].includes(service.status)){
                 eventsForService.push({date : filters.startDate, eventType : 'ongoing', serviceId : service.id})
             }
             if(exitDate !== null && exitDate >= startDate && exitDate < endDateExclusive){
