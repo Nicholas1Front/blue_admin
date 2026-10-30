@@ -148,7 +148,6 @@ export function ServiceDetailsManagement({ details, onUpdated, costDialogRequest
     const [transactionTarget, setTransactionTarget] = useState<TransactionTarget>("income");
     const [transactionSearch, setTransactionSearch] = useState("");
     const [transactionSelectorOpen, setTransactionSelectorOpen] = useState(false);
-    const [transactionTypeFilter, setTransactionTypeFilter] = useState<"all" | FinancialType>("all");
     const [transactionFormMode, setTransactionFormMode] = useState<"create" | "edit" | null>(null);
     const [editingTransaction, setEditingTransaction] = useState<FinancialTransactionListItem | null>(null);
     const [transactionDescription, setTransactionDescription] = useState("");
@@ -175,10 +174,10 @@ export function ServiceDetailsManagement({ details, onUpdated, costDialogRequest
     const transactionCategoryOptions = availableCategories.filter(category => category.active || category.id === editingTransaction?.categoryId);
     const availableList = availableTransactions.data ?? [];
     const filteredAvailable = useMemo(() => availableList.filter(transaction => {
-        const matchesType = transactionTypeFilter === "all" || transaction.type === transactionTypeFilter;
+        const expectedType = transactionTarget === "income" ? "income" : "expense";
         const text = [transaction.description, transaction.categoryName, transaction.id].join(" ").toLocaleLowerCase();
-        return matchesType && text.includes(transactionSearch.trim().toLocaleLowerCase());
-    }), [availableList, transactionSearch, transactionTypeFilter]);
+        return transaction.type === expectedType && text.includes(transactionSearch.trim().toLocaleLowerCase());
+    }), [availableList, transactionSearch, transactionTarget]);
 
     function open(next: Dialog) {
         setError(null);
@@ -338,7 +337,6 @@ export function ServiceDetailsManagement({ details, onUpdated, costDialogRequest
     function openTransactionSelector(target: TransactionTarget) {
         setTransactionTarget(target);
         setTransactionSearch("");
-        setTransactionTypeFilter(target === "tithe" ? "expense" : target);
         setTransactionPendingDelete(null);
         setTransactionSelectorOpen(true);
         open(target === "tithe" ? "tithe" : "transactions");
@@ -694,7 +692,6 @@ export function ServiceDetailsManagement({ details, onUpdated, costDialogRequest
                     <p>Somente lançamentos sem vínculo com outra origem podem ser associados a este serviço. A seleção não altera nem exclui a transaction original.</p>
                     <div className="service-details-management-selector">
                         <label>Pesquisar por descrição, categoria ou ID<input type="search" value={transactionSearch} onChange={event => setTransactionSearch(event.target.value)} placeholder="Digite para filtrar os lançamentos" /></label>
-                        <label>Tipo<select value={transactionTypeFilter} onChange={event => setTransactionTypeFilter(event.target.value as "all" | FinancialType)} disabled={transactionTarget === "tithe"}>{transactionTarget === "tithe" ? <option value="expense">Saídas</option> : <><option value="all">Todos</option><option value="income">Entradas</option><option value="expense">Saídas</option></>}</select></label>
                     </div>
                     {availableTransactions.isPending ? <div className="service-details-management-empty"><strong>Carregando lançamentos...</strong></div> : availableTransactions.isError ? <div className="service-details-management-empty" role="alert"><strong>Não foi possível consultar o financeiro</strong><p>Tente novamente em instantes.</p><button type="button" onClick={() => void availableTransactions.refetch()}>Tentar novamente</button></div> : filteredAvailable.length === 0 ? <div className="service-details-management-empty"><strong>Nenhum lançamento disponível</strong><p>Não encontramos transactions sem vínculo que correspondam à pesquisa.</p></div> : filteredAvailable.map(transaction => (
                         <div className="service-details-management-record" key={transaction.id}>
@@ -712,7 +709,7 @@ export function ServiceDetailsManagement({ details, onUpdated, costDialogRequest
                 <Modal isOpen title={transactionFormMode === "create" ? "Criar lançamento e vincular ao serviço" : "Editar lançamento"} onClose={() => { setTransactionFormMode(null); setEditingTransaction(null); }}>
                     <form className="service-details-management-form" onSubmit={saveTransaction}>
                         <p>{transactionFormMode === "create" ? "O lançamento será criado no financeiro e vinculado a este serviço em seguida." : "A edição preserva o vínculo atual com o serviço."}</p>
-                        <label>Tipo<select value={transactionFormType} disabled={transactionTarget === "tithe" || transactionFormMode === "edit"} onChange={event => { setTransactionFormType(event.target.value as FinancialType); setTransactionCategoryId(""); }}>{transactionTarget === "tithe" ? <option value="expense">Saída</option> : <><option value="income">Entrada</option><option value="expense">Saída</option></>}</select></label>
+                        <label>Tipo<select value={transactionFormType} disabled onChange={event => { setTransactionFormType(event.target.value as FinancialType); setTransactionCategoryId(""); }}>{transactionTarget === "tithe" ? <option value="expense">Saída</option> : <><option value="income">Entrada</option><option value="expense">Saída</option></>}</select></label>
                         <label>Descrição<input value={transactionDescription} onChange={event => setTransactionDescription(event.target.value)} maxLength={160} required /></label>
                         <label>Valor<input type="number" min="0.01" step="0.01" value={transactionValue} onChange={event => setTransactionValue(event.target.value)} required /></label>
                         <label>Categoria<select value={transactionCategoryId} onChange={event => setTransactionCategoryId(event.target.value)} required><option value="">Selecione uma categoria ativa</option>{(transactionFormMode === "edit" ? transactionCategoryOptions : activeCategories.filter(category => category.type === transactionFormType)).map(category => <option key={category.id} value={category.id}>{category.name}{category.active ? "" : " (inativa)"}</option>)}</select></label>
