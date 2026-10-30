@@ -163,6 +163,7 @@ export function ServiceManagementActions() {
 
     const [managementMode, setManagementMode] = useState<ManagementMode>(null);
     const [searchDraft, setSearchDraft] = useState<Record<string, string>>(emptyManagementSearch());
+    const [activeFilterGroup, setActiveFilterGroup] = useState<SearchFilterGroup>("general");
     const [appliedFilters, setAppliedFilters] = useState<FindServicesByAdvancedFilters | null>(null);
     const [selectedService, setSelectedService] = useState<ServiceSummary | null>(null);
     const [deleteError, setDeleteError] = useState<string | null>(null);
@@ -241,6 +242,7 @@ export function ServiceManagementActions() {
         setAppliedFilters(null);
         setDeleteError(null);
         setSearchDraft(emptyManagementSearch());
+        setActiveFilterGroup("general");
     }
 
     function submitServiceSearch(event: FormEvent<HTMLFormElement>) {
@@ -381,32 +383,48 @@ export function ServiceManagementActions() {
             >
                 <div className="service-management-search">
                     <p>Use os filtros para localizar o serviço. A edição abre a página de detalhes; a exclusão pede confirmação antes de remover o registro.</p>
-                    <form onSubmit={submitServiceSearch}>
-                        <div className="service-management-search__grid service-management-search__grid--all">
-                            {managementSearchFields.map(field => (
+                    <form className="service-management-search__form" onSubmit={submitServiceSearch}>
+                        <div className="service-management-search__filter-groups" role="group" aria-label="Grupos de filtros">
+                            {searchFilterGroups.map(group => {
+                                const filledCount = managementSearchFields.filter(field => searchFilterGroupByField[field.key] === group.value && Boolean(searchDraft[field.key]?.trim())).length;
+                                return (
+                                    <button key={group.value} type="button"
+                                        className={"service-management-search__group" + (activeFilterGroup === group.value ? " is-active" : "")}
+                                        aria-pressed={activeFilterGroup === group.value}
+                                        onClick={() => setActiveFilterGroup(group.value)}>
+                                        <span>{group.label}</span>
+                                        {filledCount > 0 && <small>{filledCount}</small>}
+                                    </button>
+                                );
+                            })}
+                        </div>
+                        <div className="service-management-search__group-heading">
+                            <strong>{searchFilterGroups.find(group => group.value === activeFilterGroup)?.label}</strong>
+                            <span>{managementSearchFields.filter(field => searchFilterGroupByField[field.key] === activeFilterGroup).length} filtros disponíveis</span>
+                        </div>
+                        <div className="service-management-search__grid">
+                            {managementSearchFields.filter(field => searchFilterGroupByField[field.key] === activeFilterGroup).map(field => (
                                 <label key={field.key}>
                                     <span>{field.label}</span>
                                     {field.options ? (
-                                        <select
-                                            value={searchDraft[field.key] ?? ""}
-                                            onChange={event => setSearchDraft(current => ({ ...current, [field.key]: event.target.value }))}
-                                        >
+                                        <select value={searchDraft[field.key] ?? ""} onChange={event => setSearchDraft(current => ({ ...current, [field.key]: event.target.value }))}>
                                             <option value="">Todos</option>
                                             {field.options.map(option => <option key={option.value} value={option.value}>{option.label}</option>)}
                                         </select>
                                     ) : (
-                                        <input
-                                            type={field.type ?? "text"}
-                                            min={field.type === "number" ? "0" : undefined}
-                                            step={field.type === "number" ? "any" : undefined}
-                                            value={searchDraft[field.key] ?? ""}
-                                            onChange={event => setSearchDraft(current => ({ ...current, [field.key]: event.target.value }))}
-                                        />
+                                        <input type={field.type ?? "text"} min={field.type === "number" ? "0" : undefined}
+                                            step={field.type === "number" ? "any" : undefined} value={searchDraft[field.key] ?? ""}
+                                            onChange={event => setSearchDraft(current => ({ ...current, [field.key]: event.target.value }))} />
                                     )}
                                 </label>
                             ))}
                         </div>
-                        <button className="service-management__button service-management__button--create" type="submit"><FontAwesomeIcon icon={faMagnifyingGlass} aria-hidden="true" /> Pesquisar serviços</button>
+                        <div className="service-management-search__form-actions">
+                            <button type="button" className="service-management__secondary" onClick={() => setSearchDraft(emptyManagementSearch())}>Limpar filtros</button>
+                            <button className="service-management__button service-management__button--create" type="submit">
+                                <FontAwesomeIcon icon={faMagnifyingGlass} aria-hidden="true" /> Pesquisar serviços
+                            </button>
+                        </div>
                     </form>
                     {serviceSearchQuery.isError && <p className="service-management-form__error" role="alert">Não foi possível pesquisar serviços.</p>}
                     {appliedFilters && (
