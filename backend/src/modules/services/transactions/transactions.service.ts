@@ -1,8 +1,20 @@
 import { AppError } from "../../../shared/errors/AppError.js";
 import transactionsRepository from "./transactions.repository.js";
-import { updateTransactionsOriginDTO } from "./transactions.schema.js";
+import { updateTransactionsOriginDTO, type FindAvailableTransactionsQuery } from "./transactions.schema.js";
 
 class TransactionsService {
+    async findAvailableTransactions(filters: FindAvailableTransactionsQuery) {
+        const result = await transactionsRepository.findAvailableTransactions(filters);
+
+        return {
+            transactions: result.transactions,
+            page: filters.page,
+            limit: filters.limit,
+            total: result.total,
+            totalPages: Math.ceil(result.total / filters.limit)
+        };
+    }
+
     async updateOriginsForTransactions(
         serviceId: string,
         incomingTransaction: updateTransactionsOriginDTO
