@@ -42,6 +42,35 @@ const statuses: Array<{ value: ServiceStatus; label: string }> = [
     { value: "cancelado", label: "Cancelado" }
 ];
 
+type SearchFilterGroup = "general" | "client" | "activities" | "financial" | "history" | "operational";
+
+const searchFilterGroups: Array<{ value: SearchFilterGroup; label: string }> = [
+    { value: "general", label: "Geral" },
+    { value: "client", label: "Cliente e equipamento" },
+    { value: "activities", label: "Atividades" },
+    { value: "financial", label: "Financeiro" },
+    { value: "history", label: "Histórico" },
+    { value: "operational", label: "Operacional" }
+];
+
+const searchFilterGroupByField: Record<string, SearchFilterGroup> = {
+    search: "general", serviceStatus: "general", serviceId: "general",
+    entryDateFrom: "general", entryDateTo: "general", exitDateFrom: "general",
+    exitDateTo: "general", exitDateIsNull: "general",
+    clientName: "client", clientDocument: "client", clientId: "client",
+    equipamentId: "client", equipamentSearch: "client",
+    activityId: "activities", activityTitle: "activities", activityDescription: "activities",
+    activityStatus: "activities", activityStartFrom: "activities", activityStartTo: "activities",
+    activityEndFrom: "activities", activityEndTo: "activities",
+    titheStatus: "financial", titheTransactionId: "financial", transactionType: "financial",
+    transactionCategoryId: "financial", transactionCategoryName: "financial",
+    transactionDescription: "financial", transactionValueMin: "financial", transactionValueMax: "financial",
+    transactionReferenceDateFrom: "financial", transactionReferenceDateTo: "financial",
+    historyId: "history", historyEventType: "history", historyDescription: "history",
+    historyDateFrom: "history", historyDateTo: "history",
+    hoursWorkedMin: "operational", hoursWorkedMax: "operational"
+};
+
 const managementSearchFields: Array<{
     key: Exclude<keyof FindServicesByAdvancedFilters, "page" | "limit">;
     label: string;
