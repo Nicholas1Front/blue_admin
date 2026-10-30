@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type ReactNode } from "react";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -181,7 +181,7 @@ function QueryState({
     error: boolean;
     empty?: boolean;
     onRetry: () => void;
-    children: React.ReactNode;
+    children: ReactNode;
 }) {
     if (loading) {
         return <div className="service-insight-state">Carregando informações…</div>;
