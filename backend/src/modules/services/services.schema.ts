@@ -16,7 +16,7 @@ export const updateServiceSchema = z.object({
     entryDate : z.coerce.date().optional(),
     exitDate : z.coerce.date().nullable().optional(),
     hoursWorked : z.coerce.number().min(0).nullable().optional(),
-    costPerHour : z.union([z.boolean(), z.coerce.number().min(0), z.null()]).optional(),
+    costPerHour : z.union([z.boolean(), z.null(), z.coerce.number().min(0)]).optional(),
     description : z.string().trim().min(1),
 })
 
