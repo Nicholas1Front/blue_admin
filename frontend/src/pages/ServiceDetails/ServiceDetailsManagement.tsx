@@ -193,7 +193,8 @@ export function ServiceDetailsManagement({ details, onUpdated, costDialogRequest
         setHoursWorked(details.service.hoursWorked == null ? "" : String(details.service.hoursWorked));
         setCostPerHourInput(details.service.costPerHour == null ? "" : String(details.service.costPerHour));
         setCostAction("keep");
-        open("cost");
+        setError(null);
+        setDialog("cost");
     }, [costDialogRequest, details.service.hoursWorked, details.service.costPerHour]);
 
     async function refreshAndClose() {
