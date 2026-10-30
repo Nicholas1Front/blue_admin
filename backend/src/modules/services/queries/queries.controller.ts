@@ -4,10 +4,29 @@ import queriesService from './queries.service.js'
 import {
     findServiceByIdParamsSchema,
     findServicesByFiltersQuerySchema,
-    serviceDashboardQuerySchema
+    serviceCalendarQuerySchema,
+    serviceDashboardQuerySchema,
+    serviceMetricsQuerySchema
 } from './queries.schema.js'
 
 class QueriesController {
+    async findServiceMetrics(req : Request, res : Response) {
+        if(!req.user){
+            throw new AppError('User not authenticated', 401, 'USER_NOT_AUTHENTICATED')
+        }
+        const filters = serviceMetricsQuerySchema.parse(req.query)
+        const metrics = await queriesService.findServiceMetrics(filters)
+        return res.status(200).json({message : 'Service metrics found successfully', data : metrics})
+    }
+
+    async findServicesForCalendar(req : Request, res : Response) {
+        if(!req.user){
+            throw new AppError('User not authenticated', 401, 'USER_NOT_AUTHENTICATED')
+        }
+        const filters = serviceCalendarQuerySchema.parse(req.query)
+        const calendar = await queriesService.findServicesForCalendar(filters)
+        return res.status(200).json({message : 'Service calendar found successfully', data : calendar})
+    }
     async findServiceDashboard(req : Request, res : Response) {
         if(!req.user){
             throw new AppError('User not authenticated', 401, 'USER_NOT_AUTHENTICATED')
