@@ -404,7 +404,7 @@ class QueriesRepository {
         const services = await prisma.service.findMany({
             where : {entryDate : {gte : startDate, lt : endDate}},
             select : {
-                id : true, clientId : true, entryDate : true, status : true,
+                id : true, clientId : true, entryDate : true, exitDate : true, status : true,
                 hoursWorked : true, costPerHour : true, titheStatus : true,
                 titheTransactionId : true, client : {select : {name : true}}
             },
