@@ -162,6 +162,7 @@ class QueriesService {
             return {
                 id : service.id, clientId : service.clientId, clientName : service.client.name,
                 month : service.entryDate.getUTCMonth() + 1, status : service.status,
+                durationDays : service.exitDate === null ? null : Math.max(0, (service.exitDate.getTime() - service.entryDate.getTime()) / 86400000),
                 hoursWorked : hours, operationalCost, incomeTotal : roundMoney(income),
                 directExpenseTotal : roundMoney(directExpenses), operationalResult,
                 titheStatus : service.titheStatus ?? 'aguardando',
@@ -170,7 +171,7 @@ class QueriesService {
             }
         })
         for(const metric of serviceMetrics){
-            const bucket = monthlyEvolution[metric.month - 1]
+            const bucket = monthlyEvolution[metric.month - 1]!
             bucket.serviceCount += 1
             bucket.hoursWorked += metric.hoursWorked
             bucket.operationalCost += metric.operationalCost
@@ -187,6 +188,7 @@ class QueriesService {
         const clients = new Map<string, {clientId : string; name : string; serviceCount : number}>()
         let hoursWorkedTotal = 0, operationalCostTotal = 0, incomeTotal = 0, directExpenseTotal = 0
         let operationalResult = 0, titheExpectedTotal = 0, tithePaidTotal = 0, tithePendingTotal = 0
+        let durationDaysTotal = 0, durationCount = 0
         for(const metric of selected){
             statusCounts[metric.status] = (statusCounts[metric.status] ?? 0) + 1
             hoursWorkedTotal += metric.hoursWorked
@@ -194,6 +196,10 @@ class QueriesService {
             incomeTotal += metric.incomeTotal
             directExpenseTotal += metric.directExpenseTotal
             operationalResult += metric.operationalResult
+            if(metric.durationDays !== null){
+                durationDaysTotal += metric.durationDays
+                durationCount += 1
+            }
             titheExpectedTotal += metric.titheExpectedTotal
             tithePaidTotal += metric.tithePaidTotal
             if(metric.titheStatus !== 'concluído') tithePendingTotal += metric.titheExpectedTotal
@@ -212,6 +218,7 @@ class QueriesService {
                 hoursWorkedTotal : roundMoney(hoursWorkedTotal), operationalCostTotal : roundMoney(operationalCostTotal),
                 incomeTotal : roundMoney(incomeTotal), directExpenseTotal : roundMoney(directExpenseTotal),
                 operationalResult : roundMoney(operationalResult),
+                averageDurationDays : durationCount > 0 ? roundMoney(durationDaysTotal / durationCount) : null,
                 tithe : {expectedTotal : roundMoney(titheExpectedTotal), paidTotal : roundMoney(tithePaidTotal), pendingTotal : roundMoney(tithePendingTotal), statusCounts : titheStatusCounts}
             },
             monthlyEvolution : monthlyEvolution.map(bucket => ({
