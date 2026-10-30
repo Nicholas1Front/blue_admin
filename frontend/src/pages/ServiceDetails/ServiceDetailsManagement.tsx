@@ -90,6 +90,13 @@ const activityStatusOptions: Array<{ value: ServiceActivityStatus; label: string
 
 const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
 
+function localToday() {
+    const today = new Date();
+    const month = String(today.getMonth() + 1).padStart(2, "0");
+    const day = String(today.getDate()).padStart(2, "0");
+    return `${today.getFullYear()}-${month}-${day}`;
+}
+
 function dateInput(value: string | null | undefined) {
     return value ? value.slice(0, 10) : "";
 }
@@ -150,7 +157,7 @@ export function ServiceDetailsManagement({ details, onUpdated }: Props) {
     const [transactionDescription, setTransactionDescription] = useState("");
     const [transactionValue, setTransactionValue] = useState("");
     const [transactionCategoryId, setTransactionCategoryId] = useState("");
-    const [transactionReferenceDate, setTransactionReferenceDate] = useState(dateInput(new Date().toISOString()));
+    const [transactionReferenceDate, setTransactionReferenceDate] = useState(localToday());
     const [transactionFormType, setTransactionFormType] = useState<FinancialType>("expense");
 
     const categories = useCategories({ type: transactionFormType });
@@ -360,7 +367,7 @@ export function ServiceDetailsManagement({ details, onUpdated }: Props) {
         setTransactionDescription(target === "tithe" ? "Dízimo do serviço" : "");
         setTransactionValue(target === "tithe" ? String(details.financial.tithe.value) : "");
         setTransactionCategoryId("");
-        setTransactionReferenceDate(dateInput(new Date().toISOString()));
+        setTransactionReferenceDate(localToday());
         setError(null);
     }
 
@@ -399,10 +406,18 @@ export function ServiceDetailsManagement({ details, onUpdated }: Props) {
                     value,
                     referenceDate: toIsoDate(transactionReferenceDate)
                 });
-                if (transactionTarget === "tithe") {
-                    await linkTithe.mutateAsync({ transactionId: created.id, serviceId });
-                } else {
-                    await linkTransaction.mutateAsync({ serviceId, data: { id: created.id } });
+                try {
+                    if (transactionTarget === "tithe") {
+                        await linkTithe.mutateAsync({ transactionId: created.id, serviceId });
+                    } else {
+                        await linkTransaction.mutateAsync({ serviceId, data: { id: created.id } });
+                    }
+                } catch (linkError) {
+                    await availableTransactions.refetch();
+                    setTransactionFormMode(null);
+                    setEditingTransaction(null);
+                    setError(`O lançamento foi criado no financeiro, mas não foi vinculado ao serviço. ID: ${created.id}. ${getErrorMessage(linkError, "Tente vinculá-lo pela consulta de lançamentos.")}`);
+                    return;
                 }
             } else if (editingTransaction) {
                 await transactions.update.mutateAsync({
