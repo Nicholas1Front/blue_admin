@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
+import { createContext, useContext, useMemo, useState, type FormEvent, type ReactNode } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faCalendarDays,
@@ -62,11 +62,25 @@ type Dialog =
     | null;
 
 type TransactionTarget = "tithe" | "income" | "expense";
+type ServiceDetailsActionName = "dates" | "client" | "equipament" | "service" | "cost" | "tithe" | "transactions" | "activities";
+const ServiceDetailsActionsContext = createContext<Record<ServiceDetailsActionName, () => void> | null>(null);
+const serviceDetailsActionConfig = {
+ dates:{label:"Alterar datas",icon:faCalendarDays},client:{label:"Alterar cliente",icon:faUser},
+ equipament:{label:"Alterar equipamento",icon:faTruck},service:{label:"Editar status",icon:faWrench},
+ cost:{label:"Editar horas e custo",icon:faGaugeHigh},tithe:{label:"Gerenciar dízimo",icon:faCoins},
+ transactions:{label:"Gerenciar lançamentos",icon:faFileInvoiceDollar},activities:{label:"Gerenciar atividades",icon:faListCheck}
+} satisfies Record<ServiceDetailsActionName,{label:string;icon:typeof faCalendarDays}>;
+export function ServiceDetailsAction({action}:{action:ServiceDetailsActionName}) {
+ const actions=useContext(ServiceDetailsActionsContext);
+ if(!actions)return null;
+ const config=serviceDetailsActionConfig[action];
+ return <button type="button" className="service-details-action" onClick={actions[action]}><FontAwesomeIcon icon={config.icon} aria-hidden="true" />{config.label}</button>;
+}
 
 interface Props {
     details: ServiceDetailsResponse;
     onUpdated: () => Promise<unknown>;
-    costDialogRequest: number;
+    children: ReactNode;
 }
 
 const statusOptions: Array<{ value: ServiceStatus; label: string }> = [
@@ -110,7 +124,7 @@ function getErrorMessage(error: unknown, fallback: string) {
     return error instanceof Error ? error.message : fallback;
 }
 
-export function ServiceDetailsManagement({ details, onUpdated, costDialogRequest }: Props) {
+export function ServiceDetailsManagement({ details, onUpdated, children }: Props) {
     const serviceId = details.service.id;
     const clients = useClients();
     const equipaments = useEquipaments();
@@ -167,7 +181,6 @@ export function ServiceDetailsManagement({ details, onUpdated, costDialogRequest
     const [activityStartAt, setActivityStartAt] = useState("");
     const [activityEndAt, setActivityEndAt] = useState("");
     const [activityPendingDelete, setActivityPendingDelete] = useState<ServiceActivity | null>(null);
-    const lastCostDialogRequest = useRef(0);
 
     const availableCategories = categories.data ?? [];
     const activeCategories = availableCategories.filter(category => category.active);
@@ -183,16 +196,6 @@ export function ServiceDetailsManagement({ details, onUpdated, costDialogRequest
         setError(null);
         setDialog(next);
     }
-
-    useEffect(() => {
-        if (costDialogRequest === 0 || lastCostDialogRequest.current === costDialogRequest) return;
-        lastCostDialogRequest.current = costDialogRequest;
-        setHoursWorked(details.service.hoursWorked == null ? "" : String(details.service.hoursWorked));
-        setCostPerHourInput(details.service.costPerHour == null ? "" : String(details.service.costPerHour));
-        setCostAction("keep");
-        setError(null);
-        setDialog("cost");
-    }, [costDialogRequest, details.service.hoursWorked, details.service.costPerHour]);
 
     async function refreshAndClose() {
         await onUpdated();
@@ -539,36 +542,18 @@ export function ServiceDetailsManagement({ details, onUpdated, costDialogRequest
 
     const linkedTithe = details.financial.tithe.transaction;
     const linkedTransactions = details.financial.transactions;
-
+    const contextualActions: Record<ServiceDetailsActionName, () => void> = {
+        dates:()=>{setEntryDate(dateInput(details.service.entryDate));setExitDate(dateInput(details.service.exitDate));open("dates");},
+        client:()=>{open("relationship");void startRelationshipChange("client");},
+        equipament:()=>{open("relationship");void startRelationshipChange("equipament");},
+        service:()=>{setStatus(details.service.status);setServiceDescription("Dados do serviço atualizados");open("service");},
+        cost:()=>{setHoursWorked(details.service.hoursWorked==null?"":String(details.service.hoursWorked));setCostPerHourInput(details.service.costPerHour==null?"":String(details.service.costPerHour));setCostAction("keep");open("cost");},
+        tithe:()=>open("tithe"),transactions:()=>open("transactions"),activities:()=>open("activities")
+    };
     return (
-        <>
-            <section className="service-details-management" aria-label="Ações dos detalhes do serviço">
-                <button type="button" onClick={() => { setEntryDate(dateInput(details.service.entryDate)); setExitDate(dateInput(details.service.exitDate)); open("dates"); }}>
-                    <FontAwesomeIcon icon={faCalendarDays} /> Datas
-                </button>
-                <button type="button" onClick={() => { open("relationship"); void startRelationshipChange("client"); }}>
-                    <FontAwesomeIcon icon={faUser} /> Alterar cliente
-                </button>
-                <button type="button" onClick={() => { open("relationship"); void startRelationshipChange("equipament"); }}>
-                    <FontAwesomeIcon icon={faTruck} /> Alterar equipamento
-                </button>
-                <button type="button" onClick={() => { setStatus(details.service.status); setServiceDescription("Dados do serviço atualizados"); open("service"); }}>
-                    <FontAwesomeIcon icon={faWrench} /> Dados do serviço
-                </button>
-                <button type="button" onClick={() => { setHoursWorked(details.service.hoursWorked == null ? "" : String(details.service.hoursWorked)); setCostPerHourInput(details.service.costPerHour == null ? "" : String(details.service.costPerHour)); setCostAction("keep"); open("cost"); }}>
-                    <FontAwesomeIcon icon={faGaugeHigh} /> Custo operacional
-                </button>
-                <button type="button" onClick={() => open("tithe")}>
-                    <FontAwesomeIcon icon={faCoins} /> Dízimo
-                </button>
-                <button type="button" onClick={() => open("transactions")}>
-                    <FontAwesomeIcon icon={faFileInvoiceDollar} /> Entradas e saídas
-                </button>
-                <button type="button" onClick={() => open("activities")}>
-                    <FontAwesomeIcon icon={faListCheck} /> Atividades
-                </button>
-            </section>
-
+        <ServiceDetailsActionsContext.Provider value={contextualActions}>
+            <>
+                {children}
             <Modal isOpen={dialog === "dates"} title="Atualizar datas do serviço" onClose={() => setDialog(null)}>
                 <form className="service-details-management-form" onSubmit={saveDates}>
                     <p>Altere o período do atendimento. A data de saída pode ficar vazia enquanto o serviço estiver em andamento.</p>
@@ -753,6 +738,7 @@ export function ServiceDetailsManagement({ details, onUpdated, costDialogRequest
                     </form>
                 </Modal>
             )}
-        </>
+            </>
+        </ServiceDetailsActionsContext.Provider>
     );
 }
