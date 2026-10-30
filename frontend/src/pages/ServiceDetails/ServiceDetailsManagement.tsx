@@ -715,7 +715,7 @@ export function ServiceDetailsManagement({ details, onUpdated, children }: Props
                             <legend>Pesquisa</legend>
                             <div className="service-details-management-selector__fields">
                                 <label>Descrição ou ID<input type="search" value={transactionSearch} onChange={event => { setTransactionSearch(event.target.value); setTransactionPage(1); }} placeholder="Digite para pesquisar" /></label>
-                                <label>Valor exato<input type="number" min="1" step="0.01" value={transactionFilterValue} onChange={event => { setTransactionFilterValue(event.target.value); setTransactionPage(1); }} placeholder="Ex.: 250,00" /></label>
+                                <label>Valor exato<input type="number" min="1" step="0.01" value={transactionFilterValue} onChange={event => { setTransactionFilterValue(event.target.value); setTransactionPage(1); }} placeholder="Ex.: 250.00" /></label>
                             </div>
                         </fieldset>
                     </div>
