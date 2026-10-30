@@ -9,12 +9,16 @@ import {
     unlinkTitheTransaction,
     unlinkTransactionFromService
 } from "./transactions.api";
-import type { LinkServiceTransactionRequest } from "./transactions.types";
+import type { AvailableTransactionsFilters, LinkServiceTransactionRequest } from "./transactions.types";
 
-export function useAvailableFinancialTransactions() {
+export function useAvailableFinancialTransactions(
+    filters: AvailableTransactionsFilters,
+    enabled = true
+) {
     return useQuery({
-        queryKey: servicesQueryKeys.transactions.available,
-        queryFn: findAvailableFinancialTransactions
+        queryKey: servicesQueryKeys.transactions.available(filters),
+        queryFn: () => findAvailableFinancialTransactions(filters),
+        enabled
     });
 }
 
