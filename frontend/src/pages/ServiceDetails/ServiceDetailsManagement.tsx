@@ -698,29 +698,50 @@ export function ServiceDetailsManagement({ details, onUpdated, children }: Props
                     <p>Somente lançamentos sem vínculo com outra origem podem ser associados a este serviço. Os resultados são ordenados pelos mais recentes e a seleção não altera o lançamento original.</p>
 
                     <div className="service-details-management-selector">
-                        <fieldset className="service-details-management-selector__group">
+                        <fieldset className="service-details-management-selector__group service-details-management-selector__group--period">
                             <legend>Período</legend>
                             <div className="service-details-management-selector__fields">
-                                <label>Ano<input type="number" min="1" max="9999" inputMode="numeric" value={transactionFilterYear} onChange={event => { setTransactionFilterYear(event.target.value); setTransactionFilterDate(""); if (!event.target.value) setTransactionFilterMonth(""); setTransactionPage(1); }} placeholder="Todos" /></label>
-                                <label>Mês<select value={transactionFilterMonth} disabled={!transactionFilterYear.trim()} onChange={event => { setTransactionFilterMonth(event.target.value); setTransactionFilterDate(""); setTransactionPage(1); }}><option value="">Todos os meses</option><option value="1">Janeiro</option><option value="2">Fevereiro</option><option value="3">Março</option><option value="4">Abril</option><option value="5">Maio</option><option value="6">Junho</option><option value="7">Julho</option><option value="8">Agosto</option><option value="9">Setembro</option><option value="10">Outubro</option><option value="11">Novembro</option><option value="12">Dezembro</option></select></label>
-                                <label>Data exata<input type="date" value={transactionFilterDate} onChange={event => { const date = event.target.value; setTransactionFilterDate(date); if (date) { setTransactionFilterYear(date.slice(0, 4)); setTransactionFilterMonth(String(Number(date.slice(5, 7)))); } setTransactionPage(1); }} /></label>
+                                <label>Ano
+                                    <input type="number" min="1" max="9999" inputMode="numeric" value={transactionFilterYear} onChange={event => { setTransactionFilterYear(event.target.value); setTransactionFilterDate(""); if (!event.target.value) setTransactionFilterMonth(""); setTransactionPage(1); }} placeholder="Todos" />
+                                </label>
+                                <label>Mês
+                                    <select value={transactionFilterMonth} disabled={!transactionFilterYear.trim()} onChange={event => { setTransactionFilterMonth(event.target.value); setTransactionFilterDate(""); setTransactionPage(1); }}>
+                                        <option value="">Todos</option>
+                                        <option value="1">Janeiro</option><option value="2">Fevereiro</option><option value="3">Março</option><option value="4">Abril</option>
+                                        <option value="5">Maio</option><option value="6">Junho</option><option value="7">Julho</option><option value="8">Agosto</option>
+                                        <option value="9">Setembro</option><option value="10">Outubro</option><option value="11">Novembro</option><option value="12">Dezembro</option>
+                                    </select>
+                                </label>
                             </div>
+                            <label>Data específica
+                                <input type="date" value={transactionFilterDate} onChange={event => { const date = event.target.value; setTransactionFilterDate(date); if (date) { setTransactionFilterYear(date.slice(0, 4)); setTransactionFilterMonth(String(Number(date.slice(5, 7)))); } setTransactionPage(1); }} />
+                            </label>
                         </fieldset>
 
-                        <fieldset className="service-details-management-selector__group">
+                        <fieldset className="service-details-management-selector__group service-details-management-selector__group--classification">
                             <legend>Classificação</legend>
-                            <div className="service-details-management-selector__fields">
-                                <label>Tipo<select value={transactionTarget === "income" ? "income" : "expense"} disabled><option value="income">Entrada</option><option value="expense">Saída</option></select></label>
-                                <label>Categoria<select value={transactionFilterCategoryId} onChange={event => { setTransactionFilterCategoryId(event.target.value); setTransactionPage(1); }} disabled={filterCategories.isPending || filterCategories.isError}><option value="">Todas as categorias</option>{filterCategoryOptions.map(category => <option key={category.id} value={category.id}>{category.name}{category.active ? "" : " (inativa)"}</option>)}</select></label>
-                            </div>
+                            <label>Tipo de lançamento
+                                <select value={transactionTarget === "income" ? "income" : "expense"} disabled>
+                                    <option value="income">Entrada</option>
+                                    <option value="expense">Saída</option>
+                                </select>
+                            </label>
+                            <label>Categoria
+                                <select value={transactionFilterCategoryId} onChange={event => { setTransactionFilterCategoryId(event.target.value); setTransactionPage(1); }} disabled={filterCategories.isPending || filterCategories.isError}>
+                                    <option value="">Todas as categorias</option>
+                                    {filterCategoryOptions.map(category => <option key={category.id} value={category.id}>{category.name}{category.active ? "" : " (inativa)"}</option>)}
+                                </select>
+                            </label>
                         </fieldset>
 
-                        <fieldset className="service-details-management-selector__group">
+                        <fieldset className="service-details-management-selector__group service-details-management-selector__group--search">
                             <legend>Pesquisa</legend>
-                            <div className="service-details-management-selector__fields">
-                                <label>Descrição ou ID<input type="search" value={transactionSearch} onChange={event => { setTransactionSearch(event.target.value); setTransactionPage(1); }} placeholder="Digite para pesquisar" /></label>
-                                <label>Valor exato<input type="number" min="1" step="0.01" value={transactionFilterValue} onChange={event => { setTransactionFilterValue(event.target.value); setTransactionPage(1); }} placeholder="Ex.: 250.00" /></label>
-                            </div>
+                            <label>Descrição ou identificador
+                                <input type="search" value={transactionSearch} onChange={event => { setTransactionSearch(event.target.value); setTransactionPage(1); }} placeholder="Digite parte da descrição ou ID" />
+                            </label>
+                            <label>Valor exato
+                                <input type="number" min="1" step="0.01" value={transactionFilterValue} onChange={event => { setTransactionFilterValue(event.target.value); setTransactionPage(1); }} placeholder="Ex.: 250.00" />
+                            </label>
                         </fieldset>
                     </div>
 
