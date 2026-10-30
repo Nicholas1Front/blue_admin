@@ -163,6 +163,7 @@ export function ServiceDetailsManagement({ details, onUpdated, children }: Props
     const [transactionFilterYear, setTransactionFilterYear] = useState(String(new Date().getFullYear()));
     const [transactionFilterMonth, setTransactionFilterMonth] = useState("");
     const [transactionFilterCategoryId, setTransactionFilterCategoryId] = useState("");
+    const [transactionFilterValue, setTransactionFilterValue] = useState("");
     const [transactionPage, setTransactionPage] = useState(1);
     const [transactionSelectorOpen, setTransactionSelectorOpen] = useState(false);
     const [transactionFormMode, setTransactionFormMode] = useState<"create" | "edit" | null>(null);
@@ -181,6 +182,7 @@ export function ServiceDetailsManagement({ details, onUpdated, children }: Props
         page: transactionPage,
         limit: 8,
         categoryId: transactionFilterCategoryId || undefined,
+        value: transactionFilterValue.trim() ? Number(transactionFilterValue) : undefined,
         type: transactionTarget === "income" ? "income" : "expense",
         search: transactionSearch.trim() || undefined
     }, transactionSelectorOpen);
@@ -354,6 +356,7 @@ export function ServiceDetailsManagement({ details, onUpdated, children }: Props
         setTransactionFilterYear(String(new Date().getFullYear()));
         setTransactionFilterMonth("");
         setTransactionFilterCategoryId("");
+        setTransactionFilterValue("");
         setTransactionPage(1);
         setTransactionPendingDelete(null);
         setTransactionSelectorOpen(true);
@@ -710,7 +713,10 @@ export function ServiceDetailsManagement({ details, onUpdated, children }: Props
 
                         <fieldset className="service-details-management-selector__group">
                             <legend>Pesquisa</legend>
-                            <label>Descrição ou ID<input type="search" value={transactionSearch} onChange={event => { setTransactionSearch(event.target.value); setTransactionPage(1); }} placeholder="Digite para pesquisar" /></label>
+                            <div className="service-details-management-selector__fields">
+                                <label>Descrição ou ID<input type="search" value={transactionSearch} onChange={event => { setTransactionSearch(event.target.value); setTransactionPage(1); }} placeholder="Digite para pesquisar" /></label>
+                                <label>Valor exato<input type="number" min="1" step="0.01" value={transactionFilterValue} onChange={event => { setTransactionFilterValue(event.target.value); setTransactionPage(1); }} placeholder="Ex.: 250,00" /></label>
+                            </div>
                         </fieldset>
                     </div>
 
