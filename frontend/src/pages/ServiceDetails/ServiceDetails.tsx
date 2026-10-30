@@ -14,12 +14,12 @@ import {
     faTruck
 } from "@fortawesome/free-solid-svg-icons";
 import { useParams, useSearchParams } from "react-router-dom";
-import { useState } from "react";
+import { useState, type ReactNode } from "react";
 
 import { AppHeader } from "../../components/AppHeader/AppHeader";
 import { BackLink } from "../../components/BackLink/BackLink";
 import { Modal } from "../../components/Modal/Modal";
-import { ServiceDetailsManagement } from "./ServiceDetailsManagement";
+import { ServiceDetailsAction, ServiceDetailsManagement } from "./ServiceDetailsManagement";
 import { useServiceById, useUpdateService } from "../../modules/services";
 import type {
     ServiceActivityStatus,
@@ -122,13 +122,15 @@ function SectionHeading({
     eyebrow,
     title,
     description,
-    count
+    count,
+    action
 }: {
     icon: typeof faUser;
     eyebrow: string;
     title: string;
     description: string;
     count?: string;
+    action?: ReactNode;
 }) {
     return (
         <header className="service-details-section__heading">
@@ -141,6 +143,7 @@ function SectionHeading({
                 <p>{description}</p>
             </div>
             {count && <span className="service-details-section__count">{count}</span>}
+            {action && <div className="service-details-section__action">{action}</div>}
         </header>
     );
 }
@@ -172,7 +175,6 @@ export function ServiceDetails() {
     const [isCalculatingCost, setIsCalculatingCost] = useState(false);
     const [costCalculationError, setCostCalculationError] = useState<string | null>(null);
     const [costCalculationSuccess, setCostCalculationSuccess] = useState(false);
-    const [costDialogRequest, setCostDialogRequest] = useState(0);
     const detailsQuery = useServiceById(serviceId);
     const updateServiceMutation = useUpdateService();
     const details = detailsQuery.data;
@@ -266,6 +268,7 @@ export function ServiceDetails() {
 
                 {details && (
                     <>
+                        <ServiceDetailsManagement details={details} onUpdated={() => detailsQuery.refetch()}>
                         <header className="service-details-hero">
                             <div className="service-details-hero__copy">
                                 <span className="service-details-eyebrow">Gestão da oficina · Detalhes</span>
@@ -286,14 +289,9 @@ export function ServiceDetails() {
                                     <span><FontAwesomeIcon icon={faCalendarDays} aria-hidden="true" /> Saída</span>
                                     <strong>{details.service.exitDate ? formatDate(details.service.exitDate) : "Em andamento"}</strong>
                                 </div>
+                                <ServiceDetailsAction action="dates" />
                             </div>
                         </header>
-
-                        <ServiceDetailsManagement
-                            details={details}
-                            onUpdated={() => detailsQuery.refetch()}
-                            costDialogRequest={costDialogRequest}
-                        />
 
                         <section className="service-details-metrics" aria-label="Resumo financeiro e operacional">
                             <article className="service-details-metric">
@@ -310,7 +308,7 @@ export function ServiceDetails() {
                                 <span className="service-details-metric__label"><FontAwesomeIcon icon={faGaugeHigh} aria-hidden="true" /> Custo operacional</span>
                                 <strong className="service-details-metric__value">{formatCurrency(details.financial.operationalCost)}</strong>
                                 <p>{details.service.hoursWorked == null ? "Horas trabalhadas não informadas" : `${details.service.hoursWorked} h × ${formatCurrency(details.service.costPerHour)} por hora`}</p>
-                                <button type="button" className="service-details-metric__action" onClick={() => setCostDialogRequest(current => current + 1)}>Editar custo e horas</button>
+                                <ServiceDetailsAction action="cost" />
                             </article>
                             <article className="service-details-metric">
                                 <span className="service-details-metric__label"><FontAwesomeIcon icon={faCoins} aria-hidden="true" /> Saldo financeiro</span>
@@ -328,6 +326,7 @@ export function ServiceDetails() {
                                     eyebrow="Responsável pelo atendimento"
                                     title="Cliente"
                                     description="Dados do cliente associado ao serviço."
+                                    action={<ServiceDetailsAction action="client" />}
                                 />
                                 <div className="service-details-fields">
                                     <InfoField label="Nome" value={details.client.name} />
@@ -342,6 +341,7 @@ export function ServiceDetails() {
                                     eyebrow="Bem recebido na oficina"
                                     title="Equipamento"
                                     description="Identificação do equipamento vinculado."
+                                    action={<ServiceDetailsAction action="equipament" />}
                                 />
                                 <div className="service-details-fields">
                                     <InfoField label="Tipo" value={details.equipament.type} />
@@ -359,6 +359,7 @@ export function ServiceDetails() {
                                     eyebrow="Informações do atendimento"
                                     title="Dados do serviço"
                                     description="Datas, horas e informações de controle."
+                                    action={<ServiceDetailsAction action="service" />}
                                 />
                                 <div className="service-details-fields">
                                     <InfoField label="Status atual" value={serviceStatusLabels[details.service.status]} />
@@ -378,6 +379,7 @@ export function ServiceDetails() {
                                     eyebrow="Controle do dízimo"
                                     title="Dízimo do serviço"
                                     description="Situação calculada a partir dos dados financeiros retornados pela consulta."
+                                    action={<ServiceDetailsAction action="tithe" />}
                                 />
                                 <div className="service-details-tithe">
                                     <div className="service-details-tithe__top">
@@ -407,6 +409,7 @@ export function ServiceDetails() {
                                 title="Lançamentos financeiros"
                                 description="Transações vinculadas diretamente a este serviço. O dízimo é apresentado separadamente."
                                 count={`${details.financial.transactions.length} ${details.financial.transactions.length === 1 ? "lançamento" : "lançamentos"}`}
+                                action={<ServiceDetailsAction action="transactions" />}
                             />
                             {details.financial.transactions.length === 0 ? (
                                 <div className="service-details-empty">
@@ -430,6 +433,7 @@ export function ServiceDetails() {
                                 title="Atividades"
                                 description="Etapas e tarefas registradas para este atendimento."
                                 count={`${details.activities.total} ${details.activities.total === 1 ? "atividade" : "atividades"}`}
+                                action={<ServiceDetailsAction action="activities" />}
                             />
                             <div className="service-details-activity-summary">
                                 {(Object.entries(activityStatusLabels) as [ServiceActivityStatus, string][]).map(([status, label]) => (
@@ -501,6 +505,7 @@ export function ServiceDetails() {
                                 </ol>
                             )}
                         </section>
+                        </ServiceDetailsManagement>
                     </>
                 )}
             </div>
