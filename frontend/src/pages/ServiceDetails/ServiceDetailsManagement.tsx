@@ -151,7 +151,7 @@ export function ServiceDetailsManagement({ details, onUpdated }: Props) {
     const [transactionReferenceDate, setTransactionReferenceDate] = useState(dateInput(new Date().toISOString()));
     const [transactionFormType, setTransactionFormType] = useState<FinancialType>("expense");
 
-    const categories = useCategories({ active: true, type: transactionFormType });
+    const categories = useCategories({ type: transactionFormType });
     const [transactionPendingDelete, setTransactionPendingDelete] = useState<FinancialTransactionListItem | null>(null);
 
     const [activityFormMode, setActivityFormMode] = useState<"create" | "edit" | null>(null);
@@ -163,7 +163,9 @@ export function ServiceDetailsManagement({ details, onUpdated }: Props) {
     const [activityEndAt, setActivityEndAt] = useState("");
     const [activityPendingDelete, setActivityPendingDelete] = useState<ServiceActivity | null>(null);
 
-    const activeCategories = categories.data ?? [];
+    const availableCategories = categories.data ?? [];
+    const activeCategories = availableCategories.filter(category => category.active);
+    const transactionCategoryOptions = availableCategories.filter(category => category.active || category.id === editingTransaction?.categoryId);
     const availableList = availableTransactions.data ?? [];
     const filteredAvailable = useMemo(() => availableList.filter(transaction => {
         const matchesType = transactionTypeFilter === "all" || transaction.type === transactionTypeFilter;
@@ -398,7 +400,7 @@ export function ServiceDetailsManagement({ details, onUpdated }: Props) {
                 await transactions.update.mutateAsync({
                     id: editingTransaction.id,
                     data: {
-                        categoryId: transactionCategoryId,
+                        ...(transactionCategoryId !== editingTransaction.categoryId ? { categoryId: transactionCategoryId } : {}),
                         description: transactionDescription.trim(),
                         value,
                         referenceDate: toIsoDate(transactionReferenceDate)
@@ -676,13 +678,13 @@ export function ServiceDetailsManagement({ details, onUpdated }: Props) {
             </Modal>
 
             {transactionFormMode && (
-                <Modal isOpen title={transactionFormMode === "create" ? "Criar transaction e vincular ao serviço" : "Editar transaction"} onClose={() => { setTransactionFormMode(null); setEditingTransaction(null); }}>
+                <Modal isOpen title={transactionFormMode === "create" ? "Criar lançamento e vincular ao serviço" : "Editar lançamento"} onClose={() => { setTransactionFormMode(null); setEditingTransaction(null); }}>
                     <form className="service-details-management-form" onSubmit={saveTransaction}>
                         <p>{transactionFormMode === "create" ? "O lançamento será criado no financeiro e vinculado a este serviço em seguida." : "A edição preserva o vínculo atual com o serviço."}</p>
                         <label>Tipo<select value={transactionFormType} disabled={transactionTarget === "tithe" || transactionFormMode === "edit"} onChange={event => { setTransactionFormType(event.target.value as FinancialType); setTransactionCategoryId(""); }}>{transactionTarget === "tithe" ? <option value="expense">Saída</option> : <><option value="income">Entrada</option><option value="expense">Saída</option></>}</select></label>
                         <label>Descrição<input value={transactionDescription} onChange={event => setTransactionDescription(event.target.value)} maxLength={160} required /></label>
                         <label>Valor<input type="number" min="0.01" step="0.01" value={transactionValue} onChange={event => setTransactionValue(event.target.value)} required /></label>
-                        <label>Categoria<select value={transactionCategoryId} onChange={event => setTransactionCategoryId(event.target.value)} required><option value="">Selecione uma categoria ativa</option>{(transactionFormMode === "edit" ? activeCategories : activeCategories.filter(category => category.type === transactionFormType)).map(category => <option key={category.id} value={category.id}>{category.name}</option>)}</select></label>
+                        <label>Categoria<select value={transactionCategoryId} onChange={event => setTransactionCategoryId(event.target.value)} required><option value="">Selecione uma categoria ativa</option>{(transactionFormMode === "edit" ? transactionCategoryOptions : activeCategories.filter(category => category.type === transactionFormType)).map(category => <option key={category.id} value={category.id}>{category.name}{category.active ? "" : " (inativa)"}</option>)}</select></label>
                         <label>Data de referência<input type="date" value={transactionReferenceDate} onChange={event => setTransactionReferenceDate(event.target.value)} required /></label>
                         {error && <p className="service-details-management__error" role="alert">{error}</p>}
                         <div className="service-details-management__actions"><button type="button" onClick={() => { setTransactionFormMode(null); setEditingTransaction(null); }}>Cancelar</button><button type="submit" disabled={isSaving}>{isSaving ? "Salvando..." : transactionFormMode === "create" ? "Criar e vincular" : "Salvar alterações"}</button></div>
