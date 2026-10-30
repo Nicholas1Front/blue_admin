@@ -12,7 +12,6 @@ import {
     faTrash,
     faUnlink,
     faUser,
-    faTruck,
     faWrench
 } from "@fortawesome/free-solid-svg-icons";
 
@@ -111,7 +110,7 @@ export function ServiceDetailsManagement({ details, onUpdated }: Props) {
     const equipaments = useEquipaments();
     const availableTransactions = useAvailableFinancialTransactions();
     const transactions = useTransactionMutations();
-    const categories = useCategories({ active: true, type: "expense" });
+    const categories = useCategories({ active: true, type: transactionFormType });
 
     const updateService = useUpdateService();
     const updateStatus = useUpdateServiceStatus();
@@ -141,6 +140,7 @@ export function ServiceDetailsManagement({ details, onUpdated }: Props) {
 
     const [transactionTarget, setTransactionTarget] = useState<TransactionTarget>("income");
     const [transactionSearch, setTransactionSearch] = useState("");
+    const [transactionSelectorOpen, setTransactionSelectorOpen] = useState(false);
     const [transactionTypeFilter, setTransactionTypeFilter] = useState<"all" | FinancialType>("all");
     const [transactionFormMode, setTransactionFormMode] = useState<"create" | "edit" | null>(null);
     const [editingTransaction, setEditingTransaction] = useState<FinancialTransactionListItem | null>(null);
@@ -305,10 +305,12 @@ export function ServiceDetailsManagement({ details, onUpdated }: Props) {
         setTransactionSearch("");
         setTransactionTypeFilter(target === "tithe" ? "expense" : target);
         setTransactionPendingDelete(null);
+        setTransactionSelectorOpen(true);
         open(target === "tithe" ? "tithe" : "transactions");
     }
 
     async function selectTransaction(transaction: FinancialTransactionListItem) {
+        setTransactionSelectorOpen(false);
         setIsSaving(true);
         setError(null);
         try {
@@ -326,6 +328,7 @@ export function ServiceDetailsManagement({ details, onUpdated }: Props) {
     }
 
     function openCreateTransaction(target: TransactionTarget) {
+        setTransactionSelectorOpen(false);
         setTransactionTarget(target);
         setTransactionFormMode("create");
         setEditingTransaction(null);
@@ -339,6 +342,7 @@ export function ServiceDetailsManagement({ details, onUpdated }: Props) {
 
     function openEditTransaction(transaction: ServiceDetailsResponse["financial"]["tithe"]["transaction"] | ServiceDetailsResponse["financial"]["transactions"][number]) {
         if (!transaction) return;
+        setTransactionSelectorOpen(false);
         const type = transaction.type as FinancialType;
         setTransactionTarget(transaction.originType === "service_tithe" ? "tithe" : type);
         setTransactionFormMode("edit");
@@ -627,12 +631,24 @@ export function ServiceDetailsManagement({ details, onUpdated }: Props) {
                 </div>
             </Modal>
 
-            <Modal isOpen={dialog === "tithe" && transactionSearch !== "__closed__" && transactionTarget === "tithe" && transactionFormMode === null && transactionSearch !== "__form__" && transactionPendingDelete === null && false} title="Consultar transactions" onClose={() => setTransactionSearch("__closed__")} />
-            <Modal isOpen={dialog === "transactions" && transactionSearch !== "__closed__" && transactionFormMode === null && transactionSearch !== "__form__" && transactionTarget !== "tithe" && false} title="Consultar transactions" onClose={() => setTransactionSearch("__closed__")} />
-
-            {(dialog === "transactions" || dialog === "tithe") && transactionFormMode === null && transactionPendingDelete === null && (
-                <Modal isOpen={false} title="Consultar transactions" onClose={() => undefined} />
-            )}
+            <Modal isOpen={transactionSelectorOpen} title={transactionTarget === "tithe" ? "Consultar despesas para o dízimo" : `Consultar ${transactionTarget === "income" ? "entradas" : "saídas"} disponíveis`} onClose={() => setTransactionSelectorOpen(false)} size="wide">
+                <div className="service-details-management-stack">
+                    <p>Somente lançamentos sem vínculo com outra origem podem ser associados a este serviço. A seleção não altera nem exclui a transaction original.</p>
+                    <div className="service-details-management-selector">
+                        <label>Pesquisar por descrição, categoria ou ID<input type="search" value={transactionSearch} onChange={event => setTransactionSearch(event.target.value)} placeholder="Digite para filtrar os lançamentos" /></label>
+                        <label>Tipo<select value={transactionTypeFilter} onChange={event => setTransactionTypeFilter(event.target.value as "all" | FinancialType)} disabled={transactionTarget === "tithe"}>{transactionTarget === "tithe" ? <option value="expense">Saídas</option> : <><option value="all">Todos</option><option value="income">Entradas</option><option value="expense">Saídas</option></>}</select></label>
+                    </div>
+                    {availableTransactions.isPending ? <div className="service-details-management-empty"><strong>Carregando lançamentos...</strong></div> : availableTransactions.isError ? <div className="service-details-management-empty" role="alert"><strong>Não foi possível consultar o financeiro</strong><p>Tente novamente em instantes.</p><button type="button" onClick={() => void availableTransactions.refetch()}>Tentar novamente</button></div> : filteredAvailable.length === 0 ? <div className="service-details-management-empty"><strong>Nenhum lançamento disponível</strong><p>Não encontramos transactions sem vínculo que correspondam à pesquisa.</p></div> : filteredAvailable.map(transaction => (
+                        <div className="service-details-management-record" key={transaction.id}>
+                            <strong>{transaction.description}</strong>
+                            <span>{transaction.type === "income" ? "Entrada" : "Saída"} · {transaction.categoryName} · {currency.format(Number(transaction.value))} · {new Date(`${transaction.referenceDate.slice(0, 10)}T12:00:00`).toLocaleDateString("pt-BR")}</span>
+                            <small>ID: {transaction.id}</small>
+                            <div className="service-details-management__actions"><button type="button" onClick={() => void selectTransaction(transaction)} disabled={isSaving}>{isSaving ? "Vinculando..." : transactionTarget === "tithe" ? "Vincular como dízimo" : "Vincular ao serviço"}</button></div>
+                        </div>
+                    ))}
+                    {error && <p className="service-details-management__error" role="alert">{error}</p>}
+                </div>
+            </Modal>
 
             {transactionFormMode && (
                 <Modal isOpen title={transactionFormMode === "create" ? "Criar transaction e vincular ao serviço" : "Editar transaction"} onClose={() => { setTransactionFormMode(null); setEditingTransaction(null); }}>
