@@ -253,13 +253,9 @@ export function ServiceDetailsManagement({ details, onUpdated, costDialogRequest
 
     async function createAndSelectEquipament(data: CreateEquipamentRequest) {
         if (!selectedClient) return;
-        try {
-            const equipament = await equipaments.addEquipament(selectedClient.id, data);
-            setEquipamentCreateOpen(false);
-            await selectNewEquipament(equipament);
-        } catch (caught) {
-            setError(getErrorMessage(caught, "Não foi possível cadastrar o equipamento."));
-        }
+        const equipament = await equipaments.addEquipament(selectedClient.id, data);
+        setEquipamentCreateOpen(false);
+        await selectNewEquipament(equipament);
     }
 
     async function selectNewEquipament(equipament: Equipament) {
