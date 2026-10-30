@@ -634,7 +634,7 @@ export function ServiceDetailsManagement({ details, onUpdated, costDialogRequest
                 <div className="service-details-management-stack">
                     <div className="service-details-management-summary">
                         <span>Valor calculado</span><strong>{currency.format(details.financial.tithe.value)}</strong>
-                        <small>{linkedTithe ? "Há uma transaction vinculada como dízimo." : "Nenhuma transaction está vinculada ao dízimo."}</small>
+                        <small>{linkedTithe ? "Há um lançamento vinculado como dízimo." : "Nenhum lançamento está vinculado ao dízimo."}</small>
                     </div>
                     {linkedTithe ? (
                         <div className="service-details-management-record">
