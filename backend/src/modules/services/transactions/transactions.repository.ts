@@ -19,6 +19,7 @@ class TransactionsRepository {
     async findAvailableTransactions(filters: {
         year?: number;
         month?: number;
+        referenceDate?: string;
         page: number;
         limit: number;
         categoryId?: string;
@@ -26,7 +27,7 @@ class TransactionsRepository {
         type?: 'income' | 'expense';
         search?: string;
     }) {
-        let referenceDate: { gte: Date; lt: Date } | undefined;
+        const dateFilters: Array<{ referenceDate: { gte: Date; lt: Date } }> = [];
 
         if (filters.year !== undefined) {
             const startDate = new Date(0);
@@ -41,14 +42,26 @@ class TransactionsRepository {
             }
             endDate.setUTCHours(0, 0, 0, 0);
 
-            referenceDate = { gte: startDate, lt: endDate };
+            dateFilters.push({ referenceDate: { gte: startDate, lt: endDate } });
+        }
+
+        if (filters.referenceDate) {
+            const [year, month, day] = filters.referenceDate.split('-').map(Number);
+            const startDate = new Date(0);
+            startDate.setUTCFullYear(year, month - 1, day);
+            startDate.setUTCHours(0, 0, 0, 0);
+
+            const endDate = new Date(startDate);
+            endDate.setUTCDate(endDate.getUTCDate() + 1);
+
+            dateFilters.push({ referenceDate: { gte: startDate, lt: endDate } });
         }
 
         const where = {
             originId: null,
             originType: null,
             titheForService: { is: null },
-            ...(referenceDate && { referenceDate }),
+            ...(dateFilters.length > 0 && { AND: dateFilters }),
             ...(filters.categoryId && { categoryId: filters.categoryId }),
             ...(filters.value !== undefined && { value: { equals: filters.value } }),
             ...(filters.type && { type: filters.type }),
