@@ -3,6 +3,7 @@ import {z} from 'zod';
 export const findAvailableTransactionsSchema = z.object({
     year: z.coerce.number().int().min(1).max(9999).optional(),
     month: z.coerce.number().int().min(1).max(12).optional(),
+    referenceDate: z.iso.date().optional(),
     page: z.coerce.number().int().min(1).default(1),
     limit: z.coerce.number().int().min(1).max(50).default(8),
     categoryId: z.string().min(1).optional(),
