@@ -189,17 +189,7 @@
     border-color: var(--color-danger-border, rgb(239 68 68 / 0.3));
 }
 
-.service-details-management-selector {
-    display: grid;
-    grid-template-columns: minmax(0, 1fr);
-    gap: var(--spacing-3);
-}
-
 @media (max-width: 600px) {
-    .service-details-management-selector {
-        grid-template-columns: minmax(0, 1fr);
-    }
-
     .service-details-management__actions {
         align-items: stretch;
     }
@@ -235,6 +225,10 @@
     padding: var(--spacing-3);
     border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
+}
+
+.service-details-management-selector__group:last-child {
+    grid-column: 1 / -1;
 }
 
 .service-details-management-selector__group legend {
