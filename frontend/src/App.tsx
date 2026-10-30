@@ -18,6 +18,7 @@ import { FinancialTransactions } from "./pages/FinancialTransactions/FinancialTr
 import { MonthlyExpenses } from "./pages/MonthlyExpenses/MonthlyExpenses";
 import { CategoryPanel } from "./pages/CategoryPanel/CategoryPanel";
 import { FinancialAnalytics } from "./pages/FinancialAnalytics/FinancialAnalytics";
+import { ServiceMetricsCalendar } from "./pages/ServiceMetricsCalendar/ServiceMetricsCalendar";
 
 function App() {
     return (
@@ -75,6 +76,15 @@ function App() {
                         element={
                             <ProtectedRoute>
                                 <Services />
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    <Route
+                        path="/services/metrics"
+                        element={
+                            <ProtectedRoute>
+                                <ServiceMetricsCalendar />
                             </ProtectedRoute>
                         }
                     />
