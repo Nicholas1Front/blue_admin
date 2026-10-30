@@ -281,3 +281,69 @@ export interface ServiceDeleteResponse {
 /** Backwards-compatible names for the original advanced-query contract. */
 export type FindServicesByFilters = FindServicesByAdvancedFilters;
 export type FindServicesByFiltersResponse = FindServicesByAdvancedFiltersResponse;
+
+
+export interface ServiceMetricsFilters {
+    year: number;
+    month?: number;
+}
+
+export interface ServiceMetricsResponse {
+    period: {
+        year: number;
+        month: number | null;
+        serviceDateBasis: "entryDate";
+        transactionAttribution: "linkedService";
+        monthlyEvolutionDateBasis: "entryDate";
+    };
+    summary: {
+        serviceCount: number;
+        statusCounts: Record<string, number>;
+        activityStatusCounts: Record<string, number>;
+        hoursWorkedTotal: number;
+        operationalCostTotal: number;
+        incomeTotal: number;
+        directExpenseTotal: number;
+        operationalResult: number;
+        tithe: {
+            expectedTotal: number;
+            paidTotal: number;
+            pendingTotal: number;
+            statusCounts: Record<string, number>;
+        };
+    };
+    monthlyEvolution: Array<{
+        month: number;
+        serviceCount: number;
+        hoursWorked: number;
+        operationalCost: number;
+        incomeTotal: number;
+        directExpenseTotal: number;
+        operationalResult: number;
+        titheExpectedTotal: number;
+        tithePaidTotal: number;
+    }>;
+    topClients: Array<{
+        clientId: string;
+        name: string;
+        serviceCount: number;
+    }>;
+}
+
+export interface ServiceCalendarFilters {
+    startDate: string;
+    endDate: string;
+}
+
+export interface ServiceCalendarEvent {
+    date: string;
+    eventType: "entry" | "exit" | "ongoing";
+    serviceId: string;
+}
+
+export interface ServiceCalendarResponse {
+    period: ServiceCalendarFilters;
+    total: number;
+    services: ServiceSummary[];
+    events: ServiceCalendarEvent[];
+}
