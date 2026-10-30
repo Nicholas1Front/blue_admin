@@ -5,12 +5,16 @@ import {
     findServicesByAdvancedFilters,
     findServicesByLegacyFilters,
     getServiceById,
-    getServiceDashboard
+    getServiceDashboard,
+    getServiceMetrics,
+    getServiceCalendar
 } from "./services.api";
 import type {
     FindServicesByAdvancedFilters,
     FindServicesByLegacyFilters,
-    ServiceDashboardFilters
+    ServiceDashboardFilters,
+    ServiceMetricsFilters,
+    ServiceCalendarFilters
 } from "./services.types";
 
 export function useServiceDashboard(filters: ServiceDashboardFilters) {
@@ -43,5 +47,22 @@ export function useServiceById(serviceId: string | undefined) {
         queryKey: servicesQueryKeys.queries.details(serviceId),
         queryFn: () => getServiceById(serviceId!),
         enabled: Boolean(serviceId)
+    });
+}
+
+
+export function useServiceMetrics(filters: ServiceMetricsFilters, enabled = true) {
+    return useQuery({
+        queryKey: servicesQueryKeys.queries.metrics(filters),
+        queryFn: () => getServiceMetrics(filters),
+        enabled
+    });
+}
+
+export function useServiceCalendar(filters: ServiceCalendarFilters, enabled = true) {
+    return useQuery({
+        queryKey: servicesQueryKeys.queries.calendar(filters),
+        queryFn: () => getServiceCalendar(filters),
+        enabled
     });
 }
