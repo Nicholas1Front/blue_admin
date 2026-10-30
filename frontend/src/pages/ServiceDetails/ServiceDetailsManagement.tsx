@@ -1,4 +1,4 @@
-import { createContext, useContext, useMemo, useState, type FormEvent, type ReactNode } from "react";
+import { createContext, useContext, useState, type FormEvent, type ReactNode } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faCalendarDays,
@@ -128,7 +128,6 @@ export function ServiceDetailsManagement({ details, onUpdated, children }: Props
     const serviceId = details.service.id;
     const clients = useClients();
     const equipaments = useEquipaments();
-    const availableTransactions = useAvailableFinancialTransactions();
     const transactions = useTransactionMutations();
 
     const updateService = useUpdateService();
@@ -161,6 +160,10 @@ export function ServiceDetailsManagement({ details, onUpdated, children }: Props
 
     const [transactionTarget, setTransactionTarget] = useState<TransactionTarget>("income");
     const [transactionSearch, setTransactionSearch] = useState("");
+    const [transactionFilterYear, setTransactionFilterYear] = useState(String(new Date().getFullYear()));
+    const [transactionFilterMonth, setTransactionFilterMonth] = useState("");
+    const [transactionFilterCategoryId, setTransactionFilterCategoryId] = useState("");
+    const [transactionPage, setTransactionPage] = useState(1);
     const [transactionSelectorOpen, setTransactionSelectorOpen] = useState(false);
     const [transactionFormMode, setTransactionFormMode] = useState<"create" | "edit" | null>(null);
     const [editingTransaction, setEditingTransaction] = useState<FinancialTransactionListItem | null>(null);
@@ -171,6 +174,16 @@ export function ServiceDetailsManagement({ details, onUpdated, children }: Props
     const [transactionFormType, setTransactionFormType] = useState<FinancialType>("expense");
 
     const categories = useCategories({ type: transactionFormType });
+    const filterCategories = useCategories();
+    const availableTransactions = useAvailableFinancialTransactions({
+        year: transactionFilterYear.trim() ? Number(transactionFilterYear) : undefined,
+        month: transactionFilterMonth ? Number(transactionFilterMonth) : undefined,
+        page: transactionPage,
+        limit: 8,
+        categoryId: transactionFilterCategoryId || undefined,
+        type: transactionTarget === "income" ? "income" : "expense",
+        search: transactionSearch.trim() || undefined
+    }, transactionSelectorOpen);
     const [transactionPendingDelete, setTransactionPendingDelete] = useState<FinancialTransactionListItem | null>(null);
 
     const [activityFormMode, setActivityFormMode] = useState<"create" | "edit" | null>(null);
@@ -185,12 +198,9 @@ export function ServiceDetailsManagement({ details, onUpdated, children }: Props
     const availableCategories = categories.data ?? [];
     const activeCategories = availableCategories.filter(category => category.active);
     const transactionCategoryOptions = availableCategories.filter(category => category.active || category.id === editingTransaction?.categoryId);
-    const availableList = availableTransactions.data ?? [];
-    const filteredAvailable = useMemo(() => availableList.filter(transaction => {
-        const expectedType = transactionTarget === "income" ? "income" : "expense";
-        const text = [transaction.description, transaction.categoryName, transaction.id].join(" ").toLocaleLowerCase();
-        return transaction.type === expectedType && text.includes(transactionSearch.trim().toLocaleLowerCase());
-    }), [availableList, transactionSearch, transactionTarget]);
+    const filterCategoryOptions = (filterCategories.data ?? [])
+        .filter(category => category.type === (transactionTarget === "income" ? "income" : "expense"))
+        .sort((first, second) => first.name.localeCompare(second.name, "pt-BR"));
 
     function open(next: Dialog) {
         setError(null);
@@ -341,6 +351,10 @@ export function ServiceDetailsManagement({ details, onUpdated, children }: Props
     function openTransactionSelector(target: TransactionTarget) {
         setTransactionTarget(target);
         setTransactionSearch("");
+        setTransactionFilterYear(String(new Date().getFullYear()));
+        setTransactionFilterMonth("");
+        setTransactionFilterCategoryId("");
+        setTransactionPage(1);
         setTransactionPendingDelete(null);
         setTransactionSelectorOpen(true);
         open(target === "tithe" ? "tithe" : "transactions");
@@ -675,18 +689,55 @@ export function ServiceDetailsManagement({ details, onUpdated, children }: Props
 
             <Modal isOpen={transactionSelectorOpen} title={transactionTarget === "tithe" ? "Consultar despesas para o dízimo" : `Consultar ${transactionTarget === "income" ? "entradas" : "saídas"} disponíveis`} onClose={() => setTransactionSelectorOpen(false)} size="wide">
                 <div className="service-details-management-stack">
-                    <p>Somente lançamentos sem vínculo com outra origem podem ser associados a este serviço. A seleção não altera nem exclui a transaction original.</p>
+                    <p>Somente lançamentos sem vínculo com outra origem podem ser associados a este serviço. Os resultados são ordenados pelos mais recentes e a seleção não altera o lançamento original.</p>
+
                     <div className="service-details-management-selector">
-                        <label>Pesquisar por descrição, categoria ou ID<input type="search" value={transactionSearch} onChange={event => setTransactionSearch(event.target.value)} placeholder="Digite para filtrar os lançamentos" /></label>
+                        <fieldset className="service-details-management-selector__group">
+                            <legend>Período</legend>
+                            <div className="service-details-management-selector__fields">
+                                <label>Ano<input type="number" min="1" max="9999" inputMode="numeric" value={transactionFilterYear} onChange={event => { setTransactionFilterYear(event.target.value); if (!event.target.value) setTransactionFilterMonth(""); setTransactionPage(1); }} placeholder="Todos" /></label>
+                                <label>Mês<select value={transactionFilterMonth} disabled={!transactionFilterYear.trim()} onChange={event => { setTransactionFilterMonth(event.target.value); setTransactionPage(1); }}><option value="">Todos os meses</option><option value="1">Janeiro</option><option value="2">Fevereiro</option><option value="3">Março</option><option value="4">Abril</option><option value="5">Maio</option><option value="6">Junho</option><option value="7">Julho</option><option value="8">Agosto</option><option value="9">Setembro</option><option value="10">Outubro</option><option value="11">Novembro</option><option value="12">Dezembro</option></select></label>
+                            </div>
+                        </fieldset>
+
+                        <fieldset className="service-details-management-selector__group">
+                            <legend>Classificação</legend>
+                            <div className="service-details-management-selector__fields">
+                                <label>Tipo<select value={transactionTarget === "income" ? "income" : "expense"} disabled><option value="income">Entrada</option><option value="expense">Saída</option></select></label>
+                                <label>Categoria<select value={transactionFilterCategoryId} onChange={event => { setTransactionFilterCategoryId(event.target.value); setTransactionPage(1); }} disabled={filterCategories.isPending || filterCategories.isError}><option value="">Todas as categorias</option>{filterCategoryOptions.map(category => <option key={category.id} value={category.id}>{category.name}{category.active ? "" : " (inativa)"}</option>)}</select></label>
+                            </div>
+                        </fieldset>
+
+                        <fieldset className="service-details-management-selector__group">
+                            <legend>Pesquisa</legend>
+                            <label>Descrição ou ID<input type="search" value={transactionSearch} onChange={event => { setTransactionSearch(event.target.value); setTransactionPage(1); }} placeholder="Digite para pesquisar" /></label>
+                        </fieldset>
                     </div>
-                    {availableTransactions.isPending ? <div className="service-details-management-empty"><strong>Carregando lançamentos...</strong></div> : availableTransactions.isError ? <div className="service-details-management-empty" role="alert"><strong>Não foi possível consultar o financeiro</strong><p>Tente novamente em instantes.</p><button type="button" onClick={() => void availableTransactions.refetch()}>Tentar novamente</button></div> : filteredAvailable.length === 0 ? <div className="service-details-management-empty"><strong>Nenhum lançamento disponível</strong><p>Não encontramos transactions sem vínculo que correspondam à pesquisa.</p></div> : filteredAvailable.map(transaction => (
-                        <div className="service-details-management-record" key={transaction.id}>
-                            <strong>{transaction.description}</strong>
-                            <span>{transaction.type === "income" ? "Entrada" : "Saída"} · {transaction.categoryName} · {currency.format(Number(transaction.value))} · {new Date(`${transaction.referenceDate.slice(0, 10)}T12:00:00`).toLocaleDateString("pt-BR")}</span>
-                            <small>ID: {transaction.id}</small>
-                            <div className="service-details-management__actions"><button type="button" onClick={() => void selectTransaction(transaction)} disabled={isSaving}>{isSaving ? "Vinculando..." : transactionTarget === "tithe" ? "Vincular como dízimo" : "Vincular ao serviço"}</button></div>
-                        </div>
-                    ))}
+
+                    {filterCategories.isError && <p className="service-details-management__error" role="alert">Não foi possível carregar as categorias para o filtro.</p>}
+
+                    {availableTransactions.isPending ? <div className="service-details-management-empty"><strong>Carregando lançamentos...</strong></div> : availableTransactions.isError ? <div className="service-details-management-empty" role="alert"><strong>Não foi possível consultar o financeiro</strong><p>Tente novamente em instantes.</p><button type="button" onClick={() => void availableTransactions.refetch()}>Tentar novamente</button></div> : (availableTransactions.data?.transactions.length ?? 0) === 0 ? <div className="service-details-management-empty"><strong>Nenhum lançamento disponível</strong><p>Não encontramos lançamentos livres que correspondam aos filtros selecionados.</p></div> : (
+                        <>
+                            <div className="service-details-management-selector__results" aria-live="polite">
+                                {availableTransactions.data!.transactions.map(transaction => (
+                                    <div className="service-details-management-record" key={transaction.id}>
+                                        <strong>{transaction.description}</strong>
+                                        <span>{transaction.type === "income" ? "Entrada" : "Saída"} · {transaction.categoryName} · {currency.format(Number(transaction.value))} · {new Date(`${transaction.referenceDate.slice(0, 10)}T12:00:00`).toLocaleDateString("pt-BR")}</span>
+                                        <small>ID: {transaction.id}</small>
+                                        <div className="service-details-management__actions"><button type="button" onClick={() => void selectTransaction(transaction)} disabled={isSaving}>{isSaving ? "Vinculando..." : transactionTarget === "tithe" ? "Vincular como dízimo" : "Vincular ao serviço"}</button></div>
+                                    </div>
+                                ))}
+                            </div>
+                            <div className="service-details-management-selector__pagination">
+                                <span>Exibindo {(availableTransactions.data!.page - 1) * availableTransactions.data!.limit + 1}–{Math.min(availableTransactions.data!.page * availableTransactions.data!.limit, availableTransactions.data!.total)} de {availableTransactions.data!.total}</span>
+                                <div>
+                                    <button type="button" onClick={() => setTransactionPage(currentPage => Math.max(1, currentPage - 1))} disabled={availableTransactions.data!.page <= 1 || availableTransactions.isFetching}>Anterior</button>
+                                    <span>Página {availableTransactions.data!.page} de {availableTransactions.data!.totalPages}</span>
+                                    <button type="button" onClick={() => setTransactionPage(currentPage => currentPage + 1)} disabled={availableTransactions.data!.page >= availableTransactions.data!.totalPages || availableTransactions.isFetching}>Próxima</button>
+                                </div>
+                            </div>
+                        </>
+                    )}
                     {error && <p className="service-details-management__error" role="alert">{error}</p>}
                 </div>
             </Modal>
