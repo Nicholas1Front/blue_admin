@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faCalendarDays,
@@ -106,10 +106,6 @@ function toIsoDate(value: string) {
     return new Date(`${value}T12:00:00`).toISOString();
 }
 
-function transactionLabel(transaction: Pick<FinancialTransactionListItem, "description" | "value" | "categoryName" | "referenceDate">) {
-    return `${transaction.description} · ${transaction.categoryName} · ${currency.format(Number(transaction.value))} · ${new Date(`${transaction.referenceDate.slice(0, 10)}T12:00:00`).toLocaleDateString("pt-BR")}`;
-}
-
 function getErrorMessage(error: unknown, fallback: string) {
     return error instanceof Error ? error.message : fallback;
 }
@@ -172,6 +168,7 @@ export function ServiceDetailsManagement({ details, onUpdated, costDialogRequest
     const [activityStartAt, setActivityStartAt] = useState("");
     const [activityEndAt, setActivityEndAt] = useState("");
     const [activityPendingDelete, setActivityPendingDelete] = useState<ServiceActivity | null>(null);
+    const lastCostDialogRequest = useRef(0);
 
     const availableCategories = categories.data ?? [];
     const activeCategories = availableCategories.filter(category => category.active);
@@ -189,7 +186,8 @@ export function ServiceDetailsManagement({ details, onUpdated, costDialogRequest
     }
 
     useEffect(() => {
-        if (costDialogRequest === 0) return;
+        if (costDialogRequest === 0 || lastCostDialogRequest.current === costDialogRequest) return;
+        lastCostDialogRequest.current = costDialogRequest;
         setHoursWorked(details.service.hoursWorked == null ? "" : String(details.service.hoursWorked));
         setCostPerHourInput(details.service.costPerHour == null ? "" : String(details.service.costPerHour));
         setCostAction("keep");
