@@ -227,6 +227,7 @@ export function ServiceDetailsManagement({ details, onUpdated, costDialogRequest
         setRelationshipMode(mode);
         setError(null);
         if (mode === "client") {
+            setSelectedClient(null);
             await clients.loadClients();
             setClientSelectOpen(true);
             return;
