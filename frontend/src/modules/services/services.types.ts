@@ -78,7 +78,7 @@ export interface UpdateServiceRequest {
      * The backend accepts a boolean to calculate costPerHour from active
      * monthly expenses, false/null to clear it, rather than a numeric value.
      */
-    costPerHour?: boolean | null;
+    costPerHour?: boolean | number | null;
     description: string;
 }
 
