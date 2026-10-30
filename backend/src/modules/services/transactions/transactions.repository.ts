@@ -25,14 +25,23 @@ class TransactionsRepository {
         type?: 'income' | 'expense';
         search?: string;
     }) {
-        const referenceDate = filters.year === undefined
-            ? undefined
-            : {
-                gte: new Date(Date.UTC(filters.year, (filters.month ?? 1) - 1, 1)),
-                lt: filters.month === undefined
-                    ? new Date(Date.UTC(filters.year + 1, 0, 1))
-                    : new Date(Date.UTC(filters.year, filters.month, 1))
-            };
+        let referenceDate: { gte: Date; lt: Date } | undefined;
+
+        if (filters.year !== undefined) {
+            const startDate = new Date(0);
+            startDate.setUTCFullYear(filters.year, (filters.month ?? 1) - 1, 1);
+            startDate.setUTCHours(0, 0, 0, 0);
+
+            const endDate = new Date(0);
+            if (filters.month === undefined) {
+                endDate.setUTCFullYear(filters.year + 1, 0, 1);
+            } else {
+                endDate.setUTCFullYear(filters.year, filters.month, 1);
+            }
+            endDate.setUTCHours(0, 0, 0, 0);
+
+            referenceDate = { gte: startDate, lt: endDate };
+        }
 
         const where = {
             originId: null,
