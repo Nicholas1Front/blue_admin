@@ -172,6 +172,7 @@ export function ServiceDetails() {
     const [isCalculatingCost, setIsCalculatingCost] = useState(false);
     const [costCalculationError, setCostCalculationError] = useState<string | null>(null);
     const [costCalculationSuccess, setCostCalculationSuccess] = useState(false);
+    const [costDialogRequest, setCostDialogRequest] = useState(0);
     const detailsQuery = useServiceById(serviceId);
     const updateServiceMutation = useUpdateService();
     const details = detailsQuery.data;
@@ -291,6 +292,7 @@ export function ServiceDetails() {
                         <ServiceDetailsManagement
                             details={details}
                             onUpdated={() => detailsQuery.refetch()}
+                            costDialogRequest={costDialogRequest}
                         />
 
                         <section className="service-details-metrics" aria-label="Resumo financeiro e operacional">
@@ -308,6 +310,7 @@ export function ServiceDetails() {
                                 <span className="service-details-metric__label"><FontAwesomeIcon icon={faGaugeHigh} aria-hidden="true" /> Custo operacional</span>
                                 <strong className="service-details-metric__value">{formatCurrency(details.financial.operationalCost)}</strong>
                                 <p>{details.service.hoursWorked == null ? "Horas trabalhadas não informadas" : `${details.service.hoursWorked} h × ${formatCurrency(details.service.costPerHour)} por hora`}</p>
+                                <button type="button" className="service-details-metric__action" onClick={() => setCostDialogRequest(current => current + 1)}>Editar custo e horas</button>
                             </article>
                             <article className="service-details-metric">
                                 <span className="service-details-metric__label"><FontAwesomeIcon icon={faCoins} aria-hidden="true" /> Saldo financeiro</span>
