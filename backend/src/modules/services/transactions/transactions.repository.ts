@@ -1,4 +1,5 @@
 import {prisma} from '../../../shared/database/prisma.js'
+import type { FindAvailableTransactionsQuery } from './transactions.schema.js'
 
 class TransactionsRepository {
     async findTransactionById(id: string) {
@@ -16,17 +17,7 @@ class TransactionsRepository {
         return prisma.service.findUnique({ where: { id } })
     }
 
-    async findAvailableTransactions(filters: {
-        year?: number;
-        month?: number;
-        referenceDate?: string;
-        page: number;
-        limit: number;
-        categoryId?: string;
-        value?: number;
-        type?: 'income' | 'expense';
-        search?: string;
-    }) {
+    async findAvailableTransactions(filters: FindAvailableTransactionsQuery) {{
         const dateFilters: Array<{ referenceDate: { gte: Date; lt: Date } }> = [];
 
         if (filters.year !== undefined) {
@@ -46,11 +37,7 @@ class TransactionsRepository {
         }
 
         if (filters.referenceDate) {
-            const [year, month, day] = filters.referenceDate.split('-').map(Number);
-            const startDate = new Date(0);
-            startDate.setUTCFullYear(year, month - 1, day);
-            startDate.setUTCHours(0, 0, 0, 0);
-
+            const startDate = new Date(`${filters.referenceDate}T00:00:00.000Z`);
             const endDate = new Date(startDate);
             endDate.setUTCDate(endDate.getUTCDate() + 1);
 
