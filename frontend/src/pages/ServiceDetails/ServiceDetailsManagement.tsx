@@ -594,7 +594,7 @@ export function ServiceDetailsManagement({ details, onUpdated, costDialogRequest
                 onSelect={client => void selectNewClient(client)}
             />
             <EquipamentSelectModal
-                isOpen={equipamentSelectOpen}
+                isOpen={equipamentSelectOpen && !equipamentCreateOpen}
                 title={relationshipMode === "client" ? "Selecionar equipamento do novo cliente" : "Selecionar equipamento"}
                 equipaments={equipaments.equipaments}
                 isLoading={equipaments.isLoading}
@@ -635,7 +635,7 @@ export function ServiceDetailsManagement({ details, onUpdated, costDialogRequest
                 </form>
             </Modal>
 
-            <Modal isOpen={dialog === "tithe"} title="Controle do dízimo" onClose={() => setDialog(null)} size="wide">
+            <Modal isOpen={dialog === "tithe" && !transactionSelectorOpen && !transactionFormMode} title="Controle do dízimo" onClose={() => setDialog(null)} size="wide">
                 <div className="service-details-management-stack">
                     <div className="service-details-management-summary">
                         <span>Valor calculado</span><strong>{currency.format(details.financial.tithe.value)}</strong>
@@ -667,7 +667,7 @@ export function ServiceDetailsManagement({ details, onUpdated, costDialogRequest
                 </div>
             </Modal>
 
-            <Modal isOpen={dialog === "transactions"} title="Entradas e saídas do serviço" onClose={() => setDialog(null)} size="wide">
+            <Modal isOpen={dialog === "transactions" && !transactionSelectorOpen && !transactionFormMode} title="Entradas e saídas do serviço" onClose={() => setDialog(null)} size="wide">
                 <div className="service-details-management-stack">
                     <p>Os lançamentos abaixo estão vinculados ao serviço. O dízimo é gerenciado separadamente.</p>
                     <div className="service-details-management__actions service-details-management__actions--wrap">
@@ -728,7 +728,7 @@ export function ServiceDetailsManagement({ details, onUpdated, costDialogRequest
             )}
 
 
-            <Modal isOpen={dialog === "activities"} title="Gerenciar atividades" onClose={() => setDialog(null)} size="wide">
+            <Modal isOpen={dialog === "activities" && !activityFormMode} title="Gerenciar atividades" onClose={() => setDialog(null)} size="wide">
                 <div className="service-details-management-stack">
                     <div className="service-details-management__actions"><button type="button" onClick={() => openActivityForm()}><FontAwesomeIcon icon={faPlus} /> Nova atividade</button></div>
                     {details.activities.list.length === 0 ? <div className="service-details-management-empty"><strong>Nenhuma atividade registrada</strong><p>Crie a primeira atividade para acompanhar a execução do serviço.</p></div> : details.activities.list.map(activity => (
