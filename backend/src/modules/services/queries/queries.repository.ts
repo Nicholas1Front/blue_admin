@@ -1,6 +1,6 @@
 import type {Prisma} from '../../../generated/prisma/client.js'
 import {prisma} from '../../../shared/database/prisma.js'
-import type {FindServicesByFiltersQueryDTO, ServiceDashboardQueryDTO} from './queries.schema.js'
+import type {FindServicesByFiltersQueryDTO, ServiceCalendarQueryDTO, ServiceDashboardQueryDTO, ServiceMetricsQueryDTO} from './queries.schema.js'
 
 const serviceSummarySelect = {
     id : true,
@@ -398,6 +398,50 @@ class QueriesRepository {
         }
     }
 
+    async findServiceMetrics(filters : ServiceMetricsQueryDTO) {
+        const startDate = utcDate(filters.year, 0)
+        const endDate = utcDate(filters.year + 1, 0)
+        const services = await prisma.service.findMany({
+            where : {entryDate : {gte : startDate, lt : endDate}},
+            select : {
+                id : true, clientId : true, entryDate : true, status : true,
+                hoursWorked : true, costPerHour : true, titheStatus : true,
+                titheTransactionId : true, client : {select : {name : true}}
+            },
+            orderBy : [{entryDate : 'asc'}, {id : 'asc'}]
+        })
+        const serviceIds = services.map(service => service.id)
+        const [transactions, activityGroups] = await Promise.all([
+            prisma.financialTransaction.findMany({
+                where : {originId : {in : serviceIds}, originType : {in : ['services', 'service_tithe']}},
+                select : {originId : true, originType : true, type : true, value : true}
+            }),
+            prisma.serviceActivity.groupBy({
+                by : ['serviceId', 'status'],
+                where : {serviceId : {in : serviceIds}},
+                _count : {_all : true}
+            })
+        ])
+        return {
+            services,
+            transactions : transactions.map(transaction => ({...transaction, value : Number(transaction.value)})),
+            activityGroups : activityGroups.map(group => ({serviceId : group.serviceId, status : group.status, count : group._count._all}))
+        }
+    }
+
+    async findServicesForCalendar(filters : ServiceCalendarQueryDTO) {
+        const startDate = new Date(`${filters.startDate}T00:00:00.000Z`)
+        const endDateExclusive = new Date(`${filters.endDate}T00:00:00.000Z`)
+        endDateExclusive.setUTCDate(endDateExclusive.getUTCDate() + 1)
+        return prisma.service.findMany({
+            where : {
+                entryDate : {lt : endDateExclusive},
+                OR : [{exitDate : null}, {exitDate : {gte : startDate}}]
+            },
+            select : serviceSummarySelect,
+            orderBy : [{entryDate : 'asc'}, {createdAt : 'asc'}, {id : 'asc'}]
+        })
+    }
     async findServiceDetailsById(serviceId : string) {
         const [service, transactions] = await Promise.all([
             prisma.service.findUnique({
