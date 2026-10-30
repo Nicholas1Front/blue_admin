@@ -110,7 +110,6 @@ export function ServiceDetailsManagement({ details, onUpdated }: Props) {
     const equipaments = useEquipaments();
     const availableTransactions = useAvailableFinancialTransactions();
     const transactions = useTransactionMutations();
-    const categories = useCategories({ active: true, type: transactionFormType });
 
     const updateService = useUpdateService();
     const updateStatus = useUpdateServiceStatus();
@@ -149,6 +148,8 @@ export function ServiceDetailsManagement({ details, onUpdated }: Props) {
     const [transactionCategoryId, setTransactionCategoryId] = useState("");
     const [transactionReferenceDate, setTransactionReferenceDate] = useState(dateInput(new Date().toISOString()));
     const [transactionFormType, setTransactionFormType] = useState<FinancialType>("expense");
+
+    const categories = useCategories({ active: true, type: transactionFormType });
     const [transactionPendingDelete, setTransactionPendingDelete] = useState<FinancialTransactionListItem | null>(null);
 
     const [activityFormMode, setActivityFormMode] = useState<"create" | "edit" | null>(null);
