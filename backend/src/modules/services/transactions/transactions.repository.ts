@@ -17,7 +17,7 @@ class TransactionsRepository {
         return prisma.service.findUnique({ where: { id } })
     }
 
-    async findAvailableTransactions(filters: FindAvailableTransactionsQuery) {{
+    async findAvailableTransactions(filters: FindAvailableTransactionsQuery) {
         const dateFilters: Array<{ referenceDate: { gte: Date; lt: Date } }> = [];
 
         if (filters.year !== undefined) {
