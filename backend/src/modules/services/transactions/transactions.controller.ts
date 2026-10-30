@@ -1,11 +1,29 @@
 import {Request, Response} from 'express';
 import {
+    findAvailableTransactionsSchema,
     updateTransactionsOriginSchema
 } from './transactions.schema.js'
 import { AppError } from '../../../shared/errors/AppError.js';
 import transactionsService from './transactions.service.js';
 
 class TransactionsController{
+    async findAvailableTransactions(
+        req: Request,
+        res: Response
+    ) {
+        if (!req.user) {
+            throw new AppError('User not authenticated', 401, 'USER_NOT_AUTHENTICATED');
+        }
+
+        const filters = findAvailableTransactionsSchema.parse(req.query);
+        const response = await transactionsService.findAvailableTransactions(filters);
+
+        return res.status(200).json({
+            message: 'Available transactions found successfully',
+            data: response
+        });
+    }
+
     async updateOrigins(
         req : Request,
         res : Response
