@@ -1,0 +1,244 @@
+.service-details-management {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-2);
+    margin: var(--spacing-4) 0 var(--spacing-5);
+}
+
+.service-details-management > button,
+.service-details-management__actions > button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-2);
+    min-height: var(--control-height-md);
+    padding: var(--spacing-2) var(--spacing-3);
+    color: var(--color-text-secondary);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+    transition: border-color var(--transition-fast), background-color var(--transition-fast);
+}
+
+.service-details-management > button:hover,
+.service-details-management__actions > button:hover:not(:disabled) {
+    color: var(--color-text);
+    background: var(--color-surface-hover);
+    border-color: var(--color-primary-400);
+}
+
+.service-details-management__actions > button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
+.service-details-management__actions > button.is-danger {
+    color: var(--color-danger, #f87171);
+}
+
+.service-details-management-form,
+.service-details-management-stack {
+    display: grid;
+    gap: var(--spacing-4);
+    min-width: 0;
+}
+
+.service-details-management-form > p,
+.service-details-management-stack > p {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-relaxed);
+}
+
+.service-details-management-form > label,
+.service-details-management-selector > label {
+    display: grid;
+    gap: var(--spacing-2);
+    min-width: 0;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-medium);
+}
+
+.service-details-management-form input,
+.service-details-management-form select,
+.service-details-management-form textarea,
+.service-details-management-selector input,
+.service-details-management-selector select {
+    width: 100%;
+    min-width: 0;
+    min-height: var(--control-height-md);
+    padding: var(--spacing-2) var(--spacing-3);
+    color: var(--color-text);
+    background: var(--color-background);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font: inherit;
+    font-weight: var(--font-weight-normal);
+}
+
+.service-details-management-form textarea {
+    resize: vertical;
+}
+
+.service-details-management-form input:focus-visible,
+.service-details-management-form select:focus-visible,
+.service-details-management-form textarea:focus-visible,
+.service-details-management-selector input:focus-visible,
+.service-details-management-selector select:focus-visible {
+    outline: 2px solid var(--color-primary-400);
+    outline-offset: 1px;
+    border-color: var(--color-primary-400);
+}
+
+.service-details-management__actions {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: flex-end;
+    gap: var(--spacing-2);
+}
+
+.service-details-management__actions--wrap {
+    justify-content: flex-start;
+}
+
+.service-details-management__actions > button:last-child:not(.is-danger) {
+    color: #fff;
+    background: var(--color-primary-600, var(--color-primary-500));
+    border-color: var(--color-primary-500);
+}
+
+.service-details-management__actions > button:last-child:not(.is-danger):hover:not(:disabled) {
+    background: var(--color-primary-500);
+}
+
+.service-details-management__error {
+    padding: var(--spacing-3);
+    color: var(--color-danger, #f87171);
+    background: var(--color-danger-bg, rgb(239 68 68 / 0.08));
+    border: 1px solid var(--color-danger-border, rgb(239 68 68 / 0.2));
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-relaxed);
+}
+
+.service-details-management-summary {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: var(--spacing-1) var(--spacing-3);
+    padding: var(--spacing-4);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+}
+
+.service-details-management-summary > span {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+}
+
+.service-details-management-summary > strong {
+    color: var(--color-text);
+    font-size: var(--font-size-lg);
+    text-align: right;
+}
+
+.service-details-management-summary > small {
+    grid-column: 1 / -1;
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+}
+
+.service-details-management-record,
+.service-details-management-empty,
+.service-details-management-confirm {
+    display: grid;
+    gap: var(--spacing-2);
+    min-width: 0;
+    padding: var(--spacing-4);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+}
+
+.service-details-management-record > strong,
+.service-details-management-empty > strong,
+.service-details-management-confirm > strong {
+    color: var(--color-text);
+    font-size: var(--font-size-sm);
+    overflow-wrap: anywhere;
+}
+
+.service-details-management-record > span,
+.service-details-management-record > p,
+.service-details-management-empty > p,
+.service-details-management-confirm > p {
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-relaxed);
+    overflow-wrap: anywhere;
+}
+
+.service-details-management-record > small {
+    color: var(--color-text-disabled);
+    font-size: var(--font-size-xs);
+    overflow-wrap: anywhere;
+}
+
+.service-details-management-empty {
+    justify-items: start;
+    background: var(--color-background);
+    border-style: dashed;
+}
+
+.service-details-management-confirm {
+    border-color: var(--color-danger-border, rgb(239 68 68 / 0.3));
+}
+
+.service-details-management-selector {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(10rem, 0.35fr);
+    gap: var(--spacing-3);
+}
+
+@media (max-width: 600px) {
+    .service-details-management {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .service-details-management > button {
+        min-width: 0;
+        justify-content: flex-start;
+        text-align: left;
+    }
+
+    .service-details-management-selector {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .service-details-management__actions {
+        align-items: stretch;
+    }
+
+    .service-details-management__actions > button {
+        flex: 1 1 auto;
+    }
+}
+
+@media (max-width: 380px) {
+    .service-details-management {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .service-details-management__actions {
+        flex-direction: column;
+    }
+
+    .service-details-management__actions > button {
+        width: 100%;
+    }
+}
