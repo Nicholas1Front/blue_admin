@@ -12,6 +12,7 @@ import {
     faTrash,
     faUnlink,
     faUser,
+    faTruck,
     faWrench
 } from "@fortawesome/free-solid-svg-icons";
 
@@ -528,7 +529,10 @@ export function ServiceDetailsManagement({ details, onUpdated }: Props) {
                     <FontAwesomeIcon icon={faCalendarDays} /> Datas
                 </button>
                 <button type="button" onClick={() => { open("relationship"); void startRelationshipChange("client"); }}>
-                    <FontAwesomeIcon icon={faUser} /> Cliente e equipamento
+                    <FontAwesomeIcon icon={faUser} /> Alterar cliente
+                </button>
+                <button type="button" onClick={() => { open("relationship"); void startRelationshipChange("equipament"); }}>
+                    <FontAwesomeIcon icon={faTruck} /> Alterar equipamento
                 </button>
                 <button type="button" onClick={() => { setStatus(details.service.status); setServiceDescription("Dados do serviço atualizados"); open("service"); }}>
                     <FontAwesomeIcon icon={faWrench} /> Dados do serviço
