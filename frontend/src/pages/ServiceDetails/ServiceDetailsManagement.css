@@ -218,3 +218,152 @@
         width: 100%;
     }
 }
+
+
+.service-details-management-selector {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--spacing-3);
+    align-items: stretch;
+}
+
+.service-details-management-selector__group {
+    display: grid;
+    gap: var(--spacing-3);
+    min-width: 0;
+    margin: 0;
+    padding: var(--spacing-3);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+}
+
+.service-details-management-selector__group legend {
+    padding: 0 var(--spacing-1);
+    color: var(--color-text);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+}
+
+.service-details-management-selector__fields {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--spacing-3);
+    min-width: 0;
+}
+
+.service-details-management-selector__group > label,
+.service-details-management-selector__fields > label {
+    display: grid;
+    gap: var(--spacing-2);
+    min-width: 0;
+    color: var(--color-text-secondary);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+}
+
+.service-details-management-selector__group input,
+.service-details-management-selector__group select {
+    width: 100%;
+    min-width: 0;
+    min-height: var(--control-height-md);
+    padding: var(--spacing-2) var(--spacing-3);
+    color: var(--color-text);
+    background: var(--color-background);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font: inherit;
+    font-weight: var(--font-weight-regular);
+}
+
+.service-details-management-selector__group input:focus-visible,
+.service-details-management-selector__group select:focus-visible {
+    outline: 2px solid var(--color-primary-400);
+    outline-offset: 1px;
+    border-color: var(--color-primary-400);
+}
+
+.service-details-management-selector__group select:disabled {
+    color: var(--color-text-muted);
+    opacity: 0.8;
+    cursor: not-allowed;
+}
+
+.service-details-management-selector__results {
+    display: grid;
+    gap: var(--spacing-3);
+    max-height: min(38dvh, 22rem);
+    min-width: 0;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+    padding-right: var(--spacing-1);
+}
+
+.service-details-management-selector__pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--spacing-3);
+    padding-top: var(--spacing-3);
+    border-top: 1px solid var(--color-border);
+}
+
+.service-details-management-selector__pagination > span,
+.service-details-management-selector__pagination > div > span {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+    font-variant-numeric: tabular-nums;
+}
+
+.service-details-management-selector__pagination > div {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+}
+
+.service-details-management-selector__pagination button {
+    min-height: var(--control-height-sm);
+    padding: var(--spacing-2) var(--spacing-3);
+    color: var(--color-text);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-xs);
+    cursor: pointer;
+}
+
+.service-details-management-selector__pagination button:hover:not(:disabled) {
+    border-color: var(--color-primary-400);
+    background: var(--color-surface-hover);
+}
+
+.service-details-management-selector__pagination button:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+}
+
+@media (max-width: 700px) {
+    .service-details-management-selector {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .service-details-management-selector__results {
+        max-height: min(32dvh, 16rem);
+    }
+}
+
+@media (max-width: 420px) {
+    .service-details-management-selector__fields {
+        grid-template-columns: minmax(0, 1fr);
+    }
+
+    .service-details-management-selector__pagination {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .service-details-management-selector__pagination > div {
+        justify-content: space-between;
+        flex-wrap: wrap;
+    }
+}
