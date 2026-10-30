@@ -7,6 +7,8 @@ const router = Router()
 router.use(authMiddleware)
 
 router.get('/dashboard', queriesController.findServiceDashboard)
+router.get('/metrics', queriesController.findServiceMetrics)
+router.get('/calendar', queriesController.findServicesForCalendar)
 router.get('/find-services-by-filters', queriesController.findServicesByAdvancedFilters)
 router.get('/find-service-by-id/:serviceId', queriesController.findServiceById)
 
