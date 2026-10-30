@@ -6,6 +6,7 @@ export const findAvailableTransactionsSchema = z.object({
     page: z.coerce.number().int().min(1).default(1),
     limit: z.coerce.number().int().min(1).max(50).default(8),
     categoryId: z.string().min(1).optional(),
+    value: z.coerce.number().min(1).optional(),
     type: z.enum(['income', 'expense']).optional(),
     search: z.string().trim().min(1).optional()
 }).refine(
