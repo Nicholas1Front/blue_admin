@@ -200,7 +200,7 @@
 
 .service-details-management-selector {
     display: grid;
-    grid-template-columns: minmax(0, 1fr) minmax(10rem, 0.35fr);
+    grid-template-columns: minmax(0, 1fr);
     gap: var(--spacing-3);
 }
 
