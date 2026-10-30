@@ -45,6 +45,7 @@ export interface ServiceTitheLinkResponse {
 export interface AvailableTransactionsFilters {
     year?: number;
     month?: number;
+    referenceDate?: string;
     page: number;
     limit: number;
     categoryId?: string;
