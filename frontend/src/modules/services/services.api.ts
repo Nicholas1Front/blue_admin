@@ -7,6 +7,10 @@ import type {
     FindServicesByLegacyFilters,
     ServiceDashboardFilters,
     ServiceDashboardResponse,
+    ServiceMetricsFilters,
+    ServiceMetricsResponse,
+    ServiceCalendarFilters,
+    ServiceCalendarResponse,
     ServiceDetailsResponse,
     ServiceHistoryEvent,
     ServiceMutationResponse,
@@ -98,6 +102,29 @@ export async function getServiceById(
 ): Promise<ServiceDetailsResponse> {
     const result = await api.get<ApiResponse<ServiceDetailsResponse>>(
         `/services/queries/find-service-by-id/${encodeURIComponent(serviceId)}`
+    );
+
+    return result.data.data;
+}
+
+
+export async function getServiceMetrics(
+    filters: ServiceMetricsFilters
+): Promise<ServiceMetricsResponse> {
+    const result = await api.get<ApiResponse<ServiceMetricsResponse>>(
+        "/services/queries/metrics",
+        { params: filters }
+    );
+
+    return result.data.data;
+}
+
+export async function getServiceCalendar(
+    filters: ServiceCalendarFilters
+): Promise<ServiceCalendarResponse> {
+    const result = await api.get<ApiResponse<ServiceCalendarResponse>>(
+        "/services/queries/calendar",
+        { params: filters }
     );
 
     return result.data.data;
