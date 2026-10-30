@@ -28,7 +28,7 @@ export const servicesQueryKeys = {
         all: ["services", "transactions"] as const,
         byService: (serviceId: string | undefined) =>
             ["services", "transactions", "by-service", serviceId ?? null] as const,
-        available: ["services", "transactions", "available"] as const
+        available: (filters: object) => ["services", "transactions", "available", filters] as const
     },
     history: {
         byService: (serviceId: string | undefined) =>
