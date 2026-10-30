@@ -305,6 +305,7 @@ export interface ServiceMetricsResponse {
         incomeTotal: number;
         directExpenseTotal: number;
         operationalResult: number;
+        averageDurationDays: number | null;
         tithe: {
             expectedTotal: number;
             paidTotal: number;
