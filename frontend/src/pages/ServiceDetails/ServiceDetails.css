@@ -906,7 +906,7 @@
 
 .service-details-metric__action {
     align-self: flex-start;
-    margin-top: auto;
+    margin-top: var(--spacing-3);
     padding: var(--spacing-2) var(--spacing-3);
     color: var(--color-primary-300);
     background: var(--color-info-bg);
