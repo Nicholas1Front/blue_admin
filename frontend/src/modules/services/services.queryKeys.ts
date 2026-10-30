@@ -1,7 +1,9 @@
 import type {
     FindServicesByAdvancedFilters,
     FindServicesByLegacyFilters,
-    ServiceDashboardFilters
+    ServiceDashboardFilters,
+    ServiceMetricsFilters,
+    ServiceCalendarFilters
 } from "./services.types";
 
 export const servicesQueryKeys = {
@@ -10,6 +12,10 @@ export const servicesQueryKeys = {
         all: ["services", "queries"] as const,
         dashboard: (filters: ServiceDashboardFilters) =>
             ["services", "queries", "dashboard", filters] as const,
+        metrics: (filters: ServiceMetricsFilters) =>
+            ["services", "queries", "metrics", filters] as const,
+        calendar: (filters: ServiceCalendarFilters) =>
+            ["services", "queries", "calendar", filters] as const,
         legacyList: (filters: FindServicesByLegacyFilters) =>
             ["services", "legacy-list", filters] as const,
         filtered: (filters: FindServicesByAdvancedFilters) =>
