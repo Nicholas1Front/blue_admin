@@ -48,6 +48,7 @@ export interface AvailableTransactionsFilters {
     page: number;
     limit: number;
     categoryId?: string;
+    value?: number;
     type: FinancialType;
     search?: string;
 }
