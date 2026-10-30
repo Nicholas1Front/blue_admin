@@ -19,6 +19,7 @@ import { useState } from "react";
 import { AppHeader } from "../../components/AppHeader/AppHeader";
 import { BackLink } from "../../components/BackLink/BackLink";
 import { Modal } from "../../components/Modal/Modal";
+import { ServiceDetailsManagement } from "./ServiceDetailsManagement";
 import { useServiceById, useUpdateService } from "../../modules/services";
 import type {
     ServiceActivityStatus,
@@ -286,6 +287,11 @@ export function ServiceDetails() {
                                 </div>
                             </div>
                         </header>
+
+                        <ServiceDetailsManagement
+                            details={details}
+                            onUpdated={() => detailsQuery.refetch()}
+                        />
 
                         <section className="service-details-metrics" aria-label="Resumo financeiro e operacional">
                             <article className="service-details-metric">
