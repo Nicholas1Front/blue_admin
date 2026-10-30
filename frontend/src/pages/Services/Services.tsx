@@ -469,6 +469,17 @@ export function Services() {
 
                 <ServiceManagementActions />
 
+                <Link className="services-insights-link" to="/services/metrics">
+                    <span className="services-insights-link__icon" aria-hidden="true">
+                        <FontAwesomeIcon icon={faCalendarDays} />
+                    </span>
+                    <span className="services-insights-link__content">
+                        <strong>Métricas e calendário</strong>
+                        <small>Analise os resultados e acompanhe a programação dos serviços.</small>
+                    </span>
+                    <span className="services-insights-link__action">Acessar <span aria-hidden="true">→</span></span>
+                </Link>
+
                 <section className="services-main-grid">
                     <article className="services-panel">
                         <header className="services-panel__header">
