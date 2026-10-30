@@ -867,3 +867,58 @@
         line-height: var(--line-height-relaxed);
     }
 }
+
+/* Ajustes do dashboard para evitar colunas comprimidas em telas menores */
+.services-main-grid {
+    grid-template-columns: minmax(0, 1.25fr) minmax(0, 0.9fr);
+    align-items: stretch;
+}
+
+.services-main-grid > .services-panel {
+    min-width: 0;
+}
+
+.services-financial-summary__row {
+    min-width: 0;
+    flex-wrap: wrap;
+}
+
+.services-financial-summary__row > span,
+.services-financial-summary__row > strong {
+    min-width: 0;
+    overflow-wrap: anywhere;
+}
+
+.services-financial-summary__row > strong {
+    max-width: 100%;
+}
+
+@media (max-width: 800px) {
+    .services-main-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
+
+@media (max-width: 430px) {
+    .services-financial-summary__row {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) minmax(0, auto);
+        align-items: start;
+        gap: var(--spacing-2);
+    }
+
+    .services-financial-summary__row > strong {
+        text-align: right;
+        overflow-wrap: anywhere;
+    }
+
+    .services-financial-summary__row--total strong {
+        font-size: var(--font-size-md);
+    }
+
+    .services-financial-origins {
+        overflow-wrap: anywhere;
+        line-height: var(--line-height-relaxed);
+    }
+}
+
