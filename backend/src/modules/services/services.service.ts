@@ -52,7 +52,7 @@ class ServicesService{
             cleanedData.status,
             cleanedData.hoursWorked,
             null,
-            'service_created',
+            'servico_criado',
             cleanedData.description
         )
 
@@ -99,7 +99,7 @@ class ServicesService{
             id,
             {
                 ...cleanedData,
-                eventType : 'service_updated'
+                eventType : 'servico_atualizado'
             }
         )
 
@@ -126,7 +126,7 @@ class ServicesService{
             id,
             {
                 ...cleanedData,
-                eventType : 'service_status_updated'
+                eventType : 'status_servico_atualizado'
             }
         )
 
