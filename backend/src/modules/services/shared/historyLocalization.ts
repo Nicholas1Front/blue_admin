@@ -20,7 +20,8 @@ const legacyDescriptionPrefixes: Array<[string, string]> = [
     ["Activity created: ", "Atividade criada: "],
     ["Activity updated: ", "Atividade atualizada: "],
     ["Activity deleted: ", "Atividade excluída: "],
-    ["Financial transaction ", "Lançamento financeiro "]
+    ["Financial transaction ", "Lançamento financeiro "],
+    ["Tithe transaction", "Lançamento do dízimo"]
 ]
 
 export function normalizeHistoryRecord<T extends HistoryRecord>(record: T): T {
