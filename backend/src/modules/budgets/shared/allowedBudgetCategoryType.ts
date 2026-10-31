@@ -1,6 +1,7 @@
 export const allowedBudgetCategoryType = [
-    'servico',
-    'peca'
+    'serviços',
+    'peças',
+    'deslocamento'
 ] as const
 
 export type BudgetCategoryType = typeof allowedBudgetCategoryType[number]
