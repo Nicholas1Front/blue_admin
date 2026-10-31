@@ -28,7 +28,6 @@ export type BudgetCategoryMinAggregateOutputType = {
   id: string | null
   name: string | null
   description: string | null
-  type: string | null
   isActive: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -38,7 +37,6 @@ export type BudgetCategoryMaxAggregateOutputType = {
   id: string | null
   name: string | null
   description: string | null
-  type: string | null
   isActive: boolean | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -48,7 +46,6 @@ export type BudgetCategoryCountAggregateOutputType = {
   id: number
   name: number
   description: number
-  type: number
   isActive: number
   createdAt: number
   updatedAt: number
@@ -60,7 +57,6 @@ export type BudgetCategoryMinAggregateInputType = {
   id?: true
   name?: true
   description?: true
-  type?: true
   isActive?: true
   createdAt?: true
   updatedAt?: true
@@ -70,7 +66,6 @@ export type BudgetCategoryMaxAggregateInputType = {
   id?: true
   name?: true
   description?: true
-  type?: true
   isActive?: true
   createdAt?: true
   updatedAt?: true
@@ -80,7 +75,6 @@ export type BudgetCategoryCountAggregateInputType = {
   id?: true
   name?: true
   description?: true
-  type?: true
   isActive?: true
   createdAt?: true
   updatedAt?: true
@@ -163,7 +157,6 @@ export type BudgetCategoryGroupByOutputType = {
   id: string
   name: string
   description: string | null
-  type: string
   isActive: boolean
   createdAt: Date
   updatedAt: Date
@@ -194,7 +187,6 @@ export type BudgetCategoryWhereInput = {
   id?: Prisma.StringFilter<"BudgetCategory"> | string
   name?: Prisma.StringFilter<"BudgetCategory"> | string
   description?: Prisma.StringNullableFilter<"BudgetCategory"> | string | null
-  type?: Prisma.StringFilter<"BudgetCategory"> | string
   isActive?: Prisma.BoolFilter<"BudgetCategory"> | boolean
   createdAt?: Prisma.DateTimeFilter<"BudgetCategory"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"BudgetCategory"> | Date | string
@@ -205,7 +197,6 @@ export type BudgetCategoryOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
-  type?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -219,7 +210,6 @@ export type BudgetCategoryWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.BudgetCategoryWhereInput | Prisma.BudgetCategoryWhereInput[]
   name?: Prisma.StringFilter<"BudgetCategory"> | string
   description?: Prisma.StringNullableFilter<"BudgetCategory"> | string | null
-  type?: Prisma.StringFilter<"BudgetCategory"> | string
   isActive?: Prisma.BoolFilter<"BudgetCategory"> | boolean
   createdAt?: Prisma.DateTimeFilter<"BudgetCategory"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"BudgetCategory"> | Date | string
@@ -230,7 +220,6 @@ export type BudgetCategoryOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrderInput | Prisma.SortOrder
-  type?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -246,7 +235,6 @@ export type BudgetCategoryScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"BudgetCategory"> | string
   name?: Prisma.StringWithAggregatesFilter<"BudgetCategory"> | string
   description?: Prisma.StringNullableWithAggregatesFilter<"BudgetCategory"> | string | null
-  type?: Prisma.StringWithAggregatesFilter<"BudgetCategory"> | string
   isActive?: Prisma.BoolWithAggregatesFilter<"BudgetCategory"> | boolean
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"BudgetCategory"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"BudgetCategory"> | Date | string
@@ -256,7 +244,6 @@ export type BudgetCategoryCreateInput = {
   id?: string
   name: string
   description?: string | null
-  type: string
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -267,7 +254,6 @@ export type BudgetCategoryUncheckedCreateInput = {
   id?: string
   name: string
   description?: string | null
-  type: string
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -278,7 +264,6 @@ export type BudgetCategoryUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  type?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -289,7 +274,6 @@ export type BudgetCategoryUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  type?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -300,7 +284,6 @@ export type BudgetCategoryCreateManyInput = {
   id?: string
   name: string
   description?: string | null
-  type: string
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -310,7 +293,6 @@ export type BudgetCategoryUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  type?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -320,7 +302,6 @@ export type BudgetCategoryUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  type?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -335,7 +316,6 @@ export type BudgetCategoryCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
-  type?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -345,7 +325,6 @@ export type BudgetCategoryMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
-  type?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -355,7 +334,6 @@ export type BudgetCategoryMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   description?: Prisma.SortOrder
-  type?: Prisma.SortOrder
   isActive?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -379,7 +357,6 @@ export type BudgetCategoryCreateWithoutItemsInput = {
   id?: string
   name: string
   description?: string | null
-  type: string
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -389,7 +366,6 @@ export type BudgetCategoryUncheckedCreateWithoutItemsInput = {
   id?: string
   name: string
   description?: string | null
-  type: string
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -415,7 +391,6 @@ export type BudgetCategoryUpdateWithoutItemsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  type?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -425,7 +400,6 @@ export type BudgetCategoryUncheckedUpdateWithoutItemsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  type?: Prisma.StringFieldUpdateOperationsInput | string
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -466,7 +440,6 @@ export type BudgetCategorySelect<ExtArgs extends runtime.Types.Extensions.Intern
   id?: boolean
   name?: boolean
   description?: boolean
-  type?: boolean
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -478,7 +451,6 @@ export type BudgetCategorySelectCreateManyAndReturn<ExtArgs extends runtime.Type
   id?: boolean
   name?: boolean
   description?: boolean
-  type?: boolean
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -488,7 +460,6 @@ export type BudgetCategorySelectUpdateManyAndReturn<ExtArgs extends runtime.Type
   id?: boolean
   name?: boolean
   description?: boolean
-  type?: boolean
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -498,13 +469,12 @@ export type BudgetCategorySelectScalar = {
   id?: boolean
   name?: boolean
   description?: boolean
-  type?: boolean
   isActive?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type BudgetCategoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description" | "type" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["budgetCategory"]>
+export type BudgetCategoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["budgetCategory"]>
 export type BudgetCategoryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   items?: boolean | Prisma.BudgetCategory$itemsArgs<ExtArgs>
   _count?: boolean | Prisma.BudgetCategoryCountOutputTypeDefaultArgs<ExtArgs>
@@ -521,7 +491,6 @@ export type $BudgetCategoryPayload<ExtArgs extends runtime.Types.Extensions.Inte
     id: string
     name: string
     description: string | null
-    type: string
     isActive: boolean
     createdAt: Date
     updatedAt: Date
@@ -952,7 +921,6 @@ export interface BudgetCategoryFieldRefs {
   readonly id: Prisma.FieldRef<"BudgetCategory", 'String'>
   readonly name: Prisma.FieldRef<"BudgetCategory", 'String'>
   readonly description: Prisma.FieldRef<"BudgetCategory", 'String'>
-  readonly type: Prisma.FieldRef<"BudgetCategory", 'String'>
   readonly isActive: Prisma.FieldRef<"BudgetCategory", 'Boolean'>
   readonly createdAt: Prisma.FieldRef<"BudgetCategory", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"BudgetCategory", 'DateTime'>

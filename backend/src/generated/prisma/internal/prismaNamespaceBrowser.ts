@@ -262,7 +262,6 @@ export const BudgetCategoryScalarFieldEnum = {
   id: 'id',
   name: 'name',
   description: 'description',
-  type: 'type',
   isActive: 'isActive',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
