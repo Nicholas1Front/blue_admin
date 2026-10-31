@@ -252,6 +252,7 @@ class QueriesService {
             status: string | null
             activityStartAt?: string | null
             activityEndAt?: string | null
+            activityId?: string | null
         }> = []
 
         for (const service of services) {
@@ -317,6 +318,7 @@ class QueriesService {
                         date: toDate(activityStart),
                         occurredAt: activityStart.toISOString(),
                         group: 'activities',
+                        activityId: activity.id,
                         eventType: 'atividade',
                         serviceId: service.id,
                         title: activity.title,
@@ -335,6 +337,7 @@ class QueriesService {
                         date: filters.startDate,
                         occurredAt: startDate.toISOString(),
                         group: 'activities',
+                        activityId: activity.id,
                         eventType: 'atividade_em_andamento',
                         serviceId: service.id,
                         title: activity.title,
@@ -349,6 +352,7 @@ class QueriesService {
                         date: toDate(activityCreated),
                         occurredAt: activityCreated.toISOString(),
                         group: 'activities',
+                        activityId: activity.id,
                         eventType: 'atividade_registrada',
                         serviceId: service.id,
                         title: activity.title,
@@ -363,6 +367,7 @@ class QueriesService {
                         date: toDate(activityEnd),
                         occurredAt: activityEnd.toISOString(),
                         group: 'activities',
+                        activityId: activity.id,
                         eventType: 'atividade_finalizada',
                         serviceId: service.id,
                         title: activity.title,
@@ -384,6 +389,7 @@ class QueriesService {
                         date: toDate(activityEnd),
                         occurredAt: activityEnd.toISOString(),
                         group: 'activities',
+                        activityId: activity.id,
                         eventType: 'atividade_finalizada',
                         serviceId: service.id,
                         title: activity.title,
@@ -414,6 +420,7 @@ class QueriesService {
                         date: toDate(activity.updatedAt),
                         occurredAt: activity.updatedAt.toISOString(),
                         group: 'activities',
+                        activityId: activity.id,
                         eventType: 'atividade_atualizada',
                         serviceId: service.id,
                         title: activity.title,
