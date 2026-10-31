@@ -350,6 +350,7 @@ export interface ServiceCalendarEvent {
     status: string | null;
     activityStartAt?: string | null;
     activityEndAt?: string | null;
+    activityId?: string | null;
 }
 
 export interface ServiceCalendarResponse {
