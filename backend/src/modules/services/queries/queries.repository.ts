@@ -430,26 +430,75 @@ class QueriesRepository {
     }
 
     async findServicesForCalendar(filters : ServiceCalendarQueryDTO) {
-        const startDate = new Date(`${filters.startDate}T00:00:00.000Z`)
-        const endDateExclusive = new Date(`${filters.endDate}T00:00:00.000Z`)
+        const startDate = new Date(filters.startDate + 'T00:00:00.000Z')
+        const endDateExclusive = new Date(filters.endDate + 'T00:00:00.000Z')
         endDateExclusive.setUTCDate(endDateExclusive.getUTCDate() + 1)
-        return prisma.service.findMany({
-            where : {
-                entryDate : {lt : endDateExclusive},
-                OR : [
-                    {entryDate : {gte : startDate}},
-                    {exitDate : {gte : startDate}},
+
+        const activityWhere: Prisma.ServiceActivityWhereInput = {
+            OR: [
+                {startAt: {gte: startDate, lt: endDateExclusive}},
+                {endAt: {gte: startDate, lt: endDateExclusive}},
+                {
+                    startAt: {lt: startDate},
+                    OR: [{endAt: null}, {endAt: {gte: startDate}}]
+                },
+                {
+                    startAt: null,
+                    endAt: null,
+                    createdAt: {gte: startDate, lt: endDateExclusive}
+                }
+            ]
+        }
+        const historyWhere: Prisma.ServiceHistoryWhereInput = {
+            createdAt: {gte: startDate, lt: endDateExclusive}
+        }
+
+        const services = await prisma.service.findMany({
+            where: {
+                OR: [
+                    {entryDate: {gte: startDate, lt: endDateExclusive}},
+                    {exitDate: {gte: startDate, lt: endDateExclusive}},
                     {
-                        AND : [
-                            {exitDate : null},
-                            {status : {notIn : ['cancelado', 'equipamento_saiu']}}
+                        AND: [
+                            {entryDate: {lt: startDate}},
+                            {OR: [{exitDate: null}, {exitDate: {gte: startDate}}]},
+                            {status: {notIn: ['cancelado', 'equipamento_saiu']}}
                         ]
-                    }
+                    },
+                    {activities: {some: activityWhere}},
+                    {history: {some: historyWhere}}
                 ]
             },
-            select : serviceSummarySelect,
-            orderBy : [{entryDate : 'asc'}, {createdAt : 'asc'}, {id : 'asc'}]
+            select: {
+                ...serviceSummarySelect,
+                activities: {
+                    where: activityWhere,
+                    select: {
+                        id: true,
+                        title: true,
+                        description: true,
+                        startAt: true,
+                        endAt: true,
+                        status: true,
+                        createdAt: true
+                    },
+                    orderBy: [{createdAt: 'asc'}, {id: 'asc'}]
+                },
+                history: {
+                    where: historyWhere,
+                    select: {
+                        id: true,
+                        eventType: true,
+                        description: true,
+                        createdAt: true
+                    },
+                    orderBy: [{createdAt: 'asc'}, {id: 'asc'}]
+                }
+            },
+            orderBy: [{entryDate: 'asc'}, {createdAt: 'asc'}, {id: 'asc'}]
         })
+
+        return services
     }
     async findServiceDetailsById(serviceId : string) {
         const [service, transactions] = await Promise.all([
