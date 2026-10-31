@@ -673,7 +673,6 @@ function CalendarView({ monthKey, onMonthChange }: {
                                             ))}
                                         {events.length > 0 && <small>{events.length}</small>}
                                     </span>
-                                    {events.length > 0 && <span className="service-insight-calendar__count">{events.length}</span>}
                                 </button>
                             );
                         })}
