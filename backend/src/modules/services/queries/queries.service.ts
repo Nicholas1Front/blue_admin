@@ -374,9 +374,10 @@ class QueriesService {
                 }
 
                 if (
+                    activityStart !== null &&
                     activityEnd !== null &&
                     isInsidePeriod(activityEnd) &&
-                    (activityStart === null || toDate(activityStart) !== toDate(activityEnd))
+                    toDate(activityStart) !== toDate(activityEnd)
                 ) {
                     events.push({
                         id: activity.id + ':fim',
