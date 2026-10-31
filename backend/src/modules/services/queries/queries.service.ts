@@ -234,24 +234,200 @@ class QueriesService {
 
     async findServicesForCalendar(filters : ServiceCalendarQueryDTO) {
         const services = await queriesRepository.findServicesForCalendar(filters)
-        const startDate = new Date(`${filters.startDate}T00:00:00.000Z`)
-        const endDateExclusive = new Date(`${filters.endDate}T00:00:00.000Z`)
+        const startDate = new Date(filters.startDate + 'T00:00:00.000Z')
+        const endDateExclusive = new Date(filters.endDate + 'T00:00:00.000Z')
         endDateExclusive.setUTCDate(endDateExclusive.getUTCDate() + 1)
-        const events = services.flatMap(service => {
-            const eventsForService : Array<{date : string; eventType : 'entry' | 'exit' | 'ongoing'; serviceId : string}> = []
-            const entryDate = service.entryDate
-            const exitDate = service.exitDate
-            if(entryDate >= startDate && entryDate < endDateExclusive){
-                eventsForService.push({date : entryDate.toISOString().slice(0, 10), eventType : 'entry', serviceId : service.id})
-            } else if(entryDate < startDate && (exitDate === null || exitDate >= startDate) && !['cancelado', 'equipamento_saiu'].includes(service.status)){
-                eventsForService.push({date : filters.startDate, eventType : 'ongoing', serviceId : service.id})
+
+        const isInsidePeriod = (date: Date) => date >= startDate && date < endDateExclusive
+        const toDate = (date: Date) => date.toISOString().slice(0, 10)
+        const events: Array<{
+            id: string
+            date: string
+            occurredAt: string
+            group: 'services' | 'activities' | 'history'
+            eventType: string
+            serviceId: string
+            title: string
+            description: string | null
+            status: string | null
+            activityStartAt?: string | null
+            activityEndAt?: string | null
+        }> = []
+
+        for (const service of services) {
+            const serviceStatus = service.status
+            const serviceEvents = [
+                {
+                    date: service.entryDate,
+                    eventType: 'entrada',
+                    title: 'Entrada do serviço',
+                    shouldInclude: isInsidePeriod(service.entryDate)
+                },
+                ...(service.exitDate === null ? [] : [{
+                    date: service.exitDate,
+                    eventType: 'saida',
+                    title: 'Saída do serviço',
+                    shouldInclude: isInsidePeriod(service.exitDate)
+                }])
+            ]
+
+            for (const event of serviceEvents) {
+                if (!event.shouldInclude) continue
+                events.push({
+                    id: service.id + ':' + event.eventType,
+                    date: toDate(event.date),
+                    occurredAt: event.date.toISOString(),
+                    group: 'services',
+                    eventType: event.eventType,
+                    serviceId: service.id,
+                    title: event.title,
+                    description: 'Status atual do serviço: ' + serviceStatus.replaceAll('_', ' ') + '.',
+                    status: serviceStatus
+                })
             }
-            if(exitDate !== null && exitDate >= startDate && exitDate < endDateExclusive){
-                eventsForService.push({date : exitDate.toISOString().slice(0, 10), eventType : 'exit', serviceId : service.id})
+
+            if (
+                service.entryDate < startDate &&
+                (service.exitDate === null || service.exitDate >= startDate) &&
+                !['cancelado', 'equipamento_saiu'].includes(serviceStatus)
+            ) {
+                events.push({
+                    id: service.id + ':em_andamento',
+                    date: filters.startDate,
+                    occurredAt: startDate.toISOString(),
+                    group: 'services',
+                    eventType: 'em_andamento',
+                    serviceId: service.id,
+                    title: 'Serviço em andamento',
+                    description: 'Status atual do serviço: ' + serviceStatus.replaceAll('_', ' ') + '.',
+                    status: serviceStatus
+                })
             }
-            return eventsForService
-        })
-        return {period : filters, total : services.length, services : normalizeServiceSummaries(services), events}
+
+            for (const activity of service.activities) {
+                const activityStart = activity.startAt
+                const activityEnd = activity.endAt
+                const activityCreated = activity.createdAt
+                const activityDescription = activity.description
+                const activityStatus = activity.status
+
+                if (activityStart !== null && isInsidePeriod(activityStart)) {
+                    events.push({
+                        id: activity.id + ':inicio',
+                        date: toDate(activityStart),
+                        occurredAt: activityStart.toISOString(),
+                        group: 'activities',
+                        eventType: 'atividade',
+                        serviceId: service.id,
+                        title: activity.title,
+                        description: activityDescription,
+                        status: activityStatus,
+                        activityStartAt: activityStart.toISOString(),
+                        activityEndAt: activityEnd?.toISOString() ?? null
+                    })
+                } else if (
+                    activityStart !== null &&
+                    activityStart < startDate &&
+                    (activityEnd === null || activityEnd >= startDate)
+                ) {
+                    events.push({
+                        id: activity.id + ':em_andamento',
+                        date: filters.startDate,
+                        occurredAt: startDate.toISOString(),
+                        group: 'activities',
+                        eventType: 'atividade_em_andamento',
+                        serviceId: service.id,
+                        title: activity.title,
+                        description: activityDescription,
+                        status: activityStatus,
+                        activityStartAt: activityStart.toISOString(),
+                        activityEndAt: activityEnd?.toISOString() ?? null
+                    })
+                } else if (activityStart === null && activityEnd === null && isInsidePeriod(activityCreated)) {
+                    events.push({
+                        id: activity.id + ':registrada',
+                        date: toDate(activityCreated),
+                        occurredAt: activityCreated.toISOString(),
+                        group: 'activities',
+                        eventType: 'atividade_registrada',
+                        serviceId: service.id,
+                        title: activity.title,
+                        description: activityDescription,
+                        status: activityStatus,
+                        activityStartAt: null,
+                        activityEndAt: null
+                    })
+                } else if (activityStart === null && activityEnd !== null && isInsidePeriod(activityEnd)) {
+                    events.push({
+                        id: activity.id + ':finalizada',
+                        date: toDate(activityEnd),
+                        occurredAt: activityEnd.toISOString(),
+                        group: 'activities',
+                        eventType: 'atividade_finalizada',
+                        serviceId: service.id,
+                        title: activity.title,
+                        description: activityDescription,
+                        status: activityStatus,
+                        activityStartAt: null,
+                        activityEndAt: activityEnd.toISOString()
+                    })
+                }
+
+                if (
+                    activityEnd !== null &&
+                    isInsidePeriod(activityEnd) &&
+                    (activityStart === null || toDate(activityStart) !== toDate(activityEnd))
+                ) {
+                    events.push({
+                        id: activity.id + ':fim',
+                        date: toDate(activityEnd),
+                        occurredAt: activityEnd.toISOString(),
+                        group: 'activities',
+                        eventType: 'atividade_finalizada',
+                        serviceId: service.id,
+                        title: activity.title,
+                        description: activityDescription,
+                        status: activityStatus,
+                        activityStartAt: activityStart?.toISOString() ?? null,
+                        activityEndAt: activityEnd.toISOString()
+                    })
+                }
+            }
+
+            const normalizedHistory = normalizeHistoryRecords(service.history)
+            for (const history of normalizedHistory) {
+                events.push({
+                    id: history.id,
+                    date: toDate(history.createdAt),
+                    occurredAt: history.createdAt.toISOString(),
+                    group: 'history',
+                    eventType: history.eventType,
+                    serviceId: service.id,
+                    title: history.eventType.replaceAll('_', ' '),
+                    description: history.description,
+                    status: null
+                })
+            }
+        }
+
+        events.sort((a, b) =>
+            a.date.localeCompare(b.date) ||
+            a.occurredAt.localeCompare(b.occurredAt) ||
+            ['services', 'activities', 'history'].indexOf(a.group) -
+                ['services', 'activities', 'history'].indexOf(b.group)
+        )
+
+        const calendarServices = services.map(({activities, history, ...service}) =>
+            normalizeServiceSummaries([service])[0]!
+        )
+
+        return {
+            period: filters,
+            total: calendarServices.length,
+            eventTotal: events.length,
+            services: calendarServices,
+            events
+        }
     }
     async findServiceById(serviceId : string) {
         const result = await queriesRepository.findServiceDetailsById(serviceId)
