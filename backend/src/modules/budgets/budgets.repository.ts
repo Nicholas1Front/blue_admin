@@ -71,7 +71,8 @@ class BudgetRepository {
         return prisma.budget.findMany({
             include: {
                 client: true,
-                equipament: true
+                equipament: true,
+                items: { select: { totalAmount: true } }
             },
             orderBy: { createdAt: 'desc' }
         })
