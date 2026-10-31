@@ -336,15 +336,26 @@ export interface ServiceCalendarFilters {
     endDate: string;
 }
 
+export type ServiceCalendarEventGroup = "services" | "activities" | "history";
+
 export interface ServiceCalendarEvent {
+    id: string;
     date: string;
-    eventType: "entry" | "exit" | "ongoing";
+    occurredAt: string;
+    group: ServiceCalendarEventGroup;
+    eventType: string;
     serviceId: string;
+    title: string;
+    description: string | null;
+    status: string | null;
+    activityStartAt?: string | null;
+    activityEndAt?: string | null;
 }
 
 export interface ServiceCalendarResponse {
     period: ServiceCalendarFilters;
     total: number;
+    eventTotal: number;
     services: ServiceSummary[];
     events: ServiceCalendarEvent[];
 }
