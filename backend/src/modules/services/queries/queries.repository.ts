@@ -438,6 +438,7 @@ class QueriesRepository {
             OR: [
                 {startAt: {gte: startDate, lt: endDateExclusive}},
                 {endAt: {gte: startDate, lt: endDateExclusive}},
+                {updatedAt: {gte: startDate, lt: endDateExclusive}},
                 {
                     startAt: {lt: startDate},
                     OR: [{endAt: null}, {endAt: {gte: startDate}}]
@@ -480,7 +481,8 @@ class QueriesRepository {
                         startAt: true,
                         endAt: true,
                         status: true,
-                        createdAt: true
+                        createdAt: true,
+                        updatedAt: true
                     },
                     orderBy: [{createdAt: 'asc'}, {id: 'asc'}]
                 },
