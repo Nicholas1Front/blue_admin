@@ -1,5 +1,6 @@
 import {AppError} from '../../../shared/errors/AppError.js'
 import {allowedServiceStatus} from '../shared/allowedServiceStatus.js'
+import {normalizeHistoryRecords} from '../shared/historyLocalization.js'
 import queriesRepository from './queries.repository.js'
 import type {FindServicesByFiltersQueryDTO, ServiceCalendarQueryDTO, ServiceDashboardQueryDTO, ServiceMetricsQueryDTO} from './queries.schema.js'
 
@@ -340,7 +341,7 @@ class QueriesService {
                 },
                 transactions
             },
-            history
+            history : normalizeHistoryRecords(history)
         }
     }
 }
