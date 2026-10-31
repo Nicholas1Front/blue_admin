@@ -5,6 +5,7 @@ import { undefinedToNull } from '../../shared/helpers/objects/undefinedToNull.js
 import { removeUndefined } from './../../shared/helpers/objects/removeUndefined.js';
 import {verifyForUpdate} from './shared/verifyClientAndEquipament.js'
 import {allowedServiceStatus} from './shared/allowedServiceStatus.js'
+import {normalizeHistoryRecords} from './shared/historyLocalization.js'
 
 import servicesRepository from './services.repository.js'
 
@@ -161,7 +162,7 @@ class ServicesService{
 
         return rawServices.map(service => ({
             ...service,
-            history : rawHistories.filter(history => history.serviceId === service.id)
+            history : normalizeHistoryRecords(rawHistories.filter(history => history.serviceId === service.id))
         }))
     }
 
