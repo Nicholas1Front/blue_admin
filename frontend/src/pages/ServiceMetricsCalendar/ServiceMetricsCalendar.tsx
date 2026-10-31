@@ -113,8 +113,10 @@ const historyEventLabels: Record<string, string> = {
     atividade_atualizada: "Atividade atualizada",
     atividade_excluida: "Atividade excluída",
     lancamento_vinculado: "Lançamento financeiro vinculado",
+    lancamento_atualizado: "Lançamento financeiro atualizado",
     lancamento_desvinculado: "Lançamento financeiro desvinculado",
     dizimo_pago: "Dízimo pago",
+    dizimo_atualizado: "Lançamento do dízimo atualizado",
     dizimo_desvinculado: "Vínculo do dízimo removido"
 };
 
