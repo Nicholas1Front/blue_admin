@@ -109,11 +109,14 @@ class TransactionsRepository {
                 where: { id }
             })
 
+            const transactionType = transaction?.type === 'income' ? 'entrada' : 'despesa'
+            const referenceDate = transaction?.referenceDate.toLocaleDateString('pt-BR', {timeZone: 'UTC'}) ?? 'data não informada'
+
             await tx.serviceHistory.create({
                 data: {
                     serviceId,
                     eventType: 'lancamento_vinculado',
-                    description: `Lançamento financeiro "${transaction?.description ?? id}" (ID: ${id}) vinculado ao serviço. Valor: R$ ${Number(transaction?.value ?? 0).toFixed(2)}.`
+                    description: `Lançamento de ${transactionType} "${transaction?.description ?? id}" (ID: ${id}) vinculado ao serviço. Valor: R$ ${Number(transaction?.value ?? 0).toFixed(2)}. Data de referência: ${referenceDate}.`
                 }
             })
 
@@ -139,11 +142,15 @@ class TransactionsRepository {
                 return false
             }
 
+            const transaction = await tx.financialTransaction.findUnique({where: {id}})
+            const transactionType = transaction?.type === 'income' ? 'entrada' : 'despesa'
+            const referenceDate = transaction?.referenceDate.toLocaleDateString('pt-BR', {timeZone: 'UTC'}) ?? 'data não informada'
+
             await tx.serviceHistory.create({
                 data: {
                     serviceId,
                     eventType: 'lancamento_desvinculado',
-                    description: `Lançamento financeiro ${id} desvinculado do serviço.`
+                    description: `Lançamento de ${transactionType} "${transaction?.description ?? id}" (ID: ${id}) desvinculado do serviço. Valor: R$ ${Number(transaction?.value ?? 0).toFixed(2)}. Data de referência: ${referenceDate}.`
                 }
             })
 
@@ -201,11 +208,12 @@ class TransactionsRepository {
                 throw new Error('TITHE_LINK_CONFLICT')
             }
 
+            const transaction = await tx.financialTransaction.findUnique({where: {id: transactionId}})
             await tx.serviceHistory.create({
                 data : {
                     serviceId,
                     eventType : 'dizimo_pago',
-                    description : `Dízimo marcado como pago. Lançamento financeiro vinculado: ${transactionId}.`
+                    description : `Dízimo marcado como pago. Lançamento financeiro "${transaction?.description ?? transactionId}" vinculado (ID: ${transactionId}), no valor de R$ ${Number(transaction?.value ?? 0).toFixed(2)}.`
                 }
             })
 
@@ -255,11 +263,12 @@ class TransactionsRepository {
                 throw new Error('TITHE_LINK_CONFLICT')
             }
 
+            const transaction = await tx.financialTransaction.findUnique({where: {id: transactionId}})
             await tx.serviceHistory.create({
                 data : {
                     serviceId,
                     eventType : 'dizimo_desvinculado',
-                    description : `Vínculo do dízimo removido. Lançamento financeiro desvinculado: ${transactionId}.`
+                    description : `Vínculo do dízimo removido. Lançamento financeiro "${transaction?.description ?? transactionId}" desvinculado (ID: ${transactionId}), no valor de R$ ${Number(transaction?.value ?? 0).toFixed(2)}.`
                 }
             })
 
