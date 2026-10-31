@@ -24,6 +24,14 @@ const legacyDescriptionPrefixes: Array<[string, string]> = [
     ["Tithe transaction", "Lançamento do dízimo"]
 ]
 
+const changedFieldLabels: Record<string, string> = {
+    title: "título",
+    description: "descrição",
+    startAt: "data de início",
+    endAt: "data de término",
+    status: "status"
+}
+
 export function normalizeHistoryRecord<T extends HistoryRecord>(record: T): T {
     let description = record.description
 
@@ -40,11 +48,19 @@ export function normalizeHistoryRecord<T extends HistoryRecord>(record: T): T {
         .replace(" linked - transaction : ", " vinculado. Lançamento: ")
         .replace(" unlinked - transaction : ", " desvinculado. Lançamento: ")
         .replace(" Changed fields: ", " Campos alterados: ")
-        .replace("title", "título")
-        .replace("description", "descrição")
-        .replace("startAt", "data de início")
-        .replace("endAt", "data de término")
-        .replace("status", "status")
+
+    const changedFieldsMarker = "Campos alterados: "
+    const changedFieldsIndex = description.indexOf(changedFieldsMarker)
+
+    if (changedFieldsIndex >= 0) {
+        const prefix = description.slice(0, changedFieldsIndex + changedFieldsMarker.length)
+        const fields = description
+            .slice(changedFieldsIndex + changedFieldsMarker.length)
+            .replace(/\.$/, "")
+            .split(",")
+            .map(field => changedFieldLabels[field.trim()] ?? field.trim())
+        description = prefix + fields.join(", ") + "."
+    }
 
     return {
         ...record,
