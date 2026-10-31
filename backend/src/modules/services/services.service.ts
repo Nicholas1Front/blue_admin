@@ -54,6 +54,10 @@ class ServicesService{
             throw new AppError('Exit date cannot be before entry date', 400, 'INVALID_SERVICE_PERIOD')
         }
 
+        const historyDescription = cleanedData.description.trim()
+            ? `Serviço criado. ${cleanedData.description}`
+            : 'Serviço criado.'
+
         const service = await servicesRepository.createService(
             cleanedData.clientId,
             cleanedData.equipamentId,
@@ -63,7 +67,7 @@ class ServicesService{
             cleanedData.hoursWorked,
             null,
             'servico_criado',
-            cleanedData.description
+            historyDescription
         )
 
         return service
