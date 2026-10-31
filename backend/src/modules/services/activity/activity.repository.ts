@@ -58,7 +58,7 @@ class ActivityRepository{
                 data : {
                     serviceId,
                     eventType : 'atividade_criada',
-                    description : `Atividade criada: ${title}.`
+                    description : `Atividade criada: ${title}. Status inicial: ${status.replaceAll('_', ' ')}.`
                 }
             })
 
@@ -187,11 +187,15 @@ class ActivityRepository{
                 }
             })
 
+            const statusDescription = data.status !== undefined && data.status !== existingActivity.status
+                ? ` Status alterado de "${existingActivity.status.replaceAll('_', ' ')}" para "${activity.status.replaceAll('_', ' ')}".`
+                : ''
+
             await tx.serviceHistory.create({
                 data : {
                     serviceId : existingActivity.serviceId,
                     eventType : 'atividade_atualizada',
-                    description : `Atividade "${activity.title}" atualizada. Campos alterados: ${Object.keys(data).map(field => (activityFieldLabels[field] ?? field)).join(', ')}.`
+                    description : `Atividade "${activity.title}" atualizada. Campos alterados: ${Object.keys(data).map(field => (activityFieldLabels[field] ?? field)).join(', ')}.${statusDescription}`
                 }
             })
 
@@ -217,7 +221,7 @@ class ActivityRepository{
                 data : {
                     serviceId : activity.serviceId,
                     eventType : 'atividade_excluida',
-                    description : `Atividade excluída: ${activity.title}.`
+                    description : `Atividade excluída: ${activity.title}. Último status: ${activity.status.replaceAll('_', ' ')}.`
                 }
             })
 
