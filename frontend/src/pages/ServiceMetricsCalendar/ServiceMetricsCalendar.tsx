@@ -737,7 +737,7 @@ function CalendarView({ monthKey, onMonthChange }: {
                                                             <strong>{event.group === "activities" ? event.title : getEventLabel(event)}</strong>
                                                             {event.group === "activities" && <small>{getEventLabel(event)}</small>}
                                                             {event.description && <span>{event.description}</span>}
-                                                            {event.status && (
+                                                            {event.status && event.group === "activities" && (
                                                                 <small>Status: {getStatusLabel(event.status)}</small>
                                                             )}
                                                             {event.group === "activities" && (event.activityStartAt || event.activityEndAt) && (
