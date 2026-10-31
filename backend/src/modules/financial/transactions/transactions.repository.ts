@@ -25,15 +25,63 @@ class TransactionsRepository{
         id : string,
         data : any
     ){
-        return prisma.financialTransaction.update({
-            where : { id },
-            data : {
-                categoryId : data.categoryId,
-                description : data.description,
-                value : data.value,
-                type : data.type,
-                referenceDate : data.referenceDate
+        return prisma.$transaction(async tx => {
+            const existing = await tx.financialTransaction.findUnique({
+                where: {id}
+            })
+
+            if(!existing){
+                return null
             }
+
+            const updated = await tx.financialTransaction.update({
+                where : { id },
+                data : {
+                    categoryId : data.categoryId,
+                    description : data.description,
+                    value : data.value,
+                    type : data.type,
+                    referenceDate : data.referenceDate
+                }
+            })
+
+            if(
+                existing.originId !== null &&
+                (existing.originType === 'services' || existing.originType === 'service_tithe')
+            ){
+                const changes: string[] = []
+
+                if(data.description !== undefined && data.description !== existing.description){
+                    changes.push(`descrição: "${existing.description}" → "${updated.description}"`)
+                }
+                if(data.value !== undefined && Number(data.value) !== Number(existing.value)){
+                    changes.push(`valor: R$ ${Number(existing.value).toFixed(2)} → R$ ${Number(updated.value).toFixed(2)}`)
+                }
+                if(data.type !== undefined && data.type !== existing.type){
+                    changes.push(`tipo: ${existing.type === 'income' ? 'entrada' : 'despesa'} → ${updated.type === 'income' ? 'entrada' : 'despesa'}`)
+                }
+                if(data.categoryId !== undefined && data.categoryId !== existing.categoryId){
+                    changes.push('categoria alterada')
+                }
+                if(data.referenceDate !== undefined && data.referenceDate.getTime() !== existing.referenceDate.getTime()){
+                    const previousDate = existing.referenceDate.toLocaleDateString('pt-BR', {timeZone: 'UTC'})
+                    const nextDate = updated.referenceDate.toLocaleDateString('pt-BR', {timeZone: 'UTC'})
+                    changes.push(`data de referência: ${previousDate} → ${nextDate}`)
+                }
+
+                if(changes.length > 0){
+                    const isTithe = existing.originType === 'service_tithe'
+                    await tx.serviceHistory.create({
+                        data: {
+                            serviceId: existing.originId,
+                            eventType: isTithe ? 'dizimo_atualizado' : 'lancamento_atualizado',
+                            description: `${isTithe ? 'Lançamento do dízimo' : 'Lançamento financeiro'} atualizado (ID: ${id}). ${changes.join('; ')}.`
+                        }
+                    })
+                }
+            }
+
+            return updated
         })
     }
 
