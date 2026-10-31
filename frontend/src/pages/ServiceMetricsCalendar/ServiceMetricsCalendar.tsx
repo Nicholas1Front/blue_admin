@@ -1,5 +1,5 @@
 import { useMemo, useState, type ReactNode } from "react";
-import { Link } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faArrowRightFromBracket,
@@ -26,7 +26,6 @@ import {
 } from "recharts";
 
 import { AppHeader } from "../../components/AppHeader/AppHeader";
-import { BackLink } from "../../components/BackLink/BackLink";
 import {
     useServiceCalendar,
     useServiceMetrics
@@ -527,10 +526,12 @@ function CalendarView({ monthKey, onMonthChange }: {
     monthKey: string;
     onMonthChange: (month: string) => void;
 }) {
+    const navigate = useNavigate();
     const range = getMonthRange(monthKey);
     const calendarQuery = useServiceCalendar(range);
     const calendar = calendarQuery.data;
-    const [selectedDate, setSelectedDate] = useState(range.startDate);
+    const [selectedDate, setSelectedDate] = useState<string | null>(null);
+    const [activeEventFilter, setActiveEventFilter] = useState<string | null>(null);
 
     const firstDate = useMemo(() => {
         const [year, month] = monthKey.split("-").map(Number);
@@ -559,41 +560,58 @@ function CalendarView({ monthKey, onMonthChange }: {
         (calendar?.services ?? []).map(service => [service.id, service])
     ), [calendar?.services]);
 
-    const selectedEvents = eventsByDate.get(selectedDate) ?? [];
+    const eventFilters = useMemo(() => {
+        const filters = new Map<string, { key: string; group: ServiceCalendarEventGroup; label: string; count: number }>();
+        (calendar?.events ?? []).forEach(event => {
+            const key = event.group === "history" ? "history:" + event.eventType : event.group + ":" + (event.status ?? "sem_status");
+            const label = event.group === "history"
+                ? historyEventLabels[event.eventType] ?? event.title
+                : getStatusLabel(event.status) ?? "Sem status";
+            const current = filters.get(key);
+            if (current) current.count += 1;
+            else filters.set(key, { key, group: event.group, label, count: 1 });
+        });
+        return Array.from(filters.values()).sort((a, b) =>
+            ["services", "activities", "history"].indexOf(a.group) - ["services", "activities", "history"].indexOf(b.group) ||
+            a.label.localeCompare(b.label, "pt-BR")
+        );
+    }, [calendar?.events]);
+
+    const visibleEvents = useMemo(() => (calendar?.events ?? []).filter(event => {
+        if (selectedDate && event.date !== selectedDate) return false;
+        if (!activeEventFilter) return true;
+        const key = event.group === "history" ? "history:" + event.eventType : event.group + ":" + (event.status ?? "sem_status");
+        return key === activeEventFilter;
+    }), [calendar?.events, selectedDate, activeEventFilter]);
+
     const selectedByService = useMemo(() => {
         const grouped = new Map<string, Record<ServiceCalendarEventGroup, ServiceCalendarEvent[]>>();
-
-        selectedEvents.forEach(event => {
-            const groups = grouped.get(event.serviceId) ?? {
-                services: [],
-                activities: [],
-                history: []
-            };
+        visibleEvents.forEach(event => {
+            const groups = grouped.get(event.serviceId) ?? { services: [], activities: [], history: [] };
             groups[event.group].push(event);
             grouped.set(event.serviceId, groups);
         });
-
         return Array.from(grouped.entries())
-            .map(([serviceId, groups]) => ({
-                service: servicesById.get(serviceId),
-                groups
-            }))
+            .map(([serviceId, groups]) => ({ service: servicesById.get(serviceId), groups }))
             .filter((item): item is {
                 service: ServiceSummary;
                 groups: Record<ServiceCalendarEventGroup, ServiceCalendarEvent[]>
-            } => Boolean(item.service));
-    }, [selectedEvents, servicesById]);
+            } => Boolean(item.service))
+            .sort((a, b) => a.service.client.name.localeCompare(b.service.client.name, "pt-BR"));
+    }, [visibleEvents, servicesById]);
 
     function changeMonth(amount: number) {
         const nextMonth = shiftMonth(monthKey, amount);
         onMonthChange(nextMonth);
-        setSelectedDate(nextMonth + "-01");
+        setSelectedDate(null);
+        setActiveEventFilter(null);
     }
 
     function handleMonthInput(value: string) {
         if (!value) return;
         onMonthChange(value);
-        setSelectedDate(value + "-01");
+        setSelectedDate(null);
+        setActiveEventFilter(null);
     }
 
     const monthLabel = new Intl.DateTimeFormat("pt-BR", {
@@ -658,7 +676,7 @@ function CalendarView({ monthKey, onMonthChange }: {
                                     disabled={!isCurrentMonth}
                                     aria-pressed={isSelected}
                                     aria-label={formatDate(dateKey) + ", " + events.length + " eventos"}
-                                    onClick={() => setSelectedDate(dateKey)}
+                                    onClick={() => setSelectedDate(current => current === dateKey ? null : dateKey)}
                                 >
                                     <span className="service-insight-calendar__date">{date.getDate()}</span>
                                     <span className="service-insight-calendar__events">
@@ -688,26 +706,37 @@ function CalendarView({ monthKey, onMonthChange }: {
                 <header className="service-insight-panel__header">
                     <div>
                         <span className="service-insight-eyebrow">Movimentações do dia</span>
-                        <h3>{formatDate(selectedDate)}</h3>
-                        <p>Eventos agrupados primeiro por serviço e depois por categoria.</p>
+                        <h3>{selectedDate ? formatDate(selectedDate) : "Todas as movimentações do mês"}</h3>
+                        <p>Filtre por status ou ação e localize cada registro dentro do serviço correspondente.</p>
                     </div>
-                    <span className="service-insight-panel__tag">{selectedEvents.length} eventos</span>
+                    <span className="service-insight-panel__tag">{visibleEvents.length} eventos</span>
                 </header>
+
+                <div className="service-insight-event-filters">
+                    <button type="button" className={!selectedDate && !activeEventFilter ? "is-active" : ""} onClick={() => { setSelectedDate(null); setActiveEventFilter(null); }}>
+                        Todo o mês <small>{calendar?.eventTotal ?? 0}</small>
+                    </button>
+                    {selectedDate && <button type="button" className="service-insight-event-filters__clear" onClick={() => setSelectedDate(null)}>Limpar data: {formatDate(selectedDate)} ×</button>}
+                    {eventFilters.map(filter => (
+                        <button type="button" key={filter.key} className={activeEventFilter === filter.key ? "is-active" : ""} aria-pressed={activeEventFilter === filter.key} onClick={() => setActiveEventFilter(current => current === filter.key ? null : filter.key)}>
+                            <i className={"service-insight-event-dot service-insight-event-dot--" + filter.group} />
+                            {eventGroupLabels[filter.group]} · {filter.label}
+                            <small>{filter.count}</small>
+                        </button>
+                    ))}
+                </div>
 
                 {calendarQuery.isPending ? (
                     <div className="service-insight-state">Carregando eventos…</div>
                 ) : calendarQuery.isError ? (
                     <div className="service-insight-state">Os eventos não estão disponíveis.</div>
                 ) : selectedByService.length === 0 ? (
-                    <div className="service-insight-state">Nenhuma movimentação registrada para este dia.</div>
+                    <div className="service-insight-state">Nenhuma movimentação encontrada com os filtros selecionados.</div>
                 ) : (
                     <div className="service-insight-day-list">
                         {selectedByService.map(({ service, groups }) => (
                             <article className="service-insight-day-service" key={service.id}>
-                                <Link
-                                    className="service-insight-day-service__header"
-                                    to={"/services/" + encodeURIComponent(service.id)}
-                                >
+                                <a className="service-insight-day-service__header" href={"/services/" + encodeURIComponent(service.id)} onClick={event => { event.preventDefault(); navigate("/services/" + encodeURIComponent(service.id)); }}>
                                     <span className="service-insight-day-service__identity">
                                         <strong>{service.client.name}</strong>
                                         <small>{formatEquipment(service) || "Equipamento não identificado"}</small>
@@ -716,7 +745,7 @@ function CalendarView({ monthKey, onMonthChange }: {
                                         {statusLabels[service.status] ?? service.status}
                                     </span>
                                     <span className="service-insight-day-row__arrow">Ver serviço →</span>
-                                </Link>
+                                </a>
 
                                 {(["services", "activities", "history"] as const).map(group => {
                                     const groupEvents = groups[group];
@@ -731,15 +760,25 @@ function CalendarView({ monthKey, onMonthChange }: {
                                             </header>
                                             <div className="service-insight-event-group__items">
                                                 {groupEvents.map(event => (
-                                                    <div className="service-insight-timeline-event" key={event.id}>
+                                                    <a
+                                                        className="service-insight-timeline-event"
+                                                        key={event.id}
+                                                        href={"/services/" + encodeURIComponent(service.id) + (event.group === "activities" && event.activityId ? "#service-activity-" + encodeURIComponent(event.activityId) : event.group === "history" ? "#service-history-" + encodeURIComponent(event.id) : "")}
+                                                        onClick={eventClick => {
+                                                            eventClick.preventDefault();
+                                                            const target = event.group === "activities" && event.activityId
+                                                                ? "#service-activity-" + encodeURIComponent(event.activityId)
+                                                                : event.group === "history" ? "#service-history-" + encodeURIComponent(event.id) : "";
+                                                            navigate("/services/" + encodeURIComponent(service.id) + target);
+                                                        }}
+                                                    >
+                                                        <span className="service-insight-timeline-event__date">{formatDate(event.date)}</span>
                                                         <span className="service-insight-timeline-event__time">{formatTime(event.occurredAt)}</span>
                                                         <span className="service-insight-timeline-event__body">
                                                             <strong>{event.group === "activities" ? event.title : getEventLabel(event)}</strong>
                                                             {event.group === "activities" && <small>{getEventLabel(event)}</small>}
                                                             {event.description && <span>{event.description}</span>}
-                                                            {event.status && event.group === "activities" && (
-                                                                <small>Status: {getStatusLabel(event.status)}</small>
-                                                            )}
+                                                            {event.status && <small>Status: {getStatusLabel(event.status)}</small>}
                                                             {event.group === "activities" && (event.activityStartAt || event.activityEndAt) && (
                                                                 <small>
                                                                     {event.activityStartAt ? "Início: " + formatDate(event.activityStartAt) : ""}
@@ -748,7 +787,8 @@ function CalendarView({ monthKey, onMonthChange }: {
                                                                 </small>
                                                             )}
                                                         </span>
-                                                    </div>
+                                                        <span className="service-insight-timeline-event__action">Abrir →</span>
+                                                    </a>
                                                 ))}
                                             </div>
                                         </section>
@@ -771,6 +811,7 @@ function CalendarView({ monthKey, onMonthChange }: {
 export function ServiceMetricsCalendar() {
     document.title = "Métricas e calendário | Blue Admin";
 
+    const navigate = useNavigate();
     const now = new Date();
     const currentYear = now.getFullYear();
     const [activeView, setActiveView] = useState<"metrics" | "calendar">("metrics");
@@ -784,7 +825,10 @@ export function ServiceMetricsCalendar() {
         <main className="service-insight-page">
             <AppHeader />
             <nav className="page-back-row" aria-label="Navegação da página">
-                <BackLink to="/services" label="Voltar ao dashboard de serviços" />
+                <button type="button" className="back-link" aria-label="Voltar ao dashboard de serviços" title="Voltar ao dashboard de serviços" onClick={() => navigate("/services")}>
+                    <FontAwesomeIcon icon={faChevronLeft} aria-hidden="true" />
+                    <span className="back-link__label">Voltar ao dashboard de serviços</span>
+                </button>
             </nav>
 
             <div className="service-insight-content">
