@@ -78,7 +78,7 @@ class BudgetRepository {
         })
     }
 
-    update(id: string, data: Record<string, any>, eventDescription: string) {
+    update(id: string, data: any, eventDescription: string) {
         return prisma.$transaction(async tx => {
             const current = await tx.budget.findUnique({ where: { id } })
             if (!current) return null

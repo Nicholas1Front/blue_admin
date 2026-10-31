@@ -3,6 +3,10 @@ import { prisma } from '../../../shared/database/prisma.js'
 import { AppError } from '../../../shared/errors/AppError.js'
 
 class BudgetItemRepository {
+    budgetExists(budgetId: string) {
+        return prisma.budget.findUnique({ where: { id: budgetId }, select: { id: true } })
+    }
+
     create(budgetId: string, data: {
         title: string
         description?: string | null | undefined
@@ -72,7 +76,7 @@ class BudgetItemRepository {
         })
     }
 
-    update(id: string, data: Record<string, any>, description: string) {
+    update(id: string, data: any, description: string) {
         return prisma.$transaction(async tx => {
             const current = await tx.budgetItem.findUnique({ where: { id } })
             if (!current) return null

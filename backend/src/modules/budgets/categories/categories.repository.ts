@@ -12,7 +12,7 @@ class BudgetCategoryRepository {
         })
     }
 
-    update(id: string, data: Record<string, unknown>) {
+    update(id: string, data: any) {
         return prisma.budgetCategory.update({
             where: { id },
             data
