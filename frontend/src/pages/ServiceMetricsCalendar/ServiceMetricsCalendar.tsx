@@ -124,6 +124,7 @@ const activityEventLabels: Record<string, string> = {
     atividade: "Atividade programada",
     atividade_em_andamento: "Atividade em andamento",
     atividade_registrada: "Atividade registrada",
+    atividade_atualizada: "Atividade atualizada",
     atividade_finalizada: "Atividade encerrada"
 };
 
