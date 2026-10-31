@@ -393,6 +393,36 @@ class QueriesService {
                         activityEndAt: activityEnd.toISOString()
                     })
                 }
+
+                const hasActivityEventInPeriod =
+                    (activityStart !== null && isInsidePeriod(activityStart)) ||
+                    (activityEnd !== null && isInsidePeriod(activityEnd)) ||
+                    (
+                        activityStart !== null &&
+                        activityStart < startDate &&
+                        (activityEnd === null || activityEnd >= startDate)
+                    ) ||
+                    (activityStart === null && activityEnd === null && isInsidePeriod(activityCreated))
+
+                if (
+                    !hasActivityEventInPeriod &&
+                    isInsidePeriod(activity.updatedAt) &&
+                    activity.updatedAt > activityCreated
+                ) {
+                    events.push({
+                        id: activity.id + ':atualizada',
+                        date: toDate(activity.updatedAt),
+                        occurredAt: activity.updatedAt.toISOString(),
+                        group: 'activities',
+                        eventType: 'atividade_atualizada',
+                        serviceId: service.id,
+                        title: activity.title,
+                        description: activityDescription,
+                        status: activityStatus,
+                        activityStartAt: activityStart?.toISOString() ?? null,
+                        activityEndAt: activityEnd?.toISOString() ?? null
+                    })
+                }
             }
 
             const normalizedHistory = normalizeHistoryRecords(service.history)
