@@ -1,5 +1,13 @@
 import {prisma} from '../../../shared/database/prisma.js';
 
+const activityFieldLabels: Record<string, string> = {
+    title: 'título',
+    description: 'descrição',
+    startAt: 'data de início',
+    endAt: 'data de término',
+    status: 'status'
+}
+
 class ActivityRepository{
 
     async findServiceById(
@@ -183,7 +191,7 @@ class ActivityRepository{
                 data : {
                     serviceId : existingActivity.serviceId,
                     eventType : 'atividade_atualizada',
-                    description : `Atividade "${activity.title}" atualizada. Campos alterados: ${Object.keys(data).map(field => ({title: 'título', description: 'descrição', startAt: 'data de início', endAt: 'data de término', status: 'status'}[field] ?? field)).join(', ')}.`
+                    description : `Atividade "${activity.title}" atualizada. Campos alterados: ${Object.keys(data).map(field => (activityFieldLabels[field] ?? field)).join(', ')}.`
                 }
             })
 
