@@ -151,6 +151,13 @@ function formatTime(value: string) {
     });
 }
 
+function getEventTime(event: ServiceCalendarEvent) {
+    if (event.group === "services") return null;
+    const date = new Date(event.occurredAt);
+    if (event.group === "activities" && date.getUTCHours() === 0 && date.getUTCMinutes() === 0) return null;
+    return formatTime(event.occurredAt);
+}
+
 function formatCurrency(value: number | null | undefined) {
     return currencyFormatter.format(Number(value ?? 0));
 }
@@ -705,7 +712,7 @@ function CalendarView({ monthKey, onMonthChange }: {
             <section className="service-insight-panel service-insight-day-panel">
                 <header className="service-insight-panel__header">
                     <div>
-                        <span className="service-insight-eyebrow">Movimentações do dia</span>
+                        <span className="service-insight-eyebrow">Movimentações</span>
                         <h3>{selectedDate ? formatDate(selectedDate) : "Todas as movimentações do mês"}</h3>
                         <p>Filtre por status ou ação e localize cada registro dentro do serviço correspondente.</p>
                     </div>
@@ -773,7 +780,7 @@ function CalendarView({ monthKey, onMonthChange }: {
                                                         }}
                                                     >
                                                         <span className="service-insight-timeline-event__date">{formatDate(event.date)}</span>
-                                                        <span className="service-insight-timeline-event__time">{formatTime(event.occurredAt)}</span>
+                                                        {getEventTime(event) && <span className="service-insight-timeline-event__time">{getEventTime(event)}</span>}
                                                         <span className="service-insight-timeline-event__body">
                                                             <strong>{event.group === "activities" ? event.title : getEventLabel(event)}</strong>
                                                             {event.group === "activities" && <small>{getEventLabel(event)}</small>}
