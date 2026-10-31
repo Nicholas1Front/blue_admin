@@ -208,12 +208,12 @@ class TransactionsRepository {
                 throw new Error('TITHE_LINK_CONFLICT')
             }
 
-            const transaction = await tx.financialTransaction.findUnique({where: {id: transactionId}})
+            const historyTransaction = await tx.financialTransaction.findUnique({where: {id: transactionId}})
             await tx.serviceHistory.create({
                 data : {
                     serviceId,
                     eventType : 'dizimo_pago',
-                    description : `Dízimo marcado como pago. Lançamento financeiro "${transaction?.description ?? transactionId}" vinculado (ID: ${transactionId}), no valor de R$ ${Number(transaction?.value ?? 0).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}.`
+                    description : `Dízimo marcado como pago. Lançamento financeiro "${historyTransaction?.description ?? transactionId}" vinculado (ID: ${transactionId}), no valor de R$ ${Number(historyTransaction?.value ?? 0).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}.`
                 }
             })
 
@@ -263,12 +263,12 @@ class TransactionsRepository {
                 throw new Error('TITHE_LINK_CONFLICT')
             }
 
-            const transaction = await tx.financialTransaction.findUnique({where: {id: transactionId}})
+            const historyTransaction = await tx.financialTransaction.findUnique({where: {id: transactionId}})
             await tx.serviceHistory.create({
                 data : {
                     serviceId,
                     eventType : 'dizimo_desvinculado',
-                    description : `Vínculo do dízimo removido. Lançamento financeiro "${transaction?.description ?? transactionId}" desvinculado (ID: ${transactionId}), no valor de R$ ${Number(transaction?.value ?? 0).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}.`
+                    description : `Vínculo do dízimo removido. Lançamento financeiro "${historyTransaction?.description ?? transactionId}" desvinculado (ID: ${transactionId}), no valor de R$ ${Number(historyTransaction?.value ?? 0).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}.`
                 }
             })
 
