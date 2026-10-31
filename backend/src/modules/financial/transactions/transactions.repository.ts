@@ -55,7 +55,7 @@ class TransactionsRepository{
                     changes.push(`descrição: "${existing.description}" → "${updated.description}"`)
                 }
                 if(data.value !== undefined && Number(data.value) !== Number(existing.value)){
-                    changes.push(`valor: R$ ${Number(existing.value).toFixed(2)} → R$ ${Number(updated.value).toFixed(2)}`)
+                    changes.push(`valor: R$ ${Number(existing.value).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})} → R$ ${Number(updated.value).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`)
                 }
                 if(data.type !== undefined && data.type !== existing.type){
                     changes.push(`tipo: ${existing.type === 'income' ? 'entrada' : 'despesa'} → ${updated.type === 'income' ? 'entrada' : 'despesa'}`)
