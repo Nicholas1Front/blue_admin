@@ -783,7 +783,7 @@ export function ServiceMetricsCalendar() {
         <main className="service-insight-page">
             <AppHeader />
             <nav className="page-back-row" aria-label="Navegação da página">
-                <BackLink to="/services" label="Voltar aos serviços" />
+                <BackLink to="/services" label="Voltar ao dashboard de serviços" />
             </nav>
 
             <div className="service-insight-content">
