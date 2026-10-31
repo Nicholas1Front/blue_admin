@@ -281,7 +281,7 @@ class QueriesService {
                     eventType: event.eventType,
                     serviceId: service.id,
                     title: event.title,
-                    description: 'Status atual do serviço: ' + serviceStatus.replaceAll('_', ' ') + '.',
+                    description: null,
                     status: serviceStatus
                 })
             }
@@ -299,7 +299,7 @@ class QueriesService {
                     eventType: 'em_andamento',
                     serviceId: service.id,
                     title: 'Serviço em andamento',
-                    description: 'Status atual do serviço: ' + serviceStatus.replaceAll('_', ' ') + '.',
+                    description: null,
                     status: serviceStatus
                 })
             }
