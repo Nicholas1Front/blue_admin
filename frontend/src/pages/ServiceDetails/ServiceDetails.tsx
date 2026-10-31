@@ -226,7 +226,7 @@ export function ServiceDetails() {
             <title>{details ? `Serviço #${details.service.id.slice(0, 8)} | Blue Admin` : "Detalhes do serviço | Blue Admin"}</title>
             <AppHeader />
             <nav className="page-back-row" aria-label="Navegação da página">
-                <BackLink to="/services" label="Voltar aos serviços" />
+                <BackLink to="/services" label="Voltar ao dashboard de serviços" />
             </nav>
 
                 {details && (
