@@ -14,7 +14,7 @@ import {
     faTruck
 } from "@fortawesome/free-solid-svg-icons";
 import { useParams, useSearchParams } from "react-router-dom";
-import { useState, type ReactNode } from "react";
+import { useEffect, useState, type ReactNode } from "react";
 
 import { AppHeader } from "../../components/AppHeader/AppHeader";
 import { BackLink } from "../../components/BackLink/BackLink";
@@ -178,6 +178,14 @@ export function ServiceDetails() {
     const detailsQuery = useServiceById(serviceId);
     const updateServiceMutation = useUpdateService();
     const details = detailsQuery.data;
+
+    useEffect(() => {
+        if (!details || !window.location.hash) return;
+        const targetId = decodeURIComponent(window.location.hash.slice(1));
+        window.requestAnimationFrame(() => {
+            document.getElementById(targetId)?.scrollIntoView({ behavior: "smooth", block: "start" });
+        });
+    }, [details?.service.id, details?.activities.list.length, details?.history.length]);
 
     function closeCreatedModal() {
         setShowCreatedModal(false);
@@ -452,7 +460,7 @@ export function ServiceDetails() {
                             ) : (
                                 <div className="service-details-activities">
                                     {details.activities.list.map(activity => (
-                                        <article className="service-details-activity" key={activity.id}>
+                                        <article id={"service-activity-" + activity.id} className="service-details-activity" key={activity.id}>
                                             <div className="service-details-activity__top">
                                                 <div>
                                                     <h3>{activity.title}</h3>
@@ -473,7 +481,7 @@ export function ServiceDetails() {
                             )}
                         </section>
 
-                        <section className="service-details-section service-details-section--wide">
+                        <section id="service-history" className="service-details-section service-details-section--wide">
                             <SectionHeading
                                 icon={faClockRotateLeft}
                                 eyebrow="Rastreabilidade"
@@ -490,7 +498,7 @@ export function ServiceDetails() {
                             ) : (
                                 <ol className="service-details-history">
                                     {details.history.map(event => (
-                                        <li className="service-details-history__item" key={event.id}>
+                                        <li id={"service-history-" + event.id} className="service-details-history__item" key={event.id}>
                                             <span className="service-details-history__marker" aria-hidden="true" />
                                             <div className="service-details-history__body">
                                                 <div className="service-details-history__top">
