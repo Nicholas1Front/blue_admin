@@ -112,8 +112,8 @@ class TransactionsRepository {
             await tx.serviceHistory.create({
                 data: {
                     serviceId,
-                    eventType: 'transaction_linked',
-                    description: `Financial transaction ${id} linked to service.`
+                    eventType: 'lancamento_vinculado',
+                    description: `Lançamento financeiro "${transaction?.description ?? id}" (ID: ${id}) vinculado ao serviço. Valor: R$ ${Number(transaction?.value ?? 0).toFixed(2)}.`
                 }
             })
 
@@ -142,8 +142,8 @@ class TransactionsRepository {
             await tx.serviceHistory.create({
                 data: {
                     serviceId,
-                    eventType: 'transaction_unlinked',
-                    description: `Financial transaction ${id} unlinked from service.`
+                    eventType: 'lancamento_desvinculado',
+                    description: `Lançamento financeiro ${id} desvinculado do serviço.`
                 }
             })
 
@@ -204,8 +204,8 @@ class TransactionsRepository {
             await tx.serviceHistory.create({
                 data : {
                     serviceId,
-                    eventType : 'tithe_paid',
-                    description : `Tithe transaction linked - transaction : ${transactionId}`
+                    eventType : 'dizimo_pago',
+                    description : `Dízimo marcado como pago. Lançamento financeiro vinculado: ${transactionId}.`
                 }
             })
 
@@ -258,8 +258,8 @@ class TransactionsRepository {
             await tx.serviceHistory.create({
                 data : {
                     serviceId,
-                    eventType : 'tithe_removed',
-                    description : `Tithe transaction unlinked - transaction : ${transactionId}`
+                    eventType : 'dizimo_desvinculado',
+                    description : `Vínculo do dízimo removido. Lançamento financeiro desvinculado: ${transactionId}.`
                 }
             })
 
