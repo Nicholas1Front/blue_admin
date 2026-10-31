@@ -734,7 +734,8 @@ function CalendarView({ monthKey, onMonthChange }: {
                                                     <div className="service-insight-timeline-event" key={event.id}>
                                                         <span className="service-insight-timeline-event__time">{formatTime(event.occurredAt)}</span>
                                                         <span className="service-insight-timeline-event__body">
-                                                            <strong>{getEventLabel(event)}</strong>
+                                                            <strong>{event.group === "activities" ? event.title : getEventLabel(event)}</strong>
+                                                            {event.group === "activities" && <small>{getEventLabel(event)}</small>}
                                                             {event.description && <span>{event.description}</span>}
                                                             {event.status && (
                                                                 <small>Status: {getStatusLabel(event.status)}</small>
