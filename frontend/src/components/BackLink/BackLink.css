@@ -18,7 +18,7 @@
     text-decoration: none;
     transition: color var(--transition-fast);
     border: 0;
-    font: inherit;
+    font-family: inherit;
     cursor: pointer;
 }
 
