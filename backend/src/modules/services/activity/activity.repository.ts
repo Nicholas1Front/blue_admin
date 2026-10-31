@@ -49,8 +49,8 @@ class ActivityRepository{
             await tx.serviceHistory.create({
                 data : {
                     serviceId,
-                    eventType : 'activity_created',
-                    description : `Activity created: ${title}`
+                    eventType : 'atividade_criada',
+                    description : `Atividade criada: ${title}.`
                 }
             })
 
@@ -182,8 +182,8 @@ class ActivityRepository{
             await tx.serviceHistory.create({
                 data : {
                     serviceId : existingActivity.serviceId,
-                    eventType : 'activity_updated',
-                    description : `Activity updated: ${existingActivity.title}. Changed fields: ${Object.keys(data).join(', ')}.`
+                    eventType : 'atividade_atualizada',
+                    description : `Atividade "${activity.title}" atualizada. Campos alterados: ${Object.keys(data).map(field => ({title: 'título', description: 'descrição', startAt: 'data de início', endAt: 'data de término', status: 'status'}[field] ?? field)).join(', ')}.`
                 }
             })
 
@@ -208,8 +208,8 @@ class ActivityRepository{
             await tx.serviceHistory.create({
                 data : {
                     serviceId : activity.serviceId,
-                    eventType : 'activity_deleted',
-                    description : `Activity deleted: ${activity.title}`
+                    eventType : 'atividade_excluida',
+                    description : `Atividade excluída: ${activity.title}.`
                 }
             })
 
