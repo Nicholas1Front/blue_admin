@@ -26,6 +26,7 @@ import {
 } from "recharts";
 
 import { AppHeader } from "../../components/AppHeader/AppHeader";
+import { BackLink } from "../../components/BackLink/BackLink";
 import {
     useServiceCalendar,
     useServiceMetrics
@@ -818,7 +819,6 @@ function CalendarView({ monthKey, onMonthChange }: {
 export function ServiceMetricsCalendar() {
     document.title = "Métricas e calendário | Blue Admin";
 
-    const navigate = useNavigate();
     const now = new Date();
     const currentYear = now.getFullYear();
     const [activeView, setActiveView] = useState<"metrics" | "calendar">("metrics");
@@ -832,10 +832,7 @@ export function ServiceMetricsCalendar() {
         <main className="service-insight-page">
             <AppHeader />
             <nav className="page-back-row" aria-label="Navegação da página">
-                <button type="button" className="back-link" aria-label="Voltar ao dashboard de serviços" title="Voltar ao dashboard de serviços" onClick={() => navigate("/services")}>
-                    <FontAwesomeIcon icon={faChevronLeft} aria-hidden="true" />
-                    <span className="back-link__label">Voltar ao dashboard de serviços</span>
-                </button>
+                <BackLink to="/services" label="Voltar ao dashboard de serviços" />
             </nav>
 
             <div className="service-insight-content">
