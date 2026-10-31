@@ -5,7 +5,7 @@ import { AppError } from '../../../shared/errors/AppError.js'
 class BudgetItemRepository {
     create(budgetId: string, data: {
         title: string
-        description?: string | null
+        description?: string | null | undefined
         categoryId: string
         quantity: number
         unitValue: number
@@ -96,13 +96,10 @@ class BudgetItemRepository {
                 throw new AppError('Item discount cannot be greater than its gross amount', 400, 'ITEM_DISCOUNT_EXCEEDS_TOTAL')
             }
 
-            const itemData = { ...data }
-            delete itemData.eventType
-
             const item = await tx.budgetItem.update({
                 where: { id },
                 data: {
-                    ...itemData,
+                    ...data,
                     quantity,
                     unitValue,
                     discount,
@@ -172,7 +169,6 @@ class BudgetItemRepository {
         }
 
         const finalAmount = totalAmount.minus(globalDiscount)
-
         await tx.budget.update({
             where: { id: budgetId },
             data: { totalAmount, finalAmount }

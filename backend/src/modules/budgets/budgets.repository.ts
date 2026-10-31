@@ -21,7 +21,7 @@ class BudgetRepository {
         warranty: string
         deliveryTime: string
         paymentCondition: string
-        observations?: string | null
+        observations?: string | null | undefined
         globalDiscount: number
         status: string
     }) {
@@ -81,7 +81,6 @@ class BudgetRepository {
     update(id: string, data: Record<string, any>, eventDescription: string) {
         return prisma.$transaction(async tx => {
             const current = await tx.budget.findUnique({ where: { id } })
-
             if (!current) return null
 
             const aggregate = await tx.budgetItem.aggregate({

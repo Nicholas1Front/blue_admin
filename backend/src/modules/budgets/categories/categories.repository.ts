@@ -1,7 +1,7 @@
 import { prisma } from '../../../shared/database/prisma.js'
 
 class BudgetCategoryRepository {
-    create(data: { name: string; description?: string | null; type: string }) {
+    create(data: { name: string; description?: string | null | undefined; type: string }) {
         return prisma.budgetCategory.create({
             data: {
                 name: data.name,

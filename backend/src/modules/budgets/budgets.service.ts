@@ -73,9 +73,12 @@ class BudgetService {
         }
 
         const changedFields = Object.keys(cleanedData).map(field => fieldLabels[field] ?? field)
-        const description = `Orçamento atualizado. Campos alterados: ${changedFields.join(', ')}.`
-        const budget = await budgetRepository.update(id, cleanedData, description)
+        const statusChanged = cleanedData.status !== undefined && cleanedData.status !== current.status
+        const description = statusChanged
+            ? `Status do orçamento alterado de "${current.status}" para "${cleanedData.status}". Campos alterados: ${changedFields.join(', ')}.`
+            : `Orçamento atualizado. Campos alterados: ${changedFields.join(', ')}.`
 
+        const budget = await budgetRepository.update(id, cleanedData, description)
         if (!budget) throw new AppError('Budget not found', 404, 'BUDGET_NOT_FOUND')
         return budget
     }
