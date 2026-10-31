@@ -29,9 +29,9 @@ class BudgetItemRepository {
 
             const grossAmount = new Prisma.Decimal(data.quantity).mul(new Prisma.Decimal(data.unitValue))
             const discount = new Prisma.Decimal(data.discount)
-            if (discount.gt(grossAmount)) {
-                throw new AppError('Item discount cannot be greater than its gross amount', 400, 'ITEM_DISCOUNT_EXCEEDS_TOTAL')
-            }
+            const itemTotal = grossAmount
+                .mul(new Prisma.Decimal(100).minus(discount))
+                .div(100)
 
             const item = await tx.budgetItem.create({
                 data: {
@@ -42,7 +42,7 @@ class BudgetItemRepository {
                     quantity: new Prisma.Decimal(data.quantity),
                     unitValue: new Prisma.Decimal(data.unitValue),
                     discount,
-                    totalAmount: grossAmount.minus(discount)
+                    totalAmount: itemTotal
                 },
                 include: { category: true }
             })
@@ -53,7 +53,7 @@ class BudgetItemRepository {
                 data: {
                     budgetId,
                     eventType: 'item_orcamento_criado',
-                    description: `Item adicionado ao orçamento: "${item.title}". Total do item: ${item.totalAmount.toString()}.`
+                    description: `Item adicionado ao orçamento: "${item.title}". Desconto: ${discount.toString()}%. Total do item: ${item.totalAmount.toString()}.`
                 }
             })
 
@@ -95,10 +95,9 @@ class BudgetItemRepository {
             const unitValue = data.unitValue !== undefined ? new Prisma.Decimal(data.unitValue) : current.unitValue
             const discount = data.discount !== undefined ? new Prisma.Decimal(data.discount) : current.discount
             const grossAmount = quantity.mul(unitValue)
-
-            if (discount.gt(grossAmount)) {
-                throw new AppError('Item discount cannot be greater than its gross amount', 400, 'ITEM_DISCOUNT_EXCEEDS_TOTAL')
-            }
+            const itemTotal = grossAmount
+                .mul(new Prisma.Decimal(100).minus(discount))
+                .div(100)
 
             const item = await tx.budgetItem.update({
                 where: { id },
@@ -107,7 +106,7 @@ class BudgetItemRepository {
                     quantity,
                     unitValue,
                     discount,
-                    totalAmount: grossAmount.minus(discount)
+                    totalAmount: itemTotal
                 },
                 include: { category: true }
             })
@@ -121,7 +120,7 @@ class BudgetItemRepository {
                 data: {
                     budgetId: current.budgetId,
                     eventType: 'item_orcamento_atualizado',
-                    description
+                    description: `${description} Desconto aplicado: ${discount.toString()}%.`
                 }
             })
 
@@ -163,19 +162,13 @@ class BudgetItemRepository {
         })
 
         const totalAmount = aggregate._sum.totalAmount ?? new Prisma.Decimal(0)
+        const finalAmount = totalAmount
+            .mul(new Prisma.Decimal(100).minus(globalDiscount))
+            .div(100)
 
-        if (globalDiscount.gt(totalAmount)) {
-            throw new AppError(
-                'Global discount cannot be greater than the budget items total. Update the global discount before changing items.',
-                400,
-                'GLOBAL_DISCOUNT_EXCEEDS_TOTAL'
-            )
-        }
-
-        const finalAmount = totalAmount.minus(globalDiscount)
         await tx.budget.update({
             where: { id: budgetId },
-            data: { totalAmount, finalAmount }
+            data: { totalAmount, globalDiscount, finalAmount }
         })
 
         return { totalAmount, globalDiscount, finalAmount }

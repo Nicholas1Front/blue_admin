@@ -1,6 +1,7 @@
 import { z } from 'zod'
 
 const money = z.coerce.number().min(0)
+const percentage = z.coerce.number().min(0).max(100)
 
 export const createBudgetItemSchema = z.object({
     title: z.string().trim().min(1),
@@ -8,7 +9,7 @@ export const createBudgetItemSchema = z.object({
     categoryId: z.string().min(1),
     quantity: z.coerce.number().positive(),
     unitValue: money,
-    discount: money.default(0)
+    discount: percentage.default(0)
 })
 
 export const updateBudgetItemSchema = z.object({
@@ -17,7 +18,7 @@ export const updateBudgetItemSchema = z.object({
     categoryId: z.string().min(1).optional(),
     quantity: z.coerce.number().positive().optional(),
     unitValue: money.optional(),
-    discount: money.optional()
+    discount: percentage.optional()
 }).refine(data => Object.keys(data).length > 0, {
     message: 'At least one field must be provided to update budget item'
 })

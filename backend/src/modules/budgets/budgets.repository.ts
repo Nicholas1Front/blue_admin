@@ -1,6 +1,5 @@
 import { Prisma } from '../../generated/prisma/client.js'
 import { prisma } from '../../shared/database/prisma.js'
-import { AppError } from '../../shared/errors/AppError.js'
 
 class BudgetRepository {
     clientExists(id: string) {
@@ -56,25 +55,8 @@ class BudgetRepository {
         return prisma.budget.findUnique({
             where: { id },
             include: {
-                client: true,
-                equipament: true,
-                items: {
-                    include: { category: true },
-                    orderBy: { createdAt: 'asc' }
-                },
                 history: { orderBy: { createdAt: 'desc' } }
             }
-        })
-    }
-
-    findAll() {
-        return prisma.budget.findMany({
-            include: {
-                client: true,
-                equipament: true,
-                items: { select: { totalAmount: true } }
-            },
-            orderBy: { createdAt: 'desc' }
         })
     }
 
@@ -92,25 +74,17 @@ class BudgetRepository {
             const globalDiscount = data.globalDiscount !== undefined
                 ? new Prisma.Decimal(data.globalDiscount)
                 : current.globalDiscount
-
-            if (globalDiscount.gt(totalAmount)) {
-                throw new AppError(
-                    'Global discount cannot be greater than the budget items total',
-                    400,
-                    'GLOBAL_DISCOUNT_EXCEEDS_TOTAL'
-                )
-            }
-
-            const budgetData = { ...data }
-            delete budgetData.globalDiscount
+            const finalAmount = totalAmount
+                .mul(new Prisma.Decimal(100).minus(globalDiscount))
+                .div(100)
 
             const budget = await tx.budget.update({
                 where: { id },
                 data: {
-                    ...budgetData,
+                    ...data,
                     totalAmount,
                     globalDiscount,
-                    finalAmount: totalAmount.minus(globalDiscount)
+                    finalAmount
                 }
             })
 

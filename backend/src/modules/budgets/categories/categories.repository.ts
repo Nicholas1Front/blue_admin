@@ -1,12 +1,11 @@
 import { prisma } from '../../../shared/database/prisma.js'
 
 class BudgetCategoryRepository {
-    create(data: { name: string; description?: string | null | undefined; type: string }) {
+    create(data: { name: string; description?: string | null | undefined }) {
         return prisma.budgetCategory.create({
             data: {
                 name: data.name,
                 description: data.description ?? null,
-                type: data.type,
                 isActive: true
             }
         })
@@ -31,7 +30,7 @@ class BudgetCategoryRepository {
 
     findAll() {
         return prisma.budgetCategory.findMany({
-            orderBy: [{ type: 'asc' }, { name: 'asc' }]
+            orderBy: { name: 'asc' }
         })
     }
 

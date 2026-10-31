@@ -27,13 +27,6 @@ class BudgetController {
         return res.status(200).json({ message: 'Budget found successfully', data: budget })
     }
 
-    async findAll(req: Request, res: Response) {
-        if (!req.user) throw new AppError('User not authenticated', 401, 'USER_NOT_AUTHENTICATED')
-        const budgets = await budgetService.findAll()
-
-        return res.status(200).json({ message: 'Budgets found successfully', data: budgets })
-    }
-
     async delete(req: Request, res: Response) {
         if (!req.user) throw new AppError('User not authenticated', 401, 'USER_NOT_AUTHENTICATED')
         await budgetService.delete(req.params.id as string)

@@ -1,4 +1,3 @@
-import { Prisma } from '../../generated/prisma/client.js'
 import { AppError } from '../../shared/errors/AppError.js'
 import { removeUndefined } from '../../shared/helpers/objects/removeUndefined.js'
 import { allowedBudgetStatus } from './shared/allowedBudgetStatus.js'
@@ -29,10 +28,6 @@ class BudgetService {
 
         if (!allowedBudgetStatus.includes(data.status)) {
             throw new AppError('Invalid budget status', 400, 'INVALID_BUDGET_STATUS')
-        }
-
-        if (data.globalDiscount > 0) {
-            throw new AppError('Add budget items before applying a global discount', 400, 'GLOBAL_DISCOUNT_WITHOUT_ITEMS')
         }
 
         return budgetRepository.create(data)
@@ -86,38 +81,7 @@ class BudgetService {
     async findById(id: string) {
         const budget = await budgetRepository.findById(id)
         if (!budget) throw new AppError('Budget not found', 404, 'BUDGET_NOT_FOUND')
-
-        const totalAmount = budget.items.reduce(
-            (total, item) => total.plus(item.totalAmount),
-            new Prisma.Decimal(0)
-        )
-
-        if (budget.globalDiscount.gt(totalAmount)) {
-            throw new AppError('Global discount cannot be greater than the budget items total', 400, 'GLOBAL_DISCOUNT_EXCEEDS_TOTAL')
-        }
-
-        return { ...budget, totalAmount, finalAmount: totalAmount.minus(budget.globalDiscount) }
-    }
-
-    async findAll() {
-        const budgets = await budgetRepository.findAll()
-
-        return budgets.map(({ items, ...budget }) => {
-            const totalAmount = items.reduce(
-                (total, item) => total.plus(item.totalAmount),
-                new Prisma.Decimal(0)
-            )
-
-            if (budget.globalDiscount.gt(totalAmount)) {
-                throw new AppError(
-                    `Global discount exceeds the items total for budget ${budget.id}`,
-                    400,
-                    'GLOBAL_DISCOUNT_EXCEEDS_TOTAL'
-                )
-            }
-
-            return { ...budget, totalAmount, finalAmount: totalAmount.minus(budget.globalDiscount) }
-        })
+        return budget
     }
 
     async delete(id: string) {
