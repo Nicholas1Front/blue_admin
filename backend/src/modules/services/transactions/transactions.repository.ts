@@ -116,7 +116,7 @@ class TransactionsRepository {
                 data: {
                     serviceId,
                     eventType: 'lancamento_vinculado',
-                    description: `Lançamento de ${transactionType} "${transaction?.description ?? id}" (ID: ${id}) vinculado ao serviço. Valor: R$ ${Number(transaction?.value ?? 0).toFixed(2)}. Data de referência: ${referenceDate}.`
+                    description: `Lançamento de ${transactionType} "${transaction?.description ?? id}" (ID: ${id}) vinculado ao serviço. Valor: R$ ${Number(transaction?.value ?? 0).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}. Data de referência: ${referenceDate}.`
                 }
             })
 
@@ -150,7 +150,7 @@ class TransactionsRepository {
                 data: {
                     serviceId,
                     eventType: 'lancamento_desvinculado',
-                    description: `Lançamento de ${transactionType} "${transaction?.description ?? id}" (ID: ${id}) desvinculado do serviço. Valor: R$ ${Number(transaction?.value ?? 0).toFixed(2)}. Data de referência: ${referenceDate}.`
+                    description: `Lançamento de ${transactionType} "${transaction?.description ?? id}" (ID: ${id}) desvinculado do serviço. Valor: R$ ${Number(transaction?.value ?? 0).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}. Data de referência: ${referenceDate}.`
                 }
             })
 
@@ -213,7 +213,7 @@ class TransactionsRepository {
                 data : {
                     serviceId,
                     eventType : 'dizimo_pago',
-                    description : `Dízimo marcado como pago. Lançamento financeiro "${transaction?.description ?? transactionId}" vinculado (ID: ${transactionId}), no valor de R$ ${Number(transaction?.value ?? 0).toFixed(2)}.`
+                    description : `Dízimo marcado como pago. Lançamento financeiro "${transaction?.description ?? transactionId}" vinculado (ID: ${transactionId}), no valor de R$ ${Number(transaction?.value ?? 0).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}.`
                 }
             })
 
@@ -268,7 +268,7 @@ class TransactionsRepository {
                 data : {
                     serviceId,
                     eventType : 'dizimo_desvinculado',
-                    description : `Vínculo do dízimo removido. Lançamento financeiro "${transaction?.description ?? transactionId}" desvinculado (ID: ${transactionId}), no valor de R$ ${Number(transaction?.value ?? 0).toFixed(2)}.`
+                    description : `Vínculo do dízimo removido. Lançamento financeiro "${transaction?.description ?? transactionId}" desvinculado (ID: ${transactionId}), no valor de R$ ${Number(transaction?.value ?? 0).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}.`
                 }
             })
 
