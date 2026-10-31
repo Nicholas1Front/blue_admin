@@ -16,6 +16,15 @@ import type {
     findServicesByFiltersDTO
 } from './services.schema.js'
 
+const serviceFieldLabels: Record<string, string> = {
+    clientId: 'cliente',
+    equipamentId: 'equipamento',
+    entryDate: 'data de entrada',
+    exitDate: 'data de saída',
+    hoursWorked: 'horas trabalhadas',
+    costPerHour: 'custo por hora'
+}
+
 class ServicesService{
     async createService(
         data : createServiceDTO
@@ -96,10 +105,18 @@ class ServicesService{
             cleanedData.costPerHour = null
         }
 
+        const changedFields = Object.keys(cleanedData)
+            .filter(field => field !== 'description')
+            .map(field => serviceFieldLabels[field] ?? field)
+        const historyDescription = changedFields.length > 0
+            ? `Serviço atualizado. Campos alterados: ${changedFields.join(', ')}. ${cleanedData.description}`
+            : `Informações do serviço revisadas. ${cleanedData.description}`
+
         const updatedService = await servicesRepository.updateService(
             id,
             {
                 ...cleanedData,
+                description: historyDescription,
                 eventType : 'servico_atualizado'
             }
         )
@@ -123,10 +140,15 @@ class ServicesService{
             throw new AppError('Invalid service status', 400, 'INVALID_SERVICE_STATUS')
         }
 
+        const previousStatus = serviceExists.service.status.replaceAll('_', ' ')
+        const nextStatus = cleanedData.status.replaceAll('_', ' ')
+        const historyDescription = `Status do serviço alterado de "${previousStatus}" para "${nextStatus}". ${cleanedData.description}`
+
         const updatedService = await servicesRepository.updateServiceStatus(
             id,
             {
                 ...cleanedData,
+                description: historyDescription,
                 eventType : 'status_servico_atualizado'
             }
         )
