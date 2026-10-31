@@ -216,6 +216,7 @@ export type EquipamentWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"Equipament"> | Date | string
   client?: Prisma.XOR<Prisma.ClientScalarRelationFilter, Prisma.ClientWhereInput>
   service?: Prisma.ServiceListRelationFilter
+  budgets?: Prisma.BudgetListRelationFilter
 }
 
 export type EquipamentOrderByWithRelationInput = {
@@ -230,6 +231,7 @@ export type EquipamentOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   client?: Prisma.ClientOrderByWithRelationInput
   service?: Prisma.ServiceOrderByRelationAggregateInput
+  budgets?: Prisma.BudgetOrderByRelationAggregateInput
 }
 
 export type EquipamentWhereUniqueInput = Prisma.AtLeast<{
@@ -247,6 +249,7 @@ export type EquipamentWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"Equipament"> | Date | string
   client?: Prisma.XOR<Prisma.ClientScalarRelationFilter, Prisma.ClientWhereInput>
   service?: Prisma.ServiceListRelationFilter
+  budgets?: Prisma.BudgetListRelationFilter
 }, "id">
 
 export type EquipamentOrderByWithAggregationInput = {
@@ -290,6 +293,7 @@ export type EquipamentCreateInput = {
   updatedAt?: Date | string
   client: Prisma.ClientCreateNestedOneWithoutEquipamentsInput
   service?: Prisma.ServiceCreateNestedManyWithoutEquipamentInput
+  budgets?: Prisma.BudgetCreateNestedManyWithoutEquipamentInput
 }
 
 export type EquipamentUncheckedCreateInput = {
@@ -303,6 +307,7 @@ export type EquipamentUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   service?: Prisma.ServiceUncheckedCreateNestedManyWithoutEquipamentInput
+  budgets?: Prisma.BudgetUncheckedCreateNestedManyWithoutEquipamentInput
 }
 
 export type EquipamentUpdateInput = {
@@ -316,6 +321,7 @@ export type EquipamentUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   client?: Prisma.ClientUpdateOneRequiredWithoutEquipamentsNestedInput
   service?: Prisma.ServiceUpdateManyWithoutEquipamentNestedInput
+  budgets?: Prisma.BudgetUpdateManyWithoutEquipamentNestedInput
 }
 
 export type EquipamentUncheckedUpdateInput = {
@@ -329,6 +335,7 @@ export type EquipamentUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   service?: Prisma.ServiceUncheckedUpdateManyWithoutEquipamentNestedInput
+  budgets?: Prisma.BudgetUncheckedUpdateManyWithoutEquipamentNestedInput
 }
 
 export type EquipamentCreateManyInput = {
@@ -473,6 +480,20 @@ export type EquipamentUpdateOneRequiredWithoutServiceNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.EquipamentUpdateToOneWithWhereWithoutServiceInput, Prisma.EquipamentUpdateWithoutServiceInput>, Prisma.EquipamentUncheckedUpdateWithoutServiceInput>
 }
 
+export type EquipamentCreateNestedOneWithoutBudgetsInput = {
+  create?: Prisma.XOR<Prisma.EquipamentCreateWithoutBudgetsInput, Prisma.EquipamentUncheckedCreateWithoutBudgetsInput>
+  connectOrCreate?: Prisma.EquipamentCreateOrConnectWithoutBudgetsInput
+  connect?: Prisma.EquipamentWhereUniqueInput
+}
+
+export type EquipamentUpdateOneRequiredWithoutBudgetsNestedInput = {
+  create?: Prisma.XOR<Prisma.EquipamentCreateWithoutBudgetsInput, Prisma.EquipamentUncheckedCreateWithoutBudgetsInput>
+  connectOrCreate?: Prisma.EquipamentCreateOrConnectWithoutBudgetsInput
+  upsert?: Prisma.EquipamentUpsertWithoutBudgetsInput
+  connect?: Prisma.EquipamentWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.EquipamentUpdateToOneWithWhereWithoutBudgetsInput, Prisma.EquipamentUpdateWithoutBudgetsInput>, Prisma.EquipamentUncheckedUpdateWithoutBudgetsInput>
+}
+
 export type EquipamentCreateWithoutClientInput = {
   id?: string
   type: string
@@ -483,6 +504,7 @@ export type EquipamentCreateWithoutClientInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   service?: Prisma.ServiceCreateNestedManyWithoutEquipamentInput
+  budgets?: Prisma.BudgetCreateNestedManyWithoutEquipamentInput
 }
 
 export type EquipamentUncheckedCreateWithoutClientInput = {
@@ -495,6 +517,7 @@ export type EquipamentUncheckedCreateWithoutClientInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   service?: Prisma.ServiceUncheckedCreateNestedManyWithoutEquipamentInput
+  budgets?: Prisma.BudgetUncheckedCreateNestedManyWithoutEquipamentInput
 }
 
 export type EquipamentCreateOrConnectWithoutClientInput = {
@@ -548,6 +571,7 @@ export type EquipamentCreateWithoutServiceInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   client: Prisma.ClientCreateNestedOneWithoutEquipamentsInput
+  budgets?: Prisma.BudgetCreateNestedManyWithoutEquipamentInput
 }
 
 export type EquipamentUncheckedCreateWithoutServiceInput = {
@@ -560,6 +584,7 @@ export type EquipamentUncheckedCreateWithoutServiceInput = {
   additionalIdentification?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
+  budgets?: Prisma.BudgetUncheckedCreateNestedManyWithoutEquipamentInput
 }
 
 export type EquipamentCreateOrConnectWithoutServiceInput = {
@@ -588,6 +613,7 @@ export type EquipamentUpdateWithoutServiceInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   client?: Prisma.ClientUpdateOneRequiredWithoutEquipamentsNestedInput
+  budgets?: Prisma.BudgetUpdateManyWithoutEquipamentNestedInput
 }
 
 export type EquipamentUncheckedUpdateWithoutServiceInput = {
@@ -600,6 +626,75 @@ export type EquipamentUncheckedUpdateWithoutServiceInput = {
   additionalIdentification?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  budgets?: Prisma.BudgetUncheckedUpdateManyWithoutEquipamentNestedInput
+}
+
+export type EquipamentCreateWithoutBudgetsInput = {
+  id?: string
+  type: string
+  brand: string
+  model?: string | null
+  mainIdentification?: string | null
+  additionalIdentification?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  client: Prisma.ClientCreateNestedOneWithoutEquipamentsInput
+  service?: Prisma.ServiceCreateNestedManyWithoutEquipamentInput
+}
+
+export type EquipamentUncheckedCreateWithoutBudgetsInput = {
+  id?: string
+  clientId: string
+  type: string
+  brand: string
+  model?: string | null
+  mainIdentification?: string | null
+  additionalIdentification?: string | null
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  service?: Prisma.ServiceUncheckedCreateNestedManyWithoutEquipamentInput
+}
+
+export type EquipamentCreateOrConnectWithoutBudgetsInput = {
+  where: Prisma.EquipamentWhereUniqueInput
+  create: Prisma.XOR<Prisma.EquipamentCreateWithoutBudgetsInput, Prisma.EquipamentUncheckedCreateWithoutBudgetsInput>
+}
+
+export type EquipamentUpsertWithoutBudgetsInput = {
+  update: Prisma.XOR<Prisma.EquipamentUpdateWithoutBudgetsInput, Prisma.EquipamentUncheckedUpdateWithoutBudgetsInput>
+  create: Prisma.XOR<Prisma.EquipamentCreateWithoutBudgetsInput, Prisma.EquipamentUncheckedCreateWithoutBudgetsInput>
+  where?: Prisma.EquipamentWhereInput
+}
+
+export type EquipamentUpdateToOneWithWhereWithoutBudgetsInput = {
+  where?: Prisma.EquipamentWhereInput
+  data: Prisma.XOR<Prisma.EquipamentUpdateWithoutBudgetsInput, Prisma.EquipamentUncheckedUpdateWithoutBudgetsInput>
+}
+
+export type EquipamentUpdateWithoutBudgetsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.StringFieldUpdateOperationsInput | string
+  brand?: Prisma.StringFieldUpdateOperationsInput | string
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mainIdentification?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  additionalIdentification?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  client?: Prisma.ClientUpdateOneRequiredWithoutEquipamentsNestedInput
+  service?: Prisma.ServiceUpdateManyWithoutEquipamentNestedInput
+}
+
+export type EquipamentUncheckedUpdateWithoutBudgetsInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  clientId?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.StringFieldUpdateOperationsInput | string
+  brand?: Prisma.StringFieldUpdateOperationsInput | string
+  model?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  mainIdentification?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  additionalIdentification?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  service?: Prisma.ServiceUncheckedUpdateManyWithoutEquipamentNestedInput
 }
 
 export type EquipamentCreateManyClientInput = {
@@ -623,6 +718,7 @@ export type EquipamentUpdateWithoutClientInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   service?: Prisma.ServiceUpdateManyWithoutEquipamentNestedInput
+  budgets?: Prisma.BudgetUpdateManyWithoutEquipamentNestedInput
 }
 
 export type EquipamentUncheckedUpdateWithoutClientInput = {
@@ -635,6 +731,7 @@ export type EquipamentUncheckedUpdateWithoutClientInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   service?: Prisma.ServiceUncheckedUpdateManyWithoutEquipamentNestedInput
+  budgets?: Prisma.BudgetUncheckedUpdateManyWithoutEquipamentNestedInput
 }
 
 export type EquipamentUncheckedUpdateManyWithoutClientInput = {
@@ -655,10 +752,12 @@ export type EquipamentUncheckedUpdateManyWithoutClientInput = {
 
 export type EquipamentCountOutputType = {
   service: number
+  budgets: number
 }
 
 export type EquipamentCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   service?: boolean | EquipamentCountOutputTypeCountServiceArgs
+  budgets?: boolean | EquipamentCountOutputTypeCountBudgetsArgs
 }
 
 /**
@@ -678,6 +777,13 @@ export type EquipamentCountOutputTypeCountServiceArgs<ExtArgs extends runtime.Ty
   where?: Prisma.ServiceWhereInput
 }
 
+/**
+ * EquipamentCountOutputType without action
+ */
+export type EquipamentCountOutputTypeCountBudgetsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.BudgetWhereInput
+}
+
 
 export type EquipamentSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -691,6 +797,7 @@ export type EquipamentSelect<ExtArgs extends runtime.Types.Extensions.InternalAr
   updatedAt?: boolean
   client?: boolean | Prisma.ClientDefaultArgs<ExtArgs>
   service?: boolean | Prisma.Equipament$serviceArgs<ExtArgs>
+  budgets?: boolean | Prisma.Equipament$budgetsArgs<ExtArgs>
   _count?: boolean | Prisma.EquipamentCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["equipament"]>
 
@@ -736,6 +843,7 @@ export type EquipamentOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs
 export type EquipamentInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   client?: boolean | Prisma.ClientDefaultArgs<ExtArgs>
   service?: boolean | Prisma.Equipament$serviceArgs<ExtArgs>
+  budgets?: boolean | Prisma.Equipament$budgetsArgs<ExtArgs>
   _count?: boolean | Prisma.EquipamentCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type EquipamentIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -750,6 +858,7 @@ export type $EquipamentPayload<ExtArgs extends runtime.Types.Extensions.Internal
   objects: {
     client: Prisma.$ClientPayload<ExtArgs>
     service: Prisma.$ServicePayload<ExtArgs>[]
+    budgets: Prisma.$BudgetPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1157,6 +1266,7 @@ export interface Prisma__EquipamentClient<T, Null = never, ExtArgs extends runti
   readonly [Symbol.toStringTag]: "PrismaPromise"
   client<T extends Prisma.ClientDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.ClientDefaultArgs<ExtArgs>>): Prisma.Prisma__ClientClient<runtime.Types.Result.GetResult<Prisma.$ClientPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   service<T extends Prisma.Equipament$serviceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Equipament$serviceArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$ServicePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  budgets<T extends Prisma.Equipament$budgetsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.Equipament$budgetsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BudgetPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1617,6 +1727,30 @@ export type Equipament$serviceArgs<ExtArgs extends runtime.Types.Extensions.Inte
   take?: number
   skip?: number
   distinct?: Prisma.ServiceScalarFieldEnum | Prisma.ServiceScalarFieldEnum[]
+}
+
+/**
+ * Equipament.budgets
+ */
+export type Equipament$budgetsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the Budget
+   */
+  select?: Prisma.BudgetSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the Budget
+   */
+  omit?: Prisma.BudgetOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BudgetInclude<ExtArgs> | null
+  where?: Prisma.BudgetWhereInput
+  orderBy?: Prisma.BudgetOrderByWithRelationInput | Prisma.BudgetOrderByWithRelationInput[]
+  cursor?: Prisma.BudgetWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.BudgetScalarFieldEnum | Prisma.BudgetScalarFieldEnum[]
 }
 
 /**

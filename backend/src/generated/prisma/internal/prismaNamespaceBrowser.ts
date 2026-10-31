@@ -60,7 +60,11 @@ export const ModelName = {
   MonthlyExpense: 'MonthlyExpense',
   Service: 'Service',
   ServiceHistory: 'ServiceHistory',
-  ServiceActivity: 'ServiceActivity'
+  ServiceActivity: 'ServiceActivity',
+  Budget: 'Budget',
+  BudgetItem: 'BudgetItem',
+  BudgetCategory: 'BudgetCategory',
+  BudgetHistory: 'BudgetHistory'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -215,6 +219,67 @@ export const ServiceActivityScalarFieldEnum = {
 } as const
 
 export type ServiceActivityScalarFieldEnum = (typeof ServiceActivityScalarFieldEnum)[keyof typeof ServiceActivityScalarFieldEnum]
+
+
+export const BudgetScalarFieldEnum = {
+  id: 'id',
+  clientId: 'clientId',
+  equipamentId: 'equipamentId',
+  validity: 'validity',
+  warranty: 'warranty',
+  deliveryTime: 'deliveryTime',
+  paymentCondition: 'paymentCondition',
+  observations: 'observations',
+  totalAmount: 'totalAmount',
+  globalDiscount: 'globalDiscount',
+  finalAmount: 'finalAmount',
+  status: 'status',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BudgetScalarFieldEnum = (typeof BudgetScalarFieldEnum)[keyof typeof BudgetScalarFieldEnum]
+
+
+export const BudgetItemScalarFieldEnum = {
+  id: 'id',
+  budgetId: 'budgetId',
+  title: 'title',
+  description: 'description',
+  categoryId: 'categoryId',
+  quantity: 'quantity',
+  unitValue: 'unitValue',
+  totalAmount: 'totalAmount',
+  discount: 'discount',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BudgetItemScalarFieldEnum = (typeof BudgetItemScalarFieldEnum)[keyof typeof BudgetItemScalarFieldEnum]
+
+
+export const BudgetCategoryScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  type: 'type',
+  isActive: 'isActive',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type BudgetCategoryScalarFieldEnum = (typeof BudgetCategoryScalarFieldEnum)[keyof typeof BudgetCategoryScalarFieldEnum]
+
+
+export const BudgetHistoryScalarFieldEnum = {
+  id: 'id',
+  budgetId: 'budgetId',
+  eventType: 'eventType',
+  description: 'description',
+  createdAt: 'createdAt'
+} as const
+
+export type BudgetHistoryScalarFieldEnum = (typeof BudgetHistoryScalarFieldEnum)[keyof typeof BudgetHistoryScalarFieldEnum]
 
 
 export const SortOrder = {

@@ -67,3 +67,23 @@ export type ServiceHistory = Prisma.ServiceHistoryModel
  * 
  */
 export type ServiceActivity = Prisma.ServiceActivityModel
+/**
+ * Model Budget
+ * 
+ */
+export type Budget = Prisma.BudgetModel
+/**
+ * Model BudgetItem
+ * 
+ */
+export type BudgetItem = Prisma.BudgetItemModel
+/**
+ * Model BudgetCategory
+ * 
+ */
+export type BudgetCategory = Prisma.BudgetCategoryModel
+/**
+ * Model BudgetHistory
+ * 
+ */
+export type BudgetHistory = Prisma.BudgetHistoryModel
