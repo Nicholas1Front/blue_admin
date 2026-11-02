@@ -16,6 +16,7 @@ router.use('/prices', budgetPricesRoutes)
 router.use('/queries', budgetQueriesRoutes)
 
 router.post('/create-budget', budgetController.create)
+router.post('/create-budget-from-service', budgetController.createFromService)
 router.put('/update-budget/:id', budgetController.update)
 router.get('/find-budget-by-id/:id', budgetQueriesController.findBudgetById)
 router.get('/find-budgets-by-filters', budgetController.findByFilters)
