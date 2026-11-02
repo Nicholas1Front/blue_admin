@@ -9,7 +9,6 @@ import type {
 } from "./categories.types";
 
 export function useBudgetCategories(filters?: FindBudgetCategoriesFilters) {
-    const queryClient = useQueryClient();
     const hasFilters = Boolean(filters && Object.keys(filters).length > 0);
     const queryFilters = hasFilters ? filters : undefined;
     return useQuery({
