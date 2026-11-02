@@ -1,5 +1,7 @@
 import {z} from 'zod'
 
+const uniqueBudgetItemIds = (ids: string[]) => new Set(ids).size === ids.length
+
 export const createServiceSchema = z.object({
     clientId : z.string().min(1),
     equipamentId : z.string().min(1),
@@ -8,6 +10,14 @@ export const createServiceSchema = z.object({
     status : z.string().min(1).default('pendente'),
     hoursWorked : z.coerce.number().min(0).nullable().optional(),
     description : z.string().trim().min(1),
+})
+
+export const createServiceFromBudgetSchema = z.object({
+    budgetId: z.string().min(1),
+    budgetItemIds: z.array(z.string().min(1))
+        .min(1)
+        .max(100)
+        .refine(uniqueBudgetItemIds, { message: 'Budget item ids must be unique' })
 })
 
 export const updateServiceSchema = z.object({
@@ -41,6 +51,7 @@ export const findServicesByFilters = z.object({
 
 // DTOs
 export type createServiceDTO = z.infer<typeof createServiceSchema>
+export type createServiceFromBudgetDTO = z.infer<typeof createServiceFromBudgetSchema>
 export type updateServiceDTO = z.infer<typeof updateServiceSchema>
 export type updateStatusServiceDTO = z.infer<typeof updateStatusServiceSchema>
 export type findServicesByFiltersDTO = z.infer<typeof findServicesByFilters>
