@@ -32,6 +32,17 @@ export async function createService(
     return result.data.data;
 }
 
+export async function createServiceFromBudget(
+    data: CreateServiceFromBudgetRequest
+): Promise<CreateServiceFromBudgetResponse> {
+    const result = await api.post<ApiResponse<CreateServiceFromBudgetResponse>>(
+        "/services/create-service-from-budget",
+        data
+    );
+
+    return result.data.data;
+}
+
 export async function updateService(
     id: string,
     data: UpdateServiceRequest
