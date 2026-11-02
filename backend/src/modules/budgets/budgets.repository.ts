@@ -1,5 +1,6 @@
 import { Prisma } from '../../generated/prisma/client.js'
 import { prisma } from '../../shared/database/prisma.js'
+import { AppError } from '../../shared/errors/AppError.js'
 import type { FindBudgetsByFiltersDTO } from './budgets.schema.js'
 
 const toDateRange = (from?: string, to?: string) => {
@@ -47,16 +48,50 @@ class BudgetRepository {
     }
 
     createFromService(
-        service: { id: string; clientId: string; equipamentId: string },
-        items: Array<{
-            activityId: string
-            title: string
-            description: string | null
-            budgetCategoryId: string
-        }>,
+        serviceId: string,
+        items: Array<{ activityId: string; budgetCategoryId: string }>,
         requestedAt: Date
     ) {
         return prisma.$transaction(async tx => {
+            const service = await tx.service.findUnique({
+                where: { id: serviceId },
+                select: { id: true, clientId: true, equipamentId: true }
+            })
+            if (!service) throw new AppError('Service not found', 404, 'SERVICE_NOT_FOUND')
+
+            const activityIds = items.map(item => item.activityId)
+            const categoryIds = [...new Set(items.map(item => item.budgetCategoryId))]
+
+            const [activities, categories] = await Promise.all([
+                tx.serviceActivity.findMany({
+                    where: { serviceId, id: { in: activityIds } },
+                    select: { id: true, title: true, description: true }
+                }),
+                tx.budgetCategory.findMany({
+                    where: { id: { in: categoryIds } },
+                    select: { id: true, isActive: true }
+                })
+            ])
+
+            if (activities.length !== items.length) {
+                throw new AppError(
+                    'One or more activities were not found or do not belong to this service',
+                    400,
+                    'INVALID_SERVICE_ACTIVITIES'
+                )
+            }
+            if (categories.length !== categoryIds.length) {
+                throw new AppError('One or more budget categories were not found', 404, 'BUDGET_CATEGORY_NOT_FOUND')
+            }
+            if (categories.some(category => !category.isActive)) {
+                throw new AppError(
+                    'Inactive categories cannot be used in new budget items',
+                    400,
+                    'BUDGET_CATEGORY_INACTIVE'
+                )
+            }
+
+            const activitiesById = new Map(activities.map(activity => [activity.id, activity]))
             const budget = await tx.budget.create({
                 data: {
                     clientId: service.clientId,
@@ -71,11 +106,16 @@ class BudgetRepository {
 
             const createdItems = []
             for (const incomingItem of items) {
+                const activity = activitiesById.get(incomingItem.activityId)
+                if (!activity) {
+                    throw new AppError('Service activity not found', 400, 'INVALID_SERVICE_ACTIVITIES')
+                }
+
                 const item = await tx.budgetItem.create({
                     data: {
                         budgetId: budget.id,
-                        title: incomingItem.title,
-                        description: incomingItem.description,
+                        title: activity.title,
+                        description: activity.description,
                         categoryId: incomingItem.budgetCategoryId,
                         quantity: new Prisma.Decimal(1),
                         unitValue: new Prisma.Decimal(0),
@@ -90,7 +130,7 @@ class BudgetRepository {
                     data: {
                         budgetId: budget.id,
                         eventType: 'item_orcamento_criado_servico',
-                        description: `Atividade "${incomingItem.title}" importada do serviço ${service.id}.`,
+                        description: `Atividade "${activity.title}" (${activity.id}) importada do serviço ${service.id}.`,
                         createdAt: requestedAt
                     }
                 })
