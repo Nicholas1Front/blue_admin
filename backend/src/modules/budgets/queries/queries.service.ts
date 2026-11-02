@@ -1,6 +1,12 @@
 import { Prisma } from '../../../generated/prisma/client.js'
 import { AppError } from '../../../shared/errors/AppError.js'
+import { allowedBudgetStatus } from '../shared/allowedBudgetStatus.js'
 import budgetQueriesRepository from './queries.repository.js'
+import type {
+    BudgetDashboardQueryDTO,
+    BudgetMetricsQueryDTO,
+    FindBudgetsByAdvancedFiltersDTO
+} from './queries.schema.js'
 
 type DecimalValue = { toNumber(): number }
 const toNumber = (value: DecimalValue) => value.toNumber()
@@ -85,11 +91,7 @@ class BudgetQueriesService {
                 })
             }
 
-            return {
-                grossAmount,
-                discountAmount,
-                totalAmount: item.totalAmount
-            }
+            return { grossAmount, discountAmount, totalAmount: item.totalAmount }
         })
 
         const groupedItems = [...categories.values()]
@@ -117,9 +119,7 @@ class BudgetQueriesService {
         )
         const totalAmount = toNumber(budget.totalAmount)
         const globalDiscount = toNumber(budget.globalDiscount)
-        const globalDiscountAmount = budget.totalAmount
-            .mul(budget.globalDiscount)
-            .div(100)
+        const globalDiscountAmount = budget.totalAmount.mul(budget.globalDiscount).div(100)
         const finalAmount = toNumber(budget.finalAmount)
 
         return {
@@ -154,6 +154,137 @@ class BudgetQueriesService {
             },
             history: budget.history
         }
+    }
+
+    async findBudgetDashboard(filters: BudgetDashboardQueryDTO) {
+        const result = await budgetQueriesRepository.findBudgetDashboard(filters)
+        const statusCounts: Record<string, number> = Object.fromEntries(
+            allowedBudgetStatus.map(status => [status, 0])
+        )
+        const statusTotals = Object.fromEntries(
+            allowedBudgetStatus.map(status => [status, {
+                count: 0,
+                totalAmount: 0,
+                finalAmount: 0
+            }])
+        ) as Record<string, { count: number; totalAmount: number; finalAmount: number }>
+
+        for (const group of result.statusGroups) {
+            statusCounts[group.status] = group.count
+            statusTotals[group.status] = {
+                count: group.count,
+                totalAmount: toNumber(group.totalAmount),
+                finalAmount: toNumber(group.finalAmount)
+            }
+        }
+
+        const openFinalAmount = result.statusGroups
+            .filter(group => ['rascunho', 'enviado'].includes(group.status))
+            .reduce((total, group) => total.plus(group.finalAmount), new Prisma.Decimal(0))
+
+        return {
+            period: {
+                year: filters.year,
+                month: filters.month,
+                dateBasis: 'createdAt'
+            },
+            budgetCount: result.budgetCount,
+            statusCounts,
+            statusTotals,
+            open: {
+                statuses: ['rascunho', 'enviado'],
+                count: result.openBudgetCount,
+                finalAmount: toNumber(openFinalAmount),
+                pagination: {
+                    page: filters.page,
+                    limit: filters.limit,
+                    total: result.openBudgetCount,
+                    totalPages: Math.ceil(result.openBudgetCount / filters.limit)
+                },
+                budgets: result.openBudgets.map(budget => ({
+                    ...budget,
+                    finalAmount: toNumber(budget.finalAmount),
+                    itemCount: budget._count.items
+                })).map(({ _count, ...budget }) => budget)
+            },
+            financialNote: 'Valores representam os totais dos orçamentos cadastrados no período, não receitas realizadas.'
+        }
+    }
+
+    async findBudgetYearlyMetrics(filters: BudgetMetricsQueryDTO) {
+        const groups = await budgetQueriesRepository.findBudgetYearlyMetrics(filters)
+        const monthly = Array.from({ length: 12 }, (_, index) => ({
+            month: index + 1,
+            budgetCount: 0,
+            statusCounts: Object.fromEntries(allowedBudgetStatus.map(status => [status, 0])) as Record<string, number>,
+            statusTotals: Object.fromEntries(allowedBudgetStatus.map(status => [status, {
+                count: 0,
+                totalAmount: 0,
+                finalAmount: 0
+            }])) as Record<string, { count: number; totalAmount: number; finalAmount: number }>,
+            totalAmount: new Prisma.Decimal(0),
+            finalAmount: new Prisma.Decimal(0)
+        }))
+
+        for (const group of groups) {
+            const month = monthly[group.month - 1]
+            if (!month) continue
+
+            const totalAmount = new Prisma.Decimal(group.totalAmount)
+            const finalAmount = new Prisma.Decimal(group.finalAmount)
+            month.budgetCount += group.budgetCount
+            month.statusCounts[group.status] = group.budgetCount
+            month.statusTotals[group.status] = {
+                count: group.budgetCount,
+                totalAmount: toNumber(totalAmount),
+                finalAmount: toNumber(finalAmount)
+            }
+            month.totalAmount = month.totalAmount.plus(totalAmount)
+            month.finalAmount = month.finalAmount.plus(finalAmount)
+        }
+
+        const annual = monthly.reduce((total, month) => ({
+            budgetCount: total.budgetCount + month.budgetCount,
+            totalAmount: total.totalAmount.plus(month.totalAmount),
+            finalAmount: total.finalAmount.plus(month.finalAmount)
+        }), {
+            budgetCount: 0,
+            totalAmount: new Prisma.Decimal(0),
+            finalAmount: new Prisma.Decimal(0)
+        })
+
+        const statusTotals = Object.fromEntries(allowedBudgetStatus.map(status => [status, {
+            count: monthly.reduce((total, month) => total + month.statusCounts[status]!, 0),
+            totalAmount: monthly.reduce(
+                (total, month) => total.plus(month.statusTotals[status]!.totalAmount),
+                new Prisma.Decimal(0)
+            ).toNumber(),
+            finalAmount: monthly.reduce(
+                (total, month) => total.plus(month.statusTotals[status]!.finalAmount),
+                new Prisma.Decimal(0)
+            ).toNumber()
+        }]))
+
+        return {
+            year: filters.year,
+            dateBasis: 'createdAt',
+            annual: {
+                budgetCount: annual.budgetCount,
+                totalAmount: annual.totalAmount.toNumber(),
+                finalAmount: annual.finalAmount.toNumber()
+            },
+            statusTotals,
+            monthly: monthly.map(month => ({
+                ...month,
+                totalAmount: month.totalAmount.toNumber(),
+                finalAmount: month.finalAmount.toNumber()
+            })),
+            interpretation: 'Valores representam orçamentos cadastrados no ano. Não representam faturamento, recebimentos ou receita realizada.'
+        }
+    }
+
+    findBudgetsByAdvancedFilters(filters: FindBudgetsByAdvancedFiltersDTO) {
+        return budgetQueriesRepository.findBudgetsByAdvancedFilters(filters)
     }
 }
 
