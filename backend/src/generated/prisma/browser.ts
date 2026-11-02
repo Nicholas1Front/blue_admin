@@ -83,6 +83,11 @@ export type BudgetItem = Prisma.BudgetItemModel
  */
 export type BudgetCategory = Prisma.BudgetCategoryModel
 /**
+ * Model BudgetPrice
+ * 
+ */
+export type BudgetPrice = Prisma.BudgetPriceModel
+/**
  * Model BudgetHistory
  * 
  */

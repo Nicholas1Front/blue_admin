@@ -191,6 +191,7 @@ export type BudgetCategoryWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"BudgetCategory"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"BudgetCategory"> | Date | string
   items?: Prisma.BudgetItemListRelationFilter
+  prices?: Prisma.BudgetPriceListRelationFilter
 }
 
 export type BudgetCategoryOrderByWithRelationInput = {
@@ -201,6 +202,7 @@ export type BudgetCategoryOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   items?: Prisma.BudgetItemOrderByRelationAggregateInput
+  prices?: Prisma.BudgetPriceOrderByRelationAggregateInput
 }
 
 export type BudgetCategoryWhereUniqueInput = Prisma.AtLeast<{
@@ -214,6 +216,7 @@ export type BudgetCategoryWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"BudgetCategory"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"BudgetCategory"> | Date | string
   items?: Prisma.BudgetItemListRelationFilter
+  prices?: Prisma.BudgetPriceListRelationFilter
 }, "id">
 
 export type BudgetCategoryOrderByWithAggregationInput = {
@@ -248,6 +251,7 @@ export type BudgetCategoryCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   items?: Prisma.BudgetItemCreateNestedManyWithoutCategoryInput
+  prices?: Prisma.BudgetPriceCreateNestedManyWithoutCategoryInput
 }
 
 export type BudgetCategoryUncheckedCreateInput = {
@@ -258,6 +262,7 @@ export type BudgetCategoryUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   items?: Prisma.BudgetItemUncheckedCreateNestedManyWithoutCategoryInput
+  prices?: Prisma.BudgetPriceUncheckedCreateNestedManyWithoutCategoryInput
 }
 
 export type BudgetCategoryUpdateInput = {
@@ -268,6 +273,7 @@ export type BudgetCategoryUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.BudgetItemUpdateManyWithoutCategoryNestedInput
+  prices?: Prisma.BudgetPriceUpdateManyWithoutCategoryNestedInput
 }
 
 export type BudgetCategoryUncheckedUpdateInput = {
@@ -278,6 +284,7 @@ export type BudgetCategoryUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   items?: Prisma.BudgetItemUncheckedUpdateManyWithoutCategoryNestedInput
+  prices?: Prisma.BudgetPriceUncheckedUpdateManyWithoutCategoryNestedInput
 }
 
 export type BudgetCategoryCreateManyInput = {
@@ -353,6 +360,20 @@ export type BudgetCategoryUpdateOneRequiredWithoutItemsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.BudgetCategoryUpdateToOneWithWhereWithoutItemsInput, Prisma.BudgetCategoryUpdateWithoutItemsInput>, Prisma.BudgetCategoryUncheckedUpdateWithoutItemsInput>
 }
 
+export type BudgetCategoryCreateNestedOneWithoutPricesInput = {
+  create?: Prisma.XOR<Prisma.BudgetCategoryCreateWithoutPricesInput, Prisma.BudgetCategoryUncheckedCreateWithoutPricesInput>
+  connectOrCreate?: Prisma.BudgetCategoryCreateOrConnectWithoutPricesInput
+  connect?: Prisma.BudgetCategoryWhereUniqueInput
+}
+
+export type BudgetCategoryUpdateOneRequiredWithoutPricesNestedInput = {
+  create?: Prisma.XOR<Prisma.BudgetCategoryCreateWithoutPricesInput, Prisma.BudgetCategoryUncheckedCreateWithoutPricesInput>
+  connectOrCreate?: Prisma.BudgetCategoryCreateOrConnectWithoutPricesInput
+  upsert?: Prisma.BudgetCategoryUpsertWithoutPricesInput
+  connect?: Prisma.BudgetCategoryWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.BudgetCategoryUpdateToOneWithWhereWithoutPricesInput, Prisma.BudgetCategoryUpdateWithoutPricesInput>, Prisma.BudgetCategoryUncheckedUpdateWithoutPricesInput>
+}
+
 export type BudgetCategoryCreateWithoutItemsInput = {
   id?: string
   name: string
@@ -360,6 +381,7 @@ export type BudgetCategoryCreateWithoutItemsInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  prices?: Prisma.BudgetPriceCreateNestedManyWithoutCategoryInput
 }
 
 export type BudgetCategoryUncheckedCreateWithoutItemsInput = {
@@ -369,6 +391,7 @@ export type BudgetCategoryUncheckedCreateWithoutItemsInput = {
   isActive?: boolean
   createdAt?: Date | string
   updatedAt?: Date | string
+  prices?: Prisma.BudgetPriceUncheckedCreateNestedManyWithoutCategoryInput
 }
 
 export type BudgetCategoryCreateOrConnectWithoutItemsInput = {
@@ -394,6 +417,7 @@ export type BudgetCategoryUpdateWithoutItemsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  prices?: Prisma.BudgetPriceUpdateManyWithoutCategoryNestedInput
 }
 
 export type BudgetCategoryUncheckedUpdateWithoutItemsInput = {
@@ -403,6 +427,63 @@ export type BudgetCategoryUncheckedUpdateWithoutItemsInput = {
   isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  prices?: Prisma.BudgetPriceUncheckedUpdateManyWithoutCategoryNestedInput
+}
+
+export type BudgetCategoryCreateWithoutPricesInput = {
+  id?: string
+  name: string
+  description?: string | null
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  items?: Prisma.BudgetItemCreateNestedManyWithoutCategoryInput
+}
+
+export type BudgetCategoryUncheckedCreateWithoutPricesInput = {
+  id?: string
+  name: string
+  description?: string | null
+  isActive?: boolean
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  items?: Prisma.BudgetItemUncheckedCreateNestedManyWithoutCategoryInput
+}
+
+export type BudgetCategoryCreateOrConnectWithoutPricesInput = {
+  where: Prisma.BudgetCategoryWhereUniqueInput
+  create: Prisma.XOR<Prisma.BudgetCategoryCreateWithoutPricesInput, Prisma.BudgetCategoryUncheckedCreateWithoutPricesInput>
+}
+
+export type BudgetCategoryUpsertWithoutPricesInput = {
+  update: Prisma.XOR<Prisma.BudgetCategoryUpdateWithoutPricesInput, Prisma.BudgetCategoryUncheckedUpdateWithoutPricesInput>
+  create: Prisma.XOR<Prisma.BudgetCategoryCreateWithoutPricesInput, Prisma.BudgetCategoryUncheckedCreateWithoutPricesInput>
+  where?: Prisma.BudgetCategoryWhereInput
+}
+
+export type BudgetCategoryUpdateToOneWithWhereWithoutPricesInput = {
+  where?: Prisma.BudgetCategoryWhereInput
+  data: Prisma.XOR<Prisma.BudgetCategoryUpdateWithoutPricesInput, Prisma.BudgetCategoryUncheckedUpdateWithoutPricesInput>
+}
+
+export type BudgetCategoryUpdateWithoutPricesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  items?: Prisma.BudgetItemUpdateManyWithoutCategoryNestedInput
+}
+
+export type BudgetCategoryUncheckedUpdateWithoutPricesInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  isActive?: Prisma.BoolFieldUpdateOperationsInput | boolean
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  items?: Prisma.BudgetItemUncheckedUpdateManyWithoutCategoryNestedInput
 }
 
 
@@ -412,10 +493,12 @@ export type BudgetCategoryUncheckedUpdateWithoutItemsInput = {
 
 export type BudgetCategoryCountOutputType = {
   items: number
+  prices: number
 }
 
 export type BudgetCategoryCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   items?: boolean | BudgetCategoryCountOutputTypeCountItemsArgs
+  prices?: boolean | BudgetCategoryCountOutputTypeCountPricesArgs
 }
 
 /**
@@ -435,6 +518,13 @@ export type BudgetCategoryCountOutputTypeCountItemsArgs<ExtArgs extends runtime.
   where?: Prisma.BudgetItemWhereInput
 }
 
+/**
+ * BudgetCategoryCountOutputType without action
+ */
+export type BudgetCategoryCountOutputTypeCountPricesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.BudgetPriceWhereInput
+}
+
 
 export type BudgetCategorySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -444,6 +534,7 @@ export type BudgetCategorySelect<ExtArgs extends runtime.Types.Extensions.Intern
   createdAt?: boolean
   updatedAt?: boolean
   items?: boolean | Prisma.BudgetCategory$itemsArgs<ExtArgs>
+  prices?: boolean | Prisma.BudgetCategory$pricesArgs<ExtArgs>
   _count?: boolean | Prisma.BudgetCategoryCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["budgetCategory"]>
 
@@ -477,6 +568,7 @@ export type BudgetCategorySelectScalar = {
 export type BudgetCategoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "description" | "isActive" | "createdAt" | "updatedAt", ExtArgs["result"]["budgetCategory"]>
 export type BudgetCategoryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   items?: boolean | Prisma.BudgetCategory$itemsArgs<ExtArgs>
+  prices?: boolean | Prisma.BudgetCategory$pricesArgs<ExtArgs>
   _count?: boolean | Prisma.BudgetCategoryCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type BudgetCategoryIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
@@ -486,6 +578,7 @@ export type $BudgetCategoryPayload<ExtArgs extends runtime.Types.Extensions.Inte
   name: "BudgetCategory"
   objects: {
     items: Prisma.$BudgetItemPayload<ExtArgs>[]
+    prices: Prisma.$BudgetPricePayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -889,6 +982,7 @@ readonly fields: BudgetCategoryFieldRefs;
 export interface Prisma__BudgetCategoryClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   items<T extends Prisma.BudgetCategory$itemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BudgetCategory$itemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BudgetItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  prices<T extends Prisma.BudgetCategory$pricesArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.BudgetCategory$pricesArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$BudgetPricePayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1338,6 +1432,30 @@ export type BudgetCategory$itemsArgs<ExtArgs extends runtime.Types.Extensions.In
   take?: number
   skip?: number
   distinct?: Prisma.BudgetItemScalarFieldEnum | Prisma.BudgetItemScalarFieldEnum[]
+}
+
+/**
+ * BudgetCategory.prices
+ */
+export type BudgetCategory$pricesArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the BudgetPrice
+   */
+  select?: Prisma.BudgetPriceSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the BudgetPrice
+   */
+  omit?: Prisma.BudgetPriceOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.BudgetPriceInclude<ExtArgs> | null
+  where?: Prisma.BudgetPriceWhereInput
+  orderBy?: Prisma.BudgetPriceOrderByWithRelationInput | Prisma.BudgetPriceOrderByWithRelationInput[]
+  cursor?: Prisma.BudgetPriceWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.BudgetPriceScalarFieldEnum | Prisma.BudgetPriceScalarFieldEnum[]
 }
 
 /**
