@@ -58,6 +58,16 @@ export interface ServiceSummary extends Omit<ServiceRecord, "hoursWorked" | "cos
     activityCount: number;
 }
 
+export interface CreateServiceFromBudgetRequest {
+    budgetId: string;
+    budgetItemIds: string[];
+}
+export interface CreateServiceFromBudgetResponse {
+    service: ServiceRecord;
+    activities: ServiceActivity[];
+    history: ServiceHistoryEvent;
+}
+
 export interface CreateServiceRequest {
     clientId: string;
     equipamentId: string;
