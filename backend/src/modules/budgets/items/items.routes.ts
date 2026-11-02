@@ -6,6 +6,7 @@ const router = Router()
 router.post('/create-item/:budgetId', budgetItemController.create)
 router.put('/update-item/:id', budgetItemController.update)
 router.get('/find-items-by-budget/:budgetId', budgetItemController.findByBudgetId)
+router.get('/find-items-by-filters', budgetItemController.findByFilters)
 router.delete('/delete-item/:id', budgetItemController.delete)
 
 export default router

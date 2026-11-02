@@ -1,6 +1,20 @@
 import { Prisma } from '../../../generated/prisma/client.js'
 import { prisma } from '../../../shared/database/prisma.js'
 import { AppError } from '../../../shared/errors/AppError.js'
+import type { FindBudgetItemsByFiltersDTO } from './items.schema.js'
+
+const toDateRange = (from?: string, to?: string) => {
+    if (from === undefined && to === undefined) return undefined
+
+    const range: { gte?: Date; lt?: Date } = {}
+    if (from !== undefined) range.gte = new Date(`${from}T00:00:00.000Z`)
+    if (to !== undefined) {
+        const endExclusive = new Date(`${to}T00:00:00.000Z`)
+        endExclusive.setUTCDate(endExclusive.getUTCDate() + 1)
+        range.lt = endExclusive
+    }
+    return range
+}
 
 class BudgetItemRepository {
     budgetExists(budgetId: string) {
@@ -20,18 +34,14 @@ class BudgetItemRepository {
             if (!budget) return null
 
             const category = await tx.budgetCategory.findUnique({ where: { id: data.categoryId } })
-            if (!category) {
-                throw new AppError('Budget category not found', 404, 'BUDGET_CATEGORY_NOT_FOUND')
-            }
+            if (!category) throw new AppError('Budget category not found', 404, 'BUDGET_CATEGORY_NOT_FOUND')
             if (!category.isActive) {
                 throw new AppError('Inactive categories cannot be used in new budget items', 400, 'BUDGET_CATEGORY_INACTIVE')
             }
 
             const grossAmount = new Prisma.Decimal(data.quantity).mul(new Prisma.Decimal(data.unitValue))
             const discount = new Prisma.Decimal(data.discount)
-            const itemTotal = grossAmount
-                .mul(new Prisma.Decimal(100).minus(discount))
-                .div(100)
+            const itemTotal = grossAmount.mul(new Prisma.Decimal(100).minus(discount)).div(100)
 
             const item = await tx.budgetItem.create({
                 data: {
@@ -48,7 +58,6 @@ class BudgetItemRepository {
             })
 
             const totals = await this.recalculateBudget(tx, budgetId, budget.globalDiscount)
-
             await tx.budgetHistory.create({
                 data: {
                     budgetId,
@@ -62,10 +71,7 @@ class BudgetItemRepository {
     }
 
     findById(id: string) {
-        return prisma.budgetItem.findUnique({
-            where: { id },
-            include: { category: true }
-        })
+        return prisma.budgetItem.findUnique({ where: { id }, include: { category: true } })
     }
 
     findByBudgetId(budgetId: string) {
@@ -76,6 +82,63 @@ class BudgetItemRepository {
         })
     }
 
+    async findByFilters(filters: FindBudgetItemsByFiltersDTO) {
+        const createdAt = toDateRange(filters.createdAtFrom, filters.createdAtTo)
+        const updatedAt = toDateRange(filters.updatedAtFrom, filters.updatedAtTo)
+
+        const where: Prisma.BudgetItemWhereInput = {
+            ...(filters.id !== undefined && { id: { contains: filters.id, mode: 'insensitive' } }),
+            ...(filters.budgetId !== undefined && { budgetId: filters.budgetId }),
+            ...(filters.title !== undefined && { title: { contains: filters.title, mode: 'insensitive' } }),
+            ...(filters.description !== undefined && { description: { contains: filters.description, mode: 'insensitive' } }),
+            ...(filters.categoryId !== undefined && { categoryId: filters.categoryId }),
+            ...((filters.quantityMin !== undefined || filters.quantityMax !== undefined) && {
+                quantity: {
+                    ...(filters.quantityMin !== undefined && { gte: new Prisma.Decimal(filters.quantityMin) }),
+                    ...(filters.quantityMax !== undefined && { lte: new Prisma.Decimal(filters.quantityMax) })
+                }
+            }),
+            ...((filters.unitValueMin !== undefined || filters.unitValueMax !== undefined) && {
+                unitValue: {
+                    ...(filters.unitValueMin !== undefined && { gte: new Prisma.Decimal(filters.unitValueMin) }),
+                    ...(filters.unitValueMax !== undefined && { lte: new Prisma.Decimal(filters.unitValueMax) })
+                }
+            }),
+            ...((filters.totalAmountMin !== undefined || filters.totalAmountMax !== undefined) && {
+                totalAmount: {
+                    ...(filters.totalAmountMin !== undefined && { gte: new Prisma.Decimal(filters.totalAmountMin) }),
+                    ...(filters.totalAmountMax !== undefined && { lte: new Prisma.Decimal(filters.totalAmountMax) })
+                }
+            }),
+            ...((filters.discountMin !== undefined || filters.discountMax !== undefined) && {
+                discount: {
+                    ...(filters.discountMin !== undefined && { gte: new Prisma.Decimal(filters.discountMin) }),
+                    ...(filters.discountMax !== undefined && { lte: new Prisma.Decimal(filters.discountMax) })
+                }
+            }),
+            ...(createdAt !== undefined && { createdAt }),
+            ...(updatedAt !== undefined && { updatedAt })
+        }
+
+        const [items, total] = await Promise.all([
+            prisma.budgetItem.findMany({
+                where,
+                skip: (filters.page - 1) * filters.limit,
+                take: filters.limit,
+                orderBy: [{ createdAt: 'desc' }, { id: 'desc' }]
+            }),
+            prisma.budgetItem.count({ where })
+        ])
+
+        return {
+            items,
+            page: filters.page,
+            limit: filters.limit,
+            total,
+            totalPages: Math.ceil(total / filters.limit)
+        }
+    }
+
     update(id: string, data: any, description: string) {
         return prisma.$transaction(async tx => {
             const current = await tx.budgetItem.findUnique({ where: { id } })
@@ -83,9 +146,7 @@ class BudgetItemRepository {
 
             if (data.categoryId !== undefined && data.categoryId !== current.categoryId) {
                 const category = await tx.budgetCategory.findUnique({ where: { id: data.categoryId } })
-                if (!category) {
-                    throw new AppError('Budget category not found', 404, 'BUDGET_CATEGORY_NOT_FOUND')
-                }
+                if (!category) throw new AppError('Budget category not found', 404, 'BUDGET_CATEGORY_NOT_FOUND')
                 if (!category.isActive) {
                     throw new AppError('Inactive categories cannot be used in new budget items', 400, 'BUDGET_CATEGORY_INACTIVE')
                 }
@@ -95,25 +156,16 @@ class BudgetItemRepository {
             const unitValue = data.unitValue !== undefined ? new Prisma.Decimal(data.unitValue) : current.unitValue
             const discount = data.discount !== undefined ? new Prisma.Decimal(data.discount) : current.discount
             const grossAmount = quantity.mul(unitValue)
-            const itemTotal = grossAmount
-                .mul(new Prisma.Decimal(100).minus(discount))
-                .div(100)
+            const itemTotal = grossAmount.mul(new Prisma.Decimal(100).minus(discount)).div(100)
 
             const item = await tx.budgetItem.update({
                 where: { id },
-                data: {
-                    ...data,
-                    quantity,
-                    unitValue,
-                    discount,
-                    totalAmount: itemTotal
-                },
+                data: { ...data, quantity, unitValue, discount, totalAmount: itemTotal },
                 include: { category: true }
             })
 
             const budget = await tx.budget.findUnique({ where: { id: current.budgetId } })
             if (!budget) throw new AppError('Budget not found', 404, 'BUDGET_NOT_FOUND')
-
             const totals = await this.recalculateBudget(tx, current.budgetId, budget.globalDiscount)
 
             await tx.budgetHistory.create({
@@ -151,26 +203,18 @@ class BudgetItemRepository {
         })
     }
 
-    private async recalculateBudget(
-        tx: Prisma.TransactionClient,
-        budgetId: string,
-        globalDiscount: Prisma.Decimal
-    ) {
+    private async recalculateBudget(tx: Prisma.TransactionClient, budgetId: string, globalDiscount: Prisma.Decimal) {
         const aggregate = await tx.budgetItem.aggregate({
             where: { budgetId },
             _sum: { totalAmount: true }
         })
-
         const totalAmount = aggregate._sum.totalAmount ?? new Prisma.Decimal(0)
-        const finalAmount = totalAmount
-            .mul(new Prisma.Decimal(100).minus(globalDiscount))
-            .div(100)
+        const finalAmount = totalAmount.mul(new Prisma.Decimal(100).minus(globalDiscount)).div(100)
 
         await tx.budget.update({
             where: { id: budgetId },
             data: { totalAmount, globalDiscount, finalAmount }
         })
-
         return { totalAmount, globalDiscount, finalAmount }
     }
 }

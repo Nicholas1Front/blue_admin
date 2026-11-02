@@ -1,7 +1,7 @@
 import { AppError } from '../../../shared/errors/AppError.js'
 import { removeUndefined } from '../../../shared/helpers/objects/removeUndefined.js'
 import budgetItemRepository from './items.repository.js'
-import type { CreateBudgetItemDTO, UpdateBudgetItemDTO } from './items.schema.js'
+import type { CreateBudgetItemDTO, FindBudgetItemsByFiltersDTO, UpdateBudgetItemDTO } from './items.schema.js'
 
 const fieldLabels: Record<string, string> = {
     title: 'título',
@@ -35,8 +35,11 @@ class BudgetItemService {
     async findByBudgetId(budgetId: string) {
         const budget = await budgetItemRepository.budgetExists(budgetId)
         if (!budget) throw new AppError('Budget not found', 404, 'BUDGET_NOT_FOUND')
-
         return budgetItemRepository.findByBudgetId(budgetId)
+    }
+
+    findByFilters(filters: FindBudgetItemsByFiltersDTO) {
+        return budgetItemRepository.findByFilters(filters)
     }
 
     async delete(id: string) {
