@@ -1,12 +1,21 @@
 import { useQuery } from "@tanstack/react-query";
-import { useQuery } from "@tanstack/react-query";
 import { budgetsQueryKeys } from "./budgets.queryKeys";
 import {
     findBudgetsByAdvancedFilters, getBudgetById, getBudgetDashboard, getBudgetMetrics
 } from "./queries/queries.api";
+import type { FindBudgetsFilters } from "./budgets.types";
+import { findBudgetsByFilters } from "./budgets.api";
 import type {
     BudgetDashboardFilters, BudgetMetricsFilters, FindBudgetsByAdvancedFilters
 } from "./queries/queries.types";
+
+export function useBudgets(filters: FindBudgetsFilters, enabled = true) {
+    return useQuery({
+        queryKey: budgetsQueryKeys.list(filters),
+        queryFn: () => findBudgetsByFilters(filters),
+        enabled
+    });
+}
 
 export function useBudgetDashboard(filters: BudgetDashboardFilters, enabled = true) {
     return useQuery({
