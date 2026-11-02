@@ -53,12 +53,16 @@ class BudgetPriceRepository {
             }
         }
 
+        const updateData: Prisma.BudgetPriceUncheckedUpdateInput = {}
+
+        if (data.categoryId !== undefined) updateData.categoryId = data.categoryId
+        if (data.title !== undefined) updateData.title = data.title
+        if (data.description !== undefined) updateData.description = data.description
+        if (data.unitValue !== undefined) updateData.unitValue = new Prisma.Decimal(data.unitValue)
+
         return prisma.budgetPrice.update({
             where: { id },
-            data: {
-                ...data,
-                ...(data.unitValue !== undefined && { unitValue: new Prisma.Decimal(data.unitValue) })
-            },
+            data: updateData,
             include: { category: true }
         })
     }
