@@ -12,8 +12,8 @@ export async function createBudget(data: CreateBudgetRequest): Promise<BudgetRec
 
 export async function createBudgetFromService(
     data: CreateBudgetFromServiceRequest
-): Promise<BudgetRecord> {
-    const result = await api.post<ApiResponse<BudgetRecord>>("/budgets/create-budget-from-service", data);
+): Promise<BudgetConversionResponse> {
+    const result = await api.post<ApiResponse<BudgetConversionResponse>>("/budgets/create-budget-from-service", data);
     return result.data.data;
 }
 
