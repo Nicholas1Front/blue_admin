@@ -1,6 +1,5 @@
 import { api } from "../../../api/axios";
 import type { ApiResponse } from "../../../api/api.types";
-import type { BudgetRecord } from "../budgets.types";
 import type {
     BudgetDashboardFilters, BudgetDashboardResponse, BudgetMetricsFilters,
     BudgetMetricsResponse, BudgetDetailsResponse, FindBudgetsByAdvancedFilters,
