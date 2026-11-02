@@ -6,14 +6,13 @@ import transactionsRoutes from './transactions/transactions.routes.js'
 import queriesRoutes from './queries/queries.routes.js'
 
 const router = Router();
-
 router.use(authMiddleware)
-
 router.use('/activity', activitiesRoutes)
 router.use('/transactions', transactionsRoutes)
 router.use('/queries', queriesRoutes)
 
 router.post('/create-service', servicesController.createService)
+router.post('/create-service-from-budget', servicesController.createServiceFromBudget)
 router.put('/update-service/:id', servicesController.updateService)
 router.patch('/update-status/:id', servicesController.updateServiceStatus)
 router.get('/find-services-by-filters', servicesController.findServiceByFilters)
