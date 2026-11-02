@@ -9,6 +9,7 @@ import {
 } from "./services.api";
 import type {
     CreateServiceRequest,
+    CreateServiceFromBudgetRequest,
     UpdateServiceRequest,
     UpdateServiceStatusRequest
 } from "./services.types";
