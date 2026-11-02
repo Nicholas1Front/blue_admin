@@ -59,6 +59,8 @@ export const findBudgetsByAdvancedFiltersSchema = z.object({
     itemDescription: z.string().trim().min(1).optional(),
     itemCategoryId: z.string().trim().min(1).optional(),
     itemCategoryName: z.string().trim().min(1).optional(),
+    itemQuantityMin: z.coerce.number().positive().optional(),
+    itemQuantityMax: z.coerce.number().positive().optional(),
     itemUnitValueMin: z.coerce.number().min(0).optional(),
     itemUnitValueMax: z.coerce.number().min(0).optional(),
     itemTotalAmountMin: z.coerce.number().min(0).optional(),
@@ -76,6 +78,9 @@ export const findBudgetsByAdvancedFiltersSchema = z.object({
     limit: z.coerce.number().int().min(1).max(100).default(20)
 }).refine(filters => Object.keys(filters).some(key => !['page', 'limit'].includes(key)), {
     message: 'At least one budget filter must be provided'
+}).refine(numberRange('itemQuantityMin', 'itemQuantityMax'), {
+    message: 'A quantidade mínima do item deve ser menor ou igual ao máximo',
+    path: ['itemQuantityMax']
 }).refine(dateRange('createdAtFrom', 'createdAtTo'), {
     message: 'A data inicial deve ser anterior ou igual à data final',
     path: ['createdAtTo']
