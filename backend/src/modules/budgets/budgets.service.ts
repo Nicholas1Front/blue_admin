@@ -2,7 +2,7 @@ import { AppError } from '../../shared/errors/AppError.js'
 import { removeUndefined } from '../../shared/helpers/objects/removeUndefined.js'
 import { allowedBudgetStatus } from './shared/allowedBudgetStatus.js'
 import budgetRepository from './budgets.repository.js'
-import type { CreateBudgetDTO, UpdateBudgetDTO } from './budgets.schema.js'
+import type { CreateBudgetDTO, FindBudgetsByFiltersDTO, UpdateBudgetDTO } from './budgets.schema.js'
 
 const fieldLabels: Record<string, string> = {
     clientId: 'cliente',
@@ -41,11 +41,7 @@ class BudgetService {
         const clientChanged = cleanedData.clientId !== undefined && cleanedData.clientId !== current.clientId
 
         if (clientChanged && cleanedData.equipamentId === undefined) {
-            throw new AppError(
-                'A new equipament must be selected when changing the client',
-                400,
-                'EQUIPAMENT_REQUIRED'
-            )
+            throw new AppError('A new equipament must be selected when changing the client', 400, 'EQUIPAMENT_REQUIRED')
         }
 
         const effectiveClientId = cleanedData.clientId ?? current.clientId
@@ -84,10 +80,13 @@ class BudgetService {
         return budget
     }
 
+    findByFilters(filters: FindBudgetsByFiltersDTO) {
+        return budgetRepository.findByFilters(filters)
+    }
+
     async delete(id: string) {
         const budget = await budgetRepository.findById(id)
         if (!budget) throw new AppError('Budget not found', 404, 'BUDGET_NOT_FOUND')
-
         await budgetRepository.delete(id)
         return true
     }
