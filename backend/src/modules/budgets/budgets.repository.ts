@@ -29,6 +29,86 @@ class BudgetRepository {
         })
     }
 
+    findServiceForConversion(serviceId: string, activityIds: string[], categoryIds: string[]) {
+        return Promise.all([
+            prisma.service.findUnique({
+                where: { id: serviceId },
+                select: { id: true, clientId: true, equipamentId: true }
+            }),
+            prisma.serviceActivity.findMany({
+                where: { serviceId, id: { in: activityIds } },
+                select: { id: true, title: true, description: true }
+            }),
+            prisma.budgetCategory.findMany({
+                where: { id: { in: categoryIds } },
+                select: { id: true, isActive: true }
+            })
+        ]).then(([service, activities, categories]) => ({ service, activities, categories }))
+    }
+
+    createFromService(
+        service: { id: string; clientId: string; equipamentId: string },
+        items: Array<{
+            activityId: string
+            title: string
+            description: string | null
+            budgetCategoryId: string
+        }>,
+        requestedAt: Date
+    ) {
+        return prisma.$transaction(async tx => {
+            const budget = await tx.budget.create({
+                data: {
+                    clientId: service.clientId,
+                    equipamentId: service.equipamentId,
+                    status: 'rascunho',
+                    totalAmount: new Prisma.Decimal(0),
+                    globalDiscount: new Prisma.Decimal(0),
+                    finalAmount: new Prisma.Decimal(0),
+                    createdAt: requestedAt
+                }
+            })
+
+            const createdItems = []
+            for (const incomingItem of items) {
+                const item = await tx.budgetItem.create({
+                    data: {
+                        budgetId: budget.id,
+                        title: incomingItem.title,
+                        description: incomingItem.description,
+                        categoryId: incomingItem.budgetCategoryId,
+                        quantity: new Prisma.Decimal(1),
+                        unitValue: new Prisma.Decimal(0),
+                        totalAmount: new Prisma.Decimal(0),
+                        discount: new Prisma.Decimal(0),
+                        createdAt: requestedAt
+                    }
+                })
+                createdItems.push(item)
+
+                await tx.budgetHistory.create({
+                    data: {
+                        budgetId: budget.id,
+                        eventType: 'item_orcamento_criado_servico',
+                        description: `Atividade "${incomingItem.title}" importada do serviço ${service.id}.`,
+                        createdAt: requestedAt
+                    }
+                })
+            }
+
+            const history = await tx.budgetHistory.create({
+                data: {
+                    budgetId: budget.id,
+                    eventType: 'orcamento_criado_servico',
+                    description: `Orçamento criado a partir do serviço ${service.id}. ${createdItems.length} atividade(s) importada(s).`,
+                    createdAt: requestedAt
+                }
+            })
+
+            return { budget, items: createdItems, history }
+        })
+    }
+
     create(data: {
         clientId: string
         equipamentId: string
