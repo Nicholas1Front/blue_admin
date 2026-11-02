@@ -1,7 +1,12 @@
 import { Request, Response } from 'express'
 import { AppError } from '../../shared/errors/AppError.js'
 import budgetService from './budgets.service.js'
-import { createBudgetSchema, findBudgetsByFiltersSchema, updateBudgetSchema } from './budgets.schema.js'
+import {
+    createBudgetFromServiceSchema,
+    createBudgetSchema,
+    findBudgetsByFiltersSchema,
+    updateBudgetSchema
+} from './budgets.schema.js'
 
 class BudgetController {
     async create(req: Request, res: Response) {
@@ -9,6 +14,16 @@ class BudgetController {
         const data = createBudgetSchema.parse(req.body)
         const budget = await budgetService.create(data)
         return res.status(201).json({ message: 'Budget created successfully', data: budget })
+    }
+
+    async createFromService(req: Request, res: Response) {
+        if (!req.user) throw new AppError('User not authenticated', 401, 'USER_NOT_AUTHENTICATED')
+        const data = createBudgetFromServiceSchema.parse(req.body)
+        const budget = await budgetService.createFromService(data)
+        return res.status(201).json({
+            message: 'Budget created from service successfully',
+            data: budget
+        })
     }
 
     async update(req: Request, res: Response) {
