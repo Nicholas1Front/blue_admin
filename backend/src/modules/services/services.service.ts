@@ -60,6 +60,18 @@ class ServicesService{
             )
         }
 
+        const clientHasEquipament = await servicesRepository.clientHasEquipament(
+            conversionData.budget.clientId,
+            conversionData.budget.equipamentId
+        )
+        if (!clientHasEquipament) {
+            throw new AppError(
+                'Budget client does not own the selected equipament',
+                400,
+                'BUDGET_CLIENT_DOES_NOT_HAVE_EQUIPAMENT'
+            )
+        }
+
         return servicesRepository.createServiceFromBudget(
             conversionData.budget,
             conversionData.items,
