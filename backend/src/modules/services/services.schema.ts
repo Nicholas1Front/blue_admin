@@ -16,7 +16,6 @@ export const createServiceFromBudgetSchema = z.object({
     budgetId: z.string().min(1),
     budgetItemIds: z.array(z.string().min(1))
         .min(1)
-        .max(100)
         .refine(uniqueBudgetItemIds, { message: 'Budget item ids must be unique' })
 })
 
