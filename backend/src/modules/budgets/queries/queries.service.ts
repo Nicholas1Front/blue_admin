@@ -3,8 +3,6 @@ import { AppError } from '../../../shared/errors/AppError.js'
 import budgetQueriesRepository from './queries.repository.js'
 
 type DecimalValue = { toNumber(): number }
-type BudgetDetails = NonNullable<Awaited<ReturnType<typeof budgetQueriesRepository.findBudgetDetailsById>>>
-
 const toNumber = (value: DecimalValue) => value.toNumber()
 
 class BudgetQueriesService {
