@@ -241,6 +241,12 @@ class BudgetQueriesRepository {
             ...(filters.itemCategoryName !== undefined && {
                 category: { is: { name: contains(filters.itemCategoryName) } }
             }),
+            ...((filters.itemQuantityMin !== undefined || filters.itemQuantityMax !== undefined) && {
+                quantity: {
+                    ...(filters.itemQuantityMin !== undefined && { gte: new Prisma.Decimal(filters.itemQuantityMin) }),
+                    ...(filters.itemQuantityMax !== undefined && { lte: new Prisma.Decimal(filters.itemQuantityMax) })
+                }
+            }),
             ...((filters.itemUnitValueMin !== undefined || filters.itemUnitValueMax !== undefined) && {
                 unitValue: {
                     ...(filters.itemUnitValueMin !== undefined && { gte: new Prisma.Decimal(filters.itemUnitValueMin) }),
