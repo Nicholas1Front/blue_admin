@@ -1,7 +1,7 @@
 import { api } from "../../api/axios";
 import type { ApiResponse } from "../../api/api.types";
 import type {
-    BudgetRecord, CreateBudgetFromServiceRequest, CreateBudgetRequest,
+    BudgetRecord, BudgetConversionResponse, CreateBudgetFromServiceRequest, CreateBudgetRequest,
     FindBudgetsFilters, PaginatedBudgetsResponse, UpdateBudgetRequest
 } from "./budgets.types";
 
