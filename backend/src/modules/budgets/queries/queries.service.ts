@@ -219,9 +219,9 @@ class BudgetQueriesService {
             statusCounts: Object.fromEntries(allowedBudgetStatus.map(status => [status, 0])) as Record<string, number>,
             statusTotals: Object.fromEntries(allowedBudgetStatus.map(status => [status, {
                 count: 0,
-                totalAmount: 0,
-                finalAmount: 0
-            }])) as Record<string, { count: number; totalAmount: number; finalAmount: number }>,
+                totalAmount: new Prisma.Decimal(0),
+                finalAmount: new Prisma.Decimal(0)
+            }])) as Record<string, { count: number; totalAmount: Prisma.Decimal; finalAmount: Prisma.Decimal }>,
             totalAmount: new Prisma.Decimal(0),
             finalAmount: new Prisma.Decimal(0)
         }))
@@ -236,8 +236,8 @@ class BudgetQueriesService {
             month.statusCounts[group.status] = group.budgetCount
             month.statusTotals[group.status] = {
                 count: group.budgetCount,
-                totalAmount: toNumber(totalAmount),
-                finalAmount: toNumber(finalAmount)
+                totalAmount,
+                finalAmount
             }
             month.totalAmount = month.totalAmount.plus(totalAmount)
             month.finalAmount = month.finalAmount.plus(finalAmount)
@@ -277,7 +277,14 @@ class BudgetQueriesService {
             monthly: monthly.map(month => ({
                 ...month,
                 totalAmount: month.totalAmount.toNumber(),
-                finalAmount: month.finalAmount.toNumber()
+                finalAmount: month.finalAmount.toNumber(),
+                statusTotals: Object.fromEntries(
+                    allowedBudgetStatus.map(status => [status, {
+                        count: month.statusTotals[status]!.count,
+                        totalAmount: month.statusTotals[status]!.totalAmount.toNumber(),
+                        finalAmount: month.statusTotals[status]!.finalAmount.toNumber()
+                    }])
+                )
             })),
             interpretation: 'Valores representam orçamentos cadastrados no ano. Não representam faturamento, recebimentos ou receita realizada.'
         }
