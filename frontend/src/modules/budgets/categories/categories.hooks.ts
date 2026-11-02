@@ -18,7 +18,13 @@ export function useBudgetCategories(filters?: FindBudgetCategoriesFilters) {
 }
 export function useBudgetCategoryMutations() {
     const queryClient = useQueryClient();
-    const invalidate = () => queryClient.invalidateQueries({ queryKey: budgetsQueryKeys.categories.all });
+    const invalidate = async () => {
+        await Promise.all([
+            queryClient.invalidateQueries({ queryKey: budgetsQueryKeys.categories.all }),
+            queryClient.invalidateQueries({ queryKey: budgetsQueryKeys.all }),
+            queryClient.invalidateQueries({ queryKey: budgetsQueryKeys.prices.all })
+        ]);
+    };
     const create = useMutation({ mutationFn: (data: CreateBudgetCategoryRequest) => createBudgetCategory(data), onSuccess: invalidate });
     const update = useMutation({ mutationFn: ({ id, data }: { id: string; data: UpdateBudgetCategoryRequest }) => updateBudgetCategory(id, data), onSuccess: invalidate });
     const activate = useMutation({ mutationFn: activateBudgetCategory, onSuccess: invalidate });
