@@ -18,12 +18,6 @@ class BudgetController {
         return res.status(200).json({ message: 'Budget updated successfully', data: budget })
     }
 
-    async findById(req: Request, res: Response) {
-        if (!req.user) throw new AppError('User not authenticated', 401, 'USER_NOT_AUTHENTICATED')
-        const budget = await budgetService.findById(req.params.id as string)
-        return res.status(200).json({ message: 'Budget found successfully', data: budget })
-    }
-
     async findByFilters(req: Request, res: Response) {
         if (!req.user) throw new AppError('User not authenticated', 401, 'USER_NOT_AUTHENTICATED')
         const filters = findBudgetsByFiltersSchema.parse(req.query)
