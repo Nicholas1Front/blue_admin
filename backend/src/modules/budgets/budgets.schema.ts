@@ -27,6 +27,17 @@ export const createBudgetSchema = z.object({
     status: z.enum(allowedBudgetStatus).default('rascunho')
 })
 
+export const createBudgetFromServiceSchema = z.object({
+    serviceId: z.string().trim().min(1),
+    items: z.array(z.object({
+        activityId: z.string().trim().min(1),
+        budgetCategoryId: z.string().trim().min(1)
+    })).min(1).refine(
+        items => new Set(items.map(item => item.activityId)).size === items.length,
+        { message: 'Each service activity can only be imported once', path: ['items'] }
+    )
+})
+
 export const updateBudgetSchema = z.object({
     clientId: z.string().min(1).optional(),
     equipamentId: z.string().min(1).optional(),
@@ -93,5 +104,6 @@ export const findBudgetsByFiltersSchema = z.object({
 })
 
 export type CreateBudgetDTO = z.infer<typeof createBudgetSchema>
+export type CreateBudgetFromServiceDTO = z.infer<typeof createBudgetFromServiceSchema>
 export type UpdateBudgetDTO = z.infer<typeof updateBudgetSchema>
 export type FindBudgetsByFiltersDTO = z.infer<typeof findBudgetsByFiltersSchema>
