@@ -1,12 +1,11 @@
+import { Prisma } from '../../../generated/prisma/client.js'
 import { AppError } from '../../../shared/errors/AppError.js'
 import budgetQueriesRepository from './queries.repository.js'
 
+type DecimalValue = { toNumber(): number }
 type BudgetDetails = NonNullable<Awaited<ReturnType<typeof budgetQueriesRepository.findBudgetDetailsById>>>
 
-const toNumber = (value: { toNumber(): number }) => value.toNumber()
-const roundMoney = (value: number) => Math.round((value + Number.EPSILON) * 100) / 100
-const sumMoney = (values: number[]) =>
-    values.reduce((total, value) => total + Math.round(value * 100), 0) / 100
+const toNumber = (value: DecimalValue) => value.toNumber()
 
 class BudgetQueriesService {
     async findBudgetById(id: string) {
@@ -16,49 +15,49 @@ class BudgetQueriesService {
             throw new AppError('Budget not found', 404, 'BUDGET_NOT_FOUND')
         }
 
-        const categories = new Map<string, {
+        type NormalizedItem = {
+            id: string
+            title: string
+            description: string | null
+            quantity: number
+            unitValue: number
+            discount: number
+            grossAmount: number
+            discountAmount: number
+            totalAmount: number
+            createdAt: Date
+            updatedAt: Date
+        }
+
+        type CategoryAccumulator = {
             id: string
             name: string
             description: string | null
             isActive: boolean
             itemCount: number
-            quantityTotal: number
-            grossAmount: number
-            itemDiscountAmount: number
-            totalAmount: number
-            items: Array<{
-                id: string
-                title: string
-                description: string | null
-                quantity: number
-                unitValue: number
-                discount: number
-                grossAmount: number
-                discountAmount: number
-                totalAmount: number
-                createdAt: Date
-                updatedAt: Date
-            }>
-        }>()
+            quantityTotal: Prisma.Decimal
+            grossAmount: Prisma.Decimal
+            itemDiscountAmount: Prisma.Decimal
+            totalAmount: Prisma.Decimal
+            items: NormalizedItem[]
+        }
+
+        const categories = new Map<string, CategoryAccumulator>()
 
         const items = budget.items.map(item => {
-            const quantity = toNumber(item.quantity)
-            const unitValue = toNumber(item.unitValue)
-            const discount = toNumber(item.discount)
-            const grossAmount = roundMoney(quantity * unitValue)
-            const totalAmount = toNumber(item.totalAmount)
-            const discountAmount = roundMoney(grossAmount - totalAmount)
+            const grossAmount = item.quantity.mul(item.unitValue)
+            const discountAmount = grossAmount.minus(item.totalAmount)
 
-            const normalizedItem = {
+            const normalizedItem: NormalizedItem = {
                 id: item.id,
                 title: item.title,
                 description: item.description,
-                quantity,
-                unitValue,
-                discount,
-                grossAmount,
-                discountAmount,
-                totalAmount,
+                quantity: toNumber(item.quantity),
+                unitValue: toNumber(item.unitValue),
+                discount: toNumber(item.discount),
+                grossAmount: toNumber(grossAmount),
+                discountAmount: toNumber(discountAmount),
+                totalAmount: toNumber(item.totalAmount),
                 createdAt: item.createdAt,
                 updatedAt: item.updatedAt
             }
@@ -69,10 +68,10 @@ class BudgetQueriesService {
             if (currentCategory) {
                 currentCategory.items.push(normalizedItem)
                 currentCategory.itemCount += 1
-                currentCategory.quantityTotal += quantity
-                currentCategory.grossAmount = roundMoney(currentCategory.grossAmount + grossAmount)
-                currentCategory.itemDiscountAmount = roundMoney(currentCategory.itemDiscountAmount + discountAmount)
-                currentCategory.totalAmount = roundMoney(currentCategory.totalAmount + totalAmount)
+                currentCategory.quantityTotal = currentCategory.quantityTotal.plus(item.quantity)
+                currentCategory.grossAmount = currentCategory.grossAmount.plus(grossAmount)
+                currentCategory.itemDiscountAmount = currentCategory.itemDiscountAmount.plus(discountAmount)
+                currentCategory.totalAmount = currentCategory.totalAmount.plus(item.totalAmount)
             } else {
                 categories.set(categoryId, {
                     id: item.category.id,
@@ -80,27 +79,49 @@ class BudgetQueriesService {
                     description: item.category.description,
                     isActive: item.category.isActive,
                     itemCount: 1,
-                    quantityTotal: quantity,
+                    quantityTotal: item.quantity,
                     grossAmount,
                     itemDiscountAmount: discountAmount,
-                    totalAmount,
+                    totalAmount: item.totalAmount,
                     items: [normalizedItem]
                 })
             }
 
-            return normalizedItem
+            return {
+                grossAmount,
+                discountAmount,
+                totalAmount: item.totalAmount
+            }
         })
 
         const groupedItems = [...categories.values()]
             .sort((a, b) => a.name.localeCompare(b.name, 'pt-BR'))
             .map(category => ({
-                ...category,
-                quantityTotal: roundMoney(category.quantityTotal)
+                id: category.id,
+                name: category.name,
+                description: category.description,
+                isActive: category.isActive,
+                itemCount: category.itemCount,
+                quantityTotal: toNumber(category.quantityTotal),
+                grossAmount: toNumber(category.grossAmount),
+                itemDiscountAmount: toNumber(category.itemDiscountAmount),
+                totalAmount: toNumber(category.totalAmount),
+                items: category.items
             }))
 
+        const grossAmount = items.reduce(
+            (total, item) => total.plus(item.grossAmount),
+            new Prisma.Decimal(0)
+        )
+        const itemDiscountAmount = items.reduce(
+            (total, item) => total.plus(item.discountAmount),
+            new Prisma.Decimal(0)
+        )
         const totalAmount = toNumber(budget.totalAmount)
         const globalDiscount = toNumber(budget.globalDiscount)
-        const globalDiscountAmount = roundMoney(totalAmount * globalDiscount / 100)
+        const globalDiscountAmount = budget.totalAmount
+            .mul(budget.globalDiscount)
+            .div(100)
         const finalAmount = toNumber(budget.finalAmount)
 
         return {
@@ -120,17 +141,17 @@ class BudgetQueriesService {
             client: budget.client,
             equipament: budget.equipament,
             totals: {
-                itemCount: items.length,
+                itemCount: budget.items.length,
                 categoryCount: groupedItems.length,
-                grossAmount: sumMoney(items.map(item => item.grossAmount)),
-                itemDiscountAmount: sumMoney(items.map(item => item.discountAmount)),
+                grossAmount: toNumber(grossAmount),
+                itemDiscountAmount: toNumber(itemDiscountAmount),
                 totalAmount,
                 globalDiscount,
-                globalDiscountAmount,
+                globalDiscountAmount: toNumber(globalDiscountAmount),
                 finalAmount
             },
             items: {
-                total: items.length,
+                total: budget.items.length,
                 categories: groupedItems
             },
             history: budget.history
