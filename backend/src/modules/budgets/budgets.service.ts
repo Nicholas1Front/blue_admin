@@ -2,7 +2,7 @@ import { AppError } from '../../shared/errors/AppError.js'
 import { removeUndefined } from '../../shared/helpers/objects/removeUndefined.js'
 import { allowedBudgetStatus } from './shared/allowedBudgetStatus.js'
 import budgetRepository from './budgets.repository.js'
-import type { CreateBudgetDTO, FindBudgetsByFiltersDTO, UpdateBudgetDTO } from './budgets.schema.js'
+import type { CreateBudgetDTO, CreateBudgetFromServiceDTO, FindBudgetsByFiltersDTO, UpdateBudgetDTO } from './budgets.schema.js'
 
 const fieldLabels: Record<string, string> = {
     clientId: 'cliente',
@@ -31,6 +31,70 @@ class BudgetService {
         }
 
         return budgetRepository.create(data)
+    }
+
+    async createFromService(data: CreateBudgetFromServiceDTO) {
+        const activityIds = data.items.map(item => item.activityId)
+        const categoryIds = [...new Set(data.items.map(item => item.budgetCategoryId))]
+
+        const conversionData = await budgetRepository.findServiceForConversion(
+            data.serviceId,
+            activityIds,
+            categoryIds
+        )
+
+        if (!conversionData.service) {
+            throw new AppError('Service not found', 404, 'SERVICE_NOT_FOUND')
+        }
+
+        if (conversionData.activities.length !== data.items.length) {
+            throw new AppError(
+                'One or more activities were not found or do not belong to this service',
+                400,
+                'INVALID_SERVICE_ACTIVITIES'
+            )
+        }
+
+        if (conversionData.categories.length !== categoryIds.length) {
+            throw new AppError('One or more budget categories were not found', 404, 'BUDGET_CATEGORY_NOT_FOUND')
+        }
+
+        if (conversionData.categories.some(category => !category.isActive)) {
+            throw new AppError(
+                'Inactive categories cannot be used in new budget items',
+                400,
+                'BUDGET_CATEGORY_INACTIVE'
+            )
+        }
+
+        const equipamentBelongsToClient = await budgetRepository.clientHasEquipament(
+            conversionData.service.clientId,
+            conversionData.service.equipamentId
+        )
+        if (!equipamentBelongsToClient) {
+            throw new AppError(
+                'Service client does not own the selected equipament',
+                400,
+                'CLIENT_DOES_NOT_HAVE_EQUIPAMENT'
+            )
+        }
+
+        const activitiesById = new Map(conversionData.activities.map(activity => [activity.id, activity]))
+        const items = data.items.map(incomingItem => {
+            const activity = activitiesById.get(incomingItem.activityId)
+            if (!activity) {
+                throw new AppError('Service activity not found', 400, 'INVALID_SERVICE_ACTIVITIES')
+            }
+
+            return {
+                activityId: activity.id,
+                title: activity.title,
+                description: activity.description,
+                budgetCategoryId: incomingItem.budgetCategoryId
+            }
+        })
+
+        return budgetRepository.createFromService(conversionData.service, items, new Date())
     }
 
     async update(id: string, data: UpdateBudgetDTO) {
