@@ -19,12 +19,7 @@ export function useBudgetItemsByFilters(filters: FindBudgetItemsFilters, enabled
 }
 export function useBudgetItemMutations() {
     const queryClient = useQueryClient();
-    const invalidate = async () => {
-        await Promise.all([
-            queryClient.invalidateQueries({ queryKey: budgetsQueryKeys.items.all }),
-            queryClient.invalidateQueries({ queryKey: budgetsQueryKeys.all })
-        ]);
-    };
+    const invalidate = () => queryClient.invalidateQueries({ queryKey: budgetsQueryKeys.all });
     const create = useMutation({
         mutationFn: ({ budgetId, data }: { budgetId: string; data: CreateBudgetItemRequest }) => createBudgetItem(budgetId, data),
         onSuccess: invalidate
