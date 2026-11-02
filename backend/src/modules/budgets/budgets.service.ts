@@ -79,22 +79,11 @@ class BudgetService {
             )
         }
 
-        const activitiesById = new Map(conversionData.activities.map(activity => [activity.id, activity]))
-        const items = data.items.map(incomingItem => {
-            const activity = activitiesById.get(incomingItem.activityId)
-            if (!activity) {
-                throw new AppError('Service activity not found', 400, 'INVALID_SERVICE_ACTIVITIES')
-            }
-
-            return {
-                activityId: activity.id,
-                title: activity.title,
-                description: activity.description,
-                budgetCategoryId: incomingItem.budgetCategoryId
-            }
-        })
-
-        return budgetRepository.createFromService(conversionData.service, items, new Date())
+        return budgetRepository.createFromService(
+            data.serviceId,
+            data.items,
+            new Date()
+        )
     }
 
     async update(id: string, data: UpdateBudgetDTO) {
