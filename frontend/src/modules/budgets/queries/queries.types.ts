@@ -1,4 +1,4 @@
-import type { BudgetHistoryEvent, BudgetNumericValue, BudgetRecord, BudgetStatus } from "../budgets.types";
+import type { BudgetHistoryEvent, BudgetRecord, BudgetStatus } from "../budgets.types";
 
 export interface BudgetDashboardFilters { year: number; month: number; page?: number; limit?: number; }
 export interface BudgetMetricsFilters { year: number; }
