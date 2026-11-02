@@ -1,50 +1,101 @@
 import {prisma} from '../../shared/database/prisma.js'
 
 class ServiceRepository{
-    async clientExists(
-        id : string
-    ){
+    async clientExists(id: string) {
         const result = await prisma.client.findUnique({where : {id}})
-
-        if(result !== null && result){
-            return true
-        }else{
-            return false
-        }
+        return result !== null
     }
 
-    async clientHasEquipament(
-        clientId : string,
-        equipamentId : string
-    ){
+    async clientHasEquipament(clientId: string, equipamentId: string) {
         const result = await prisma.equipament.findUnique({
-            where : {
-                id : equipamentId,
-                clientId : clientId
+            where : { id: equipamentId, clientId: clientId }
+        })
+        return result !== null
+    }
+
+    async findBudgetForConversion(budgetId: string, budgetItemIds: string[]) {
+        const budget = await prisma.budget.findUnique({
+            where: { id: budgetId },
+            select: {
+                id: true,
+                clientId: true,
+                equipamentId: true,
+                items: {
+                    where: { id: { in: budgetItemIds } },
+                    select: { id: true, title: true, description: true }
+                }
             }
         })
 
-        if(result !== null && result){
-            return true
-        }else{
-            return false
-        }
+        if (!budget) return null
+        const { items, ...budgetData } = budget
+        return { budget: budgetData, items }
+    }
+
+    async createServiceFromBudget(
+        budget: { id: string; clientId: string; equipamentId: string },
+        items: Array<{ id: string; title: string; description: string | null }>,
+        requestedAt: Date
+    ) {
+        return prisma.$transaction(async tx => {
+            const service = await tx.service.create({
+                data: {
+                    clientId: budget.clientId,
+                    equipamentId: budget.equipamentId,
+                    entryDate: requestedAt,
+                    exitDate: null,
+                    status: 'pendente',
+                    hoursWorked: null,
+                    costPerHour: null,
+                    titheTransactionId: null,
+                    titheStatus: 'aguardando'
+                }
+            })
+
+            const history = await tx.serviceHistory.create({
+                data: {
+                    serviceId: service.id,
+                    eventType: 'servico_criado_orcamento',
+                    description: `Serviço criado a partir do orçamento ${budget.id}. ${items.length} atividade(s) importada(s).`
+                }
+            })
+
+            const activities = []
+            for (const item of items) {
+                const activity = await tx.serviceActivity.create({
+                    data: {
+                        serviceId: service.id,
+                        title: item.title,
+                        description: item.description,
+                        startAt: null,
+                        endAt: null,
+                        status: 'pendente',
+                        createdAt: requestedAt
+                    }
+                })
+                activities.push(activity)
+
+                await tx.serviceHistory.create({
+                    data: {
+                        serviceId: service.id,
+                        eventType: 'atividade_criada',
+                        description: `Atividade criada a partir do orçamento: ${item.title}.`,
+                        createdAt: requestedAt
+                    }
+                })
+            }
+
+            return { service, activities, history }
+        })
     }
 
     async calculateCostPerHour(){
         const monthlyExpensesValues = await prisma.monthlyExpense.findMany({
-            where : {
-                active : true
-            },
-            select : {
-                expectedValue : true
-            }
+            where : { active : true },
+            select : { expectedValue : true }
         })
-
         const totalValue = monthlyExpensesValues.reduce((accumulator, currentValue) => accumulator + Number(currentValue.expectedValue), 0)
-        const costPerHour = (totalValue / 30) / 8
-
-        return costPerHour
+        return (totalValue / 30) / 8
     }
 
     async createService(
@@ -59,59 +110,26 @@ class ServiceRepository{
         description : string
     ){
         const serviceData = {
-            clientId : clientId,
-            equipamentId : equipamentId,
-            entryDate : entryDate,
-            exitDate : exitDate,
-            status : status,
-            hoursWorked : hoursWorked,
-            costPerHour : costPerHour,
-            titheTransactionId : null,
+            clientId, equipamentId, entryDate, exitDate, status,
+            hoursWorked, costPerHour, titheTransactionId : null,
             titheStatus : 'aguardando'
         }
-
         return prisma.$transaction(async tx => {
-            const service = await tx.service.create({
-                data : serviceData
-            })
-
+            const service = await tx.service.create({ data : serviceData })
             const history = await tx.serviceHistory.create({
-                data : {
-                    serviceId : service.id,
-                    eventType : eventType,
-                    description : description
-                }
+                data : { serviceId : service.id, eventType, description }
             })
-
-            return {
-                service : service,
-                history : history
-            }
+            return { service, history }
         })
     }
 
-    async findServiceById(
-        id : string
-    ){
-        const service = await prisma.service.findUnique({
-            where : {
-                id 
-            }
-        })
-
+    async findServiceById(id : string){
+        const service = await prisma.service.findUnique({ where : { id } })
         const history = await prisma.serviceHistory.findFirst({
-            where : {
-                serviceId : id
-            },
-            orderBy : {
-                createdAt : 'desc'
-            }
+            where : { serviceId : id },
+            orderBy : { createdAt : 'desc' }
         })
-
-        return {
-            service : service,
-            history : history
-        }
+        return { service, history }
     }
 
     async findServiceByFilters(
@@ -126,94 +144,39 @@ class ServiceRepository{
         titheTransactionId : string | undefined | null,
         titheStatus : string | undefined | null
     ){
-
-        const services = await prisma.service.findMany({
+        return prisma.service.findMany({
             where : {
-                ...(id !== undefined && {
-                    id : {
-                        contains : id,
-                        mode : 'insensitive'
-                    }
-                }),
-                ...(clientId !== undefined && {
-                    clientId : {
-                        contains : clientId,
-                        mode : 'insensitive'
-                    }
-                }),
-                ...(equipamentId !== undefined && {
-                    equipamentId : {
-                        contains : equipamentId,
-                        mode : 'insensitive'
-                    }
-                }),
-                ...(entryDate !== undefined && {
-                    entryDate : entryDate
-                }),
-                ...(exitDate !== undefined && {
-                    exitDate : exitDate
-                }),
-                ...(status !== undefined && {
-                    status : {
-                        contains : status,
-                        mode : 'insensitive'
-                    }
-                }),
+                ...(id !== undefined && { id : { contains : id, mode : 'insensitive' } }),
+                ...(clientId !== undefined && { clientId : { contains : clientId, mode : 'insensitive' } }),
+                ...(equipamentId !== undefined && { equipamentId : { contains : equipamentId, mode : 'insensitive' } }),
+                ...(entryDate !== undefined && { entryDate }),
+                ...(exitDate !== undefined && { exitDate }),
+                ...(status !== undefined && { status : { contains : status, mode : 'insensitive' } }),
                 ...(hoursWorked !== undefined && {hoursWorked}),
                 ...(costPerHour !== undefined && {costPerHour}),
                 ...(titheTransactionId !== undefined && (
-                        titheTransactionId === null
-                            ? { titheTransactionId : null }
-                            : {
-                                titheTransactionId : {
-                                    contains : titheTransactionId,
-                                    mode : 'insensitive'
-                                }
-                            }
+                    titheTransactionId === null ? { titheTransactionId : null } :
+                    { titheTransactionId : { contains : titheTransactionId, mode : 'insensitive' } }
                 )),
                 ...(titheStatus !== undefined && (
-                        titheStatus === null
-                            ? { titheStatus : null }
-                            : {
-                                titheStatus : {
-                                    contains : titheStatus,
-                                    mode : 'insensitive'
-                                }
-                            }
+                    titheStatus === null ? { titheStatus : null } :
+                    { titheStatus : { contains : titheStatus, mode : 'insensitive' } }
                 ))
             }
         })
-
-
-        return services
     }
 
-    async findHistoriesByServiceIds(
-        serviceIds : string[]
-    ){
-        const history = await prisma.serviceHistory.findMany({
-            where : {
-                serviceId : {
-                    in : serviceIds
-                }
-            },
-            orderBy : {
-                createdAt : 'asc'
-            }
+    async findHistoriesByServiceIds(serviceIds : string[]){
+        return prisma.serviceHistory.findMany({
+            where : { serviceId : { in : serviceIds } },
+            orderBy : { createdAt : 'asc' }
         })
-
-        return history
     }
 
-    async updateService(
-        serviceId : string,
-        data : any
-    ){
+    async updateService(serviceId : string, data : any){
         return prisma.$transaction(async tx => {
             const service = await tx.service.update({
-                where : {
-                    id : serviceId
-                },
+                where : { id : serviceId },
                 data : {
                     clientId : data.clientId,
                     equipamentId : data.equipamentId,
@@ -223,72 +186,33 @@ class ServiceRepository{
                     costPerHour : data.costPerHour
                 }
             })
-
             const history = await tx.serviceHistory.create({
-                data : {
-                    serviceId : serviceId,
-                    eventType : data.eventType,
-                    description : data.description
-                }
+                data : { serviceId, eventType : data.eventType, description : data.description }
             })
-
-            return {
-                service : service,
-                history : history
-            }
+            return { service, history }
         })
     }
 
-    async updateServiceStatus(
-        serviceId : string,
-        data : any
-    ){
+    async updateServiceStatus(serviceId : string, data : any){
         return prisma.$transaction(async tx => {
             const service = await tx.service.update({
-                where : {
-                    id : serviceId
-                },
-                data : {
-                    status : data.status
-                }
+                where : { id : serviceId },
+                data : { status : data.status }
             })
-
             const history = await tx.serviceHistory.create({
-                data : {
-                    serviceId : serviceId,
-                    eventType : data.eventType,
-                    description : data.description
-                }
+                data : { serviceId, eventType : data.eventType, description : data.description }
             })
-
-            return {
-                service : service,
-                history : history
-            }
+            return { service, history }
         })
     }
 
-    async deleteServiceById(
-        id : string
-    ){
+    async deleteServiceById(id : string){
         return prisma.$transaction(async tx => {
-            // Preserve financial records while removing every origin reference
-            // to this service. The service and its dependent history/activity
-            // rows are deleted in the same transaction.
             await tx.financialTransaction.updateMany({
-                where : {
-                    originId : id
-                },
-                data : {
-                    originId : null,
-                    originType : null
-                }
+                where : { originId : id },
+                data : { originId : null, originType : null }
             })
-
-            await tx.service.delete({
-                where : {id}
-            })
-
+            await tx.service.delete({ where : {id} })
             return true
         })
     }
