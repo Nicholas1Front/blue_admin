@@ -67,7 +67,6 @@ export interface PaginatedBudgetsResponse {
     budgets: BudgetRecord[];
     page: number; limit: number; total: number; totalPages: number;
 }
-export interface BudgetMutationResponse { budget: BudgetRecord; }
 export interface BudgetConversionResponse {
     budget: BudgetRecord;
     items: Array<Record<string, unknown>>;
