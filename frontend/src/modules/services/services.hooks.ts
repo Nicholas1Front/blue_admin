@@ -26,6 +26,17 @@ export function useCreateService() {
     });
 }
 
+export function useCreateServiceFromBudget() {
+    const queryClient = useQueryClient();
+
+    return useMutation({
+        mutationFn: (data: CreateServiceFromBudgetRequest) => createServiceFromBudget(data),
+        onSuccess: async () => {
+            await queryClient.invalidateQueries({ queryKey: servicesQueryKeys.all });
+        }
+    });
+}
+
 export function useUpdateService() {
     const queryClient = useQueryClient();
 
