@@ -17,7 +17,7 @@ export interface BudgetDashboardResponse {
             id: string; status: BudgetStatus; finalAmount: number;
             createdAt: string; updatedAt: string;
             client: { id: string; name: string };
-            equipament: { id: string; type: string; brand: string; model: string | null };
+            equipament: { id: string; type: string; brand: string; model: string | null; mainIdentification: string | null };
             itemCount: number;
         }>;
     };
