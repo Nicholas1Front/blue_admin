@@ -214,6 +214,6 @@
     .budget-print-summary { display: grid; gap: 2mm; width: min(100%, 78mm); margin: 5mm 0 0 auto; padding-top: 3mm; border-top: 1px solid #9ca3af; break-inside: avoid; }
     .budget-print-summary > div { display: flex; justify-content: space-between; gap: 4mm; font-size: 9pt; }
     .budget-print-summary .is-final { margin-top: 1mm; padding: 3mm; background: #f3f4f6 !important; border: 1px solid #9ca3af; font-size: 11pt; font-weight: 700; }
-    .budget-print-observations { margin-top: 8mm; padding-top: 4mm; border-top: 1px solid #9ca3af; break-inside: avoid; }
+    .budget-print-observations { margin-top: 8mm; padding-top: 4mm; border-top: 1px solid #9ca3af; break-inside: auto; }
     .budget-print-observations p { white-space: pre-wrap; overflow-wrap: anywhere; }
 }
