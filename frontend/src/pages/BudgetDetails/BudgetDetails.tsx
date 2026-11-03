@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { Link, useNavigate, useParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-    faFilePdf, faListOl,
+    faArrowDown, faArrowUp, faFilePdf, faListOl,
     faPenToSquare, faPlus, faPrinter, faRotateLeft, faTrashCan
 } from "@fortawesome/free-solid-svg-icons";
 
@@ -83,6 +83,16 @@ export function BudgetDetails() {
     const [printOrder, setPrintOrder] = useState<string[]>([]);
 
     useEffect(() => {
+        if (!relationshipOpen) return;
+        void clientsQuery.loadClients();
+    }, [relationshipOpen, clientsQuery.loadClients]);
+
+    useEffect(() => {
+        if (!relationshipOpen || !selectedClientId) return;
+        void equipamentsQuery.loadEquipaments(selectedClientId);
+    }, [relationshipOpen, selectedClientId, equipamentsQuery.loadEquipaments]);
+
+    useEffect(() => {
         const resetPrintView = () => setPrintMode(false);
         window.addEventListener("afterprint", resetPrintView);
         return () => window.removeEventListener("afterprint", resetPrintView);
@@ -116,7 +126,50 @@ export function BudgetDetails() {
             .sort((a, b) => (position.get(a.items[0].id) ?? 0) - (position.get(b.items[0].id) ?? 0));
     }, [details, printOrder]);
 
-    function openRelationshipEditor() {\n        setSelectedClientId(details!.budget.clientId);\n        setSelectedEquipamentId(details!.budget.equipamentId);\n        setFormError(null);\n        setRelationshipOpen(true);\n    }\n\n    async function saveRelationship(event: FormEvent<HTMLFormElement>) {\n        event.preventDefault();\n        if (!details || !selectedClientId || !selectedEquipamentId) {\n            setFormError("Selecione o cliente e um equipamento pertencente a ele.");\n            return;\n        }\n        setIsSaving(true);\n        setFormError(null);\n        try {\n            await budgetMutations.update.mutateAsync({\n                id: details.budget.id,\n                data: { clientId: selectedClientId, equipamentId: selectedEquipamentId }\n            });\n            setRelationshipOpen(false);\n            await query.refetch();\n        } catch (error) {\n            setFormError(getError(error, "Não foi possível atualizar o cliente e equipamento."));\n        } finally {\n            setIsSaving(false);\n        }\n    }\n\n    async function deleteBudget() {\n        if (!details) return;\n        setIsSaving(true);\n        setFormError(null);\n        try {\n            await budgetMutations.remove.mutateAsync(details.budget.id);\n            navigate("/budgets", { replace: true });\n        } catch (error) {\n            setFormError(getError(error, "Não foi possível excluir o orçamento."));\n        } finally {\n            setIsSaving(false);\n        }\n    }\n\n    function openBudgetEditor() {
+    function openRelationshipEditor() {
+        setSelectedClientId(details!.budget.clientId);
+        setSelectedEquipamentId(details!.budget.equipamentId);
+        setFormError(null);
+        setRelationshipOpen(true);
+    }
+
+    async function saveRelationship(event: FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+        if (!details || !selectedClientId || !selectedEquipamentId) {
+            setFormError("Selecione o cliente e um equipamento pertencente a ele.");
+            return;
+        }
+        setIsSaving(true);
+        setFormError(null);
+        try {
+            await budgetMutations.update.mutateAsync({
+                id: details.budget.id,
+                data: { clientId: selectedClientId, equipamentId: selectedEquipamentId }
+            });
+            setRelationshipOpen(false);
+            await query.refetch();
+        } catch (error) {
+            setFormError(getError(error, "Não foi possível atualizar o cliente e equipamento."));
+        } finally {
+            setIsSaving(false);
+        }
+    }
+
+    async function deleteBudget() {
+        if (!details) return;
+        setIsSaving(true);
+        setFormError(null);
+        try {
+            await budgetMutations.remove.mutateAsync(details.budget.id);
+            navigate("/budgets", { replace: true });
+        } catch (error) {
+            setFormError(getError(error, "Não foi possível excluir o orçamento."));
+        } finally {
+            setIsSaving(false);
+        }
+    }
+
+    function openBudgetEditor() {
         setEditableBudget({
             status: details!.budget.status,
             validity: details!.budget.validity,
@@ -270,7 +323,8 @@ export function BudgetDetails() {
                         <p>Consulte a proposta, seus itens, condições comerciais e histórico de alterações.</p>
                     </div>
                     <div className="budget-details-hero__actions">
-                        <button type="button" onClick={openBudgetEditor}><FontAwesomeIcon icon={faPenToSquare} /> Editar orçamento</button>\n                        <button type="button" className="is-danger" onClick={() => { setDeleteBudgetOpen(true); setFormError(null); }}><FontAwesomeIcon icon={faTrashCan} /> Excluir</button>
+                        <button type="button" onClick={openBudgetEditor}><FontAwesomeIcon icon={faPenToSquare} /> Editar orçamento</button>
+                        <button type="button" className="is-danger" onClick={() => { setDeleteBudgetOpen(true); setFormError(null); }}><FontAwesomeIcon icon={faTrashCan} /> Excluir</button>
                         <button type="button" onClick={() => { setPrintOrder(allItems.map(item => item.id)); setOrganizerOpen(true); }}><FontAwesomeIcon icon={faListOl} /> Organizar impressão</button>
                         <button type="button" className="is-primary" onClick={startPrint}><FontAwesomeIcon icon={faFilePdf} /> Exportar PDF</button>
                     </div>
@@ -325,7 +379,21 @@ export function BudgetDetails() {
                 </section>
             </div>
 
-            <Modal isOpen={relationshipOpen} title="Alterar cliente e equipamento" onClose={() => setRelationshipOpen(false)} size="wide">\n                <form className="budget-details-form" onSubmit={saveRelationship}>\n                    <label>Cliente<select value={selectedClientId} onChange={event => { setSelectedClientId(event.target.value); setSelectedEquipamentId(""); }} required disabled={clientsQuery.isLoading}><option value="">Selecione um cliente</option>{clientsQuery.clients.map(client => <option key={client.id} value={client.id}>{client.name}</option>)}</select></label>\n                    <label>Equipamento<select value={selectedEquipamentId} onChange={event => setSelectedEquipamentId(event.target.value)} required disabled={!selectedClientId || equipamentsQuery.isLoading}><option value="">Selecione um equipamento</option>{equipamentsQuery.equipaments.map(equipament => <option key={equipament.id} value={equipament.id}>{[equipament.type, equipament.brand, equipament.model, equipament.mainIdentification].filter(Boolean).join(" · ")}</option>)}</select></label>\n                    <p className="budget-details-form__hint">Ao trocar o cliente, selecione também um equipamento cadastrado para esse cliente. A API valida esse vínculo antes de salvar.</p>\n                    {formError && <p className="budget-details-error" role="alert">{formError}</p>}\n                    <div className="budget-details-form__actions"><button type="button" onClick={() => setRelationshipOpen(false)}>Cancelar</button><button type="submit" disabled={isSaving || !selectedEquipamentId}>{isSaving ? "Salvando..." : "Salvar vínculo"}</button></div>\n                </form>\n            </Modal>\n\n            <Modal isOpen={deleteBudgetOpen} title="Excluir orçamento" onClose={() => setDeleteBudgetOpen(false)}>\n                <div className="budget-details-confirm"><p>Deseja excluir o orçamento <strong>#{budget.id.slice(0, 8)}</strong>? Os itens e o histórico também serão removidos. Essa ação não poderá ser desfeita.</p>{formError && <p className="budget-details-error" role="alert">{formError}</p>}<div className="budget-details-form__actions"><button type="button" onClick={() => setDeleteBudgetOpen(false)}>Cancelar</button><button type="button" className="is-danger" disabled={isSaving} onClick={() => void deleteBudget()}>{isSaving ? "Excluindo..." : "Confirmar exclusão"}</button></div></div>\n            </Modal>\n\n            <Modal isOpen={dialog === "budget"} title="Editar condições do orçamento" onClose={() => setDialog(null)} size="wide">
+            <Modal isOpen={relationshipOpen} title="Alterar cliente e equipamento" onClose={() => setRelationshipOpen(false)} size="wide">
+                <form className="budget-details-form" onSubmit={saveRelationship}>
+                    <label>Cliente<select value={selectedClientId} onChange={event => { setSelectedClientId(event.target.value); setSelectedEquipamentId(""); }} required disabled={clientsQuery.isLoading}><option value="">Selecione um cliente</option>{clientsQuery.clients.map(client => <option key={client.id} value={client.id}>{client.name}</option>)}</select></label>
+                    <label>Equipamento<select value={selectedEquipamentId} onChange={event => setSelectedEquipamentId(event.target.value)} required disabled={!selectedClientId || equipamentsQuery.isLoading}><option value="">Selecione um equipamento</option>{equipamentsQuery.equipaments.map(equipament => <option key={equipament.id} value={equipament.id}>{[equipament.type, equipament.brand, equipament.model, equipament.mainIdentification].filter(Boolean).join(" · ")}</option>)}</select></label>
+                    <p className="budget-details-form__hint">Ao trocar o cliente, selecione também um equipamento cadastrado para esse cliente. A API valida esse vínculo antes de salvar.</p>
+                    {formError && <p className="budget-details-error" role="alert">{formError}</p>}
+                    <div className="budget-details-form__actions"><button type="button" onClick={() => setRelationshipOpen(false)}>Cancelar</button><button type="submit" disabled={isSaving || !selectedEquipamentId}>{isSaving ? "Salvando..." : "Salvar vínculo"}</button></div>
+                </form>
+            </Modal>
+
+            <Modal isOpen={deleteBudgetOpen} title="Excluir orçamento" onClose={() => setDeleteBudgetOpen(false)}>
+                <div className="budget-details-confirm"><p>Deseja excluir o orçamento <strong>#{budget.id.slice(0, 8)}</strong>? Os itens e o histórico também serão removidos. Essa ação não poderá ser desfeita.</p>{formError && <p className="budget-details-error" role="alert">{formError}</p>}<div className="budget-details-form__actions"><button type="button" onClick={() => setDeleteBudgetOpen(false)}>Cancelar</button><button type="button" className="is-danger" disabled={isSaving} onClick={() => void deleteBudget()}>{isSaving ? "Excluindo..." : "Confirmar exclusão"}</button></div></div>
+            </Modal>
+
+            <Modal isOpen={dialog === "budget"} title="Editar condições do orçamento" onClose={() => setDialog(null)} size="wide">
                 <form className="budget-details-form" onSubmit={saveBudget}>
                     <label>Status<select value={editableBudget.status} onChange={event => setEditableBudget(current => ({ ...current, status: event.target.value as BudgetStatus }))}>{statusOptions.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
                     <label>Validade<input value={editableBudget.validity} onChange={event => setEditableBudget(current => ({ ...current, validity: event.target.value }))} maxLength={120} required /></label>
