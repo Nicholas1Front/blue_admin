@@ -13,11 +13,12 @@ import { useClients } from "../../modules/clients/useClients";
 import { useEquipaments } from "../../modules/equipaments/useEquipaments";
 import {
     useBudgetById, useBudgetMutations, useBudgetItemMutations,
-    useBudgetCategories
+    useBudgetCategories, useBudgetCategoryMutations
 } from "../../modules/budgets";
 import type {
     BudgetStatus, BudgetDetailsResponse, BudgetCategory,
-    BudgetItem, CreateBudgetItemRequest, UpdateBudgetItemRequest
+    BudgetItem, CreateBudgetItemRequest, UpdateBudgetItemRequest,
+    CreateBudgetCategoryRequest
 } from "../../modules/budgets";
 import "./BudgetDetails.css";
 
@@ -48,6 +49,16 @@ function getError(error: unknown, fallback: string) {
     return error instanceof Error ? error.message : fallback;
 }
 
+function getHistoryStatusTransition(description: string) {
+    const match = description.match(/status do orçamento alterado de "([^"]+)" para "([^"]+)"/i);
+    if (!match) return null;
+
+    const from = match[1] as BudgetStatus;
+    const to = match[2] as BudgetStatus;
+    if (!(from in statusLabels) || !(to in statusLabels)) return null;
+    return { from, to };
+}
+
 type EditableItem = {
     id?: string; title: string; description: string; categoryId: string;
     quantity: string; unitValue: string; discount: string;
@@ -66,11 +77,16 @@ export function BudgetDetails() {
     const budgetMutations = useBudgetMutations();
     const itemMutations = useBudgetItemMutations();
     const categoriesQuery = useBudgetCategories();
+    const categoryMutations = useBudgetCategoryMutations();
     const details = query.data;
     const categories = (categoriesQuery.data as BudgetCategory[] | undefined) ?? [];
 
-    const [dialog, setDialog] = useState<"budget" | "item" | "delete-item" | null>(null);
+    const [dialog, setDialog] = useState<"budget" | "discount" | "item" | "delete-item" | null>(null);
     const [editingItem, setEditingItem] = useState<EditableItem>(emptyItem);
+    const [itemDialogTab, setItemDialogTab] = useState<"item" | "category">("item");
+    const [newCategoryName, setNewCategoryName] = useState("");
+    const [newCategoryDescription, setNewCategoryDescription] = useState("");
+    const [globalDiscountInput, setGlobalDiscountInput] = useState("0");
     const [pendingDelete, setPendingDelete] = useState<BudgetItem | null>(null);
     const [formError, setFormError] = useState<string | null>(null);
     const [isSaving, setIsSaving] = useState(false);
@@ -105,7 +121,6 @@ export function BudgetDetails() {
         deliveryTime: "",
         paymentCondition: "",
         observations: "",
-        globalDiscount: "0"
     });
     const orderedCategories = useMemo(() => {
         if (!details) return [];
@@ -175,10 +190,15 @@ export function BudgetDetails() {
             deliveryTime: details!.budget.deliveryTime,
             paymentCondition: details!.budget.paymentCondition,
             observations: details!.budget.observations ?? "",
-            globalDiscount: String(details!.totals.globalDiscount)
         });
         setFormError(null);
         setDialog("budget");
+    }
+
+    function openGlobalDiscountEditor() {
+        setGlobalDiscountInput(String(details!.totals.globalDiscount));
+        setFormError(null);
+        setDialog("discount");
     }
 
     function openItemEditor(item?: BudgetItem) {
@@ -187,6 +207,9 @@ export function BudgetDetails() {
             categoryId: item.categoryId, quantity: String(item.quantity),
             unitValue: String(item.unitValue), discount: String(item.discount)
         } : emptyItem);
+        setItemDialogTab("item");
+        setNewCategoryName("");
+        setNewCategoryDescription("");
         setFormError(null);
         setDialog("item");
     }
@@ -194,11 +217,6 @@ export function BudgetDetails() {
     async function saveBudget(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
         if (!details) return;
-        const discount = Number(editableBudget.globalDiscount);
-        if (!Number.isFinite(discount) || discount < 0 || discount > 100) {
-            setFormError("O desconto global deve estar entre 0 e 100%.");
-            return;
-        }
         setIsSaving(true);
         setFormError(null);
         try {
@@ -210,8 +228,7 @@ export function BudgetDetails() {
                     warranty: editableBudget.warranty.trim(),
                     deliveryTime: editableBudget.deliveryTime.trim(),
                     paymentCondition: editableBudget.paymentCondition.trim(),
-                    observations: editableBudget.observations.trim() || null,
-                    globalDiscount: discount
+                    observations: editableBudget.observations.trim() || null
                 }
             });
             setDialog(null);
@@ -256,6 +273,60 @@ export function BudgetDetails() {
             await query.refetch();
         } catch (error) {
             setFormError(getError(error, "Não foi possível salvar o item."));
+        } finally {
+            setIsSaving(false);
+        }
+    }
+
+    async function saveGlobalDiscount(event: FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+        if (!details) return;
+        const discount = Number(globalDiscountInput);
+        if (!Number.isFinite(discount) || discount < 0 || discount > 100) {
+            setFormError("O desconto global deve estar entre 0 e 100%.");
+            return;
+        }
+
+        setIsSaving(true);
+        setFormError(null);
+        try {
+            await budgetMutations.update.mutateAsync({
+                id: details.budget.id,
+                data: { globalDiscount: discount }
+            });
+            setDialog(null);
+            await query.refetch();
+        } catch (error) {
+            setFormError(getError(error, "Não foi possível atualizar o desconto global."));
+        } finally {
+            setIsSaving(false);
+        }
+    }
+
+    async function saveCategory(event: FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+        const name = newCategoryName.trim();
+        if (!name) {
+            setFormError("Informe o nome da categoria.");
+            return;
+        }
+
+        const payload: CreateBudgetCategoryRequest = {
+            name,
+            description: newCategoryDescription.trim() || null
+        };
+
+        setIsSaving(true);
+        setFormError(null);
+        try {
+            const category = await categoryMutations.create.mutateAsync(payload);
+            await categoriesQuery.refetch();
+            setEditingItem(current => ({ ...current, categoryId: category.id }));
+            setNewCategoryName("");
+            setNewCategoryDescription("");
+            setItemDialogTab("item");
+        } catch (error) {
+            setFormError(getError(error, "Não foi possível criar a categoria."));
         } finally {
             setIsSaving(false);
         }
@@ -330,20 +401,18 @@ export function BudgetDetails() {
 
                 <section className="budget-details-summary" aria-label="Resumo do orçamento">
                     <article><span>Itens</span><strong>{totals.itemCount}</strong><small>{totals.categoryCount} categorias</small></article>
-                    <article><span>Valor bruto</span><strong>{money(totals.grossAmount)}</strong><small>Antes dos descontos</small></article>
-                    <article><span>Descontos nos itens</span><strong>{money(totals.itemDiscountAmount)}</strong><small>Aplicados por item</small></article>
-                    <article><span>Desconto global ({totals.globalDiscount}%)</span><strong>{money(totals.globalDiscountAmount)}</strong><small>Após os descontos dos itens</small></article>
+                    <article><span>Valor bruto</span><strong>{money(totals.grossAmount)}</strong><small>Composição antes dos descontos</small></article>
                     <article className="is-total"><span>Valor final</span><strong>{money(totals.finalAmount)}</strong><small>Valor da proposta</small></article>
                 </section>
 
                 <div className="budget-details-grid">
                     <section className="budget-details-panel">
                         <header><div><span className="budget-details-eyebrow">Responsável pela proposta</span><h2>Cliente</h2></div></header>
-                        <dl><div><dt>Nome</dt><dd>{details.client.name}</dd></div><div><dt>Documento</dt><dd>{details.client.document || "Não informado"}</dd></div><div><dt>Endereço</dt><dd>{details.client.address || "Não informado"}</dd></div><div><dt>ID</dt><dd>{details.client.id}</dd></div></dl>
+                        <p className="budget-details-entity-name">{details.client.name}</p>
                     </section>
                     <section className="budget-details-panel">
                         <header><div><span className="budget-details-eyebrow">Bem relacionado à proposta</span><h2>Equipamento</h2></div><button type="button" onClick={openRelationshipEditor}><FontAwesomeIcon icon={faPenToSquare} /> Alterar vínculo</button></header>
-                        <dl><div><dt>Identificação</dt><dd>{equipmentLabel(details) || "Não informado"}</dd></div><div><dt>Tipo</dt><dd>{details.equipament.type}</dd></div><div><dt>Marca / modelo</dt><dd>{[details.equipament.brand, details.equipament.model].filter(Boolean).join(" ") || "Não informado"}</dd></div><div><dt>ID</dt><dd>{details.equipament.id}</dd></div></dl>
+                        <p className="budget-details-entity-name">{equipmentLabel(details) || "Não informado"}</p>
                     </section>
                     <section className="budget-details-panel">
                         <header><div><span className="budget-details-eyebrow">Condições comerciais</span><h2>Dados do orçamento</h2></div><button type="button" onClick={openBudgetEditor}><FontAwesomeIcon icon={faPenToSquare} /> Editar</button></header>
@@ -353,27 +422,90 @@ export function BudgetDetails() {
                 </div>
 
                 <section className="budget-details-panel budget-details-items" id="budget-items">
-                    <header><div><span className="budget-details-eyebrow">Composição da proposta</span><h2>Itens do orçamento</h2><p>Os valores abaixo refletem os descontos individuais e o desconto global cadastrado.</p></div><button type="button" className="is-primary" onClick={() => openItemEditor()}><FontAwesomeIcon icon={faPlus} /> Adicionar item</button></header>
+                    <header><div><span className="budget-details-eyebrow">Composição da proposta</span><h2>Itens do orçamento</h2><p>Itens agrupados por categoria e seus respectivos subtotais.</p></div><button type="button" className="is-primary" onClick={() => openItemEditor()}><FontAwesomeIcon icon={faPlus} /> Adicionar item</button></header>
                     {allItems.length === 0 ? <div className="budget-details-empty"><strong>Nenhum item cadastrado</strong><p>Adicione serviços, peças ou outros itens para compor esta proposta.</p></div> : (
                         <div className="budget-details-categories">
                             {(printMode ? orderedCategories : details.items.categories).map(category => <section className="budget-details-category" key={category.id}>
-                                <header><div><h3>{category.name}</h3><span>{category.itemCount} {category.itemCount === 1 ? "item" : "itens"} · {money(category.totalAmount)}</span></div>{!category.isActive && <small>Categoria inativa</small>}</header>
+                                <header><div><h3>{category.name}</h3><span>{category.itemCount} {category.itemCount === 1 ? "item" : "itens"}</span></div>{!category.isActive && <small>Categoria inativa</small>}</header>
                                 <div className="budget-details-item-list">
                                     {category.items.map(item => <article className="budget-details-item" key={item.id}>
-                                        <div className="budget-details-item__main"><strong>{item.title}</strong>{item.description && <p>{item.description}</p>}<small>{item.quantity} × {money(item.unitValue)} · desconto {item.discount}%</small></div>
-                                        <div className="budget-details-item__amount"><strong>{money(item.totalAmount)}</strong><small>Bruto: {money(item.grossAmount)}</small></div>
+                                        <div className="budget-details-item__main"><strong>{item.title}</strong>{item.description && <p>{item.description}</p>}<small>{item.quantity} × {money(item.unitValue)}</small></div>
+                                        <div className="budget-details-item__amount"><strong>{money(item.totalAmount)}</strong></div>
                                         <div className="budget-details-item__actions no-print"><button type="button" aria-label={`Editar ${item.title}`} onClick={() => openItemEditor({ ...item, budgetId: budget.id, categoryId: category.id, quantity: item.quantity, unitValue: item.unitValue, totalAmount: item.totalAmount, discount: item.discount, createdAt: item.createdAt, updatedAt: item.updatedAt })}><FontAwesomeIcon icon={faPenToSquare} /></button><button type="button" className="is-danger" aria-label={`Excluir ${item.title}`} onClick={() => { setPendingDelete({ ...item, budgetId: budget.id, categoryId: category.id, quantity: item.quantity, unitValue: item.unitValue, totalAmount: item.totalAmount, discount: item.discount, createdAt: item.createdAt, updatedAt: item.updatedAt }); setDialog("delete-item"); setFormError(null); }}><FontAwesomeIcon icon={faTrashCan} /></button></div>
                                     </article>)}
                                 </div>
+                                <footer className="budget-details-category-total"><span>Total da categoria</span><strong>{money(category.totalAmount)}</strong></footer>
                             </section>)}
                         </div>
                     )}
-                    <div className="budget-details-final-total"><span>Valor final do orçamento</span><strong>{money(totals.finalAmount)}</strong></div>
+                    <section className="budget-details-pricing" aria-label="Resumo financeiro do orçamento">
+                        <div><span>Valor bruto</span><strong>{money(totals.grossAmount)}</strong></div>
+                        <div className="budget-details-pricing__discount"><span>Desconto global ({totals.globalDiscount}%)</span><strong>- {money(totals.globalDiscountAmount)}</strong><button type="button" onClick={openGlobalDiscountEditor}><FontAwesomeIcon icon={faPenToSquare} /> Editar desconto</button></div>
+                        <div className="budget-details-pricing__final"><span>Valor final do orçamento</span><strong>{money(totals.finalAmount)}</strong></div>
+                    </section>
                 </section>
 
                 <section className="budget-details-panel budget-details-history">
                     <header><div><span className="budget-details-eyebrow">Rastreabilidade</span><h2>Histórico do orçamento</h2><p>Registros de criação, atualizações e alterações nos itens.</p></div><span className="budget-details-history__count">{history.length} registros</span></header>
-                    {history.length === 0 ? <div className="budget-details-empty"><strong>Nenhum registro encontrado</strong></div> : <ol>{history.map(event => <li key={event.id}><span className="budget-details-history__dot" /><div><strong>{event.description}</strong><small>{event.eventType.replaceAll("_", " ")} · {date(event.createdAt)}</small></div></li>)}</ol>}
+                    {history.length === 0 ? <div className="budget-details-empty"><strong>Nenhum registro encontrado</strong></div> : <ol>{history.map(event => {
+                        const transition = getHistoryStatusTransition(event.description);
+                        return <li key={event.id} className={transition ? "has-status" : ""}>
+                            <span className="budget-details-history__dot" />
+                            <div>
+                                <strong>{event.description}</strong>
+                                {transition && <div className="budget-details-history__transition"><span className={`budget-details-status budget-details-status--${statusTones[transition.from]}`}>{statusLabels[transition.from]}</span><span aria-hidden="true">→</span><span className={`budget-details-status budget-details-status--${statusTones[transition.to]}`}>{statusLabels[transition.to]}</span></div>}
+                                <small>{event.eventType.replaceAll("_", " ")} · {date(event.createdAt)}</small>
+                            </div>
+                        </li>;
+                    })}</ol>}
+                </section>
+
+                <section className="budget-print-document" aria-label="Documento para impressão">
+                    <header className="budget-print-document__header">
+                        <div className="budget-print-brand"><strong>BLUE ADMIN</strong><span>Gestão de oficina</span></div>
+                        <div className="budget-print-document__title"><h1>ORÇAMENTO</h1><strong>#{budget.id.slice(0, 8)}</strong><span>{statusLabels[budget.status]}</span></div>
+                        <small>Emitido em {date(budget.createdAt)}</small>
+                    </header>
+
+                    <div className="budget-print-parties">
+                        <section><h2>Cliente</h2><p>{details.client.name}</p></section>
+                        <section><h2>Equipamento</h2><p>{equipmentLabel(details) || "Não informado"}</p></section>
+                    </div>
+
+                    <section className="budget-print-conditions">
+                        <h2>Condições comerciais</h2>
+                        <dl>
+                            <div><dt>Validade</dt><dd>{budget.validity}</dd></div>
+                            <div><dt>Garantia</dt><dd>{budget.warranty}</dd></div>
+                            <div><dt>Prazo de entrega</dt><dd>{budget.deliveryTime}</dd></div>
+                            <div><dt>Pagamento</dt><dd>{budget.paymentCondition}</dd></div>
+                        </dl>
+                    </section>
+
+                    <section className="budget-print-items">
+                        <h2>Itens do orçamento</h2>
+                        {(printMode ? orderedCategories : details.items.categories).map(category => <section className="budget-print-category" key={category.id}>
+                            <header><h3>{category.name}</h3><span>{category.itemCount} {category.itemCount === 1 ? "item" : "itens"}</span></header>
+                            <table>
+                                <thead><tr><th>Descrição</th><th>Qtd.</th><th>Valor unitário</th><th>Total</th></tr></thead>
+                                <tbody>{category.items.map(item => <tr key={item.id}>
+                                    <td><strong>{item.title}</strong>{item.description && <small>{item.description}</small>}</td>
+                                    <td>{item.quantity}</td>
+                                    <td>{money(item.unitValue)}</td>
+                                    <td>{money(item.totalAmount)}</td>
+                                </tr>)}</tbody>
+                            </table>
+                            <footer><span>Total da categoria</span><strong>{money(category.totalAmount)}</strong></footer>
+                        </section>)}
+                    </section>
+
+                    <section className="budget-print-summary">
+                        <div><span>Valor bruto</span><strong>{money(totals.grossAmount)}</strong></div>
+                        <div><span>Desconto global ({totals.globalDiscount}%)</span><strong>- {money(totals.globalDiscountAmount)}</strong></div>
+                        <div className="is-final"><span>Valor final</span><strong>{money(totals.finalAmount)}</strong></div>
+                    </section>
+
+                    {budget.observations && <section className="budget-print-observations"><h2>Observações gerais</h2><p>{budget.observations}</p></section>}
                 </section>
             </div>
 
@@ -398,21 +530,42 @@ export function BudgetDetails() {
                     <label>Garantia<input value={editableBudget.warranty} onChange={event => setEditableBudget(current => ({ ...current, warranty: event.target.value }))} maxLength={120} required /></label>
                     <label>Prazo de entrega<input value={editableBudget.deliveryTime} onChange={event => setEditableBudget(current => ({ ...current, deliveryTime: event.target.value }))} maxLength={120} required /></label>
                     <label>Condição de pagamento<input value={editableBudget.paymentCondition} onChange={event => setEditableBudget(current => ({ ...current, paymentCondition: event.target.value }))} maxLength={160} required /></label>
-                    <label>Desconto global (%)<input type="number" min="0" max="100" step="0.01" value={editableBudget.globalDiscount} onChange={event => setEditableBudget(current => ({ ...current, globalDiscount: event.target.value }))} required /></label>
                     <label className="is-wide">Observações<textarea rows={4} value={editableBudget.observations} onChange={event => setEditableBudget(current => ({ ...current, observations: event.target.value }))} maxLength={2000} /></label>
                     {formError && <p className="budget-details-error" role="alert">{formError}</p>}
                     <div className="budget-details-form__actions"><button type="button" onClick={() => setDialog(null)}>Cancelar</button><button type="submit" disabled={isSaving}>{isSaving ? "Salvando..." : "Salvar alterações"}</button></div>
                 </form>
             </Modal>
 
-            <Modal isOpen={dialog === "item"} title={editingItem.id ? "Editar item" : "Adicionar item"} onClose={() => setDialog(null)}>
-                <form className="budget-details-form budget-details-form--single" onSubmit={saveItem}>
-                    <label>Título<input value={editingItem.title} onChange={event => setEditingItem(current => ({ ...current, title: event.target.value }))} maxLength={160} required /></label>
-                    <label>Categoria<select value={editingItem.categoryId} onChange={event => setEditingItem(current => ({ ...current, categoryId: event.target.value }))} required><option value="">Selecione uma categoria</option>{categories.map(category => <option key={category.id} value={category.id}>{category.name}{category.isActive ? "" : " (inativa)"}</option>)}</select></label>
-                    <label>Descrição<textarea rows={3} value={editingItem.description} onChange={event => setEditingItem(current => ({ ...current, description: event.target.value }))} maxLength={1000} /></label>
-                    <div className="budget-details-form__numbers"><label>Quantidade<input type="number" min="0.001" step="0.001" value={editingItem.quantity} onChange={event => setEditingItem(current => ({ ...current, quantity: event.target.value }))} required /></label><label>Valor unitário<input type="number" min="0" step="0.01" value={editingItem.unitValue} onChange={event => setEditingItem(current => ({ ...current, unitValue: event.target.value }))} required /></label><label>Desconto (%)<input type="number" min="0" max="100" step="0.01" value={editingItem.discount} onChange={event => setEditingItem(current => ({ ...current, discount: event.target.value }))} required /></label></div>
+            <Modal isOpen={dialog === "item"} title={itemDialogTab === "category" ? "Nova categoria" : editingItem.id ? "Editar item" : "Adicionar item"} onClose={() => setDialog(null)}>
+                <div className="budget-details-tabs" role="tablist" aria-label="Cadastro de item">
+                    <button type="button" role="tab" aria-selected={itemDialogTab === "item"} className={itemDialogTab === "item" ? "is-active" : ""} onClick={() => { setItemDialogTab("item"); setFormError(null); }}>Item</button>
+                    <button type="button" role="tab" aria-selected={itemDialogTab === "category"} className={itemDialogTab === "category" ? "is-active" : ""} onClick={() => { setItemDialogTab("category"); setFormError(null); }}>Nova categoria</button>
+                </div>
+                {itemDialogTab === "item" ? (
+                    <form className="budget-details-form budget-details-form--single" onSubmit={saveItem}>
+                        <label>Título<input value={editingItem.title} onChange={event => setEditingItem(current => ({ ...current, title: event.target.value }))} maxLength={160} required /></label>
+                        <label>Categoria<select value={editingItem.categoryId} onChange={event => setEditingItem(current => ({ ...current, categoryId: event.target.value }))} required><option value="">Selecione uma categoria</option>{categories.filter(category => category.isActive || category.id === editingItem.categoryId).map(category => <option key={category.id} value={category.id}>{category.name}{category.isActive ? "" : " (inativa)"}</option>)}</select></label>
+                        <label>Descrição<textarea rows={3} value={editingItem.description} onChange={event => setEditingItem(current => ({ ...current, description: event.target.value }))} maxLength={1000} /></label>
+                        <div className="budget-details-form__numbers"><label>Quantidade<input type="number" min="0.001" step="0.001" value={editingItem.quantity} onChange={event => setEditingItem(current => ({ ...current, quantity: event.target.value }))} required /></label><label>Valor unitário<input type="number" min="0" step="0.01" value={editingItem.unitValue} onChange={event => setEditingItem(current => ({ ...current, unitValue: event.target.value }))} required /></label><label>Desconto (%)<input type="number" min="0" max="100" step="0.01" value={editingItem.discount} onChange={event => setEditingItem(current => ({ ...current, discount: event.target.value }))} required /></label></div>
+                        {formError && <p className="budget-details-error" role="alert">{formError}</p>}
+                        <div className="budget-details-form__actions"><button type="button" onClick={() => setDialog(null)}>Cancelar</button><button type="submit" disabled={isSaving}>{isSaving ? "Salvando..." : "Salvar item"}</button></div>
+                    </form>
+                ) : (
+                    <form className="budget-details-form budget-details-form--single" onSubmit={saveCategory}>
+                        <label>Nome da categoria<input value={newCategoryName} onChange={event => setNewCategoryName(event.target.value)} maxLength={120} required autoFocus /></label>
+                        <label>Descrição (opcional)<textarea rows={3} value={newCategoryDescription} onChange={event => setNewCategoryDescription(event.target.value)} maxLength={500} /></label>
+                        {formError && <p className="budget-details-error" role="alert">{formError}</p>}
+                        <div className="budget-details-form__actions"><button type="button" onClick={() => { setItemDialogTab("item"); setFormError(null); }}>Voltar ao item</button><button type="submit" disabled={isSaving}>{isSaving ? "Salvando..." : "Criar categoria"}</button></div>
+                    </form>
+                )}
+            </Modal>
+
+            <Modal isOpen={dialog === "discount"} title="Editar desconto global" onClose={() => setDialog(null)}>
+                <form className="budget-details-form budget-details-form--single" onSubmit={saveGlobalDiscount}>
+                    <label>Desconto global (%)<input type="number" min="0" max="100" step="0.01" value={globalDiscountInput} onChange={event => setGlobalDiscountInput(event.target.value)} required /></label>
+                    <p className="budget-details-form__hint">O desconto é aplicado sobre o subtotal dos itens após os descontos individuais. Os totais são recalculados pelo servidor.</p>
                     {formError && <p className="budget-details-error" role="alert">{formError}</p>}
-                    <div className="budget-details-form__actions"><button type="button" onClick={() => setDialog(null)}>Cancelar</button><button type="submit" disabled={isSaving}>{isSaving ? "Salvando..." : "Salvar item"}</button></div>
+                    <div className="budget-details-form__actions"><button type="button" onClick={() => setDialog(null)}>Cancelar</button><button type="submit" disabled={isSaving}>{isSaving ? "Salvando..." : "Salvar desconto"}</button></div>
                 </form>
             </Modal>
 
