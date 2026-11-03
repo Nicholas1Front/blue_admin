@@ -1,0 +1,351 @@
+import { useMemo, useState } from "react";
+import { Link, useParams } from "react-router-dom";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import {
+    faArrowDown, faArrowUp, faCalendarDays, faFilePdf, faListOl,
+    faPenToSquare, faPlus, faPrinter, faRotateLeft, faTrashCan
+} from "@fortawesome/free-solid-svg-icons";
+
+import { AppHeader } from "../../components/AppHeader/AppHeader";
+import { BackLink } from "../../components/BackLink/BackLink";
+import { Modal } from "../../components/Modal/Modal";
+import {
+    useBudgetById, useBudgetMutations, useBudgetItemMutations,
+    useBudgetCategories
+} from "../../modules/budgets";
+import type {
+    BudgetStatus, BudgetDetailsResponse, BudgetCategory,
+    BudgetItem, CreateBudgetItemRequest, UpdateBudgetItemRequest
+} from "../../modules/budgets";
+import "./BudgetDetails.css";
+
+const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" });
+const dateTime = new Intl.DateTimeFormat("pt-BR", { dateStyle: "short", timeStyle: "short" });
+
+const statusLabels: Record<BudgetStatus, string> = {
+    rascunho: "Rascunho", enviado: "Enviado", aprovado: "Aprovado",
+    rejeitado: "Rejeitado", expirado: "Expirado", cancelado: "Cancelado"
+};
+const statusTones: Record<BudgetStatus, string> = {
+    rascunho: "neutral", enviado: "info", aprovado: "success",
+    rejeitado: "danger", expirado: "warning", cancelado: "muted"
+};
+const statusOptions = Object.entries(statusLabels) as Array<[BudgetStatus, string]>;
+
+function money(value: number) { return currency.format(Number(value || 0)); }
+function date(value: string) {
+    const parsed = new Date(value);
+    return Number.isNaN(parsed.getTime()) ? "—" : dateTime.format(parsed);
+}
+function equipmentLabel(details: BudgetDetailsResponse) {
+    return [details.equipament.type, details.equipament.brand, details.equipament.model,
+        details.equipament.mainIdentification, details.equipament.additionalIdentification]
+        .filter(Boolean).join(" · ");
+}
+function getError(error: unknown, fallback: string) {
+    return error instanceof Error ? error.message : fallback;
+}
+
+type EditableItem = {
+    id?: string; title: string; description: string; categoryId: string;
+    quantity: string; unitValue: string; discount: string;
+};
+
+const emptyItem: EditableItem = {
+    title: "", description: "", categoryId: "", quantity: "1", unitValue: "0", discount: "0"
+};
+
+export function BudgetDetails() {
+    const { budgetId } = useParams<{ budgetId: string }>();
+    const query = useBudgetById(budgetId);
+    const budgetMutations = useBudgetMutations();
+    const itemMutations = useBudgetItemMutations();
+    const categoriesQuery = useBudgetCategories();
+    const details = query.data;
+    const categories = (categoriesQuery.data as BudgetCategory[] | undefined) ?? [];
+
+    const [dialog, setDialog] = useState<"budget" | "item" | "delete-item" | null>(null);
+    const [editingItem, setEditingItem] = useState<EditableItem>(emptyItem);
+    const [pendingDelete, setPendingDelete] = useState<BudgetItem | null>(null);
+    const [formError, setFormError] = useState<string | null>(null);
+    const [isSaving, setIsSaving] = useState(false);
+    const [printMode, setPrintMode] = useState(false);
+    const [printOrder, setPrintOrder] = useState<string[]>([]);
+
+    const budgetForm = useMemo(() => ({
+        status: details?.budget.status ?? "rascunho" as BudgetStatus,
+        validity: details?.budget.validity ?? "",
+        warranty: details?.budget.warranty ?? "",
+        deliveryTime: details?.budget.deliveryTime ?? "",
+        paymentCondition: details?.budget.paymentCondition ?? "",
+        observations: details?.budget.observations ?? "",
+        globalDiscount: String(details?.budget.globalDiscount ?? 0)
+    }), [details?.budget]);
+
+    const [editableBudget, setEditableBudget] = useState(budgetForm);
+    const orderedCategories = useMemo(() => {
+        if (!details) return [];
+        const allItems = details.items.categories.flatMap(category => category.items);
+        const initialIds = allItems.map(item => item.id);
+        const ids = printOrder.length === initialIds.length &&
+            initialIds.every(id => printOrder.includes(id)) ? printOrder : initialIds;
+        const position = new Map(ids.map((id, index) => [id, index]));
+        return details.items.categories
+            .map(category => ({
+                ...category,
+                items: [...category.items].sort((a, b) =>
+                    (position.get(a.id) ?? 0) - (position.get(b.id) ?? 0))
+            }))
+            .filter(category => category.items.length > 0)
+            .sort((a, b) => (position.get(a.items[0].id) ?? 0) - (position.get(b.items[0].id) ?? 0));
+    }, [details, printOrder]);
+
+    function openBudgetEditor() {
+        setEditableBudget({
+            status: details!.budget.status,
+            validity: details!.budget.validity,
+            warranty: details!.budget.warranty,
+            deliveryTime: details!.budget.deliveryTime,
+            paymentCondition: details!.budget.paymentCondition,
+            observations: details!.budget.observations ?? "",
+            globalDiscount: String(details!.budget.globalDiscount)
+        });
+        setFormError(null);
+        setDialog("budget");
+    }
+
+    function openItemEditor(item?: BudgetItem) {
+        setEditingItem(item ? {
+            id: item.id, title: item.title, description: item.description ?? "",
+            categoryId: item.categoryId, quantity: String(item.quantity),
+            unitValue: String(item.unitValue), discount: String(item.discount)
+        } : emptyItem);
+        setFormError(null);
+        setDialog("item");
+    }
+
+    async function saveBudget(event: React.FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+        if (!details) return;
+        const discount = Number(editableBudget.globalDiscount);
+        if (!Number.isFinite(discount) || discount < 0 || discount > 100) {
+            setFormError("O desconto global deve estar entre 0 e 100%.");
+            return;
+        }
+        setIsSaving(true);
+        setFormError(null);
+        try {
+            await budgetMutations.update.mutateAsync({
+                id: details.budget.id,
+                data: {
+                    status: editableBudget.status,
+                    validity: editableBudget.validity.trim(),
+                    warranty: editableBudget.warranty.trim(),
+                    deliveryTime: editableBudget.deliveryTime.trim(),
+                    paymentCondition: editableBudget.paymentCondition.trim(),
+                    observations: editableBudget.observations.trim() || null,
+                    globalDiscount: discount
+                }
+            });
+            setDialog(null);
+            await query.refetch();
+        } catch (error) {
+            setFormError(getError(error, "Não foi possível atualizar o orçamento."));
+        } finally {
+            setIsSaving(false);
+        }
+    }
+
+    async function saveItem(event: React.FormEvent<HTMLFormElement>) {
+        event.preventDefault();
+        if (!details) return;
+        const quantity = Number(editingItem.quantity);
+        const unitValue = Number(editingItem.unitValue);
+        const discount = Number(editingItem.discount);
+        if (!editingItem.title.trim() || !editingItem.categoryId ||
+            !Number.isFinite(quantity) || quantity <= 0 ||
+            !Number.isFinite(unitValue) || unitValue < 0 ||
+            !Number.isFinite(discount) || discount < 0 || discount > 100) {
+            setFormError("Confira título, categoria, quantidade, valor unitário e desconto (0 a 100%).");
+            return;
+        }
+        const payload: CreateBudgetItemRequest = {
+            title: editingItem.title.trim(),
+            description: editingItem.description.trim() || null,
+            categoryId: editingItem.categoryId,
+            quantity, unitValue, discount
+        };
+        setIsSaving(true);
+        setFormError(null);
+        try {
+            if (editingItem.id) {
+                await itemMutations.update.mutateAsync({
+                    id: editingItem.id, data: payload as UpdateBudgetItemRequest
+                });
+            } else {
+                await itemMutations.create.mutateAsync({ budgetId: details.budget.id, data: payload });
+            }
+            setDialog(null);
+            await query.refetch();
+        } catch (error) {
+            setFormError(getError(error, "Não foi possível salvar o item."));
+        } finally {
+            setIsSaving(false);
+        }
+    }
+
+    async function deleteItem() {
+        if (!pendingDelete) return;
+        setIsSaving(true);
+        setFormError(null);
+        try {
+            await itemMutations.remove.mutateAsync(pendingDelete.id);
+            setPendingDelete(null);
+            setDialog(null);
+            await query.refetch();
+        } catch (error) {
+            setFormError(getError(error, "Não foi possível excluir o item."));
+        } finally {
+            setIsSaving(false);
+        }
+    }
+
+    function movePrintItem(itemId: string, direction: -1 | 1) {
+        if (!details) return;
+        const ids = details.items.categories.flatMap(category => category.items.map(item => item.id));
+        const current = printOrder.length === ids.length ? [...printOrder] : ids;
+        const index = current.indexOf(itemId);
+        const next = index + direction;
+        if (index < 0 || next < 0 || next >= current.length) return;
+        [current[index], current[next]] = [current[next], current[index]];
+        setPrintOrder(current);
+    }
+
+    function startPrint() {
+        setPrintMode(true);
+        window.setTimeout(() => window.print(), 100);
+    }
+
+    if (query.isPending) {
+        return <main className="budget-details-page"><AppHeader /><div className="budget-details-state"><strong>Carregando orçamento…</strong><p>Buscando dados, itens e histórico.</p></div></main>;
+    }
+    if (query.isError || !details) {
+        return <main className="budget-details-page"><AppHeader /><div className="budget-details-state budget-details-state--error"><strong>Não foi possível carregar o orçamento.</strong><p>Verifique o identificador ou tente novamente.</p><button type="button" onClick={() => void query.refetch()}>Tentar novamente</button><Link to="/budgets">Voltar aos orçamentos</Link></div></main>;
+    }
+
+    const { budget, totals, history } = details;
+    const allItems = details.items.categories.flatMap(category => category.items);
+
+    return (
+        <main className={`budget-details-page${printMode ? " is-printing" : ""}`}>
+            <title>Orçamento #{budget.id.slice(0, 8)} | Blue Admin</title>
+            <AppHeader />
+            <nav className="page-back-row budget-details-back"><BackLink to="/budgets" label="Voltar ao dashboard de orçamentos" /></nav>
+            <div className="budget-details-content">
+                <header className="budget-details-hero">
+                    <div className="budget-details-hero__copy">
+                        <span className="budget-details-eyebrow">Gestão comercial · Detalhes</span>
+                        <div className="budget-details-title-row">
+                            <h1>Orçamento <span>#{budget.id.slice(0, 8)}</span></h1>
+                            <span className={`budget-details-status budget-details-status--${statusTones[budget.status]}`}>{statusLabels[budget.status]}</span>
+                        </div>
+                        <p>Consulte a proposta, seus itens, condições comerciais e histórico de alterações.</p>
+                    </div>
+                    <div className="budget-details-hero__actions">
+                        <button type="button" onClick={openBudgetEditor}><FontAwesomeIcon icon={faPenToSquare} /> Editar orçamento</button>
+                        <button type="button" onClick={() => { setPrintMode(false); setPrintOrder(allItems.map(item => item.id)); }}><FontAwesomeIcon icon={faListOl} /> Organizar impressão</button>
+                        <button type="button" className="is-primary" onClick={startPrint}><FontAwesomeIcon icon={faFilePdf} /> Exportar PDF</button>
+                    </div>
+                </header>
+
+                <section className="budget-details-summary" aria-label="Resumo do orçamento">
+                    <article><span>Itens</span><strong>{totals.itemCount}</strong><small>{totals.categoryCount} categorias</small></article>
+                    <article><span>Valor bruto</span><strong>{money(totals.grossAmount)}</strong><small>Antes dos descontos</small></article>
+                    <article><span>Descontos nos itens</span><strong>{money(totals.itemDiscountAmount)}</strong><small>Aplicados por item</small></article>
+                    <article><span>Desconto global ({totals.globalDiscount}%)</span><strong>{money(totals.globalDiscountAmount)}</strong><small>Após os descontos dos itens</small></article>
+                    <article className="is-total"><span>Valor final</span><strong>{money(totals.finalAmount)}</strong><small>Valor da proposta</small></article>
+                </section>
+
+                <div className="budget-details-grid">
+                    <section className="budget-details-panel">
+                        <header><div><span className="budget-details-eyebrow">Responsável pela proposta</span><h2>Cliente</h2></div></header>
+                        <dl><div><dt>Nome</dt><dd>{details.client.name}</dd></div><div><dt>Documento</dt><dd>{details.client.document || "Não informado"}</dd></div><div><dt>Endereço</dt><dd>{details.client.address || "Não informado"}</dd></div><div><dt>ID</dt><dd>{details.client.id}</dd></div></dl>
+                    </section>
+                    <section className="budget-details-panel">
+                        <header><div><span className="budget-details-eyebrow">Bem relacionado à proposta</span><h2>Equipamento</h2></div></header>
+                        <dl><div><dt>Identificação</dt><dd>{equipmentLabel(details) || "Não informado"}</dd></div><div><dt>Tipo</dt><dd>{details.equipament.type}</dd></div><div><dt>Marca / modelo</dt><dd>{[details.equipament.brand, details.equipament.model].filter(Boolean).join(" ") || "Não informado"}</dd></div><div><dt>ID</dt><dd>{details.equipament.id}</dd></div></dl>
+                    </section>
+                    <section className="budget-details-panel">
+                        <header><div><span className="budget-details-eyebrow">Condições comerciais</span><h2>Dados do orçamento</h2></div><button type="button" onClick={openBudgetEditor}><FontAwesomeIcon icon={faPenToSquare} /> Editar</button></header>
+                        <dl><div><dt>Status</dt><dd>{statusLabels[budget.status]}</dd></div><div><dt>Validade</dt><dd>{budget.validity}</dd></div><div><dt>Garantia</dt><dd>{budget.warranty}</dd></div><div><dt>Prazo de entrega</dt><dd>{budget.deliveryTime}</dd></div><div><dt>Pagamento</dt><dd>{budget.paymentCondition}</dd></div><div><dt>Criado em</dt><dd>{date(budget.createdAt)}</dd></div><div><dt>Atualizado em</dt><dd>{date(budget.updatedAt)}</dd></div></dl>
+                        {budget.observations && <div className="budget-details-observations"><strong>Observações</strong><p>{budget.observations}</p></div>}
+                    </section>
+                </div>
+
+                <section className="budget-details-panel budget-details-items" id="budget-items">
+                    <header><div><span className="budget-details-eyebrow">Composição da proposta</span><h2>Itens do orçamento</h2><p>Os valores abaixo refletem os descontos individuais e o desconto global cadastrado.</p></div><button type="button" className="is-primary" onClick={() => openItemEditor()}><FontAwesomeIcon icon={faPlus} /> Adicionar item</button></header>
+                    {allItems.length === 0 ? <div className="budget-details-empty"><strong>Nenhum item cadastrado</strong><p>Adicione serviços, peças ou outros itens para compor esta proposta.</p></div> : (
+                        <div className="budget-details-categories">
+                            {details.items.categories.map(category => <section className="budget-details-category" key={category.id}>
+                                <header><div><h3>{category.name}</h3><span>{category.itemCount} {category.itemCount === 1 ? "item" : "itens"} · {money(category.totalAmount)}</span></div>{!category.isActive && <small>Categoria inativa</small>}</header>
+                                <div className="budget-details-item-list">
+                                    {category.items.map(item => <article className="budget-details-item" key={item.id}>
+                                        <div className="budget-details-item__main"><strong>{item.title}</strong>{item.description && <p>{item.description}</p>}<small>{item.quantity} × {money(item.unitValue)} · desconto {item.discount}%</small></div>
+                                        <div className="budget-details-item__amount"><strong>{money(item.totalAmount)}</strong><small>Bruto: {money(item.grossAmount)}</small></div>
+                                        <div className="budget-details-item__actions no-print"><button type="button" aria-label={`Editar ${item.title}`} onClick={() => openItemEditor({ ...item, budgetId: budget.id, categoryId: category.id, quantity: item.quantity, unitValue: item.unitValue, totalAmount: item.totalAmount, discount: item.discount, createdAt: item.createdAt, updatedAt: item.updatedAt })}><FontAwesomeIcon icon={faPenToSquare} /></button><button type="button" className="is-danger" aria-label={`Excluir ${item.title}`} onClick={() => { setPendingDelete({ ...item, budgetId: budget.id, categoryId: category.id, quantity: item.quantity, unitValue: item.unitValue, totalAmount: item.totalAmount, discount: item.discount, createdAt: item.createdAt, updatedAt: item.updatedAt }); setDialog("delete-item"); setFormError(null); }}><FontAwesomeIcon icon={faTrashCan} /></button></div>
+                                    </article>)}
+                                </div>
+                            </section>)}
+                        </div>
+                    )}
+                    <div className="budget-details-final-total"><span>Valor final do orçamento</span><strong>{money(totals.finalAmount)}</strong></div>
+                </section>
+
+                <section className="budget-details-panel budget-details-history">
+                    <header><div><span className="budget-details-eyebrow">Rastreabilidade</span><h2>Histórico do orçamento</h2><p>Registros de criação, atualizações e alterações nos itens.</p></div><span className="budget-details-history__count">{history.length} registros</span></header>
+                    {history.length === 0 ? <div className="budget-details-empty"><strong>Nenhum registro encontrado</strong></div> : <ol>{history.map(event => <li key={event.id}><span className="budget-details-history__dot" /><div><strong>{event.description}</strong><small>{event.eventType.replaceAll("_", " ")} · {date(event.createdAt)}</small></div></li>)}</ol>}
+                </section>
+            </div>
+
+            <Modal isOpen={dialog === "budget"} title="Editar condições do orçamento" onClose={() => setDialog(null)} size="wide">
+                <form className="budget-details-form" onSubmit={saveBudget}>
+                    <label>Status<select value={editableBudget.status} onChange={event => setEditableBudget(current => ({ ...current, status: event.target.value as BudgetStatus }))}>{statusOptions.map(([value, label]) => <option key={value} value={value}>{label}</option>)}</select></label>
+                    <label>Validade<input value={editableBudget.validity} onChange={event => setEditableBudget(current => ({ ...current, validity: event.target.value }))} maxLength={120} required /></label>
+                    <label>Garantia<input value={editableBudget.warranty} onChange={event => setEditableBudget(current => ({ ...current, warranty: event.target.value }))} maxLength={120} required /></label>
+                    <label>Prazo de entrega<input value={editableBudget.deliveryTime} onChange={event => setEditableBudget(current => ({ ...current, deliveryTime: event.target.value }))} maxLength={120} required /></label>
+                    <label>Condição de pagamento<input value={editableBudget.paymentCondition} onChange={event => setEditableBudget(current => ({ ...current, paymentCondition: event.target.value }))} maxLength={160} required /></label>
+                    <label>Desconto global (%)<input type="number" min="0" max="100" step="0.01" value={editableBudget.globalDiscount} onChange={event => setEditableBudget(current => ({ ...current, globalDiscount: event.target.value }))} required /></label>
+                    <label className="is-wide">Observações<textarea rows={4} value={editableBudget.observations} onChange={event => setEditableBudget(current => ({ ...current, observations: event.target.value }))} maxLength={2000} /></label>
+                    {formError && <p className="budget-details-error" role="alert">{formError}</p>}
+                    <div className="budget-details-form__actions"><button type="button" onClick={() => setDialog(null)}>Cancelar</button><button type="submit" disabled={isSaving}>{isSaving ? "Salvando..." : "Salvar alterações"}</button></div>
+                </form>
+            </Modal>
+
+            <Modal isOpen={dialog === "item"} title={editingItem.id ? "Editar item" : "Adicionar item"} onClose={() => setDialog(null)}>
+                <form className="budget-details-form budget-details-form--single" onSubmit={saveItem}>
+                    <label>Título<input value={editingItem.title} onChange={event => setEditingItem(current => ({ ...current, title: event.target.value }))} maxLength={160} required /></label>
+                    <label>Categoria<select value={editingItem.categoryId} onChange={event => setEditingItem(current => ({ ...current, categoryId: event.target.value }))} required><option value="">Selecione uma categoria</option>{categories.map(category => <option key={category.id} value={category.id}>{category.name}{category.isActive ? "" : " (inativa)"}</option>)}</select></label>
+                    <label>Descrição<textarea rows={3} value={editingItem.description} onChange={event => setEditingItem(current => ({ ...current, description: event.target.value }))} maxLength={1000} /></label>
+                    <div className="budget-details-form__numbers"><label>Quantidade<input type="number" min="0.001" step="0.001" value={editingItem.quantity} onChange={event => setEditingItem(current => ({ ...current, quantity: event.target.value }))} required /></label><label>Valor unitário<input type="number" min="0" step="0.01" value={editingItem.unitValue} onChange={event => setEditingItem(current => ({ ...current, unitValue: event.target.value }))} required /></label><label>Desconto (%)<input type="number" min="0" max="100" step="0.01" value={editingItem.discount} onChange={event => setEditingItem(current => ({ ...current, discount: event.target.value }))} required /></label></div>
+                    {formError && <p className="budget-details-error" role="alert">{formError}</p>}
+                    <div className="budget-details-form__actions"><button type="button" onClick={() => setDialog(null)}>Cancelar</button><button type="submit" disabled={isSaving}>{isSaving ? "Salvando..." : "Salvar item"}</button></div>
+                </form>
+            </Modal>
+
+            <Modal isOpen={dialog === "delete-item"} title="Excluir item do orçamento" onClose={() => { setDialog(null); setPendingDelete(null); }}>
+                <div className="budget-details-confirm"><p>Deseja excluir o item <strong>{pendingDelete?.title}</strong>? O histórico e os totais do orçamento serão atualizados pelo servidor.</p>{formError && <p className="budget-details-error" role="alert">{formError}</p>}<div className="budget-details-form__actions"><button type="button" onClick={() => { setDialog(null); setPendingDelete(null); }}>Cancelar</button><button type="button" className="is-danger" disabled={isSaving} onClick={() => void deleteItem()}>{isSaving ? "Excluindo..." : "Confirmar exclusão"}</button></div></div>
+            </Modal>
+
+            <Modal isOpen={printMode} title="Organizar itens para impressão" onClose={() => setPrintMode(false)} size="wide">
+                <div className="budget-print-organizer">
+                    <p>Use as setas para alterar a ordem dos itens. Essa organização é temporária e não modifica o orçamento salvo.</p>
+                    {orderedCategories.map(category => <section key={category.id}><h3>{category.name}</h3>{category.items.map(item => {
+                        const index = printOrder.indexOf(item.id);
+                        return <div className="budget-print-organizer__item" key={item.id}><span>{item.title}</span><small>{money(item.totalAmount)}</small><div><button type="button" aria-label="Mover item para cima" disabled={index <= 0} onClick={() => movePrintItem(item.id, -1)}><FontAwesomeIcon icon={faArrowUp} /></button><button type="button" aria-label="Mover item para baixo" disabled={index < 0 || index >= allItems.length - 1} onClick={() => movePrintItem(item.id, 1)}><FontAwesomeIcon icon={faArrowDown} /></button></div></div>;
+                    })}</section>)}
+                    <div className="budget-details-form__actions"><button type="button" onClick={() => setPrintOrder(allItems.map(item => item.id))}><FontAwesomeIcon icon={faRotateLeft} /> Restaurar ordem original</button><button type="button" className="is-primary" onClick={startPrint}><FontAwesomeIcon icon={faPrinter} /> Imprimir / salvar PDF</button></div>
+                </div>
+            </Modal>
+        </main>
+    );
+}
