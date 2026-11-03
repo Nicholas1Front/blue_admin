@@ -133,7 +133,6 @@
 .budget-print-organizer__item > div { display: flex; gap: var(--spacing-1); }
 .budget-print-organizer__item button:disabled { opacity: .35; cursor: not-allowed; }
 @media (max-width: 900px) {
-    .budget-details-hero { align-items: flex-start; flex-direction: column; }
     .budget-details-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
     .budget-details-budget-panel { grid-column: 1 / -1; min-height: auto !important; }
 }

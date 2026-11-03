@@ -424,13 +424,13 @@ export function BudgetDetails() {
                     </div>
                 </header>
 
-                <nav className="budget-details-toolbar" aria-label="Ações do orçamento">
+                <div className="budget-details-toolbar" role="group" aria-label="Ações do orçamento">
                     <button type="button" onClick={openBudgetEditor}><FontAwesomeIcon icon={faPenToSquare} /> Editar orçamento</button>
                     <button type="button" className="is-danger" onClick={() => { setDeleteBudgetOpen(true); setFormError(null); }}><FontAwesomeIcon icon={faTrashCan} /> Excluir orçamento</button>
                     <button type="button" onClick={() => { setPrintOrder(allItems.map(item => item.id)); setOrganizerOpen(true); }}><FontAwesomeIcon icon={faListOl} /> Organizar PDF</button>
                     <button type="button" className="is-primary" onClick={startPrint}><FontAwesomeIcon icon={faFilePdf} /> Exportar PDF</button>
                     <button type="button" disabled title="Disponível em breve"><FontAwesomeIcon icon={faWrench} /> Criar serviço a partir do orçamento</button>
-                </nav>
+                </div>
 
                 <div className="budget-details-grid">
                     <section className="budget-details-panel budget-details-entity-panel">
@@ -604,7 +604,7 @@ export function BudgetDetails() {
             )}
 
             <Modal isOpen={deleteBudgetOpen} title="Excluir orçamento" onClose={() => setDeleteBudgetOpen(false)}>
-                <div className="budget-details-confirm"><p>Deseja excluir o orçamento <strong>#{budget.id.slice(0, 8)}</strong>? Os itens e o histórico também serão removidos. Essa ação não poderá ser desfeita.</p>{formError && <p className="budget-details-error" role="alert">{formError}</p>}<div className="budget-details-form__actions"><button type="button" onClick={() => setDeleteBudgetOpen(false)}>Cancelar</button><button type="button" className="is-danger" disabled={isSaving} onClick={() => void deleteBudget()}>{isSaving ? "Excluindo..." : "Confirmar exclusão"}</button></div></div>
+                <div className="budget-details-confirm"><p>Deseja excluir o orçamento <strong>#{budget.id}</strong>? Os itens e o histórico também serão removidos. Essa ação não poderá ser desfeita.</p>{formError && <p className="budget-details-error" role="alert">{formError}</p>}<div className="budget-details-form__actions"><button type="button" onClick={() => setDeleteBudgetOpen(false)}>Cancelar</button><button type="button" className="is-danger" disabled={isSaving} onClick={() => void deleteBudget()}>{isSaving ? "Excluindo..." : "Confirmar exclusão"}</button></div></div>
             </Modal>
 
             <Modal isOpen={dialog === "budget"} title="Editar condições do orçamento" onClose={() => setDialog(null)} size="wide">
