@@ -399,25 +399,25 @@ export function BudgetDetails() {
                     </div>
                 </header>
 
-                <section className="budget-details-summary" aria-label="Resumo do orçamento">
-                    <article><span>Itens</span><strong>{totals.itemCount}</strong><small>{totals.categoryCount} categorias</small></article>
-                    <article><span>Valor bruto</span><strong>{money(totals.grossAmount)}</strong><small>Composição antes dos descontos</small></article>
-                    <article className="is-total"><span>Valor final</span><strong>{money(totals.finalAmount)}</strong><small>Valor da proposta</small></article>
-                </section>
-
                 <div className="budget-details-grid">
-                    <section className="budget-details-panel">
-                        <header><div><span className="budget-details-eyebrow">Responsável pela proposta</span><h2>Cliente</h2></div></header>
+                    <section className="budget-details-panel budget-details-entity-panel">
+                        <header><h2>Cliente</h2></header>
                         <p className="budget-details-entity-name">{details.client.name}</p>
                     </section>
-                    <section className="budget-details-panel">
-                        <header><div><span className="budget-details-eyebrow">Bem relacionado à proposta</span><h2>Equipamento</h2></div><button type="button" onClick={openRelationshipEditor}><FontAwesomeIcon icon={faPenToSquare} /> Alterar vínculo</button></header>
+                    <section className="budget-details-panel budget-details-entity-panel">
+                        <header><h2>Equipamento</h2><button type="button" onClick={openRelationshipEditor}><FontAwesomeIcon icon={faPenToSquare} /> Alterar</button></header>
                         <p className="budget-details-entity-name">{equipmentLabel(details) || "Não informado"}</p>
                     </section>
-                    <section className="budget-details-panel">
-                        <header><div><span className="budget-details-eyebrow">Condições comerciais</span><h2>Dados do orçamento</h2></div><button type="button" onClick={openBudgetEditor}><FontAwesomeIcon icon={faPenToSquare} /> Editar</button></header>
-                        <dl><div><dt>Status</dt><dd>{statusLabels[budget.status]}</dd></div><div><dt>Validade</dt><dd>{budget.validity}</dd></div><div><dt>Garantia</dt><dd>{budget.warranty}</dd></div><div><dt>Prazo de entrega</dt><dd>{budget.deliveryTime}</dd></div><div><dt>Pagamento</dt><dd>{budget.paymentCondition}</dd></div><div><dt>Criado em</dt><dd>{date(budget.createdAt)}</dd></div><div><dt>Atualizado em</dt><dd>{date(budget.updatedAt)}</dd></div></dl>
-                        {budget.observations && <div className="budget-details-observations"><strong>Observações</strong><p>{budget.observations}</p></div>}
+                    <section className="budget-details-panel budget-details-budget-panel">
+                        <header><h2>Dados do orçamento</h2><button type="button" onClick={openBudgetEditor}><FontAwesomeIcon icon={faPenToSquare} /> Editar</button></header>
+                        <dl>
+                            <div><dt>Status</dt><dd><span className={`budget-details-status budget-details-status--${statusTones[budget.status]}`}>{statusLabels[budget.status]}</span></dd></div>
+                            <div><dt>Validade</dt><dd>{budget.validity}</dd></div>
+                            <div><dt>Garantia</dt><dd>{budget.warranty}</dd></div>
+                            <div><dt>Prazo de entrega</dt><dd>{budget.deliveryTime}</dd></div>
+                            <div><dt>Pagamento</dt><dd>{budget.paymentCondition}</dd></div>
+                            <div><dt>Última atualização</dt><dd>{date(budget.updatedAt)}</dd></div>
+                        </dl>
                     </section>
                 </div>
 
@@ -462,9 +462,8 @@ export function BudgetDetails() {
 
                 <section className="budget-print-document" aria-label="Documento para impressão">
                     <header className="budget-print-document__header">
-                        <div className="budget-print-brand"><strong>BLUE ADMIN</strong><span>Gestão de oficina</span></div>
-                        <div className="budget-print-document__title"><h1>ORÇAMENTO</h1><strong>#{budget.id.slice(0, 8)}</strong><span>{statusLabels[budget.status]}</span></div>
-                        <small>Emitido em {date(budget.createdAt)}</small>
+                        <h1>ORÇAMENTO</h1>
+                        <strong>Nº {budget.id.slice(0, 8)}</strong>
                     </header>
 
                     <div className="budget-print-parties">
