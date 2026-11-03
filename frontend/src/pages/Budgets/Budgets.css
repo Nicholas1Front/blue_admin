@@ -881,7 +881,7 @@
     margin-left: auto;
     color: var(--color-text-muted);
     font-size: 1.15rem;
-    font-weight: var(--font-weight-regular);
+    font-weight: var(--font-weight-normal);
 }
 
 .budgets-filter-group[open] summary::after {
@@ -1017,51 +1017,4 @@
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-semibold);
     cursor: pointer;
-}
-
-
-@media (max-width: 760px) {
-    .budgets-filter-form__quick {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-
-    .budgets-filter-field--search {
-        grid-column: span 2;
-    }
-
-    .budgets-filter-group__fields {
-        grid-template-columns: repeat(2, minmax(0, 1fr));
-    }
-}
-
-@media (max-width: 520px) {
-    .budgets-filter-panel {
-        padding: var(--spacing-4);
-    }
-
-    .budgets-filter-form__quick,
-    .budgets-filter-group__fields {
-        grid-template-columns: minmax(0, 1fr);
-    }
-
-    .budgets-filter-field--search,
-    .budgets-filter-field--wide {
-        grid-column: auto;
-    }
-
-    .budgets-filter-form__actions {
-        flex-direction: column-reverse;
-    }
-
-    .budgets-filter-reset,
-    .budgets-filter-submit,
-    .budgets-metrics-access__button {
-        width: 100%;
-    }
-
-    .budgets-metrics-access {
-        align-items: stretch;
-        flex-direction: column;
-        padding: var(--spacing-4);
-    }
 }

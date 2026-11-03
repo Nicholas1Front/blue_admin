@@ -697,7 +697,14 @@ export function Budgets() {
                                     ] as const).map(([key, label]) => (
                                         <label className="budgets-filter-field" key={key}>
                                             <span>{label}</span>
-                                            <input type="number" min="0" step="0.01" value={filterForm[key] ?? ""} onChange={event => updateFilter(key, event.target.value, true)} />
+                                            <input
+                                                type="number"
+                                                min={key.includes("Quantity") ? "0.000001" : "0"}
+                                                max={key.includes("Discount") ? 100 : undefined}
+                                                step="0.01"
+                                                value={filterForm[key] ?? ""}
+                                                onChange={event => updateFilter(key, event.target.value, true)}
+                                            />
                                         </label>
                                     ))}
                                 </div>
@@ -738,7 +745,14 @@ export function Budgets() {
                                     ] as const).map(([key, label]) => (
                                         <label className="budgets-filter-field" key={key}>
                                             <span>{label}</span>
-                                            <input type="number" min="0" step="0.01" value={filterForm[key] ?? ""} onChange={event => updateFilter(key, event.target.value, true)} />
+                                            <input
+                                                type="number"
+                                                min={key.includes("Quantity") ? "0.000001" : "0"}
+                                                max={key.includes("Discount") ? 100 : undefined}
+                                                step="0.01"
+                                                value={filterForm[key] ?? ""}
+                                                onChange={event => updateFilter(key, event.target.value, true)}
+                                            />
                                         </label>
                                     ))}
                                 </div>
