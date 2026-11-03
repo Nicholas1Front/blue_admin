@@ -3,7 +3,8 @@ import {
     faUsers,
     faBuilding,
     faChartLine,
-    faScrewdriverWrench
+    faScrewdriverWrench,
+    faFileInvoiceDollar
 } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 
@@ -120,6 +121,28 @@ export function Dashboard() {
 
                             <p>
                                 Acompanhe receitas, despesas, saldo e indicadores da empresa.
+                            </p>
+                        </div>
+                    </button>
+
+                    <button
+                        className="dashboard-card dashboard-card--action"
+                        type="button"
+                        onClick={() => navigate("/budgets")}
+                    >
+                        <div className="dashboard-card__icon dashboard-card__icon--budgets">
+                            <FontAwesomeIcon icon={faFileInvoiceDollar} />
+                        </div>
+
+                        <div>
+                            <span className="dashboard-card__label">
+                                Gestão comercial
+                            </span>
+
+                            <strong>Orçamentos</strong>
+
+                            <p>
+                                Crie, acompanhe e consulte as propostas comerciais da oficina.
                             </p>
                         </div>
                     </button>
