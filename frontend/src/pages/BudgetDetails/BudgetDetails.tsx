@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faArrowDown, faArrowUp, faFilePdf, faListOl,
-    faPenToSquare, faPlus, faPrinter, faRotateLeft, faTrashCan
+    faPenToSquare, faPlus, faPrint, faRotateLeft, faTrashCan
 } from "@fortawesome/free-solid-svg-icons";
 
 import { AppHeader } from "../../components/AppHeader/AppHeader";
@@ -342,7 +342,7 @@ export function BudgetDetails() {
                         <dl><div><dt>Nome</dt><dd>{details.client.name}</dd></div><div><dt>Documento</dt><dd>{details.client.document || "Não informado"}</dd></div><div><dt>Endereço</dt><dd>{details.client.address || "Não informado"}</dd></div><div><dt>ID</dt><dd>{details.client.id}</dd></div></dl>
                     </section>
                     <section className="budget-details-panel">
-                        <header><div><span className="budget-details-eyebrow">Bem relacionado à proposta</span><h2>Equipamento</h2></div></header>
+                        <header><div><span className="budget-details-eyebrow">Bem relacionado à proposta</span><h2>Equipamento</h2></div><button type="button" onClick={openRelationshipEditor}><FontAwesomeIcon icon={faPenToSquare} /> Alterar vínculo</button></header>
                         <dl><div><dt>Identificação</dt><dd>{equipmentLabel(details) || "Não informado"}</dd></div><div><dt>Tipo</dt><dd>{details.equipament.type}</dd></div><div><dt>Marca / modelo</dt><dd>{[details.equipament.brand, details.equipament.model].filter(Boolean).join(" ") || "Não informado"}</dd></div><div><dt>ID</dt><dd>{details.equipament.id}</dd></div></dl>
                     </section>
                     <section className="budget-details-panel">
@@ -427,7 +427,7 @@ export function BudgetDetails() {
                         const index = printOrder.indexOf(item.id);
                         return <div className="budget-print-organizer__item" key={item.id}><span>{item.title}</span><small>{money(item.totalAmount)}</small><div><button type="button" aria-label="Mover item para cima" disabled={index <= 0} onClick={() => movePrintItem(item.id, -1)}><FontAwesomeIcon icon={faArrowUp} /></button><button type="button" aria-label="Mover item para baixo" disabled={index < 0 || index >= allItems.length - 1} onClick={() => movePrintItem(item.id, 1)}><FontAwesomeIcon icon={faArrowDown} /></button></div></div>;
                     })}</section>)}
-                    <div className="budget-details-form__actions"><button type="button" onClick={() => setPrintOrder(allItems.map(item => item.id))}><FontAwesomeIcon icon={faRotateLeft} /> Restaurar ordem original</button><button type="button" className="is-primary" onClick={startPrint}><FontAwesomeIcon icon={faPrinter} /> Imprimir / salvar PDF</button></div>
+                    <div className="budget-details-form__actions"><button type="button" onClick={() => setPrintOrder(allItems.map(item => item.id))}><FontAwesomeIcon icon={faRotateLeft} /> Restaurar ordem original</button><button type="button" className="is-primary" onClick={startPrint}><FontAwesomeIcon icon={faPrint} /> Imprimir / salvar PDF</button></div>
                 </div>
             </Modal>
         </main>
