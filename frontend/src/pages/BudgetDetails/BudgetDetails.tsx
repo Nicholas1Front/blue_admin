@@ -98,17 +98,15 @@ export function BudgetDetails() {
         return () => window.removeEventListener("afterprint", resetPrintView);
     }, []);
 
-    const budgetForm = useMemo(() => ({
-        status: details?.budget.status ?? "rascunho" as BudgetStatus,
-        validity: details?.budget.validity ?? "",
-        warranty: details?.budget.warranty ?? "",
-        deliveryTime: details?.budget.deliveryTime ?? "",
-        paymentCondition: details?.budget.paymentCondition ?? "",
-        observations: details?.budget.observations ?? "",
-        globalDiscount: String(details?.budget.globalDiscount ?? 0)
-    }), [details?.budget]);
-
-    const [editableBudget, setEditableBudget] = useState(budgetForm);
+    const [editableBudget, setEditableBudget] = useState({
+        status: "rascunho" as BudgetStatus,
+        validity: "",
+        warranty: "",
+        deliveryTime: "",
+        paymentCondition: "",
+        observations: "",
+        globalDiscount: "0"
+    });
     const orderedCategories = useMemo(() => {
         if (!details) return [];
         const allItems = details.items.categories.flatMap(category => category.items);
