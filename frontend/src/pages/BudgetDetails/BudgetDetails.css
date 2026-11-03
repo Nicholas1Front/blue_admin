@@ -57,7 +57,7 @@
 .budget-details-summary article.is-total > strong { color: var(--color-primary-300); }
 .budget-details-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--spacing-4); align-items: start; margin-bottom: var(--spacing-4); }
 .budget-details-panel { min-width: 0; padding: var(--spacing-5); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-xl); }
-.budget-details-grid > .budget-details-panel:nth-child(-n+2) { min-height: 9rem; }
+.budget-details-grid > .budget-details-panel:nth-child(-n+2) { display: flex; flex-direction: column; min-height: 9rem; }
 .budget-details-entity-name { margin: auto 0; color: var(--color-text); font-size: clamp(1rem, 1.8vw, 1.25rem); font-weight: var(--font-weight-semibold); overflow-wrap: anywhere; }
 .budget-details-panel > header { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-3); margin-bottom: var(--spacing-4); }
 .budget-details-panel > header h2 { color: var(--color-text); font-size: 1.1rem; }
@@ -139,6 +139,7 @@
     .budget-details-content { width: min(100% - 2rem, 84rem); }
     .budget-details-grid { grid-template-columns: minmax(0, 1fr); }
     .budget-details-summary { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .budget-details-pricing { grid-template-columns: minmax(0, 1fr); }
     .budget-details-hero__actions { width: 100%; }
     .budget-details-hero__actions button { flex: 1 1 9rem; }
     .budget-details-panel { padding: var(--spacing-4); }
@@ -164,7 +165,7 @@
 
 @page { size: A4; margin: 12mm; }
 @media print {
-    html, body { width: 210mm; min-height: 297mm; margin: 0 !important; background: #fff !important; color: #111 !important; }
+    html, body { margin: 0 !important; background: #fff !important; color: #111 !important; }
     body { -webkit-print-color-adjust: exact; print-color-adjust: exact; }
     .budget-details-page { min-height: auto; background: #fff !important; }
     .budget-details-page > header, .budget-details-back { display: none !important; }
