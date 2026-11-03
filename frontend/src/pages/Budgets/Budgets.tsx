@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -198,8 +198,7 @@ export function Budgets() {
     const [filterForm, setFilterForm] = useState<FindBudgetsByAdvancedFilters>({});
     const [submittedFilters, setSubmittedFilters] = useState<FindBudgetsByAdvancedFilters | null>(null);
     const [filterError, setFilterError] = useState<string | null>(null);
-    const [filterPage, setFilterPage] = useState(1);
-
+    
     const availableYears = Array.from(
         { length: currentYear - 1999 },
         (_, index) => currentYear - index
@@ -279,7 +278,7 @@ export function Budgets() {
         });
     }
 
-    function submitAdvancedFilters(event: React.FormEvent<HTMLFormElement>) {
+    function submitAdvancedFilters(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
         setFilterError(null);
 
@@ -318,19 +317,16 @@ export function Budgets() {
             }
         }
 
-        setFilterPage(1);
         setSubmittedFilters({ ...filterForm, page: 1, limit: PAGE_SIZE });
     }
 
     function clearAdvancedFilters() {
         setFilterForm({});
         setSubmittedFilters(null);
-        setFilterPage(1);
         setFilterError(null);
     }
 
     function changeFilterPage(nextPage: number) {
-        setFilterPage(nextPage);
         setSubmittedFilters(current => current ? { ...current, page: nextPage } : current);
     }
 
