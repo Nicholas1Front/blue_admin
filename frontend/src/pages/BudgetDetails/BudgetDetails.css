@@ -164,3 +164,7 @@
     .budget-details-category > header { background: #f3f4f6 !important; }
     .budget-details-final-total { background: #f3f4f6 !important; }
 }
+
+.budget-details-hero__actions button.is-danger { color: #fca5a5; border-color: rgb(239 68 68 / .25); background: rgb(239 68 68 / .08); }
+.budget-details-form__hint { grid-column: 1 / -1; color: var(--color-text-muted); font-size: var(--font-size-xs); line-height: 1.5; }
+@media (max-width: 420px) { .budget-details-form__hint { grid-column: auto; } }
