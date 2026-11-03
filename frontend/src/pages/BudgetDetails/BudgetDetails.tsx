@@ -1,4 +1,4 @@
-import { useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useState, type FormEvent } from "react";
 import { Link, useParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -72,6 +72,12 @@ export function BudgetDetails() {
     const [printMode, setPrintMode] = useState(false);
     const [organizerOpen, setOrganizerOpen] = useState(false);
     const [printOrder, setPrintOrder] = useState<string[]>([]);
+
+    useEffect(() => {
+        const resetPrintView = () => setPrintMode(false);
+        window.addEventListener("afterprint", resetPrintView);
+        return () => window.removeEventListener("afterprint", resetPrintView);
+    }, []);
 
     const budgetForm = useMemo(() => ({
         status: details?.budget.status ?? "rascunho" as BudgetStatus,
