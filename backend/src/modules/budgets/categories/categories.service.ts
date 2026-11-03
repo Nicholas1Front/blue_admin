@@ -34,6 +34,12 @@ class BudgetCategoryService {
         return budgetCategoryRepository.findByFilters(filters)
     }
 
+    async delete(id: string) {
+        const category = await budgetCategoryRepository.delete(id)
+        if (!category) throw new AppError('Budget category not found', 404, 'BUDGET_CATEGORY_NOT_FOUND')
+        return category
+    }
+
     async setActive(id: string, isActive: boolean) {
         const category = await budgetCategoryRepository.findById(id)
         if (!category) throw new AppError('Budget category not found', 404, 'BUDGET_CATEGORY_NOT_FOUND')

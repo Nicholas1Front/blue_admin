@@ -9,5 +9,6 @@ router.get('/find-categories-by-filters', budgetCategoryController.findByFilters
 router.get('/find-all-categories', budgetCategoryController.findAll)
 router.patch('/deactivate-category/:id', budgetCategoryController.deactivate)
 router.patch('/activate-category/:id', budgetCategoryController.activate)
+router.delete('/delete-category/:id', budgetCategoryController.delete)
 
 export default router

@@ -31,6 +31,12 @@ class BudgetCategoryController {
         return res.status(200).json({ message: 'Budget categories found successfully using filters', data: result })
     }
 
+    async delete(req: Request, res: Response) {
+        if (!req.user) throw new AppError('User not authenticated', 401, 'USER_NOT_AUTHENTICATED')
+        const category = await budgetCategoryService.delete(req.params.id as string)
+        return res.status(200).json({ message: 'Budget category deleted successfully', data: category })
+    }
+
     async deactivate(req: Request, res: Response) {
         if (!req.user) throw new AppError('User not authenticated', 401, 'USER_NOT_AUTHENTICATED')
         const category = await budgetCategoryService.setActive(req.params.id as string, false)

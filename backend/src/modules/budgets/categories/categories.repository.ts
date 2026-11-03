@@ -1,5 +1,6 @@
 import { Prisma } from '../../../generated/prisma/client.js'
 import { prisma } from '../../../shared/database/prisma.js'
+import { AppError } from '../../../shared/errors/AppError.js'
 import type { FindBudgetCategoriesByFiltersDTO } from './categories.schema.js'
 
 const toDateRange = (from?: string, to?: string) => {
@@ -74,6 +75,33 @@ class BudgetCategoryRepository {
             total,
             totalPages: Math.ceil(total / filters.limit)
         }
+    }
+
+    async delete(id: string) {
+        return prisma.$transaction(async tx => {
+            const category = await tx.budgetCategory.findUnique({
+                where: { id },
+                select: { id: true }
+            })
+            if (!category) return null
+
+            const [itemsCount, pricesCount] = await Promise.all([
+                tx.budgetItem.count({ where: { categoryId: id } }),
+                tx.budgetPrice.count({ where: { categoryId: id } })
+            ])
+
+            if (itemsCount > 0 || pricesCount > 0) {
+                throw new AppError(
+                    'A categoria não pode ser excluída enquanto estiver vinculada a itens de orçamento ou à tabela de preços.',
+                    409,
+                    'BUDGET_CATEGORY_IN_USE',
+                    { itemsCount, pricesCount }
+                )
+            }
+
+            await tx.budgetCategory.delete({ where: { id } })
+            return { id }
+        })
     }
 
     setActive(id: string, isActive: boolean) {
