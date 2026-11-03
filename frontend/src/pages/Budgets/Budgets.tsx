@@ -82,10 +82,13 @@ function formatDate(value: string) {
 }
 
 function formatEquipment(equipment: BudgetSearchSummary["equipament"]) {
-    const model = [equipment.brand, equipment.model].filter(Boolean).join(" ");
-    const identification = equipment.mainIdentification;
-
-    return [equipment.type, model, identification, equipment.additionalIdentification].filter(Boolean).join(" · ");
+    return [
+        equipment.type,
+        equipment.brand,
+        equipment.model,
+        equipment.mainIdentification,
+        equipment.additionalIdentification
+    ].filter(Boolean).join(" · ");
 }
 
 function formatBudgetName(budget: BudgetSearchSummary) {
