@@ -37,3 +37,7 @@ export async function deactivateBudgetCategory(id: string): Promise<BudgetCatego
     );
     return result.data.data;
 }
+
+export async function deleteBudgetCategory(id: string): Promise<void> {
+    await api.delete(`/budgets/categories/delete-category/${encodeURIComponent(id)}`);
+}

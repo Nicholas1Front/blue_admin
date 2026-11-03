@@ -2,7 +2,7 @@ import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { budgetsQueryKeys } from "../budgets.queryKeys";
 import {
     activateBudgetCategory, createBudgetCategory, deactivateBudgetCategory,
-    findBudgetCategories, getBudgetCategories, updateBudgetCategory
+    deleteBudgetCategory, findBudgetCategories, getBudgetCategories, updateBudgetCategory
 } from "./categories.api";
 import type {
     CreateBudgetCategoryRequest, FindBudgetCategoriesFilters, UpdateBudgetCategoryRequest,
@@ -24,5 +24,6 @@ export function useBudgetCategoryMutations() {
     const update = useMutation({ mutationFn: ({ id, data }: { id: string; data: UpdateBudgetCategoryRequest }) => updateBudgetCategory(id, data), onSuccess: invalidate });
     const activate = useMutation({ mutationFn: activateBudgetCategory, onSuccess: invalidate });
     const deactivate = useMutation({ mutationFn: deactivateBudgetCategory, onSuccess: invalidate });
-    return { create, update, activate, deactivate };
+    const remove = useMutation({ mutationFn: deleteBudgetCategory, onSuccess: invalidate });
+    return { create, update, activate, deactivate, remove };
 }

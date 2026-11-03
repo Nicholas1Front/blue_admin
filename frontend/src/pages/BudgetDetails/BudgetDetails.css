@@ -8,11 +8,8 @@
     padding: var(--spacing-6) 0 var(--spacing-16);
 }
 .budget-details-hero {
-    display: flex;
-    align-items: flex-end;
-    justify-content: space-between;
-    gap: var(--spacing-5);
-    margin: var(--spacing-5) 0;
+    display: block;
+    margin: var(--spacing-5) 0 var(--spacing-3);
     padding: var(--spacing-6);
     background: linear-gradient(135deg, rgb(24 35 44 / 0.98), rgb(24 35 44 / 0.76));
     border: 1px solid var(--color-border);
@@ -28,18 +25,27 @@
     text-transform: uppercase;
 }
 .budget-details-title-row { display: flex; align-items: center; flex-wrap: wrap; gap: var(--spacing-3); }
-.budget-details-title-row h1 { overflow-wrap: anywhere; color: var(--color-text); font-size: clamp(1.8rem, 3vw, 2.5rem); letter-spacing: -.045em; }
+.budget-details-title-row h1 { overflow-wrap: anywhere; color: var(--color-text); font-size: clamp(1.3rem, 2vw, 1.8rem); line-height: 1.35; letter-spacing: -.035em; }
 .budget-details-title-row h1 span { color: var(--color-text-muted); font-weight: var(--font-weight-medium); }
 .budget-details-hero__copy > p { margin-top: var(--spacing-3); color: var(--color-text-muted); font-size: var(--font-size-sm); }
-.budget-details-hero__actions { display: flex; flex-wrap: wrap; gap: var(--spacing-2); }
-.budget-details-hero__actions button, .budget-details-panel > header > button, .budget-details-form__actions button, .budget-details-state button {
+.budget-details-toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: var(--spacing-2);
+    margin-bottom: var(--spacing-5);
+    padding: var(--spacing-3);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+}
+.budget-details-toolbar button, .budget-details-panel > header > button, .budget-details-form__actions button, .budget-details-state button {
     display: inline-flex; align-items: center; justify-content: center; gap: var(--spacing-2);
     min-height: 2.55rem; padding: 0 var(--spacing-4); color: var(--color-text-secondary);
     background: var(--color-surface-raised); border: 1px solid var(--color-border);
     border-radius: var(--radius-md); font: inherit; font-size: var(--font-size-sm);
     font-weight: var(--font-weight-semibold); cursor: pointer;
 }
-.budget-details-hero__actions button.is-primary, .budget-details-form__actions button[type="submit"], .budget-details-form__actions button.is-primary {
+.budget-details-toolbar button.is-primary, .budget-details-form__actions button[type="submit"], .budget-details-form__actions button.is-primary {
     color: white; background: var(--color-primary-600, var(--color-primary-500)); border-color: transparent;
 }
 .budget-details-status { display: inline-flex; padding: var(--spacing-1) var(--spacing-3); border: 1px solid transparent; border-radius: 999px; font-size: var(--font-size-xs); font-weight: var(--font-weight-semibold); }
@@ -65,10 +71,11 @@
 .budget-details-panel dd { margin: 0; color: var(--color-text); font-size: var(--font-size-sm); font-weight: var(--font-weight-medium); overflow-wrap: anywhere; }
 .budget-details-items, .budget-details-history { margin-top: var(--spacing-4); }
 .budget-details-items > header { align-items: flex-start; }
-.budget-details-category { margin-top: var(--spacing-4); border: 1px solid var(--color-border); border-radius: var(--radius-lg); overflow: hidden; }
-.budget-details-category > header { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-3); padding: var(--spacing-3) var(--spacing-4); background: var(--color-surface-raised); border-bottom: 1px solid var(--color-border); }
-.budget-details-category > header h3 { color: var(--color-text); font-size: var(--font-size-sm); }
-.budget-details-category > header span, .budget-details-category > header small { color: var(--color-text-muted); font-size: var(--font-size-xs); }
+.budget-details-category { margin-top: var(--spacing-4); border: 1px solid var(--color-border); border-left: 3px solid var(--color-primary-400); border-radius: var(--radius-lg); overflow: hidden; background: var(--color-surface); }
+.budget-details-category > header { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-3); padding: var(--spacing-3) var(--spacing-4); background: linear-gradient(100deg, rgb(11 116 229 / 0.12), var(--color-surface-raised) 72%); border-bottom: 1px solid var(--color-border); }
+.budget-details-category > header h3 { color: var(--color-primary-300); font-size: var(--font-size-base); letter-spacing: -.01em; }
+.budget-details-category > header span { display: inline-flex; width: max-content; padding: 2px var(--spacing-2); color: var(--color-primary-200); background: var(--color-info-bg); border-radius: 999px; font-size: var(--font-size-xs); font-weight: var(--font-weight-semibold); }
+.budget-details-category > header small { color: var(--color-text-muted); font-size: var(--font-size-xs); }
 .budget-details-category > header > div { display: grid; gap: var(--spacing-1); }
 .budget-details-category-total { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-3); padding: var(--spacing-3) var(--spacing-4); background: var(--color-surface-raised); border-top: 1px solid var(--color-border); }
 .budget-details-category-total span { color: var(--color-text-muted); font-size: var(--font-size-xs); }
@@ -137,8 +144,8 @@
     .budget-details-grid > .budget-details-panel { min-height: auto; }
     .budget-details-entity-name { min-height: 5rem; }
     .budget-details-pricing { grid-template-columns: minmax(0, 1fr); }
-    .budget-details-hero__actions { width: 100%; }
-    .budget-details-hero__actions button { flex: 1 1 9rem; }
+    .budget-details-toolbar { width: 100%; }
+    .budget-details-toolbar button { flex: 1 1 11rem; }
     .budget-details-panel { padding: var(--spacing-4); }
     .budget-details-item { grid-template-columns: minmax(0, 1fr) auto; }
     .budget-details-item__actions { grid-column: 1 / -1; justify-content: flex-end; }
@@ -155,7 +162,8 @@
 .budget-details-tabs button { padding: var(--spacing-2) var(--spacing-3); color: var(--color-text-muted); background: transparent; border: 0; border-bottom: 2px solid transparent; font: inherit; font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); cursor: pointer; }
 .budget-details-tabs button.is-active { color: var(--color-primary-300); border-bottom-color: var(--color-primary-400); }
 
-.budget-details-hero__actions button.is-danger { color: #fca5a5; border-color: rgb(239 68 68 / .25); background: rgb(239 68 68 / .08); }
+.budget-details-toolbar button.is-danger { color: #fca5a5; border-color: rgb(239 68 68 / .25); background: rgb(239 68 68 / .08); }
+.budget-details-toolbar button:disabled { opacity: .48; cursor: not-allowed; }
 .budget-details-form__hint { grid-column: 1 / -1; color: var(--color-text-muted); font-size: var(--font-size-xs); line-height: 1.5; }
 @media (max-width: 420px) { .budget-details-form__hint { grid-column: auto; } }
 
@@ -241,13 +249,13 @@
         overflow-wrap: anywhere;
     }
     .budget-print-items > h2 { margin-bottom: 3mm; }
-    .budget-print-category { margin: 0 0 5mm; break-inside: auto; }
+    .budget-print-category { margin: 0 0 5mm; border-left: 1mm solid #8fb4d4; break-inside: auto; }
     .budget-print-category > header {
         display: flex;
         justify-content: space-between;
         gap: 4mm;
         padding: 2.5mm 3mm;
-        background: #eaf2f9 !important;
+        background: #e2edf7 !important;
         border: 1px solid #d4e1ec;
         border-radius: 1.5mm 1.5mm 0 0;
         break-after: avoid;
@@ -270,10 +278,11 @@
         font-size: 8pt;
         font-weight: 700;
     }
-    .budget-print-category th:nth-child(1) { width: 48%; }
-    .budget-print-category th:nth-child(2) { width: 10%; }
-    .budget-print-category th:nth-child(3) { width: 21%; }
-    .budget-print-category th:nth-child(4) { width: 21%; }
+    .budget-print-category th:nth-child(1) { width: 40%; }
+    .budget-print-category th:nth-child(2) { width: 8%; }
+    .budget-print-category th:nth-child(3) { width: 17%; }
+    .budget-print-category th:nth-child(4) { width: 19%; }
+    .budget-print-category th:nth-child(5) { width: 16%; }
     .budget-print-category td { color: #263b50 !important; font-size: 8.5pt; }
     .budget-print-category td strong, .budget-print-category td small { display: block; }
     .budget-print-category td small {
@@ -314,7 +323,7 @@
         margin-top: 1mm;
         padding: 3mm;
         color: #173b5e !important;
-        background: #eaf2f9 !important;
+        background: #e2edf7 !important;
         border: 1px solid #cbdce9;
         border-radius: 1.5mm;
         font-size: 11pt;

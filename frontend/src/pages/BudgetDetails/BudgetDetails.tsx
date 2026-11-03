@@ -3,7 +3,7 @@ import { Link, useNavigate, useParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faArrowDown, faArrowUp, faFilePdf, faListOl,
-    faPenToSquare, faPlus, faPrint, faRotateLeft, faTrashCan
+    faPenToSquare, faPlus, faPrint, faRotateLeft, faTrashCan, faWrench
 } from "@fortawesome/free-solid-svg-icons";
 
 import { AppHeader } from "../../components/AppHeader/AppHeader";
@@ -405,7 +405,7 @@ export function BudgetDetails() {
 
     const { budget, totals, history } = details;
     const allItems = details.items.categories.flatMap(category => category.items);
-    const budgetName = `Orçamento ${budget.id.slice(0, 8)} - ${details.client.name} - ${equipmentLabel(details) || "Equipamento não informado"}`;
+    const budgetName = `Orçamento ${budget.id} - ${details.client.name} - ${equipmentLabel(details) || "Equipamento não informado"}`;
 
     return (
         <main className={`budget-details-page${printMode ? " is-printing" : ""}`}>
@@ -422,13 +422,15 @@ export function BudgetDetails() {
                         </div>
                         <p>Consulte a proposta, seus itens, condições comerciais e histórico de alterações.</p>
                     </div>
-                    <div className="budget-details-hero__actions">
-                        <button type="button" onClick={openBudgetEditor}><FontAwesomeIcon icon={faPenToSquare} /> Editar orçamento</button>
-                        <button type="button" className="is-danger" onClick={() => { setDeleteBudgetOpen(true); setFormError(null); }}><FontAwesomeIcon icon={faTrashCan} /> Excluir</button>
-                        <button type="button" onClick={() => { setPrintOrder(allItems.map(item => item.id)); setOrganizerOpen(true); }}><FontAwesomeIcon icon={faListOl} /> Organizar impressão</button>
-                        <button type="button" className="is-primary" onClick={startPrint}><FontAwesomeIcon icon={faFilePdf} /> Exportar PDF</button>
-                    </div>
                 </header>
+
+                <nav className="budget-details-toolbar" aria-label="Ações do orçamento">
+                    <button type="button" onClick={openBudgetEditor}><FontAwesomeIcon icon={faPenToSquare} /> Editar orçamento</button>
+                    <button type="button" className="is-danger" onClick={() => { setDeleteBudgetOpen(true); setFormError(null); }}><FontAwesomeIcon icon={faTrashCan} /> Excluir orçamento</button>
+                    <button type="button" onClick={() => { setPrintOrder(allItems.map(item => item.id)); setOrganizerOpen(true); }}><FontAwesomeIcon icon={faListOl} /> Organizar PDF</button>
+                    <button type="button" className="is-primary" onClick={startPrint}><FontAwesomeIcon icon={faFilePdf} /> Exportar PDF</button>
+                    <button type="button" disabled title="Disponível em breve"><FontAwesomeIcon icon={faWrench} /> Criar serviço a partir do orçamento</button>
+                </nav>
 
                 <div className="budget-details-grid">
                     <section className="budget-details-panel budget-details-entity-panel">
@@ -494,7 +496,7 @@ export function BudgetDetails() {
                 <section className="budget-print-document" aria-label="Documento para impressão">
                     <header className="budget-print-document__header">
                         <h1>ORÇAMENTO</h1>
-                        <strong>Nº {budget.id.slice(0, 8)}</strong>
+                        <strong>Nº {budget.id}</strong>
                     </header>
 
                     <div className="budget-print-parties">
@@ -517,11 +519,12 @@ export function BudgetDetails() {
                         {(printMode ? orderedCategories : details.items.categories).map(category => <section className="budget-print-category" key={category.id}>
                             <header><h3>{category.name}</h3><span>{category.itemCount} {category.itemCount === 1 ? "item" : "itens"}</span></header>
                             <table>
-                                <thead><tr><th>Descrição</th><th>Qtd.</th><th>Valor unitário</th><th>Total</th></tr></thead>
+                                <thead><tr><th>Descrição</th><th>Qtd.</th><th>Valor unitário</th><th>Desconto unitário</th><th>Total</th></tr></thead>
                                 <tbody>{category.items.map(item => <tr key={item.id}>
                                     <td><strong>{item.title}</strong>{item.description && <small>{item.description}</small>}</td>
                                     <td>{item.quantity}</td>
                                     <td>{money(item.unitValue)}</td>
+                                    <td>{item.discount > 0 ? <><strong>- {money(item.unitValue * item.discount / 100)}</strong><small>{item.discount}%</small></> : "—"}</td>
                                     <td>{money(item.totalAmount)}</td>
                                 </tr>)}</tbody>
                             </table>
@@ -654,14 +657,14 @@ export function BudgetDetails() {
                 <div className="budget-details-confirm"><p>Deseja excluir o item <strong>{pendingDelete?.title}</strong>? O histórico e os totais do orçamento serão atualizados pelo servidor.</p>{formError && <p className="budget-details-error" role="alert">{formError}</p>}<div className="budget-details-form__actions"><button type="button" onClick={() => { setDialog(null); setPendingDelete(null); }}>Cancelar</button><button type="button" className="is-danger" disabled={isSaving} onClick={() => void deleteItem()}>{isSaving ? "Excluindo..." : "Confirmar exclusão"}</button></div></div>
             </Modal>
 
-            <Modal isOpen={organizerOpen} title="Organizar itens para impressão" onClose={() => setOrganizerOpen(false)} size="wide">
+            <Modal isOpen={organizerOpen} title="Organizar itens do PDF" onClose={() => setOrganizerOpen(false)} size="wide">
                 <div className="budget-print-organizer">
                     <p>Use as setas para alterar a ordem dos itens. Essa organização é temporária e não modifica o orçamento salvo.</p>
                     {orderedCategories.map(category => <section key={category.id}><h3>{category.name}</h3>{category.items.map(item => {
                         const index = printOrder.indexOf(item.id);
                         return <div className="budget-print-organizer__item" key={item.id}><span>{item.title}</span><small>{money(item.totalAmount)}</small><div><button type="button" aria-label="Mover item para cima" disabled={index <= 0} onClick={() => movePrintItem(item.id, -1)}><FontAwesomeIcon icon={faArrowUp} /></button><button type="button" aria-label="Mover item para baixo" disabled={index < 0 || index >= allItems.length - 1} onClick={() => movePrintItem(item.id, 1)}><FontAwesomeIcon icon={faArrowDown} /></button></div></div>;
                     })}</section>)}
-                    <div className="budget-details-form__actions"><button type="button" onClick={() => setPrintOrder(allItems.map(item => item.id))}><FontAwesomeIcon icon={faRotateLeft} /> Restaurar ordem original</button><button type="button" className="is-primary" onClick={startPrint}><FontAwesomeIcon icon={faPrint} /> Imprimir / salvar PDF</button></div>
+                    <div className="budget-details-form__actions"><button type="button" onClick={() => setPrintOrder(allItems.map(item => item.id))}><FontAwesomeIcon icon={faRotateLeft} /> Restaurar ordem original</button><button type="button" className="is-primary" onClick={startPrint}><FontAwesomeIcon icon={faPrint} /> Salvar PDF</button></div>
                 </div>
             </Modal>
         </main>

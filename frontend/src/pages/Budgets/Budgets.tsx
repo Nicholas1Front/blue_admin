@@ -24,6 +24,7 @@ import {
 } from "@fortawesome/free-solid-svg-icons";
 
 import { AppHeader } from "../../components/AppHeader/AppHeader";
+import { BudgetCategoriesManager } from "./components/BudgetCategoriesManager/BudgetCategoriesManager";
 import { BackLink } from "../../components/BackLink/BackLink";
 import {
     useBudgetDashboard,
@@ -92,7 +93,7 @@ function formatEquipment(equipment: BudgetSearchSummary["equipament"]) {
 }
 
 function formatBudgetName(budget: BudgetSearchSummary) {
-    return `Orçamento ${budget.id.slice(0, 8)} - ${budget.client.name} - ${formatEquipment(budget.equipament) || "Equipamento não informado"}`;
+    return `Orçamento ${budget.id} - ${budget.client.name} - ${formatEquipment(budget.equipament) || "Equipamento não informado"}`;
 }
 
 function getPeriodRange(year: number, month: number) {
@@ -858,6 +859,8 @@ export function Budgets() {
                         Acessar tabela de preços
                     </button>
                 </section>
+
+                <BudgetCategoriesManager />
             </section>
         </main>
     );
