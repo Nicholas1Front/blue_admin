@@ -9,8 +9,11 @@ import {
     faFileInvoiceDollar,
     faFilePen,
     faFileSignature,
-    faMagnifyingGlass,
-    faPaperPlane,
+    faFilePdf,
+    faPlus,
+    faArrowsRotate,
+    faPenToSquare,
+    faTrashCan,
     faRotateRight
 } from "@fortawesome/free-solid-svg-icons";
 
@@ -323,14 +326,33 @@ export function Budgets() {
                 )}
 
                 <section className="budgets-quick-actions" aria-label="Acessos rápidos">
-                    <div>
+                    <div className="budgets-quick-actions__heading">
                         <span className="budgets-quick-actions__eyebrow">Acesso rápido</span>
-                        <strong>O que você deseja consultar?</strong>
+                        <h2>Atalhos de orçamento</h2>
                     </div>
-                    <a href="#budgets-list" className="budgets-quick-actions__link">
-                        <FontAwesomeIcon icon={faMagnifyingGlass} aria-hidden="true" />
-                        Consultar orçamentos
-                    </a>
+
+                    <div className="budgets-quick-actions__grid">
+                        <button type="button" className="budgets-action-button budgets-action-button--primary">
+                            <FontAwesomeIcon icon={faPlus} aria-hidden="true" />
+                            <span>Criar orçamento</span>
+                        </button>
+                        <button type="button" className="budgets-action-button">
+                            <FontAwesomeIcon icon={faArrowsRotate} aria-hidden="true" />
+                            <span>Criar a partir de serviço</span>
+                        </button>
+                        <button type="button" className="budgets-action-button">
+                            <FontAwesomeIcon icon={faPenToSquare} aria-hidden="true" />
+                            <span>Editar orçamento</span>
+                        </button>
+                        <button type="button" className="budgets-action-button">
+                            <FontAwesomeIcon icon={faTrashCan} aria-hidden="true" />
+                            <span>Excluir orçamento</span>
+                        </button>
+                        <button type="button" className="budgets-action-button">
+                            <FontAwesomeIcon icon={faFilePdf} aria-hidden="true" />
+                            <span>Salvar orçamento em PDF</span>
+                        </button>
+                    </div>
                 </section>
 
                 <section className="budgets-overview" aria-labelledby="budgets-overview-title">
@@ -398,11 +420,10 @@ export function Budgets() {
                 <section className="budgets-list-panel" id="budgets-list" aria-labelledby="budgets-list-title">
                     <header className="budgets-list-panel__header">
                         <div>
-                            <span className="budgets-section-eyebrow">Consulta</span>
                             <h2 id="budgets-list-title">
                                 {selectedStatus
-                                    ? `Orçamentos: ${statusLabels[selectedStatus].toLowerCase()}`
-                                    : "Orçamentos do período"}
+                                    ? `Orçamentos ${statusLabels[selectedStatus].toLowerCase()}`
+                                    : "Orçamentos do mês"}
                             </h2>
                             <p>
                                 {selectedStatus
