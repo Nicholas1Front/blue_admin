@@ -20,6 +20,7 @@ import { CategoryPanel } from "./pages/CategoryPanel/CategoryPanel";
 import { FinancialAnalytics } from "./pages/FinancialAnalytics/FinancialAnalytics";
 import { ServiceMetricsCalendar } from "./pages/ServiceMetricsCalendar/ServiceMetricsCalendar";
 import { Budgets } from "./pages/Budgets/Budgets";
+import { BudgetDetails } from "./pages/BudgetDetails/BudgetDetails";
 
 function App() {
     return (
@@ -86,6 +87,15 @@ function App() {
                         element={
                             <ProtectedRoute>
                                 <Budgets />
+                            </ProtectedRoute>
+                        }
+                    />
+
+                    <Route
+                        path="/budgets/:budgetId"
+                        element={
+                            <ProtectedRoute>
+                                <BudgetDetails />
                             </ProtectedRoute>
                         }
                     />
