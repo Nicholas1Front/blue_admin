@@ -421,7 +421,7 @@ export function Budgets() {
                         </button>
                         <button type="button" className="budgets-action-button">
                             <FontAwesomeIcon icon={faArrowsRotate} aria-hidden="true" />
-                            <span>Criar a partir de serviço</span>
+                            <span>Criar orçamento a partir de serviço</span>
                         </button>
                         <button type="button" className="budgets-action-button">
                             <FontAwesomeIcon icon={faPenToSquare} aria-hidden="true" />
