@@ -19,7 +19,8 @@ import {
     faPenToSquare,
     faPaperPlane,
     faTrashCan,
-    faRotateRight
+    faRotateRight,
+    faTags
 } from "@fortawesome/free-solid-svg-icons";
 
 import { AppHeader } from "../../components/AppHeader/AppHeader";
@@ -416,23 +417,23 @@ export function Budgets() {
                     </div>
 
                     <div className="budgets-quick-actions__grid">
-                        <button type="button" className="budgets-action-button budgets-action-button--primary">
+                        <button type="button" className="budgets-action-button budgets-action-button--create">
                             <FontAwesomeIcon icon={faPlus} aria-hidden="true" />
                             <span>Criar orçamento</span>
                         </button>
-                        <button type="button" className="budgets-action-button">
+                        <button type="button" className="budgets-action-button budgets-action-button--convert">
                             <FontAwesomeIcon icon={faArrowsRotate} aria-hidden="true" />
                             <span>Criar orçamento a partir de serviço</span>
                         </button>
-                        <button type="button" className="budgets-action-button">
+                        <button type="button" className="budgets-action-button budgets-action-button--edit">
                             <FontAwesomeIcon icon={faPenToSquare} aria-hidden="true" />
                             <span>Editar orçamento</span>
                         </button>
-                        <button type="button" className="budgets-action-button">
+                        <button type="button" className="budgets-action-button budgets-action-button--delete">
                             <FontAwesomeIcon icon={faTrashCan} aria-hidden="true" />
                             <span>Excluir orçamento</span>
                         </button>
-                        <button type="button" className="budgets-action-button">
+                        <button type="button" className="budgets-action-button budgets-action-button--pdf">
                             <FontAwesomeIcon icon={faFilePdf} aria-hidden="true" />
                             <span>Salvar orçamento em PDF</span>
                         </button>
@@ -456,15 +457,14 @@ export function Budgets() {
                             aria-pressed={selectedStatus === null}
                         >
                             <span className="budgets-status-card__top">
-                                <span>Todos os orçamentos</span>
+                                <span>Todos</span>
+                                <strong>
+                                    {dashboardQuery.isPending ? "—" : dashboard?.budgetCount ?? 0}
+                                </strong>
                                 <span className="budgets-status-card__icon">
                                     <FontAwesomeIcon icon={faFileInvoiceDollar} aria-hidden="true" />
                                 </span>
                             </span>
-                            <strong>
-                                {dashboardQuery.isPending ? "—" : dashboard?.budgetCount ?? 0}
-                            </strong>
-                            <small>Registrados no período</small>
                         </button>
 
                         {statusCards.map(({ status, icon }) => (
@@ -477,22 +477,15 @@ export function Budgets() {
                             >
                                 <span className="budgets-status-card__top">
                                     <span>{statusLabels[status]}</span>
+                                    <strong>
+                                        {dashboardQuery.isPending
+                                            ? "—"
+                                            : dashboard?.statusCounts[status] ?? 0}
+                                    </strong>
                                     <span className="budgets-status-card__icon">
                                         <FontAwesomeIcon icon={icon} aria-hidden="true" />
                                     </span>
                                 </span>
-                                <strong>
-                                    {dashboardQuery.isPending
-                                        ? "—"
-                                        : dashboard?.statusCounts[status] ?? 0}
-                                </strong>
-                                <small>
-                                    {dashboardQuery.isPending
-                                        ? "Carregando"
-                                        : (dashboard?.statusCounts[status] ?? 0) === 1
-                                            ? "orçamento"
-                                            : "orçamentos"}
-                                </small>
                             </button>
                         ))}
                     </div>
@@ -852,6 +845,18 @@ export function Budgets() {
                     <button type="button" className="budgets-metrics-access__button">
                         <FontAwesomeIcon icon={faChartColumn} aria-hidden="true" />
                         Acessar métricas
+                    </button>
+                </section>
+
+                <section className="budgets-metrics-access" aria-label="Tabela de preços">
+                    <div>
+                        <span className="budgets-section-eyebrow">Referência comercial</span>
+                        <h2>Tabela de preços</h2>
+                        <p>Consulte e organize os valores de referência para os itens dos orçamentos.</p>
+                    </div>
+                    <button type="button" className="budgets-metrics-access__button">
+                        <FontAwesomeIcon icon={faTags} aria-hidden="true" />
+                        Acessar tabela de preços
                     </button>
                 </section>
             </section>
