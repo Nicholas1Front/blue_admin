@@ -2,7 +2,7 @@ import { useMemo, useState, type FormEvent } from "react";
 import { Link, useParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-    faArrowDown, faArrowUp, faCalendarDays, faFilePdf, faListOl,
+    faFilePdf, faListOl,
     faPenToSquare, faPlus, faPrinter, faRotateLeft, faTrashCan
 } from "@fortawesome/free-solid-svg-icons";
 
