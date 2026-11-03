@@ -109,7 +109,7 @@ export function BudgetDetails() {
             deliveryTime: details!.budget.deliveryTime,
             paymentCondition: details!.budget.paymentCondition,
             observations: details!.budget.observations ?? "",
-            globalDiscount: String(details!.budget.globalDiscount)
+            globalDiscount: String(details!.totals.globalDiscount)
         });
         setFormError(null);
         setDialog("budget");
@@ -289,7 +289,7 @@ export function BudgetDetails() {
                     <header><div><span className="budget-details-eyebrow">Composição da proposta</span><h2>Itens do orçamento</h2><p>Os valores abaixo refletem os descontos individuais e o desconto global cadastrado.</p></div><button type="button" className="is-primary" onClick={() => openItemEditor()}><FontAwesomeIcon icon={faPlus} /> Adicionar item</button></header>
                     {allItems.length === 0 ? <div className="budget-details-empty"><strong>Nenhum item cadastrado</strong><p>Adicione serviços, peças ou outros itens para compor esta proposta.</p></div> : (
                         <div className="budget-details-categories">
-                            {details.items.categories.map(category => <section className="budget-details-category" key={category.id}>
+                            {(printMode ? orderedCategories : details.items.categories).map(category => <section className="budget-details-category" key={category.id}>
                                 <header><div><h3>{category.name}</h3><span>{category.itemCount} {category.itemCount === 1 ? "item" : "itens"} · {money(category.totalAmount)}</span></div>{!category.isActive && <small>Categoria inativa</small>}</header>
                                 <div className="budget-details-item-list">
                                     {category.items.map(item => <article className="budget-details-item" key={item.id}>
