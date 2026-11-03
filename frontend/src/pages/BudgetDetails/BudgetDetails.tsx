@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type FormEvent } from "react";
 import { Link, useParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -70,6 +70,7 @@ export function BudgetDetails() {
     const [formError, setFormError] = useState<string | null>(null);
     const [isSaving, setIsSaving] = useState(false);
     const [printMode, setPrintMode] = useState(false);
+    const [organizerOpen, setOrganizerOpen] = useState(false);
     const [printOrder, setPrintOrder] = useState<string[]>([]);
 
     const budgetForm = useMemo(() => ({
@@ -124,7 +125,7 @@ export function BudgetDetails() {
         setDialog("item");
     }
 
-    async function saveBudget(event: React.FormEvent<HTMLFormElement>) {
+    async function saveBudget(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
         if (!details) return;
         const discount = Number(editableBudget.globalDiscount);
@@ -156,7 +157,7 @@ export function BudgetDetails() {
         }
     }
 
-    async function saveItem(event: React.FormEvent<HTMLFormElement>) {
+    async function saveItem(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
         if (!details) return;
         const quantity = Number(editingItem.quantity);
@@ -222,8 +223,10 @@ export function BudgetDetails() {
     }
 
     function startPrint() {
+        setOrganizerOpen(false);
+        setDialog(null);
         setPrintMode(true);
-        window.setTimeout(() => window.print(), 100);
+        window.setTimeout(() => window.print(), 150);
     }
 
     if (query.isPending) {
@@ -253,7 +256,7 @@ export function BudgetDetails() {
                     </div>
                     <div className="budget-details-hero__actions">
                         <button type="button" onClick={openBudgetEditor}><FontAwesomeIcon icon={faPenToSquare} /> Editar orçamento</button>
-                        <button type="button" onClick={() => { setPrintMode(false); setPrintOrder(allItems.map(item => item.id)); }}><FontAwesomeIcon icon={faListOl} /> Organizar impressão</button>
+                        <button type="button" onClick={() => { setPrintOrder(allItems.map(item => item.id)); setOrganizerOpen(true); }}><FontAwesomeIcon icon={faListOl} /> Organizar impressão</button>
                         <button type="button" className="is-primary" onClick={startPrint}><FontAwesomeIcon icon={faFilePdf} /> Exportar PDF</button>
                     </div>
                 </header>
@@ -336,7 +339,7 @@ export function BudgetDetails() {
                 <div className="budget-details-confirm"><p>Deseja excluir o item <strong>{pendingDelete?.title}</strong>? O histórico e os totais do orçamento serão atualizados pelo servidor.</p>{formError && <p className="budget-details-error" role="alert">{formError}</p>}<div className="budget-details-form__actions"><button type="button" onClick={() => { setDialog(null); setPendingDelete(null); }}>Cancelar</button><button type="button" className="is-danger" disabled={isSaving} onClick={() => void deleteItem()}>{isSaving ? "Excluindo..." : "Confirmar exclusão"}</button></div></div>
             </Modal>
 
-            <Modal isOpen={printMode} title="Organizar itens para impressão" onClose={() => setPrintMode(false)} size="wide">
+            <Modal isOpen={organizerOpen} title="Organizar itens para impressão" onClose={() => setOrganizerOpen(false)} size="wide">
                 <div className="budget-print-organizer">
                     <p>Use as setas para alterar a ordem dos itens. Essa organização é temporária e não modifica o orçamento salvo.</p>
                     {orderedCategories.map(category => <section key={category.id}><h3>{category.name}</h3>{category.items.map(item => {
