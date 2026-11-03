@@ -16,7 +16,7 @@
     align-items: flex-end;
     justify-content: space-between;
     gap: var(--spacing-8);
-    margin: var(--spacing-8) 0 var(--spacing-7);
+    margin: var(--spacing-8) 0 var(--spacing-8);
 }
 
 .budgets-heading__copy {
@@ -129,7 +129,7 @@
 .budgets-quick-actions {
     display: grid;
     gap: var(--spacing-4);
-    margin: var(--spacing-6) 0 var(--spacing-7);
+    margin: var(--spacing-6) 0 var(--spacing-8);
     padding: var(--spacing-5);
     background: var(--color-surface);
     border: 1px solid var(--color-border);
