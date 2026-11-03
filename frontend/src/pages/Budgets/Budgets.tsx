@@ -17,6 +17,7 @@ import {
     faPlus,
     faArrowsRotate,
     faPenToSquare,
+    faPaperPlane,
     faTrashCan,
     faRotateRight
 } from "@fortawesome/free-solid-svg-icons";
