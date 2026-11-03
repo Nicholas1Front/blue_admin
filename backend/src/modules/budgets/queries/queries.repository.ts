@@ -109,7 +109,8 @@ class BudgetQueriesRepository {
                             type: true,
                             brand: true,
                             model: true,
-                            mainIdentification: true
+                            mainIdentification: true,
+                            additionalIdentification: true
                         }
                     },
                     _count: { select: { items: true } }
@@ -346,7 +347,8 @@ class BudgetQueriesRepository {
                             type: true,
                             brand: true,
                             model: true,
-                            mainIdentification: true
+                            mainIdentification: true,
+                            additionalIdentification: true
                         }
                     },
                     _count: { select: { items: true } }

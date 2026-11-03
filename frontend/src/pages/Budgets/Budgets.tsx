@@ -85,7 +85,7 @@ function formatEquipment(equipment: BudgetSearchSummary["equipament"]) {
     const model = [equipment.brand, equipment.model].filter(Boolean).join(" ");
     const identification = equipment.mainIdentification;
 
-    return [equipment.type, model, identification].filter(Boolean).join(" · ");
+    return [equipment.type, model, identification, equipment.additionalIdentification].filter(Boolean).join(" · ");
 }
 
 function formatBudgetName(budget: BudgetSearchSummary) {

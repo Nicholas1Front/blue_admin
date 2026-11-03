@@ -17,7 +17,7 @@ export interface BudgetDashboardResponse {
             id: string; status: BudgetStatus; finalAmount: number;
             createdAt: string; updatedAt: string;
             client: { id: string; name: string };
-            equipament: { id: string; type: string; brand: string; model: string | null; mainIdentification: string | null };
+            equipament: { id: string; type: string; brand: string; model: string | null; mainIdentification: string | null; additionalIdentification: string | null };
             itemCount: number;
         }>;
     };
@@ -60,7 +60,7 @@ export interface BudgetSearchSummary {
     totalAmount: number; globalDiscount: number; finalAmount: number;
     createdAt: string; updatedAt: string;
     client: { id: string; name: string; document: string | null };
-    equipament: { id: string; type: string; brand: string; model: string | null; mainIdentification: string | null };
+    equipament: { id: string; type: string; brand: string; model: string | null; mainIdentification: string | null; additionalIdentification: string | null };
     _count?: { items: number };
 }
 export interface FindBudgetsByAdvancedFiltersResponse {
