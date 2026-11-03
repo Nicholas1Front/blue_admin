@@ -505,7 +505,7 @@ export function BudgetDetails() {
                         <div className="is-final"><span>Valor final</span><strong>{money(totals.finalAmount)}</strong></div>
                     </section>
 
-                    {budget.observations && <section className="budget-print-observations"><h2>Observações gerais</h2><p>{budget.observations}</p></section>}
+                    <section className="budget-print-observations"><h2>Observações gerais</h2><p>{budget.observations || "Nenhuma observação geral informada."}</p></section>
                 </section>
             </div>
 
