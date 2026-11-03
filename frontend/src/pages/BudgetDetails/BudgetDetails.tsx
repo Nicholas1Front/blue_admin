@@ -9,8 +9,14 @@ import {
 import { AppHeader } from "../../components/AppHeader/AppHeader";
 import { BackLink } from "../../components/BackLink/BackLink";
 import { Modal } from "../../components/Modal/Modal";
+import { ClientSelectModal } from "../Clients/components/ClientSelectModal/ClientSelectModal";
+import { ClientCreateModal } from "../Clients/components/ClientCreateModal/ClientCreateModal";
+import { EquipamentSelectModal } from "../Clients/components/EquipamentSelectModal/EquipamentSelectModal";
+import { EquipamentCreateModal } from "../Clients/components/EquipamentCreateModal/EquipamentCreateModal";
 import { useClients } from "../../modules/clients/useClients";
 import { useEquipaments } from "../../modules/equipaments/useEquipaments";
+import type { Client, CreateClientRequest } from "../../modules/clients/clients.types";
+import type { CreateEquipamentRequest } from "../../modules/equipaments/equipaments.types";
 import {
     useBudgetById, useBudgetMutations, useBudgetItemMutations,
     useBudgetCategories, useBudgetCategoryMutations
@@ -92,21 +98,22 @@ export function BudgetDetails() {
     const [isSaving, setIsSaving] = useState(false);
     const [printMode, setPrintMode] = useState(false);
     const [organizerOpen, setOrganizerOpen] = useState(false);
-    const [relationshipOpen, setRelationshipOpen] = useState(false);
+    const [relationshipStep, setRelationshipStep] = useState<"client" | "equipament" | null>(null);
+    const [relationshipClient, setRelationshipClient] = useState<Pick<Client, "id" | "name"> | null>(null);
+    const [isCreateClientOpen, setIsCreateClientOpen] = useState(false);
+    const [isCreateEquipamentOpen, setIsCreateEquipamentOpen] = useState(false);
     const [deleteBudgetOpen, setDeleteBudgetOpen] = useState(false);
-    const [selectedClientId, setSelectedClientId] = useState("");
-    const [selectedEquipamentId, setSelectedEquipamentId] = useState("");
     const [printOrder, setPrintOrder] = useState<string[]>([]);
 
     useEffect(() => {
-        if (!relationshipOpen) return;
-        void clientsQuery.loadClients();
-    }, [relationshipOpen, clientsQuery.loadClients]);
+        if (relationshipStep === "client") void clientsQuery.loadClients();
+    }, [relationshipStep, clientsQuery.loadClients]);
 
     useEffect(() => {
-        if (!relationshipOpen || !selectedClientId) return;
-        void equipamentsQuery.loadEquipaments(selectedClientId);
-    }, [relationshipOpen, selectedClientId, equipamentsQuery.loadEquipaments]);
+        if (relationshipStep === "equipament" && relationshipClient) {
+            void equipamentsQuery.loadEquipaments(relationshipClient.id);
+        }
+    }, [relationshipStep, relationshipClient, equipamentsQuery.loadEquipaments]);
 
     useEffect(() => {
         const resetPrintView = () => setPrintMode(false);
@@ -139,33 +146,56 @@ export function BudgetDetails() {
             .sort((a, b) => (position.get(a.items[0].id) ?? 0) - (position.get(b.items[0].id) ?? 0));
     }, [details, printOrder]);
 
-    function openRelationshipEditor() {
-        setSelectedClientId(details!.budget.clientId);
-        setSelectedEquipamentId(details!.budget.equipamentId);
+    function openClientSelection() {
         setFormError(null);
-        setRelationshipOpen(true);
+        setRelationshipClient(null);
+        setRelationshipStep("client");
     }
 
-    async function saveRelationship(event: FormEvent<HTMLFormElement>) {
-        event.preventDefault();
-        if (!details || !selectedClientId || !selectedEquipamentId) {
-            setFormError("Selecione o cliente e um equipamento pertencente a ele.");
-            return;
-        }
+    function openEquipmentSelection() {
+        setFormError(null);
+        setRelationshipClient({ id: details!.budget.clientId, name: details!.client.name });
+        setRelationshipStep("equipament");
+    }
+
+    function selectRelationshipClient(client: Client) {
+        setFormError(null);
+        setRelationshipClient({ id: client.id, name: client.name });
+        setRelationshipStep("equipament");
+    }
+
+    async function saveRelationship(clientId: string, equipamentId: string) {
+        if (!details) return;
         setIsSaving(true);
         setFormError(null);
         try {
             await budgetMutations.update.mutateAsync({
                 id: details.budget.id,
-                data: { clientId: selectedClientId, equipamentId: selectedEquipamentId }
+                data: { clientId, equipamentId }
             });
-            setRelationshipOpen(false);
+            setRelationshipStep(null);
             await query.refetch();
         } catch (error) {
             setFormError(getError(error, "Não foi possível atualizar o cliente e equipamento."));
         } finally {
             setIsSaving(false);
         }
+    }
+
+    async function createRelationshipClient(data: CreateClientRequest) {
+        const client = await clientsQuery.addClient(data);
+        setRelationshipClient({ id: client.id, name: client.name });
+        setIsCreateClientOpen(false);
+        setFormError(null);
+        setRelationshipStep("equipament");
+    }
+
+    async function createRelationshipEquipament(data: CreateEquipamentRequest) {
+        if (!relationshipClient) return;
+        const equipament = await equipamentsQuery.addEquipament(relationshipClient.id, data);
+        setIsCreateEquipamentOpen(false);
+        setRelationshipStep("equipament");
+        await saveRelationship(relationshipClient.id, equipament.id);
     }
 
     async function deleteBudget() {
@@ -375,10 +405,11 @@ export function BudgetDetails() {
 
     const { budget, totals, history } = details;
     const allItems = details.items.categories.flatMap(category => category.items);
+    const budgetName = `Orçamento ${budget.id.slice(0, 8)} - ${details.client.name} - ${equipmentLabel(details) || "Equipamento não informado"}`;
 
     return (
         <main className={`budget-details-page${printMode ? " is-printing" : ""}`}>
-            <title>Orçamento #{budget.id.slice(0, 8)} | Blue Admin</title>
+            <title>{budgetName}</title>
             <AppHeader />
             <nav className="page-back-row budget-details-back"><BackLink to="/budgets" label="Voltar ao dashboard de orçamentos" /></nav>
             <div className="budget-details-content">
@@ -386,7 +417,7 @@ export function BudgetDetails() {
                     <div className="budget-details-hero__copy">
                         <span className="budget-details-eyebrow">Gestão comercial · Detalhes</span>
                         <div className="budget-details-title-row">
-                            <h1>Orçamento <span>#{budget.id.slice(0, 8)}</span></h1>
+                            <h1>{budgetName}</h1>
                             <span className={`budget-details-status budget-details-status--${statusTones[budget.status]}`}>{statusLabels[budget.status]}</span>
                         </div>
                         <p>Consulte a proposta, seus itens, condições comerciais e histórico de alterações.</p>
@@ -401,11 +432,11 @@ export function BudgetDetails() {
 
                 <div className="budget-details-grid">
                     <section className="budget-details-panel budget-details-entity-panel">
-                        <header><h2>Cliente</h2></header>
+                        <header><h2>Cliente</h2><button type="button" onClick={openClientSelection}><FontAwesomeIcon icon={faPenToSquare} /> Alterar</button></header>
                         <p className="budget-details-entity-name">{details.client.name}</p>
                     </section>
                     <section className="budget-details-panel budget-details-entity-panel">
-                        <header><h2>Equipamento</h2><button type="button" onClick={openRelationshipEditor}><FontAwesomeIcon icon={faPenToSquare} /> Alterar</button></header>
+                        <header><h2>Equipamento</h2><button type="button" onClick={openEquipmentSelection}><FontAwesomeIcon icon={faPenToSquare} /> Alterar</button></header>
                         <p className="budget-details-entity-name">{equipmentLabel(details) || "Não informado"}</p>
                     </section>
                     <section className="budget-details-panel budget-details-budget-panel">
@@ -508,15 +539,66 @@ export function BudgetDetails() {
                 </section>
             </div>
 
-            <Modal isOpen={relationshipOpen} title="Alterar cliente e equipamento" onClose={() => setRelationshipOpen(false)} size="wide">
-                <form className="budget-details-form" onSubmit={saveRelationship}>
-                    <label>Cliente<select value={selectedClientId} onChange={event => { setSelectedClientId(event.target.value); setSelectedEquipamentId(""); }} required disabled={clientsQuery.isLoading}><option value="">Selecione um cliente</option>{clientsQuery.clients.map(client => <option key={client.id} value={client.id}>{client.name}</option>)}</select></label>
-                    <label>Equipamento<select value={selectedEquipamentId} onChange={event => setSelectedEquipamentId(event.target.value)} required disabled={!selectedClientId || equipamentsQuery.isLoading}><option value="">Selecione um equipamento</option>{equipamentsQuery.equipaments.map(equipament => <option key={equipament.id} value={equipament.id}>{[equipament.type, equipament.brand, equipament.model, equipament.mainIdentification].filter(Boolean).join(" · ")}</option>)}</select></label>
-                    <p className="budget-details-form__hint">Ao trocar o cliente, selecione também um equipamento cadastrado para esse cliente. A API valida esse vínculo antes de salvar.</p>
-                    {formError && <p className="budget-details-error" role="alert">{formError}</p>}
-                    <div className="budget-details-form__actions"><button type="button" onClick={() => setRelationshipOpen(false)}>Cancelar</button><button type="submit" disabled={isSaving || !selectedEquipamentId}>{isSaving ? "Salvando..." : "Salvar vínculo"}</button></div>
-                </form>
-            </Modal>
+            <ClientSelectModal
+                isOpen={relationshipStep === "client"}
+                title="Selecionar cliente"
+                clients={clientsQuery.clients}
+                isLoading={clientsQuery.isLoading}
+                error={clientsQuery.error}
+                onClose={() => setRelationshipStep(null)}
+                onSelect={selectRelationshipClient}
+                onCreate={() => {
+                    setRelationshipStep(null);
+                    clientsQuery.clearCreateError();
+                    setIsCreateClientOpen(true);
+                }}
+            />
+
+            <EquipamentSelectModal
+                isOpen={relationshipStep === "equipament"}
+                title={`Selecionar equipamento · ${relationshipClient?.name ?? "Cliente"}`}
+                equipaments={equipamentsQuery.equipaments}
+                isLoading={equipamentsQuery.isLoading || isSaving}
+                error={formError ?? equipamentsQuery.error}
+                onClose={() => setRelationshipStep(null)}
+                onSelect={equipament => {
+                    if (relationshipClient) void saveRelationship(relationshipClient.id, equipament.id);
+                }}
+                onCreate={() => {
+                    setRelationshipStep(null);
+                    equipamentsQuery.clearCreateError();
+                    setIsCreateEquipamentOpen(true);
+                }}
+                onChangeClient={() => {
+                    setFormError(null);
+                    setRelationshipStep("client");
+                }}
+            />
+
+            <ClientCreateModal
+                isOpen={isCreateClientOpen}
+                isSubmitting={clientsQuery.isCreating}
+                error={clientsQuery.createError}
+                onClose={() => {
+                    setIsCreateClientOpen(false);
+                    setRelationshipStep("client");
+                }}
+                onSubmit={createRelationshipClient}
+            />
+
+            {relationshipClient && (
+                <EquipamentCreateModal
+                    clientId={relationshipClient.id}
+                    isOpen={isCreateEquipamentOpen}
+                    isSubmitting={equipamentsQuery.isCreating}
+                    error={equipamentsQuery.createError}
+                    onClose={() => {
+                        setIsCreateEquipamentOpen(false);
+                        setRelationshipStep("equipament");
+                    }}
+                    onSubmit={createRelationshipEquipament}
+                />
+            )}
 
             <Modal isOpen={deleteBudgetOpen} title="Excluir orçamento" onClose={() => setDeleteBudgetOpen(false)}>
                 <div className="budget-details-confirm"><p>Deseja excluir o orçamento <strong>#{budget.id.slice(0, 8)}</strong>? Os itens e o histórico também serão removidos. Essa ação não poderá ser desfeita.</p>{formError && <p className="budget-details-error" role="alert">{formError}</p>}<div className="budget-details-form__actions"><button type="button" onClick={() => setDeleteBudgetOpen(false)}>Cancelar</button><button type="button" className="is-danger" disabled={isSaving} onClick={() => void deleteBudget()}>{isSaving ? "Excluindo..." : "Confirmar exclusão"}</button></div></div>

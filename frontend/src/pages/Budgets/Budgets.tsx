@@ -88,6 +88,10 @@ function formatEquipment(equipment: BudgetSearchSummary["equipament"]) {
     return [equipment.type, model, identification].filter(Boolean).join(" · ");
 }
 
+function formatBudgetName(budget: BudgetSearchSummary) {
+    return `Orçamento ${budget.id.slice(0, 8)} - ${budget.client.name} - ${formatEquipment(budget.equipament) || "Equipamento não informado"}`;
+}
+
 function getPeriodRange(year: number, month: number) {
     const lastDay = new Date(year, month, 0).getDate();
     const pad = (value: number) => String(value).padStart(2, "0");
@@ -142,24 +146,16 @@ function BudgetListItem({ budget }: { budget: BudgetSearchSummary }) {
         <Link
             className="budgets-list-item"
             to={`/budgets/${encodeURIComponent(budget.id)}`}
-            aria-label={`Consultar orçamento de ${budget.client.name}`}
+            aria-label={`Consultar ${formatBudgetName(budget)}`}
         >
             <div className="budgets-list-item__main">
                 <div className="budgets-list-item__identity">
                     <div>
-                        <strong>{budget.client.name}</strong>
-                        <span className="budgets-list-item__id">
-                            Orçamento #{budget.id.slice(0, 8)}
-                        </span>
+                        <strong className="budgets-list-item__title">{formatBudgetName(budget)}</strong>
                     </div>
                     <span className={`budgets-status budgets-status--${statusTones[budget.status]}`}>
                         {statusLabels[budget.status]}
                     </span>
-                </div>
-
-                <div className="budgets-list-item__equipment">
-                    <span>Equipamento</span>
-                    <strong>{formatEquipment(budget.equipament) || "Não informado"}</strong>
                 </div>
 
                 <div className="budgets-list-item__meta">

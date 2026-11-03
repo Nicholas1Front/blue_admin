@@ -459,30 +459,13 @@
     overflow-wrap: anywhere;
 }
 
-.budgets-list-item__id {
-    color: var(--color-text-disabled);
-    font-size: 0.7rem;
-    letter-spacing: 0.025em;
+.budgets-list-item__title {
+    line-height: 1.45;
 }
 
-.budgets-list-item__equipment {
-    display: flex;
-    flex-direction: column;
-    gap: var(--spacing-1);
-    min-width: 0;
-}
-
-.budgets-list-item__equipment > span,
 .budgets-list-item__meta small {
     color: var(--color-text-muted);
     font-size: var(--font-size-xs);
-}
-
-.budgets-list-item__equipment > strong {
-    color: var(--color-text-secondary);
-    font-size: var(--font-size-sm);
-    font-weight: var(--font-weight-medium);
-    overflow-wrap: anywhere;
 }
 
 .budgets-list-item__meta {

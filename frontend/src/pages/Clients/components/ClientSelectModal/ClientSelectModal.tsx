@@ -94,6 +94,7 @@ export function ClientSelectModal({
                                 className="client-select__item"
                                 key={client.id}
                                 type="button"
+                                disabled={isLoading}
                                 onClick={() => onSelect(client)}
                             >
                                 <strong>{client.name}</strong>

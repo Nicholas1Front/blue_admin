@@ -12,10 +12,11 @@ interface Props {
     onClose: () => void;
     onSelect: (equipament: Equipament) => void;
     onCreate?: () => void;
+    onChangeClient?: () => void;
 }
 
 export function EquipamentSelectModal({
-    isOpen, title, equipaments, isLoading, error, onClose, onSelect, onCreate
+    isOpen, title, equipaments, isLoading, error, onClose, onSelect, onCreate, onChangeClient
 }: Props) {
     const [search, setSearch] = useState("");
 
@@ -62,7 +63,7 @@ export function EquipamentSelectModal({
                 {!isLoading && !error && filteredEquipaments.length > 0 && (
                     <div className="equipament-select__list">
                         {filteredEquipaments.map((equipament) => (
-                            <button className="equipament-select__item" key={equipament.id} type="button" onClick={() => onSelect(equipament)}>
+                            <button className="equipament-select__item" key={equipament.id} type="button" disabled={isLoading} onClick={() => onSelect(equipament)}>
                                 <strong>{equipament.type} — {equipament.brand}</strong>
                                 <span>{[equipament.model, equipament.mainIdentification, equipament.additionalIdentification].filter((value): value is string => Boolean(value)).join(" • ") || "Sem identificação adicional"}</span>
                             </button>
@@ -71,6 +72,7 @@ export function EquipamentSelectModal({
                 )}
 
                 <div className="equipament-select__actions">
+                    {onChangeClient && <button className="equipament-select__change-client" type="button" onClick={onChangeClient} disabled={isLoading}>Trocar cliente</button>}
                     {onCreate && <button className="equipament-select__create" type="button" onClick={onCreate} disabled={isLoading}>Cadastrar equipamento</button>}
                     <button className="equipament-select__cancel" type="button" onClick={onClose} disabled={isLoading}>Cancelar</button>
                 </div>

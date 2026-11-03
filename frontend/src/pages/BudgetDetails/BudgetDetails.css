@@ -28,7 +28,7 @@
     text-transform: uppercase;
 }
 .budget-details-title-row { display: flex; align-items: center; flex-wrap: wrap; gap: var(--spacing-3); }
-.budget-details-title-row h1 { color: var(--color-text); font-size: clamp(1.8rem, 3vw, 2.5rem); letter-spacing: -.045em; }
+.budget-details-title-row h1 { overflow-wrap: anywhere; color: var(--color-text); font-size: clamp(1.8rem, 3vw, 2.5rem); letter-spacing: -.045em; }
 .budget-details-title-row h1 span { color: var(--color-text-muted); font-weight: var(--font-weight-medium); }
 .budget-details-hero__copy > p { margin-top: var(--spacing-3); color: var(--color-text-muted); font-size: var(--font-size-sm); }
 .budget-details-hero__actions { display: flex; flex-wrap: wrap; gap: var(--spacing-2); }
