@@ -198,7 +198,7 @@ export function Budgets() {
     const [filterForm, setFilterForm] = useState<FindBudgetsByAdvancedFilters>({});
     const [submittedFilters, setSubmittedFilters] = useState<FindBudgetsByAdvancedFilters | null>(null);
     const [filterError, setFilterError] = useState<string | null>(null);
-    
+
     const availableYears = Array.from(
         { length: currentYear - 1999 },
         (_, index) => currentYear - index
@@ -268,10 +268,10 @@ export function Budgets() {
             } else if (numeric) {
                 const parsedValue = Number(normalizedValue);
                 if (Number.isFinite(parsedValue)) {
-                    (next as Record<string, unknown>)[key] = parsedValue;
+                    Object.assign(next, { [key]: parsedValue });
                 }
             } else {
-                (next as Record<string, unknown>)[key] = normalizedValue;
+                Object.assign(next, { [key]: normalizedValue });
             }
 
             return next;
