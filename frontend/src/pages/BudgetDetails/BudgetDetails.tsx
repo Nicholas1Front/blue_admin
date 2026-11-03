@@ -563,7 +563,7 @@ export function BudgetDetails() {
             <Modal isOpen={dialog === "discount"} title="Editar desconto global" onClose={() => setDialog(null)}>
                 <form className="budget-details-form budget-details-form--single" onSubmit={saveGlobalDiscount}>
                     <label>Desconto global (%)<input type="number" min="0" max="100" step="0.01" value={globalDiscountInput} onChange={event => setGlobalDiscountInput(event.target.value)} required /></label>
-                    <p className="budget-details-form__hint">O desconto é aplicado sobre o subtotal dos itens após os descontos individuais. Os totais são recalculados pelo servidor.</p>
+                    <p className="budget-details-form__hint">O desconto global é aplicado sobre o subtotal do orçamento. Os totais são recalculados pelo servidor.</p>
                     {formError && <p className="budget-details-error" role="alert">{formError}</p>}
                     <div className="budget-details-form__actions"><button type="button" onClick={() => setDialog(null)}>Cancelar</button><button type="submit" disabled={isSaving}>{isSaving ? "Salvando..." : "Salvar desconto"}</button></div>
                 </form>
