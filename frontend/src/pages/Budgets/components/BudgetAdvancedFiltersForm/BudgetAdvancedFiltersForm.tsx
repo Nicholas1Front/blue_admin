@@ -1,7 +1,14 @@
-import type { FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faBroom, faMagnifyingGlass } from "@fortawesome/free-solid-svg-icons";
 import type { FindBudgetsByAdvancedFilters, BudgetStatus } from "../../../../modules/budgets";
+
+const numericFilterKeys = [
+    "totalAmountMin", "totalAmountMax", "globalDiscountMin", "globalDiscountMax",
+    "finalAmountMin", "finalAmountMax", "itemQuantityMin", "itemQuantityMax",
+    "itemUnitValueMin", "itemUnitValueMax", "itemTotalAmountMin", "itemTotalAmountMax",
+    "itemDiscountMin", "itemDiscountMax"
+] as const;
 
 const statusLabels: Record<BudgetStatus, string> = {
     rascunho: "Rascunho",
@@ -27,6 +34,41 @@ export function BudgetAdvancedFiltersForm({
     onClear,
     error
 }: Props) {
+    const numericValuesKey = numericFilterKeys
+        .map(key => `${key}:${values[key] ?? ""}`)
+        .join("|");
+    const [numericDrafts, setNumericDrafts] = useState<Record<string, string>>(() =>
+        Object.fromEntries(numericFilterKeys.map(key => [key, String(values[key] ?? "")]))
+    );
+
+    useEffect(() => {
+        setNumericDrafts(
+            Object.fromEntries(numericFilterKeys.map(key => [key, String(values[key] ?? "")]))
+        );
+    }, [numericValuesKey]);
+
+    function updateNumericDraft(key: keyof FindBudgetsByAdvancedFilters, value: string) {
+        setNumericDrafts(current => ({ ...current, [key]: value }));
+    }
+
+    function commitNumericDraft(key: keyof FindBudgetsByAdvancedFilters) {
+        const value = numericDrafts[key] ?? "";
+        if (!value.trim()) {
+            onChange(key, "", true);
+            return;
+        }
+
+        if (Number.isFinite(Number(value))) {
+            onChange(key, value, true);
+            return;
+        }
+
+        setNumericDrafts(current => ({
+            ...current,
+            [key]: String(values[key] ?? "")
+        }));
+    }
+
     return (
         <form className="budgets-filter-form" onSubmit={onSubmit}>
             <div className="budgets-filter-form__quick">
@@ -148,8 +190,10 @@ export function BudgetAdvancedFiltersForm({
                                     min={key.includes("Quantity") ? "0.000001" : "0"}
                                     max={key.includes("Discount") ? 100 : undefined}
                                     step="0.01"
-                                    value={values[key] ?? ""}
-                                    onChange={event => onChange(key, event.target.value, true)}
+                                    value={numericDrafts[key] ?? ""}
+                                    step={key.includes("Quantity") ? "0.001" : "0.01"}
+                                    onChange={event => updateNumericDraft(key, event.target.value)}
+                                    onBlur={() => commitNumericDraft(key)}
                                 />
                             </label>
                         ))}
@@ -196,8 +240,10 @@ export function BudgetAdvancedFiltersForm({
                                     min={key.includes("Quantity") ? "0.000001" : "0"}
                                     max={key.includes("Discount") ? 100 : undefined}
                                     step="0.01"
-                                    value={values[key] ?? ""}
-                                    onChange={event => onChange(key, event.target.value, true)}
+                                    value={numericDrafts[key] ?? ""}
+                                    step={key.includes("Quantity") ? "0.001" : "0.01"}
+                                    onChange={event => updateNumericDraft(key, event.target.value)}
+                                    onBlur={() => commitNumericDraft(key)}
                                 />
                             </label>
                         ))}
