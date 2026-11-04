@@ -138,19 +138,11 @@ class BudgetQueriesRepository {
         const startDate = utcDate(filters.year, 0)
         const endDate = utcDate(filters.year + 1, 0)
 
-        return prisma.$queryRaw<Array<{
-            month: number
-            status: string
-            budgetCount: number
-            totalAmount: Prisma.Decimal
-            finalAmount: Prisma.Decimal
-        }>>`
+        return prisma.$queryRaw<Array<{ month: number; status: string; budgetCount: number }>>`
             SELECT
                 EXTRACT(MONTH FROM created_at)::int AS month,
                 status,
-                COUNT(*)::int AS "budgetCount",
-                COALESCE(SUM(total_amount), 0)::numeric AS "totalAmount",
-                COALESCE(SUM(final_amount), 0)::numeric AS "finalAmount"
+                COUNT(*)::int AS "budgetCount"
             FROM budgets
             WHERE created_at >= ${startDate}
               AND created_at < ${endDate}

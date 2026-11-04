@@ -1,58 +1,240 @@
-import { useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useMemo, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faArrowLeft, faFileInvoiceDollar, faArrowTrendUp, faCheckCircle, faGaugeHigh } from "@fortawesome/free-solid-svg-icons";
+import { faCheckCircle, faClock, faFileInvoiceDollar, faPaperPlane } from "@fortawesome/free-solid-svg-icons";
+import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { AppHeader } from "../../components/AppHeader/AppHeader";
 import { BackLink } from "../../components/BackLink/BackLink";
 import { useBudgetMetrics } from "../../modules/budgets";
 import type { BudgetStatus } from "../../modules/budgets";
 import "./BudgetMetrics.css";
 
-const money = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL", maximumFractionDigits: 0 });
-const months = Array.from({ length: 12 }, (_, i) => new Intl.DateTimeFormat("pt-BR", { month: "short" }).format(new Date(2020, i, 1)).replace(".", ""));
 const statuses: BudgetStatus[] = ["rascunho", "enviado", "aprovado", "rejeitado", "expirado", "cancelado"];
-const labels: Record<BudgetStatus, string> = { rascunho: "Rascunho", enviado: "Enviado", aprovado: "Aprovado", rejeitado: "Rejeitado", expirado: "Expirado", cancelado: "Cancelado" };
+const statusConfig: Record<BudgetStatus, { label: string; color: string; tone: string }> = {
+    rascunho: { label: "Rascunho", color: "#8b9aab", tone: "draft" },
+    enviado: { label: "Aguardando cliente", color: "#e5a642", tone: "waiting" },
+    aprovado: { label: "Aprovado", color: "#31b982", tone: "approved" },
+    rejeitado: { label: "Rejeitado", color: "#e16b70", tone: "rejected" },
+    expirado: { label: "Expirado", color: "#a78bfa", tone: "expired" },
+    cancelado: { label: "Cancelado", color: "#64748b", tone: "cancelled" }
+};
+const monthNames = Array.from({ length: 12 }, (_, index) =>
+    new Intl.DateTimeFormat("pt-BR", { month: "long" }).format(new Date(2020, index, 1))
+);
+const availableYears = (year: number) => Array.from({ length: Math.max(1, year - 1999) }, (_, index) => year - index);
+const percent = (value: number, total: number) => total > 0 ? value / total * 100 : 0;
+const formatPercent = (value: number) => `${value.toFixed(1).replace(".", ",")}%`;
+
+function MetricCard({ label, value, detail, tone, icon }: {
+    label: string; value: string; detail: string;
+    tone: "blue" | "amber" | "green" | "violet";
+    icon: typeof faFileInvoiceDollar;
+}) {
+    return (
+        <article className={`budget-metrics-kpi budget-metrics-kpi--${tone}`}>
+            <span className="budget-metrics-kpi__icon"><FontAwesomeIcon icon={icon} aria-hidden="true" /></span>
+            <span className="budget-metrics-kpi__label">{label}</span>
+            <strong className="budget-metrics-kpi__value">{value}</strong>
+            <span className="budget-metrics-kpi__detail">{detail}</span>
+        </article>
+    );
+}
 
 export function BudgetMetrics() {
-    const navigate = useNavigate();
-    const currentYear = new Date().getFullYear();
-    const [year, setYear] = useState(currentYear);
-    const query = useBudgetMetrics({ year });
+    document.title = "Métricas de orçamentos | Blue Admin";
+    const now = new Date();
+    const currentYear = now.getFullYear();
+    const currentMonth = now.getMonth() + 1;
+    const [selectedYear, setSelectedYear] = useState(currentYear);
+    const [selectedMonth, setSelectedMonth] = useState(currentMonth);
+    const [visibleStatuses, setVisibleStatuses] = useState<BudgetStatus[]>(statuses);
+    const query = useBudgetMetrics({ year: selectedYear });
     const data = query.data;
-    const approved = data?.statusTotals.aprovado;
-    const rejected = data?.statusTotals.rejeitado;
-    const decided = (approved?.count ?? 0) + (rejected?.count ?? 0);
-    const approvalRate = decided ? (approved?.count ?? 0) / decided * 100 : 0;
-    const pipelineCount = (data?.statusTotals.rascunho.count ?? 0) + (data?.statusTotals.enviado.count ?? 0);
-    const pipelineValue = (data?.statusTotals.rascunho.finalAmount ?? 0) + (data?.statusTotals.enviado.finalAmount ?? 0);
-    const averageApproved = approved?.count ? approved.finalAmount / approved.count : 0;
-    const maxValue = Math.max(1, ...(data?.monthly.map(item => item.finalAmount) ?? [1]));
-    const maxCount = Math.max(1, ...(data?.monthly.map(item => item.budgetCount) ?? [1]));
-    const maxStatus = Math.max(1, ...statuses.map(status => data?.statusTotals[status].count ?? 0));
+    const monthData = data?.monthly.find(item => item.month === selectedMonth);
+    const monthCount = monthData?.budgetCount ?? 0;
 
-    return <main className="budget-metrics-page">
-        <title>Métricas de orçamentos | Blue Admin</title><AppHeader />
-        <nav className="page-back-row" aria-label="Navegação da página"><BackLink /></nav>
-        <section className="budget-metrics-content">
-            <header className="budget-metrics-heading"><div><span>INTELIGÊNCIA COMERCIAL</span><h1>Métricas de orçamentos</h1><p>Volume de propostas, valores apresentados e desempenho de aprovação.</p></div><label>Ano de referência<select value={year} onChange={e => setYear(Number(e.target.value))}>{Array.from({ length: currentYear - 1999 }, (_, i) => currentYear - i).map(item => <option key={item}>{item}</option>)}</select></label></header>
-            {query.isError ? <div className="budget-metrics-state" role="alert">Não foi possível carregar as métricas. <button onClick={() => void query.refetch()}>Tentar novamente</button></div>
-            : query.isPending || !data ? <div className="budget-metrics-state">Carregando indicadores…</div>
-            : <>
-                <div className="budget-metrics-kpis">
-                    <article><span><FontAwesomeIcon icon={faFileInvoiceDollar} /></span><small>Orçamentos criados</small><strong>{data.annual.budgetCount}</strong><p>Propostas registradas em {year}</p></article>
-                    <article><span><FontAwesomeIcon icon={faArrowTrendUp} /></span><small>Valor total proposto</small><strong>{money.format(data.annual.finalAmount)}</strong><p>Valor final acumulado das propostas</p></article>
-                    <article><span><FontAwesomeIcon icon={faCheckCircle} /></span><small>Taxa de aprovação</small><strong>{approvalRate.toFixed(1).replace(".", ",")}%</strong><p>Sobre propostas aprovadas ou rejeitadas</p></article>
-                    <article><span><FontAwesomeIcon icon={faGaugeHigh} /></span><small>Ticket médio aprovado</small><strong>{money.format(averageApproved)}</strong><p>{approved?.count ?? 0} orçamento(s) aprovado(s)</p></article>
-                </div>
-                <section className="budget-metrics-panel"><header><div><h2>Evolução mensal</h2><p>Valor final dos orçamentos criados em cada mês</p></div><span>{year}</span></header><div className="budget-metrics-chart" role="img" aria-label={`Evolução mensal dos valores orçados em ${year}`}>{data.monthly.map(item => <div key={item.month}><small>{item.finalAmount ? money.format(item.finalAmount) : "—"}</small><div><i style={{ height: `${item.finalAmount ? Math.max(3, item.finalAmount / maxValue * 100) : 0}%` }} /></div><span>{months[item.month - 1]}</span></div>)}</div><p className="budget-metrics-note">Período definido pela data de criação. Valores orçados não representam receita recebida.</p></section>
-                <div className="budget-metrics-columns">
-                    <section className="budget-metrics-panel"><header><div><h2>Volume por mês</h2><p>Quantidade de propostas cadastradas</p></div></header><div className="budget-metrics-bars">{data.monthly.map(item => <div key={item.month}><span>{months[item.month - 1]}</span><div><i style={{ width: `${item.budgetCount / maxCount * 100}%` }} /></div><strong>{item.budgetCount}</strong></div>)}</div></section>
-                    <section className="budget-metrics-panel"><header><div><h2>Distribuição por status</h2><p>Resultado das propostas no ano</p></div></header><div className="budget-metrics-bars">{statuses.map(status => <div key={status}><span>{labels[status]}</span><div><i className={`status-${status}`} style={{ width: `${data.statusTotals[status].count / maxStatus * 100}%` }} /></div><strong>{data.statusTotals[status].count}</strong></div>)}</div></section>
-                </div>
-                <section className="budget-metrics-panel"><header><div><h2>Indicadores complementares</h2><p>Leitura rápida do pipeline comercial</p></div></header><div className="budget-metrics-insights"><article><small>Pipeline em aberto</small><strong>{money.format(pipelineValue)}</strong><span>{pipelineCount} orçamento(s) em rascunho ou enviado</span></article><article><small>Valor aprovado</small><strong>{money.format(approved?.finalAmount ?? 0)}</strong><span>{approved?.count ?? 0} proposta(s) aprovadas</span></article><article><small>Propostas decididas</small><strong>{decided}</strong><span>Taxa de aprovação calculada sobre aprovadas e rejeitadas</span></article></div></section>
-            </>}
-            <p className="budget-metrics-note">{data?.interpretation ?? "Métricas comerciais: não representam faturamento ou recebimentos."}</p>
-            <button type="button" className="budget-metrics-back" onClick={() => navigate("/budgets")}><FontAwesomeIcon icon={faArrowLeft} /> Voltar aos orçamentos</button>
-        </section>
-    </main>;
+    const chartData = useMemo(() => (data?.monthly ?? []).map(item => ({
+        month: item.month,
+        label: new Intl.DateTimeFormat("pt-BR", { month: "short" })
+            .format(new Date(selectedYear, item.month - 1, 1)).replace(".", ""),
+        ...item.statusCounts
+    })), [data, selectedYear]);
+
+    const annualApproval = percent(data?.annual.statusCounts.aprovado ?? 0, data?.annual.budgetCount ?? 0);
+    const monthlyApproval = percent(monthData?.statusCounts.aprovado ?? 0, monthCount);
+    const monthlyWaiting = percent(monthData?.statusCounts.enviado ?? 0, monthCount);
+
+    function toggleStatus(status: BudgetStatus) {
+        setVisibleStatuses(current => current.includes(status)
+            ? current.filter(item => item !== status)
+            : [...current, status]);
+    }
+
+    function changeYear(year: number) {
+        if (!Number.isInteger(year) || year < 2000 || year > currentYear) return;
+        setSelectedYear(year);
+        if (year === currentYear && selectedMonth > currentMonth) setSelectedMonth(currentMonth);
+    }
+
+    function selectChartMonth(state: { activeLabel?: string | number } | null) {
+        if (!state?.activeLabel) return;
+        const month = Number(state.activeLabel);
+        if (Number.isInteger(month) && month >= 1 && month <= 12) setSelectedMonth(month);
+    }
+
+    return (
+        <main className="budget-metrics-page">
+            <AppHeader />
+            <nav className="page-back-row" aria-label="Navegação da página">
+                <BackLink to="/budgets" label="Voltar ao dashboard de orçamentos" />
+            </nav>
+
+            <section className="budget-metrics-content">
+                <header className="budget-metrics-heading">
+                    <div className="budget-metrics-heading__copy">
+                        <span className="budget-metrics-eyebrow">Gestão comercial · Indicadores</span>
+                        <h1>Métricas de orçamentos</h1>
+                        <p>Acompanhe as propostas criadas, identifique o que continua em aberto e entenda a evolução dos status ao longo do ano.</p>
+                    </div>
+                    <div className="budget-metrics-period">
+                        <span className="budget-metrics-period__label"><FontAwesomeIcon icon={faClock} aria-hidden="true" /> Período de análise</span>
+                        <div className="budget-metrics-period__fields">
+                            <label><span>Mês em destaque</span>
+                                <select value={selectedMonth} onChange={event => setSelectedMonth(Number(event.target.value))} aria-label="Selecionar mês">
+                                    {monthNames.map((month, index) => (
+                                        <option key={month} value={index + 1} disabled={selectedYear === currentYear && index + 1 > currentMonth}>{month}</option>
+                                    ))}
+                                </select>
+                            </label>
+                            <label><span>Ano</span>
+                                <select value={selectedYear} onChange={event => changeYear(Number(event.target.value))} aria-label="Selecionar ano">
+                                    {availableYears(currentYear).map(year => <option key={year} value={year}>{year}</option>)}
+                                </select>
+                            </label>
+                        </div>
+                    </div>
+                </header>
+
+                {query.isError ? (
+                    <div className="budget-metrics-state" role="alert">
+                        <strong>Não foi possível carregar as métricas.</strong>
+                        <span>Confira sua conexão e tente novamente.</span>
+                        <button type="button" onClick={() => void query.refetch()}>Tentar novamente</button>
+                    </div>
+                ) : query.isPending || !data ? (
+                    <div className="budget-metrics-state" aria-live="polite">Carregando indicadores…</div>
+                ) : (
+                    <>
+                        <section className="budget-metrics-section" aria-labelledby="budget-metrics-year-title">
+                            <div className="budget-metrics-section-heading">
+                                <div>
+                                    <span className="budget-metrics-section-eyebrow">Panorama anual</span>
+                                    <h2 id="budget-metrics-year-title">Situação dos orçamentos em {selectedYear}</h2>
+                                    <p>Propostas criadas neste ano, agrupadas pelo status atual de cada orçamento.</p>
+                                </div>
+                                <span className="budget-metrics-year-tag">{selectedYear}</span>
+                            </div>
+                            <div className="budget-metrics-kpis">
+                                <MetricCard label="Orçamentos criados" value={String(data.annual.budgetCount)}
+                                    detail="Total de propostas cadastradas no ano" tone="blue" icon={faFileInvoiceDollar} />
+                                <MetricCard label="Em aberto" value={String(data.annual.openCount)}
+                                    detail="Rascunhos + propostas enviadas" tone="amber" icon={faClock} />
+                                <MetricCard label="Aguardando resposta" value={String(data.annual.awaitingResponseCount)}
+                                    detail="Propostas enviadas ao cliente" tone="violet" icon={faPaperPlane} />
+                                <MetricCard label="Taxa de aprovação" value={formatPercent(annualApproval)}
+                                    detail={`${data.annual.statusCounts.aprovado} aprovados sobre ${data.annual.budgetCount} criados`}
+                                    tone="green" icon={faCheckCircle} />
+                            </div>
+                        </section>
+
+                        <section className="budget-metrics-panel" aria-labelledby="budget-metrics-chart-title">
+                            <header className="budget-metrics-panel__header">
+                                <div>
+                                    <span className="budget-metrics-section-eyebrow">Distribuição mensal</span>
+                                    <h2 id="budget-metrics-chart-title">Todos os status por mês</h2>
+                                    <p>Selecione um mês no gráfico ou no filtro para consultar sua distribuição.</p>
+                                </div>
+                                <span className="budget-metrics-panel__total">{data.annual.budgetCount} no ano</span>
+                            </header>
+                            <div className="budget-metrics-legend" aria-label="Filtrar status exibidos no gráfico">
+                                {statuses.map(status => (
+                                    <button type="button" key={status}
+                                        className={visibleStatuses.includes(status) ? "is-active" : ""}
+                                        aria-pressed={visibleStatuses.includes(status)} onClick={() => toggleStatus(status)}>
+                                        <i style={{ background: statusConfig[status].color }} />{statusConfig[status].label}
+                                    </button>
+                                ))}
+                                <button type="button" className="budget-metrics-legend__reset" onClick={() => setVisibleStatuses(statuses)}>Todos</button>
+                            </div>
+                            <div className="budget-metrics-chart">
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <BarChart data={chartData} margin={{ top: 12, right: 8, left: -18, bottom: 4 }}
+                                        barCategoryGap="22%" onClick={selectChartMonth}>
+                                        <CartesianGrid stroke="var(--color-border)" strokeDasharray="3 3" vertical={false} />
+                                        <XAxis dataKey="month" tickLine={false} axisLine={false}
+                                            tick={{ fill: "var(--color-text-muted)", fontSize: 12 }} />
+                                        <YAxis allowDecimals={false} tickLine={false} axisLine={false}
+                                            tick={{ fill: "var(--color-text-muted)", fontSize: 11 }} />
+                                        <Tooltip cursor={{ fill: "var(--color-surface-hover)", opacity: .45 }}
+                                            contentStyle={{ background: "var(--color-surface-raised)", border: "1px solid var(--color-border)", borderRadius: 10, color: "var(--color-text)" }}
+                                            labelFormatter={(_, payload) => payload?.[0]?.payload?.label ?? ""}
+                                            formatter={(value, name) => [Number(value ?? 0), statusConfig[name as BudgetStatus]?.label ?? String(name)]} />
+                                        {statuses.filter(status => visibleStatuses.includes(status)).map(status => (
+                                            <Bar key={status} dataKey={status} name={status} stackId="budgets"
+                                                fill={statusConfig[status].color} maxBarSize={42} />
+                                        ))}
+                                    </BarChart>
+                                </ResponsiveContainer>
+                            </div>
+                            <p className="budget-metrics-chart-note">Cada coluna representa os orçamentos criados naquele mês, agrupados pelo status atual. Clique em uma coluna para destacá-la abaixo.</p>
+                        </section>
+
+                        <section className="budget-metrics-panel budget-metrics-month-panel" aria-labelledby="budget-metrics-month-title">
+                            <header className="budget-metrics-panel__header">
+                                <div>
+                                    <span className="budget-metrics-section-eyebrow">Detalhamento do período</span>
+                                    <h2 id="budget-metrics-month-title">{new Intl.DateTimeFormat("pt-BR", { month: "long", year: "numeric" }).format(new Date(selectedYear, selectedMonth - 1, 1))}</h2>
+                                    <p>{monthCount} orçamento(s) criado(s) no mês selecionado.</p>
+                                </div>
+                                <span className="budget-metrics-month-total">{monthCount} propostas</span>
+                            </header>
+                            <div className="budget-metrics-month-kpis">
+                                <article>
+                                    <span>Taxa de aprovação</span><strong>{formatPercent(monthlyApproval)}</strong>
+                                    <small>{monthData?.statusCounts.aprovado ?? 0} de {monthCount} propostas</small>
+                                    <div className="budget-metrics-progress"><i className="is-approved" style={{ width: `${monthlyApproval}%` }} /></div>
+                                </article>
+                                <article>
+                                    <span>Aguardando resposta do cliente</span><strong>{formatPercent(monthlyWaiting)}</strong>
+                                    <small>{monthData?.statusCounts.enviado ?? 0} de {monthCount} propostas</small>
+                                    <div className="budget-metrics-progress"><i className="is-waiting" style={{ width: `${monthlyWaiting}%` }} /></div>
+                                </article>
+                            </div>
+                            <div className="budget-metrics-status-grid">
+                                {statuses.map(status => {
+                                    const count = monthData?.statusCounts[status] ?? 0;
+                                    const share = percent(count, monthCount);
+                                    return (
+                                        <button type="button" key={status}
+                                            className={`budget-metrics-status-card budget-metrics-status-card--${statusConfig[status].tone}`}
+                                            onClick={() => toggleStatus(status)} aria-pressed={visibleStatuses.includes(status)}
+                                            title="Mostrar ou ocultar este status no gráfico anual">
+                                            <span>{statusConfig[status].label}</span><strong>{count}</strong>
+                                            <small>{formatPercent(share)} do mês</small>
+                                            <i><b style={{ width: `${share}%` }} /></i>
+                                        </button>
+                                    );
+                                })}
+                            </div>
+                            <p className="budget-metrics-definition">
+                                Os percentuais são calculados sobre todos os orçamentos criados no mês. “Em aberto” reúne rascunhos e enviados;
+                                “aguardando resposta” considera somente os enviados. A aprovação é a participação dos aprovados no total de propostas do período.
+                            </p>
+                        </section>
+                    </>
+                )}
+                <p className="budget-metrics-footnote">{data?.interpretation ?? "Os indicadores representam atividade comercial, não valores financeiros ou receita realizada."}</p>
+                <div className="budget-metrics-footer"><BackLink to="/budgets" label="Voltar ao dashboard de orçamentos" /></div>
+            </section>
+        </main>
+    );
 }

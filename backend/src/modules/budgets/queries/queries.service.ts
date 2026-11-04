@@ -216,77 +216,35 @@ class BudgetQueriesService {
         const monthly = Array.from({ length: 12 }, (_, index) => ({
             month: index + 1,
             budgetCount: 0,
-            statusCounts: Object.fromEntries(allowedBudgetStatus.map(status => [status, 0])) as Record<string, number>,
-            statusTotals: Object.fromEntries(allowedBudgetStatus.map(status => [status, {
-                count: 0,
-                totalAmount: new Prisma.Decimal(0),
-                finalAmount: new Prisma.Decimal(0)
-            }])) as Record<string, { count: number; totalAmount: Prisma.Decimal; finalAmount: Prisma.Decimal }>,
-            totalAmount: new Prisma.Decimal(0),
-            finalAmount: new Prisma.Decimal(0)
+            statusCounts: Object.fromEntries(
+                allowedBudgetStatus.map(status => [status, 0])
+            ) as Record<string, number>
         }))
 
         for (const group of groups) {
             const month = monthly[group.month - 1]
-            if (!month) continue
-
-            const totalAmount = new Prisma.Decimal(group.totalAmount)
-            const finalAmount = new Prisma.Decimal(group.finalAmount)
+            if (!month || !allowedBudgetStatus.includes(group.status as typeof allowedBudgetStatus[number])) continue
             month.budgetCount += group.budgetCount
             month.statusCounts[group.status] = group.budgetCount
-            month.statusTotals[group.status] = {
-                count: group.budgetCount,
-                totalAmount,
-                finalAmount
-            }
-            month.totalAmount = month.totalAmount.plus(totalAmount)
-            month.finalAmount = month.finalAmount.plus(finalAmount)
         }
 
-        const annual = monthly.reduce((total, month) => ({
-            budgetCount: total.budgetCount + month.budgetCount,
-            totalAmount: total.totalAmount.plus(month.totalAmount),
-            finalAmount: total.finalAmount.plus(month.finalAmount)
-        }), {
-            budgetCount: 0,
-            totalAmount: new Prisma.Decimal(0),
-            finalAmount: new Prisma.Decimal(0)
-        })
+        const statusCounts = Object.fromEntries(
+            allowedBudgetStatus.map(status => [
+                status,
+                monthly.reduce((total, month) => total + month.statusCounts[status]!, 0)
+            ])
+        ) as Record<string, number>
 
-        const statusTotals = Object.fromEntries(allowedBudgetStatus.map(status => [status, {
-            count: monthly.reduce((total, month) => total + month.statusCounts[status]!, 0),
-            totalAmount: monthly.reduce(
-                (total, month) => total.plus(month.statusTotals[status]!.totalAmount),
-                new Prisma.Decimal(0)
-            ).toNumber(),
-            finalAmount: monthly.reduce(
-                (total, month) => total.plus(month.statusTotals[status]!.finalAmount),
-                new Prisma.Decimal(0)
-            ).toNumber()
-        }]))
+        const budgetCount = monthly.reduce((total, month) => total + month.budgetCount, 0)
+        const openCount = statusCounts.rascunho + statusCounts.enviado
+        const awaitingResponseCount = statusCounts.enviado
 
         return {
             year: filters.year,
             dateBasis: 'createdAt',
-            annual: {
-                budgetCount: annual.budgetCount,
-                totalAmount: annual.totalAmount.toNumber(),
-                finalAmount: annual.finalAmount.toNumber()
-            },
-            statusTotals,
-            monthly: monthly.map(month => ({
-                ...month,
-                totalAmount: month.totalAmount.toNumber(),
-                finalAmount: month.finalAmount.toNumber(),
-                statusTotals: Object.fromEntries(
-                    allowedBudgetStatus.map(status => [status, {
-                        count: month.statusTotals[status]!.count,
-                        totalAmount: month.statusTotals[status]!.totalAmount.toNumber(),
-                        finalAmount: month.statusTotals[status]!.finalAmount.toNumber()
-                    }])
-                )
-            })),
-            interpretation: 'Valores representam orçamentos cadastrados no ano. Não representam faturamento, recebimentos ou receita realizada.'
+            annual: { budgetCount, openCount, awaitingResponseCount, statusCounts },
+            monthly,
+            interpretation: 'A análise considera os orçamentos criados no ano selecionado e seus status atuais. Em aberto inclui rascunhos e propostas enviadas; aguardando resposta do cliente corresponde às propostas enviadas. Os percentuais mensais usam como base todos os orçamentos criados no respectivo mês.'
         }
     }
 

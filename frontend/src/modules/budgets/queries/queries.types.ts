@@ -26,15 +26,20 @@ export interface BudgetDashboardResponse {
 export interface BudgetMetricsResponse {
     year: number;
     dateBasis: "createdAt";
-    annual: { budgetCount: number; totalAmount: number; finalAmount: number };
-    statusTotals: Record<BudgetStatus, BudgetStatusTotals>;
-    monthly: Array<{
-        month: number; budgetCount: number; totalAmount: number; finalAmount: number;
+    annual: {
+        budgetCount: number;
+        openCount: number;
+        awaitingResponseCount: number;
         statusCounts: Record<BudgetStatus, number>;
-        statusTotals: Record<BudgetStatus, BudgetStatusTotals>;
+    };
+    monthly: Array<{
+        month: number;
+        budgetCount: number;
+        statusCounts: Record<BudgetStatus, number>;
     }>;
     interpretation: string;
 }
+
 export interface FindBudgetsByAdvancedFilters {
     search?: string; budgetId?: string; clientId?: string; clientName?: string;
     clientDocument?: string; equipamentId?: string; equipamentSearch?: string;
