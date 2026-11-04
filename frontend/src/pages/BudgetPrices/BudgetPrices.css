@@ -1,4 +1,7 @@
 .budget-prices-page {
+    display: flex;
+    min-height: 100vh;
+    flex-direction: column;
     background:
         radial-gradient(ellipse at 82% 0%, rgb(11 116 229 / 0.07), transparent 34rem),
         var(--color-background);
@@ -6,6 +9,7 @@
 }
 
 .budget-prices-content {
+    display: grid;
     width: min(100% - 3rem, 84rem);
     margin: 0 auto;
     padding: var(--spacing-7) 0 var(--spacing-16);
@@ -13,12 +17,16 @@
 }
 
 .budget-prices-heading {
+    display: flex;
+    align-items: flex-end;
+    justify-content: space-between;
     gap: var(--spacing-6);
     margin-bottom: var(--spacing-2);
 }
 
 .budget-prices-heading > div {
     max-width: 44rem;
+    min-width: 0;
 }
 
 .budget-prices-heading > div > span {
@@ -30,10 +38,11 @@
 }
 
 .budget-prices-heading h1 {
-    margin: 0;
+    margin: var(--spacing-1) 0 0;
     color: var(--color-text);
     font-size: clamp(1.8rem, 3.2vw, 2.55rem);
     letter-spacing: -.045em;
+    line-height: 1.15;
 }
 
 .budget-prices-heading p {
@@ -46,10 +55,19 @@
 .budget-prices-primary,
 .budget-prices-secondary,
 .budget-prices-danger {
+    display: inline-flex;
     min-height: 2.55rem;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-2);
     padding: 0 var(--spacing-4);
+    border: 1px solid transparent;
     border-radius: var(--radius-md);
+    font: inherit;
     font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    white-space: nowrap;
+    cursor: pointer;
     transition: color var(--transition-fast), background-color var(--transition-fast), border-color var(--transition-fast);
 }
 
@@ -81,11 +99,26 @@
     border-color: #b42318;
 }
 
+.budget-prices-danger:hover:not(:disabled) {
+    background: #912018;
+    border-color: #912018;
+}
+
+.budget-prices-primary:disabled,
+.budget-prices-secondary:disabled,
+.budget-prices-danger:disabled,
+.budget-prices-pagination button:disabled {
+    cursor: not-allowed;
+    opacity: .55;
+}
+
 .budget-prices-toolbar,
 .budget-prices-group,
 .budget-prices-empty {
+    min-width: 0;
+    overflow: hidden;
     background: var(--color-surface);
-    border-color: var(--color-border);
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-xl);
     box-shadow: var(--shadow-sm);
 }
@@ -95,11 +128,17 @@
 }
 
 .budget-prices-toolbar form {
+    display: grid;
+    grid-template-columns: minmax(0, 1.4fr) minmax(12rem, 1fr) auto;
+    align-items: end;
     gap: var(--spacing-3);
 }
 
 .budget-prices-toolbar label,
 .budget-prices-form label {
+    display: grid;
+    min-width: 0;
+    gap: var(--spacing-2);
     color: var(--color-text-secondary);
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-medium);
@@ -110,18 +149,28 @@
 .budget-prices-form input,
 .budget-prices-form select,
 .budget-prices-form textarea {
+    box-sizing: border-box;
+    width: 100%;
+    min-width: 0;
     min-height: 2.6rem;
     padding: 0 var(--spacing-3);
     color: var(--color-text);
     background: var(--color-surface-raised);
-    border-color: var(--color-border);
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
     font: inherit;
     font-size: var(--font-size-sm);
 }
 
+.budget-prices-toolbar select,
+.budget-prices-form select {
+    cursor: pointer;
+}
+
 .budget-prices-form textarea {
+    min-height: 6rem;
     padding: var(--spacing-3);
+    resize: vertical;
 }
 
 .budget-prices-toolbar input:focus-visible,
@@ -134,22 +183,72 @@
     border-color: var(--color-primary-400);
 }
 
+.budget-prices-search > div {
+    position: relative;
+    min-width: 0;
+}
+
+.budget-prices-search svg {
+    position: absolute;
+    top: 50%;
+    left: var(--spacing-3);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.budget-prices-search input {
+    padding-left: 2.35rem;
+}
+
+.budget-prices-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+}
+
 .budget-prices-toolbar > p {
-    margin-top: var(--spacing-4);
+    margin: var(--spacing-4) 0 0;
     padding-top: var(--spacing-3);
     color: var(--color-text-muted);
-    border-color: var(--color-border);
+    border-top: 1px solid var(--color-border);
     font-size: var(--font-size-xs);
 }
 
 .budget-prices-toolbar > p strong {
     color: var(--color-text);
+    font-variant-numeric: tabular-nums;
+}
+
+.budget-prices-toolbar > p span {
+    padding: 0 var(--spacing-1);
+}
+
+.budget-prices-groups {
+    display: grid;
+    min-width: 0;
+    gap: var(--spacing-4);
+}
+
+.budget-prices-group {
+    overflow: hidden;
 }
 
 .budget-prices-group > header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-3);
     padding: var(--spacing-4) var(--spacing-5);
     background: var(--color-surface-raised);
-    border-color: var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.budget-prices-group > header > div {
+    display: grid;
+    min-width: 0;
+    gap: var(--spacing-1);
 }
 
 .budget-prices-group > header strong,
@@ -157,6 +256,7 @@
     color: var(--color-text);
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-semibold);
+    overflow-wrap: anywhere;
 }
 
 .budget-prices-group > header small,
@@ -167,33 +267,58 @@
     line-height: var(--line-height-relaxed);
 }
 
+.budget-prices-group > header > span {
+    flex-shrink: 0;
+    white-space: nowrap;
+}
+
 .budget-prices-item {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(8rem, auto) auto;
+    align-items: center;
     gap: var(--spacing-4);
     padding: var(--spacing-4) var(--spacing-5);
-    border-color: var(--color-border);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.budget-prices-item:last-child {
+    border-bottom: 0;
 }
 
 .budget-prices-item > div:first-child {
+    display: grid;
+    min-width: 0;
     gap: var(--spacing-1);
+}
+
+.budget-prices-item small {
+    overflow-wrap: anywhere;
 }
 
 .budget-prices-value {
     color: var(--color-text);
     font-size: var(--font-size-sm);
     font-weight: var(--font-weight-semibold);
+    font-variant-numeric: tabular-nums;
+    white-space: nowrap;
 }
 
 .budget-prices-row-actions {
+    display: flex;
+    align-items: center;
     gap: var(--spacing-2);
 }
 
 .budget-prices-row-actions button {
+    display: inline-grid;
     width: 2.25rem;
     height: 2.25rem;
+    place-items: center;
     color: var(--color-text-muted);
     background: var(--color-surface-raised);
-    border-color: var(--color-border);
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
+    cursor: pointer;
     transition: color var(--transition-fast), border-color var(--transition-fast), background-color var(--transition-fast);
 }
 
@@ -205,14 +330,15 @@
 
 .budget-prices-empty {
     display: flex;
+    min-height: 14rem;
     flex-direction: column;
     align-items: center;
     justify-content: center;
     gap: var(--spacing-3);
-    min-height: 14rem;
     padding: var(--spacing-6);
     color: var(--color-text-muted);
     font-size: var(--font-size-sm);
+    text-align: center;
 }
 
 .budget-prices-empty > strong {
@@ -222,19 +348,30 @@
 
 .budget-prices-empty > p {
     max-width: 32rem;
+    margin: 0;
     line-height: var(--line-height-relaxed);
 }
 
 .budget-prices-empty > svg {
-    margin: 0 0 var(--spacing-1);
+    margin-bottom: var(--spacing-1);
     color: var(--color-primary-300);
 }
 
 .budget-prices-pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-3);
     padding-top: var(--spacing-3);
     color: var(--color-text-muted);
-    border-color: var(--color-border);
+    border-top: 1px solid var(--color-border);
     font-size: var(--font-size-sm);
+}
+
+.budget-prices-pagination > div {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
 }
 
 .budget-prices-pagination button {
@@ -242,10 +379,16 @@
     padding: 0 var(--spacing-3);
     color: var(--color-text-secondary);
     background: var(--color-surface-raised);
-    border-color: var(--color-border);
+    border: 1px solid var(--color-border);
     border-radius: var(--radius-md);
     font: inherit;
     font-size: var(--font-size-sm);
+    cursor: pointer;
+}
+
+.budget-prices-pagination button:not(:disabled):hover {
+    color: var(--color-text);
+    background: var(--color-surface-hover);
 }
 
 .budget-prices-pagination button:focus-visible,
@@ -259,15 +402,25 @@
 
 .budget-prices-form,
 .budget-prices-confirm {
+    display: grid;
     gap: var(--spacing-4);
+}
+
+.budget-prices-form label span {
+    font-weight: var(--font-weight-normal);
 }
 
 .budget-prices-form footer,
 .budget-prices-confirm footer {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
     gap: var(--spacing-2);
+    margin-top: var(--spacing-2);
 }
 
 .budget-prices-confirm p {
+    margin: 0;
     color: var(--color-text);
     line-height: var(--line-height-relaxed);
 }
@@ -350,6 +503,7 @@
 
     .budget-prices-form footer,
     .budget-prices-confirm footer {
+        align-items: stretch;
         flex-direction: column-reverse;
     }
 
@@ -373,7 +527,7 @@
     }
 
     .budget-prices-pagination {
-        align-items: flex-start;
+        align-items: stretch;
         flex-direction: column;
     }
 
@@ -393,28 +547,4 @@
     .budget-prices-row-actions button {
         transition: none;
     }
-}
-
-.budget-prices-search > div {
-    position: relative;
-}
-
-.budget-prices-search svg {
-    position: absolute;
-    top: 50%;
-    left: var(--spacing-3);
-    color: var(--color-text-muted);
-    font-size: var(--font-size-sm);
-    transform: translateY(-50%);
-    pointer-events: none;
-}
-
-.budget-prices-search input {
-    padding-left: 2.35rem;
-}
-
-.budget-prices-groups {
-    display: grid;
-    gap: var(--spacing-4);
-    min-width: 0;
 }
