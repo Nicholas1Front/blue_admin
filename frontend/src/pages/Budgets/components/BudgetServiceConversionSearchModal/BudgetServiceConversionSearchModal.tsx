@@ -126,13 +126,18 @@ export function BudgetServiceConversionSearchModal({
     }
 
     function changePeriod(nextMonth: number, nextYear: number) {
-        setMonth(nextMonth);
+        const normalizedMonth =
+            nextYear === currentYear && nextMonth > currentMonth
+                ? currentMonth
+                : nextMonth;
+
+        setMonth(normalizedMonth);
         setYear(nextYear);
         setPage(1);
         setFilterError(null);
         setFilterForm(current => ({
             ...current,
-            ...getPeriodRange(nextYear, nextMonth)
+            ...getPeriodRange(nextYear, normalizedMonth)
         }));
         setSubmittedFilters(null);
     }
