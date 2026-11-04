@@ -407,7 +407,7 @@
 }
 
 .budget-prices-form label span {
-    font-weight: var(--font-weight-normal);
+    font-weight: 400;
 }
 
 .budget-prices-form footer,
