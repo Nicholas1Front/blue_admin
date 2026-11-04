@@ -543,8 +543,6 @@ export function Budgets() {
                     {dashboard?.financialNote && (
                         <p className="budgets-financial-note">{dashboard.financialNote}</p>
                     )}
-                    </div>
-                </section>
 
                 <section className="budgets-list-panel" id="budgets-list" aria-labelledby="budgets-list-title">
                     <header className="budgets-list-panel__header">
@@ -614,6 +612,8 @@ export function Budgets() {
                             )}
                         </div>
                     )}
+                </section>
+                    </div>
                 </section>
 
                 <section className="budgets-filter-panel" aria-labelledby="budgets-filter-title">
@@ -699,7 +699,7 @@ export function Budgets() {
                         <h2>Métricas de orçamentos</h2>
                         <p>Visualize a evolução e a distribuição dos orçamentos ao longo do ano.</p>
                     </div>
-                    <button type="button" className="budgets-metrics-access__button">
+                    <button type="button" className="budgets-metrics-access__button" onClick={() => navigate("/budgets/metrics")}>
                         <FontAwesomeIcon icon={faChartColumn} aria-hidden="true" />
                         Acessar métricas
                     </button>
@@ -711,7 +711,7 @@ export function Budgets() {
                         <h2>Tabela de preços</h2>
                         <p>Consulte e organize os valores de referência para os itens dos orçamentos.</p>
                     </div>
-                    <button type="button" className="budgets-metrics-access__button">
+                    <button type="button" className="budgets-metrics-access__button" onClick={() => navigate("/budgets/prices")}>
                         <FontAwesomeIcon icon={faTags} aria-hidden="true" />
                         Acessar tabela de preços
                     </button>

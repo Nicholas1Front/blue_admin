@@ -43,8 +43,6 @@ export const findBudgetPricesByFiltersSchema = z.object({
     updatedAtTo: z.iso.date().optional(),
     page: z.coerce.number().int().min(1).max(1000000).default(1),
     limit: z.coerce.number().int().min(1).max(100).default(20)
-}).refine(filters => Object.keys(filters).some(key => !['page', 'limit'].includes(key)), {
-    message: 'At least one price filter must be provided'
 }).refine(dateRange('createdAtFrom', 'createdAtTo'), {
     message: 'A data inicial deve ser anterior ou igual à data final',
     path: ['createdAtTo']

@@ -21,6 +21,8 @@ import { FinancialAnalytics } from "./pages/FinancialAnalytics/FinancialAnalytic
 import { ServiceMetricsCalendar } from "./pages/ServiceMetricsCalendar/ServiceMetricsCalendar";
 import { Budgets } from "./pages/Budgets/Budgets";
 import { BudgetDetails } from "./pages/BudgetDetails/BudgetDetails";
+import { BudgetPrices } from "./pages/BudgetPrices/BudgetPrices";
+import { BudgetMetrics } from "./pages/BudgetMetrics/BudgetMetrics";
 
 function App() {
     return (
@@ -91,6 +93,14 @@ function App() {
                         }
                     />
 
+                    <Route
+                        path="/budgets/prices"
+                        element={<ProtectedRoute><BudgetPrices /></ProtectedRoute>}
+                    />
+                    <Route
+                        path="/budgets/metrics"
+                        element={<ProtectedRoute><BudgetMetrics /></ProtectedRoute>}
+                    />
                     <Route
                         path="/budgets/:budgetId"
                         element={
