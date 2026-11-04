@@ -155,32 +155,16 @@
     filter: brightness(1.12);
 }
 
-/* Ações destrutivas ficam identificadas em vermelho, sem depender só do texto. */
+/* Ações destrutivas mantêm o tom vermelho também durante a interação. */
 :is(
-    .budgets-page,
-    .budget-details-page,
-    .budget-prices-page
-) :is(
-    .budgets-action-button--delete,
-    .budget-category-manager__item-actions button.is-danger,
-    .budget-category-manager__modal-actions button.is-danger,
+    .budgets-page .budgets-action-button--delete,
+    .budgets-page .budget-category-manager__item-actions button.is-danger,
+    .budgets-page .budget-category-manager__modal-actions button.is-danger,
     .budget-details-page button.is-danger,
-    .budget-prices-danger
-) {
-    --budget-danger-hover: rgb(239 68 68 / .14);
-}
-
-:is(
-    .budgets-page,
-    .budget-details-page,
-    .budget-prices-page
-) :is(
-    .budget-action-button--delete,
-    .budgets-action-button--delete,
-    .budget-category-manager__item-actions button.is-danger,
-    .budget-category-manager__modal-actions button.is-danger,
-    button.is-danger,
-    .budget-prices-danger
+    .budget-prices-page .budget-prices-danger,
+    .modal:has(.budget-details-confirm) button.is-danger,
+    .modal:has(.budget-category-manager__confirm) button.is-danger,
+    .modal:has(.budget-prices-confirm) .budget-prices-danger
 ):not(:disabled):hover {
     border-color: var(--color-danger, #ef4444);
     box-shadow: 0 3px 10px rgb(239 68 68 / .12);
