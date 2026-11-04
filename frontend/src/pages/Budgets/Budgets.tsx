@@ -1,5 +1,5 @@
 import { useState, type FormEvent } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faCalendarDays,
@@ -20,11 +20,13 @@ import {
     faPaperPlane,
     faTrashCan,
     faRotateRight,
-    faTags
+    faTags,
+    faWrench
 } from "@fortawesome/free-solid-svg-icons";
 
 import { AppHeader } from "../../components/AppHeader/AppHeader";
 import { BudgetCategoriesManager } from "./components/BudgetCategoriesManager/BudgetCategoriesManager";
+import { BudgetServiceConversionSearchModal } from "./components/BudgetServiceConversionSearchModal/BudgetServiceConversionSearchModal";
 import { BackLink } from "../../components/BackLink/BackLink";
 import {
     useBudgetDashboard,
@@ -189,6 +191,7 @@ function BudgetListItem({ budget }: { budget: BudgetSearchSummary }) {
 }
 
 export function Budgets() {
+    const navigate = useNavigate();
     const now = new Date();
     const currentYear = now.getFullYear();
     const currentMonth = now.getMonth() + 1;
@@ -200,6 +203,7 @@ export function Budgets() {
     const [filterForm, setFilterForm] = useState<FindBudgetsByAdvancedFilters>({});
     const [submittedFilters, setSubmittedFilters] = useState<FindBudgetsByAdvancedFilters | null>(null);
     const [filterError, setFilterError] = useState<string | null>(null);
+    const [serviceConversionSearchOpen, setServiceConversionSearchOpen] = useState(false);
 
     const availableYears = Array.from(
         { length: currentYear - 1999 },
@@ -424,6 +428,10 @@ export function Budgets() {
                         <button type="button" className="budgets-action-button budgets-action-button--convert">
                             <FontAwesomeIcon icon={faArrowsRotate} aria-hidden="true" />
                             <span>Criar orçamento a partir de serviço</span>
+                        </button>
+                        <button type="button" className="budgets-action-button budgets-action-button--convert" onClick={() => setServiceConversionSearchOpen(true)}>
+                            <FontAwesomeIcon icon={faWrench} aria-hidden="true" />
+                            <span>Criar serviço a partir de orçamento</span>
                         </button>
                         <button type="button" className="budgets-action-button budgets-action-button--edit">
                             <FontAwesomeIcon icon={faPenToSquare} aria-hidden="true" />
@@ -862,6 +870,15 @@ export function Budgets() {
 
                 <BudgetCategoriesManager />
             </section>
+
+            <BudgetServiceConversionSearchModal
+                isOpen={serviceConversionSearchOpen}
+                onClose={() => setServiceConversionSearchOpen(false)}
+                onSelect={budgetId => {
+                    setServiceConversionSearchOpen(false);
+                    navigate(`/budgets/${encodeURIComponent(budgetId)}?createService=1`);
+                }}
+            />
         </main>
     );
 }
