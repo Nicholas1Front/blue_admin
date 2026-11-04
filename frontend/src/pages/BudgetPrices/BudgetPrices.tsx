@@ -96,7 +96,7 @@ export function BudgetPrices() {
             : query.isPending || categoriesQuery.isPending ? <div className="budget-prices-empty">Carregando tabela de preços…</div>
             : !groups.length ? <div className="budget-prices-empty"><FontAwesomeIcon icon={faTags} /><strong>Nenhum preço encontrado</strong><p>Altere os filtros ou cadastre um novo item de referência.</p><button type="button" className="budget-prices-primary" onClick={openCreate} disabled={!activeCategories.length}>Adicionar preço</button></div>
             : <div className="budget-prices-groups">{groups.map(group => <section className="budget-prices-group" key={group.category?.id ?? group.prices[0].categoryId}>
-                <header><div><strong>{group.category?.name ?? "Categoria indisponível"}</strong><small>{group.category?.description || (group.category?.isActive === false ? "Categoria inativa" : "Itens de referência")}</small></div><span>{group.prices.length} {group.prices.length === 1 ? "item" : "itens"}</span></header>
+                <header><div><strong>{group.category?.name ?? "Categoria indisponível"}</strong><small>{group.category?.isActive === false ? "Categoria inativa" : group.category?.description || "Itens de referência"}</small></div><span>{group.prices.length} {group.prices.length === 1 ? "item" : "itens"}</span></header>
                 {group.prices.map(price => <article className="budget-prices-item" key={price.id}>
                     <div><strong>{price.title}</strong><small>{price.description || "Sem descrição"}</small></div>
                     <strong className="budget-prices-value">{currency.format(Number(price.unitValue))}</strong>
@@ -107,7 +107,7 @@ export function BudgetPrices() {
         </section>
         <Modal isOpen={formOpen} title={editing ? "Editar preço" : "Adicionar preço"} onClose={() => setFormOpen(false)}>
             <form className="budget-prices-form" onSubmit={save}>
-                <label>Categoria<select required value={form.categoryId} onChange={e => setForm(f => ({ ...f, categoryId: e.target.value }))}><option value="">Selecione</option>{activeCategories.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
+                <label>Categoria<select required value={form.categoryId} onChange={e => setForm(f => ({ ...f, categoryId: e.target.value }))}><option value="">Selecione</option>{editing && !editing.category.isActive && <option value={editing.categoryId}>{editing.category.name} · Inativa (atual)</option>}{activeCategories.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
                 <label>Nome<input required maxLength={160} autoFocus value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} /></label>
                 <label>Descrição <span>(opcional)</span><textarea rows={3} maxLength={500} value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} /></label>
                 <label>Valor unitário (R$)<input required inputMode="decimal" placeholder="0,00" value={form.unitValue} onChange={e => setForm(f => ({ ...f, unitValue: e.target.value }))} /></label>
