@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -13,7 +13,8 @@ import {
     faFileSignature,
     faFilePdf,
     faPlus,
-    faArrowsRotate,
+    faChevronDown,
+    faChevronUp,
     faPenToSquare,
     faPaperPlane,
     faTrashCan,
@@ -26,11 +27,20 @@ import { AppHeader } from "../../components/AppHeader/AppHeader";
 import { BudgetCategoriesManager } from "./components/BudgetCategoriesManager/BudgetCategoriesManager";
 import { BudgetAdvancedFiltersForm } from "./components/BudgetAdvancedFiltersForm/BudgetAdvancedFiltersForm";
 import { BudgetServiceConversionSearchModal } from "./components/BudgetServiceConversionSearchModal/BudgetServiceConversionSearchModal";
+import { ClientSelectModal } from "../Clients/components/ClientSelectModal/ClientSelectModal";
+import { ClientCreateModal } from "../Clients/components/ClientCreateModal/ClientCreateModal";
+import { EquipamentSelectModal } from "../Clients/components/EquipamentSelectModal/EquipamentSelectModal";
+import { EquipamentCreateModal } from "../Clients/components/EquipamentCreateModal/EquipamentCreateModal";
+import { useClients } from "../../modules/clients/useClients";
+import { useEquipaments } from "../../modules/equipaments/useEquipaments";
+import type { Client, CreateClientRequest } from "../../modules/clients/clients.types";
+import type { CreateEquipamentRequest } from "../../modules/equipaments/equipaments.types";
 import { updateBudgetAdvancedFilter, validateBudgetAdvancedFilters } from "./utils/budgetFilters.utils";
 import { BackLink } from "../../components/BackLink/BackLink";
 import {
     useBudgetDashboard,
-    useBudgetsByAdvancedFilters
+    useBudgetsByAdvancedFilters,
+    useBudgetMutations
 } from "../../modules/budgets";
 import type {
     BudgetSearchSummary,
@@ -204,6 +214,17 @@ export function Budgets() {
     const [submittedFilters, setSubmittedFilters] = useState<FindBudgetsByAdvancedFilters | null>(null);
     const [filterError, setFilterError] = useState<string | null>(null);
     const [serviceConversionSearchOpen, setServiceConversionSearchOpen] = useState(false);
+    const [budgetSearchAction, setBudgetSearchAction] = useState<"edit" | "delete" | "pdf" | null>(null);
+    const [budgetCreationStep, setBudgetCreationStep] = useState<"client" | "equipament" | null>(null);
+    const [budgetCreationClient, setBudgetCreationClient] = useState<Pick<Client, "id" | "name"> | null>(null);
+    const [budgetCreationError, setBudgetCreationError] = useState<string | null>(null);
+    const [isCreateBudgetClientOpen, setIsCreateBudgetClientOpen] = useState(false);
+    const [isCreateBudgetEquipamentOpen, setIsCreateBudgetEquipamentOpen] = useState(false);
+    const [isOverviewExpanded, setIsOverviewExpanded] = useState(true);
+    const [isFiltersExpanded, setIsFiltersExpanded] = useState(true);
+    const clientsQuery = useClients();
+    const equipamentsQuery = useEquipaments();
+    const budgetMutations = useBudgetMutations();
 
     const availableYears = Array.from(
         { length: currentYear - 1999 },
@@ -215,6 +236,16 @@ export function Budgets() {
             new Date(2000, index, 1)
         )
     }));
+
+    useEffect(() => {
+        if (budgetCreationStep === "client") void clientsQuery.loadClients();
+    }, [budgetCreationStep, clientsQuery.loadClients]);
+
+    useEffect(() => {
+        if (budgetCreationStep === "equipament" && budgetCreationClient) {
+            void equipamentsQuery.loadEquipaments(budgetCreationClient.id);
+        }
+    }, [budgetCreationStep, budgetCreationClient, equipamentsQuery.loadEquipaments]);
 
     const dashboardQuery = useBudgetDashboard({
         year: selectedYear,
@@ -242,6 +273,53 @@ export function Budgets() {
         month: "long",
         year: "numeric"
     }).format(new Date(selectedYear, selectedMonth - 1, 1));
+
+    function openBudgetCreation() {
+        setBudgetCreationError(null);
+        setBudgetCreationClient(null);
+        setBudgetCreationStep("client");
+    }
+
+    function openBudgetSearch(action: "edit" | "delete" | "pdf") {
+        setBudgetSearchAction(action);
+    }
+
+    function closeBudgetSearch() {
+        setBudgetSearchAction(null);
+    }
+
+    async function createBudgetForEquipment(equipamentId: string) {
+        if (!budgetCreationClient) return;
+        setBudgetCreationError(null);
+        try {
+            const budget = await budgetMutations.create.mutateAsync({
+                clientId: budgetCreationClient.id,
+                equipamentId
+            });
+            setBudgetCreationStep(null);
+            setBudgetCreationClient(null);
+            navigate(`/budgets/${encodeURIComponent(budget.id)}`);
+        } catch (error) {
+            setBudgetCreationError(
+                error instanceof Error ? error.message : "Não foi possível criar o orçamento."
+            );
+        }
+    }
+
+    async function createBudgetClient(data: CreateClientRequest) {
+        const client = await clientsQuery.addClient(data);
+        setBudgetCreationClient({ id: client.id, name: client.name });
+        setIsCreateBudgetClientOpen(false);
+        setBudgetCreationError(null);
+        setBudgetCreationStep("equipament");
+    }
+
+    async function createBudgetEquipament(data: CreateEquipamentRequest) {
+        if (!budgetCreationClient) return;
+        const equipament = await equipamentsQuery.addEquipament(budgetCreationClient.id, data);
+        setIsCreateBudgetEquipamentOpen(false);
+        await createBudgetForEquipment(equipament.id);
+    }
 
     function handleMonthChange(month: number) {
         setSelectedMonth(month);
@@ -376,27 +454,23 @@ export function Budgets() {
                     </div>
 
                     <div className="budgets-quick-actions__grid">
-                        <button type="button" className="budgets-action-button budgets-action-button--create">
+                        <button type="button" className="budgets-action-button budgets-action-button--create" onClick={openBudgetCreation}>
                             <FontAwesomeIcon icon={faPlus} aria-hidden="true" />
                             <span>Criar orçamento</span>
-                        </button>
-                        <button type="button" className="budgets-action-button budgets-action-button--convert">
-                            <FontAwesomeIcon icon={faArrowsRotate} aria-hidden="true" />
-                            <span>Criar orçamento a partir de serviço</span>
                         </button>
                         <button type="button" className="budgets-action-button budgets-action-button--convert" onClick={() => setServiceConversionSearchOpen(true)}>
                             <FontAwesomeIcon icon={faWrench} aria-hidden="true" />
                             <span>Criar serviço a partir de orçamento</span>
                         </button>
-                        <button type="button" className="budgets-action-button budgets-action-button--edit">
+                        <button type="button" className="budgets-action-button budgets-action-button--edit" onClick={() => openBudgetSearch("edit")}>
                             <FontAwesomeIcon icon={faPenToSquare} aria-hidden="true" />
                             <span>Editar orçamento</span>
                         </button>
-                        <button type="button" className="budgets-action-button budgets-action-button--delete">
+                        <button type="button" className="budgets-action-button budgets-action-button--delete" onClick={() => openBudgetSearch("delete")}>
                             <FontAwesomeIcon icon={faTrashCan} aria-hidden="true" />
                             <span>Excluir orçamento</span>
                         </button>
-                        <button type="button" className="budgets-action-button budgets-action-button--pdf">
+                        <button type="button" className="budgets-action-button budgets-action-button--pdf" onClick={() => openBudgetSearch("pdf")}>
                             <FontAwesomeIcon icon={faFilePdf} aria-hidden="true" />
                             <span>Salvar orçamento em PDF</span>
                         </button>
@@ -409,9 +483,22 @@ export function Budgets() {
                             <span className="budgets-section-eyebrow">Resumo do período</span>
                             <h2 id="budgets-overview-title">Visão geral</h2>
                         </div>
-                        <span className="budgets-period-tag">{periodTitle}</span>
+                        <div className="budgets-section-heading__actions">
+                            <span className="budgets-period-tag">{periodTitle}</span>
+                            <button
+                                type="button"
+                                className="budgets-collapse-toggle"
+                                aria-expanded={isOverviewExpanded}
+                                aria-controls="budgets-overview-content"
+                                onClick={() => setIsOverviewExpanded(value => !value)}
+                            >
+                                <FontAwesomeIcon icon={isOverviewExpanded ? faChevronUp : faChevronDown} aria-hidden="true" />
+                                {isOverviewExpanded ? "Recolher" : "Expandir"}
+                            </button>
+                        </div>
                     </div>
 
+                    {isOverviewExpanded && <div id="budgets-overview-content">
                     <div className="budgets-status-grid">
                         <button
                             type="button"
@@ -455,6 +542,7 @@ export function Budgets() {
                     {dashboard?.financialNote && (
                         <p className="budgets-financial-note">{dashboard.financialNote}</p>
                     )}
+                    </div>}
                 </section>
 
                 <section className="budgets-list-panel" id="budgets-list" aria-labelledby="budgets-list-title">
@@ -534,11 +622,24 @@ export function Budgets() {
                             <h2 id="budgets-filter-title">Consultar orçamentos</h2>
                             <p>Combine os filtros para localizar orçamentos, itens ou registros do histórico.</p>
                         </div>
-                        <span className="budgets-filter-panel__icon" aria-hidden="true">
-                            <FontAwesomeIcon icon={faFilter} />
-                        </span>
+                        <div className="budgets-filter-panel__header-actions">
+                            <span className="budgets-filter-panel__icon" aria-hidden="true">
+                                <FontAwesomeIcon icon={faFilter} />
+                            </span>
+                            <button
+                                type="button"
+                                className="budgets-collapse-toggle"
+                                aria-expanded={isFiltersExpanded}
+                                aria-controls="budgets-filter-content"
+                                onClick={() => setIsFiltersExpanded(value => !value)}
+                            >
+                                <FontAwesomeIcon icon={isFiltersExpanded ? faChevronUp : faChevronDown} aria-hidden="true" />
+                                {isFiltersExpanded ? "Recolher" : "Expandir"}
+                            </button>
+                        </div>
                     </header>
 
+                    {isFiltersExpanded && <div id="budgets-filter-content">
                     <BudgetAdvancedFiltersForm
                         values={filterForm}
                         onChange={updateFilter}
@@ -588,6 +689,7 @@ export function Budgets() {
                             )}
                         </div>
                     )}
+                    </div>}
                 </section>
 
                 <section className="budgets-metrics-access" aria-label="Métricas de orçamento">
@@ -625,6 +727,86 @@ export function Budgets() {
                     navigate(`/budgets/${encodeURIComponent(budgetId)}?createService=1`);
                 }}
             />
+
+            <BudgetServiceConversionSearchModal
+                isOpen={budgetSearchAction !== null}
+                title={
+                    budgetSearchAction === "edit" ? "Selecionar orçamento para editar"
+                        : budgetSearchAction === "delete" ? "Selecionar orçamento para excluir"
+                            : "Selecionar orçamento para salvar em PDF"
+                }
+                onClose={closeBudgetSearch}
+                onSelect={budgetId => {
+                    const action = budgetSearchAction;
+                    closeBudgetSearch();
+                    if (action) navigate(`/budgets/${encodeURIComponent(budgetId)}?action=${action}`);
+                }}
+            />
+
+            <ClientSelectModal
+                isOpen={budgetCreationStep === "client"}
+                title="Selecionar cliente para o orçamento"
+                clients={clientsQuery.clients}
+                isLoading={clientsQuery.isLoading}
+                error={clientsQuery.error}
+                onClose={() => {
+                    setBudgetCreationStep(null);
+                    setBudgetCreationClient(null);
+                }}
+                onSelect={client => {
+                    setBudgetCreationClient({ id: client.id, name: client.name });
+                    setBudgetCreationError(null);
+                    setBudgetCreationStep("equipament");
+                }}
+                onCreate={() => {
+                    clientsQuery.clearCreateError();
+                    setBudgetCreationStep(null);
+                    setIsCreateBudgetClientOpen(true);
+                }}
+            />
+
+            <EquipamentSelectModal
+                isOpen={budgetCreationStep === "equipament"}
+                title={`Selecionar equipamento · ${budgetCreationClient?.name ?? "Cliente"}`}
+                equipaments={equipamentsQuery.equipaments}
+                isLoading={equipamentsQuery.isLoading || budgetMutations.create.isPending}
+                error={budgetCreationError ?? equipamentsQuery.error}
+                onClose={() => {
+                    setBudgetCreationStep(null);
+                    setBudgetCreationClient(null);
+                }}
+                onSelect={equipament => void createBudgetForEquipment(equipament.id)}
+                onCreate={() => {
+                    equipamentsQuery.clearCreateError();
+                    setIsCreateBudgetEquipamentOpen(true);
+                }}
+                onChangeClient={() => {
+                    setBudgetCreationError(null);
+                    setBudgetCreationStep("client");
+                }}
+            />
+
+            <ClientCreateModal
+                isOpen={isCreateBudgetClientOpen}
+                isSubmitting={clientsQuery.isCreating}
+                error={clientsQuery.createError}
+                onClose={() => {
+                    setIsCreateBudgetClientOpen(false);
+                    setBudgetCreationStep("client");
+                }}
+                onSubmit={createBudgetClient}
+            />
+
+            {budgetCreationClient && (
+                <EquipamentCreateModal
+                    clientId={budgetCreationClient.id}
+                    isOpen={isCreateBudgetEquipamentOpen}
+                    isSubmitting={equipamentsQuery.isCreating || budgetMutations.create.isPending}
+                    error={equipamentsQuery.createError ?? budgetCreationError}
+                    onClose={() => setIsCreateBudgetEquipamentOpen(false)}
+                    onSubmit={createBudgetEquipament}
+                />
+            )}
         </main>
     );
 }
