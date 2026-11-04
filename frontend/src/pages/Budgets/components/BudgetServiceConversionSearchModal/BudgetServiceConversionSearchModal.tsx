@@ -17,7 +17,7 @@ import type {
 } from "../../../../modules/budgets";
 import "./BudgetServiceConversionSearchModal.css";
 
-const PAGE_SIZE = 8;
+const PAGE_SIZE = 10;
 
 const statusLabels: Record<BudgetStatus, string> = {
     rascunho: "Rascunho",
