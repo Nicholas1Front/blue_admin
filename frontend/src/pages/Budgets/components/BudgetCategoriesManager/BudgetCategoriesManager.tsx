@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-    faBan, faCheck, faMagnifyingGlass, faPenToSquare, faPlus, faTrashCan
+    faBan, faCheck, faChevronDown, faChevronUp, faMagnifyingGlass, faPenToSquare, faPlus, faTrashCan
 } from "@fortawesome/free-solid-svg-icons";
 
 import { Modal } from "../../../../components/Modal/Modal";
@@ -32,6 +32,7 @@ export function BudgetCategoriesManager() {
     const [pendingDelete, setPendingDelete] = useState<BudgetCategory | null>(null);
     const [deleteError, setDeleteError] = useState<string | null>(null);
     const [actionError, setActionError] = useState<string | null>(null);
+    const [isExpanded, setIsExpanded] = useState(true);
 
     const categoriesQuery = useBudgetCategories(appliedFilters);
     const mutations = useBudgetCategoryMutations();
@@ -128,11 +129,24 @@ export function BudgetCategoriesManager() {
                     <h2 id="budget-category-manager-title">Gerenciador de categorias</h2>
                     <p>Consulte e mantenha as categorias usadas nos itens dos orçamentos.</p>
                 </div>
-                <button className="budget-category-manager__primary" type="button" onClick={openCreateModal}>
-                    <FontAwesomeIcon icon={faPlus} /> Criar categoria
-                </button>
+                <div className="budget-category-manager__heading-actions">
+                    <button
+                        className="budget-category-manager__collapse"
+                        type="button"
+                        aria-expanded={isExpanded}
+                        aria-controls="budget-category-manager-content"
+                        onClick={() => setIsExpanded(value => !value)}
+                    >
+                        <FontAwesomeIcon icon={isExpanded ? faChevronUp : faChevronDown} aria-hidden="true" />
+                        {isExpanded ? "Recolher" : "Expandir"}
+                    </button>
+                    <button className="budget-category-manager__primary" type="button" onClick={openCreateModal}>
+                        <FontAwesomeIcon icon={faPlus} /> Criar categoria
+                    </button>
+                </div>
             </header>
 
+            {isExpanded && <div id="budget-category-manager-content">
             <form className="budget-category-manager__filters" onSubmit={applyFilters}>
                 <label>
                     <span>Nome</span>
@@ -201,6 +215,7 @@ export function BudgetCategoriesManager() {
                     </div>
                 )}
             </div>
+            </div>}
 
             <Modal isOpen={isFormOpen} title={editingCategory ? "Editar categoria" : "Criar categoria"} onClose={() => setIsFormOpen(false)}>
                 <form className="budget-category-manager__form" onSubmit={saveCategory}>
