@@ -499,7 +499,7 @@ export function Budgets() {
                         </div>
                     </div>
 
-                    {isOverviewExpanded && <div id="budgets-overview-content">
+                    <div id="budgets-overview-content" hidden={!isOverviewExpanded}>
                     <div className="budgets-status-grid">
                         <button
                             type="button"
@@ -543,7 +543,7 @@ export function Budgets() {
                     {dashboard?.financialNote && (
                         <p className="budgets-financial-note">{dashboard.financialNote}</p>
                     )}
-                    </div>}
+                    </div>
                 </section>
 
                 <section className="budgets-list-panel" id="budgets-list" aria-labelledby="budgets-list-title">
@@ -640,7 +640,7 @@ export function Budgets() {
                         </div>
                     </header>
 
-                    {isFiltersExpanded && <div id="budgets-filter-content">
+                    <div id="budgets-filter-content" hidden={!isFiltersExpanded}>
                     <BudgetAdvancedFiltersForm
                         values={filterForm}
                         onChange={updateFilter}
@@ -690,7 +690,7 @@ export function Budgets() {
                             )}
                         </div>
                     )}
-                    </div>}
+                    </div>
                 </section>
 
                 <section className="budgets-metrics-access" aria-label="Métricas de orçamento">
