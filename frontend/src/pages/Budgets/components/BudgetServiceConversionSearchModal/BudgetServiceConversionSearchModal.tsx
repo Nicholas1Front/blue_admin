@@ -1,4 +1,4 @@
-import { useMemo, useState } from "react";
+import { useMemo, useState, type FormEvent } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faMagnifyingGlass, faRotateLeft } from "@fortawesome/free-solid-svg-icons";
 import { Modal } from "../../../../components/Modal/Modal";
@@ -47,7 +47,7 @@ export function BudgetServiceConversionSearchModal({ isOpen, onClose, onSelect }
     const queryFilters = submitted ? { ...submitted, page, limit: PAGE_SIZE } : baseFilters;
     const query = useBudgetsByAdvancedFilters(queryFilters, isOpen);
 
-    function applyFilters(event: React.FormEvent<HTMLFormElement>) {
+    function applyFilters(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
         const next: FindBudgetsByAdvancedFilters = {
             ...periodRange(year, month),
