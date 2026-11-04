@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, type FormEvent } from "react";
+import { useEffect, useMemo, useRef, useState, type FormEvent } from "react";
 import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -107,6 +107,7 @@ export function BudgetDetails() {
     const [deleteBudgetOpen, setDeleteBudgetOpen] = useState(false);
     const [serviceConversionOpen, setServiceConversionOpen] = useState(false);
     const [printOrder, setPrintOrder] = useState<string[]>([]);
+    const handledActionRef = useRef<string | null>(null);
 
     useEffect(() => {
         if (relationshipStep === "client") void clientsQuery.loadClients();
@@ -407,6 +408,25 @@ export function BudgetDetails() {
         setPrintMode(true);
         window.setTimeout(() => window.print(), 150);
     }
+
+    useEffect(() => {
+        if (!details) return;
+
+        const action = searchParams.get("action");
+        if (!action || handledActionRef.current === action) return;
+
+        handledActionRef.current = action;
+        const nextParams = new URLSearchParams(searchParams);
+        nextParams.delete("action");
+        setSearchParams(nextParams, { replace: true });
+
+        if (action === "delete") {
+            setFormError(null);
+            setDeleteBudgetOpen(true);
+        } else if (action === "pdf") {
+            startPrint();
+        }
+    }, [details, searchParams, setSearchParams]);
 
     if (query.isPending) {
         return <main className="budget-details-page"><AppHeader /><div className="budget-details-state"><strong>Carregando orçamento…</strong><p>Buscando dados, itens e histórico.</p></div></main>;
