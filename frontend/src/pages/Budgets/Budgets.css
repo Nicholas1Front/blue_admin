@@ -711,7 +711,8 @@
 }
 
 @media (max-width: 520px) {
-    .budgets-section-heading {
+    .budgets-section-heading,
+    .budgets-filter-panel__header {
         align-items: flex-start;
         flex-direction: column;
     }
