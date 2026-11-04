@@ -189,7 +189,6 @@ export function BudgetAdvancedFiltersForm({
                                     type="number"
                                     min={key.includes("Quantity") ? "0.000001" : "0"}
                                     max={key.includes("Discount") ? 100 : undefined}
-                                    step="0.01"
                                     value={numericDrafts[key] ?? ""}
                                     step={key.includes("Quantity") ? "0.001" : "0.01"}
                                     onChange={event => updateNumericDraft(key, event.target.value)}
