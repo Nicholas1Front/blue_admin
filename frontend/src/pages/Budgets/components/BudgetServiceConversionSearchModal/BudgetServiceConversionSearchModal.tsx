@@ -11,13 +11,21 @@ import { BudgetAdvancedFiltersForm } from "../BudgetAdvancedFiltersForm/BudgetAd
 import { useBudgetsByAdvancedFilters } from "../../../../modules/budgets";
 import type {
     BudgetSearchSummary,
+    BudgetStatus,
     FindBudgetsByAdvancedFilters
 } from "../../../../modules/budgets";
 import "./BudgetServiceConversionSearchModal.css";
 
 const PAGE_SIZE = 8;
 
-
+const statusLabels: Record<BudgetStatus, string> = {
+    rascunho: "Rascunho",
+    enviado: "Enviado",
+    aprovado: "Aprovado",
+    rejeitado: "Rejeitado",
+    expirado: "Expirado",
+    cancelado: "Cancelado"
+};
 
 const currencyFormatter = new Intl.NumberFormat("pt-BR", {
     style: "currency",
@@ -213,7 +221,7 @@ export function BudgetServiceConversionSearchModal({
                     </p>
                 </header>
 
-                <form className="budget-service-search__form" onSubmit={applyFilters}>
+                <div className="budget-service-search__form">
                     <section className="budget-service-search__period" aria-label="Período inicial da pesquisa">
                         <div className="budget-service-search__section-heading">
                             <span className="budget-service-search__section-icon">
