@@ -59,6 +59,8 @@ export function BudgetMetrics() {
         ...item.statusCounts
     })), [data, selectedYear]);
 
+    const annualOpenRate = percent(data?.annual.openCount ?? 0, data?.annual.budgetCount ?? 0);
+    const annualWaitingRate = percent(data?.annual.awaitingResponseCount ?? 0, data?.annual.budgetCount ?? 0);
     const annualApproval = percent(data?.annual.statusCounts.aprovado ?? 0, data?.annual.budgetCount ?? 0);
     const monthlyApproval = percent(monthData?.statusCounts.aprovado ?? 0, monthCount);
     const monthlyWaiting = percent(monthData?.statusCounts.enviado ?? 0, monthCount);
@@ -137,9 +139,9 @@ export function BudgetMetrics() {
                                 <MetricCard label="Orçamentos criados" value={String(data.annual.budgetCount)}
                                     detail="Total de propostas cadastradas no ano" tone="blue" icon={faFileInvoiceDollar} />
                                 <MetricCard label="Em aberto" value={String(data.annual.openCount)}
-                                    detail="Rascunhos + propostas enviadas" tone="amber" icon={faClock} />
+                                    detail={`${formatPercent(annualOpenRate)} do total anual · rascunhos e enviados`} tone="amber" icon={faClock} />
                                 <MetricCard label="Aguardando resposta" value={String(data.annual.awaitingResponseCount)}
-                                    detail="Propostas enviadas ao cliente" tone="violet" icon={faPaperPlane} />
+                                    detail={`${formatPercent(annualWaitingRate)} do total anual · propostas enviadas`} tone="violet" icon={faPaperPlane} />
                                 <MetricCard label="Taxa de aprovação" value={formatPercent(annualApproval)}
                                     detail={`${data.annual.statusCounts.aprovado} aprovados sobre ${data.annual.budgetCount} criados`}
                                     tone="green" icon={faCheckCircle} />
