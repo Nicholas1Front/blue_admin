@@ -146,7 +146,7 @@ export function BudgetCategoriesManager() {
                 </div>
             </header>
 
-            {isExpanded && <div id="budget-category-manager-content">
+            <div id="budget-category-manager-content" hidden={!isExpanded}>
             <form className="budget-category-manager__filters" onSubmit={applyFilters}>
                 <label>
                     <span>Nome</span>
@@ -215,7 +215,7 @@ export function BudgetCategoriesManager() {
                     </div>
                 )}
             </div>
-            </div>}
+            </div>
 
             <Modal isOpen={isFormOpen} title={editingCategory ? "Editar categoria" : "Criar categoria"} onClose={() => setIsFormOpen(false)}>
                 <form className="budget-category-manager__form" onSubmit={saveCategory}>
