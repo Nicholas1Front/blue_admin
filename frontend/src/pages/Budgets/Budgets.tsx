@@ -591,7 +591,7 @@ export function Budgets() {
                         onSubmit={submitAdvancedFilters}
                         onClear={clearAdvancedFilters}
                         error={filterError}
-                    />             </form>
+                    />
 
                     {submittedFilters && (
                         <div className="budgets-filter-results">
