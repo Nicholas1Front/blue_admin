@@ -243,5 +243,6 @@ export function BudgetAdvancedFiltersForm({
                                         Buscar orçamentos
                                     </button>
                                 </div>
+        </form>
     );
 }
