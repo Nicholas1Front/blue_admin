@@ -61,12 +61,14 @@ interface Props {
     isOpen: boolean;
     onClose: () => void;
     onSelect: (budgetId: string) => void;
+    title?: string;
 }
 
 export function BudgetServiceConversionSearchModal({
     isOpen,
     onClose,
-    onSelect
+    onSelect,
+    title = "Selecionar orçamento para criar serviço"
 }: Props) {
     const now = new Date();
     const currentYear = now.getFullYear();
@@ -156,7 +158,7 @@ export function BudgetServiceConversionSearchModal({
     return (
         <Modal
             isOpen={isOpen}
-            title="Selecionar orçamento para criar serviço"
+            title={title}
             onClose={onClose}
             size="wide"
         >
