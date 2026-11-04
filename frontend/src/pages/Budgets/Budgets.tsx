@@ -739,7 +739,11 @@ export function Budgets() {
                 onSelect={budgetId => {
                     const action = budgetSearchAction;
                     closeBudgetSearch();
-                    if (action) navigate(`/budgets/${encodeURIComponent(budgetId)}?action=${action}`);
+                    if (action === "edit") {
+                        navigate(`/budgets/${encodeURIComponent(budgetId)}`);
+                    } else if (action) {
+                        navigate(`/budgets/${encodeURIComponent(budgetId)}?action=${action}`);
+                    }
                 }}
             />
 
@@ -778,6 +782,7 @@ export function Budgets() {
                 onSelect={equipament => void createBudgetForEquipment(equipament.id)}
                 onCreate={() => {
                     equipamentsQuery.clearCreateError();
+                    setBudgetCreationStep(null);
                     setIsCreateBudgetEquipamentOpen(true);
                 }}
                 onChangeClient={() => {
@@ -803,7 +808,10 @@ export function Budgets() {
                     isOpen={isCreateBudgetEquipamentOpen}
                     isSubmitting={equipamentsQuery.isCreating || budgetMutations.create.isPending}
                     error={equipamentsQuery.createError ?? budgetCreationError}
-                    onClose={() => setIsCreateBudgetEquipamentOpen(false)}
+                    onClose={() => {
+                        setIsCreateBudgetEquipamentOpen(false);
+                        setBudgetCreationStep("equipament");
+                    }}
                     onSubmit={createBudgetEquipament}
                 />
             )}
