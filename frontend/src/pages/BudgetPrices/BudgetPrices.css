@@ -394,3 +394,21 @@
         transition: none;
     }
 }
+
+.budget-prices-search > div {
+    position: relative;
+}
+
+.budget-prices-search svg {
+    position: absolute;
+    top: 50%;
+    left: var(--spacing-3);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    transform: translateY(-50%);
+    pointer-events: none;
+}
+
+.budget-prices-search input {
+    padding-left: 2.35rem;
+}
