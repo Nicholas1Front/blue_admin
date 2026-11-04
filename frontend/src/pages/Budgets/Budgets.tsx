@@ -783,6 +783,7 @@ export function Budgets() {
                 onSelect={equipament => void createBudgetForEquipment(equipament.id)}
                 onCreate={() => {
                     equipamentsQuery.clearCreateError();
+                    setBudgetCreationError(null);
                     setBudgetCreationStep(null);
                     setIsCreateBudgetEquipamentOpen(true);
                 }}
