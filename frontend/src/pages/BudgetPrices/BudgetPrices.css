@@ -58,8 +58,8 @@
 
 .budget-prices-primary {
     color: #fff;
-    background: var(--color-primary-600);
-    border-color: var(--color-primary-600);
+    background: var(--color-primary-500, var(--color-primary-400));
+    border-color: var(--color-primary-500, var(--color-primary-400));
 }
 
 .budget-prices-primary:hover:not(:disabled) {
@@ -80,8 +80,8 @@
 
 .budget-prices-danger {
     color: #fff;
-    background: var(--color-danger);
-    border-color: var(--color-danger);
+    background: #b42318;
+    border-color: #b42318;
 }
 
 .budget-prices-toolbar,
