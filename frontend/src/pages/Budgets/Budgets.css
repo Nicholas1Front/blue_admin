@@ -158,7 +158,7 @@
 
 .budgets-quick-actions__grid {
     display: grid;
-    grid-template-columns: repeat(5, minmax(0, 1fr));
+    grid-template-columns: repeat(6, minmax(0, 1fr));
     gap: var(--spacing-2);
 }
 
@@ -632,6 +632,10 @@
 }
 
 @media (max-width: 760px) {
+    .budgets-quick-actions__grid {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
     .budgets-filter-form__quick {
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
