@@ -1,0 +1,20 @@
+.budget-service-items { display: grid; gap: var(--spacing-4); }
+.budget-service-items__context { display: grid; gap: var(--spacing-1); padding: var(--spacing-4); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); }
+.budget-service-items__context > span, .budget-service-items__context small { color: var(--color-text-muted); font-size: var(--font-size-xs); }
+.budget-service-items__context strong { font-size: var(--font-size-md); }
+.budget-service-items__context small { line-height: var(--line-height-relaxed); }
+.budget-service-items__heading { display: flex; justify-content: space-between; align-items: center; gap: var(--spacing-3); font-size: var(--font-size-sm); }
+.budget-service-items__heading span { color: var(--color-text-muted); font-size: var(--font-size-xs); }
+.budget-service-items__list { display: grid; gap: var(--spacing-2); max-height: 22rem; overflow-y: auto; }
+.budget-service-items__item { display: flex; align-items: flex-start; gap: var(--spacing-3); padding: var(--spacing-3); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); cursor: pointer; }
+.budget-service-items__item input { flex: 0 0 auto; width: 1rem; height: 1rem; margin-top: .15rem; accent-color: var(--color-primary-500); }
+.budget-service-items__item > span { display: grid; gap: var(--spacing-1); min-width: 0; }
+.budget-service-items__item strong { font-size: var(--font-size-sm); }
+.budget-service-items__item small { color: var(--color-text-muted); font-size: var(--font-size-xs); overflow-wrap: anywhere; }
+.budget-service-items__empty { padding: var(--spacing-5); text-align: center; color: var(--color-text-muted); background: var(--color-surface); border-radius: var(--radius-lg); }
+.budget-service-items__error { color: var(--color-danger-400, #f87171); font-size: var(--font-size-sm); }
+.budget-service-items__actions { display: flex; justify-content: flex-end; gap: var(--spacing-2); padding-top: var(--spacing-3); border-top: 1px solid var(--color-border); }
+.budget-service-items__actions button { display: inline-flex; align-items: center; justify-content: center; gap: var(--spacing-2); min-height: 2.55rem; padding: 0 var(--spacing-4); color: var(--color-text); background: var(--color-surface-raised); border: 1px solid var(--color-border); border-radius: var(--radius-md); font-size: var(--font-size-sm); cursor: pointer; }
+.budget-service-items__actions button.is-primary { color: white; background: var(--color-primary-600, var(--color-primary-500)); border-color: transparent; }
+.budget-service-items__actions button:disabled { opacity: .5; cursor: not-allowed; }
+@media (max-width: 480px) { .budget-service-items__actions { flex-direction: column-reverse; } .budget-service-items__actions button { width: 100%; } }
