@@ -47,6 +47,8 @@ type PriceGroup = {
 
 function parseUnitValue(input: string): number {
     const normalized = input.trim().replace(/\s/g, "");
+    if (!normalized) return Number.NaN;
+
     const parsed = normalized.includes(",")
         ? normalized.replace(/\./g, "").replace(",", ".")
         : normalized;
