@@ -1,5 +1,5 @@
 import { useEffect, useMemo, useState, type FormEvent } from "react";
-import { Link, useNavigate, useParams } from "react-router-dom";
+import { Link, useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faArrowDown, faArrowUp, faFilePdf, faListOl,
@@ -13,6 +13,7 @@ import { ClientSelectModal } from "../Clients/components/ClientSelectModal/Clien
 import { ClientCreateModal } from "../Clients/components/ClientCreateModal/ClientCreateModal";
 import { EquipamentSelectModal } from "../Clients/components/EquipamentSelectModal/EquipamentSelectModal";
 import { EquipamentCreateModal } from "../Clients/components/EquipamentCreateModal/EquipamentCreateModal";
+import { BudgetServiceItemsModal } from "./components/BudgetServiceItemsModal/BudgetServiceItemsModal";
 import { useClients } from "../../modules/clients/useClients";
 import { useEquipaments } from "../../modules/equipaments/useEquipaments";
 import type { Client, CreateClientRequest } from "../../modules/clients/clients.types";
@@ -77,6 +78,7 @@ const emptyItem: EditableItem = {
 export function BudgetDetails() {
     const { budgetId } = useParams<{ budgetId: string }>();
     const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
     const query = useBudgetById(budgetId);
     const clientsQuery = useClients();
     const equipamentsQuery = useEquipaments();
@@ -103,6 +105,7 @@ export function BudgetDetails() {
     const [isCreateClientOpen, setIsCreateClientOpen] = useState(false);
     const [isCreateEquipamentOpen, setIsCreateEquipamentOpen] = useState(false);
     const [deleteBudgetOpen, setDeleteBudgetOpen] = useState(false);
+    const [serviceConversionOpen, setServiceConversionOpen] = useState(false);
     const [printOrder, setPrintOrder] = useState<string[]>([]);
 
     useEffect(() => {
@@ -114,6 +117,15 @@ export function BudgetDetails() {
             void equipamentsQuery.loadEquipaments(relationshipClient.id);
         }
     }, [relationshipStep, relationshipClient, equipamentsQuery.loadEquipaments]);
+
+    useEffect(() => {
+        if (details && searchParams.get("createService") === "1") {
+            setServiceConversionOpen(true);
+            const nextParams = new URLSearchParams(searchParams);
+            nextParams.delete("createService");
+            setSearchParams(nextParams, { replace: true });
+        }
+    }, [details, searchParams, setSearchParams]);
 
     useEffect(() => {
         const resetPrintView = () => setPrintMode(false);
@@ -429,7 +441,7 @@ export function BudgetDetails() {
                     <button type="button" className="is-danger" onClick={() => { setDeleteBudgetOpen(true); setFormError(null); }}><FontAwesomeIcon icon={faTrashCan} /> Excluir orçamento</button>
                     <button type="button" onClick={() => { setPrintOrder(allItems.map(item => item.id)); setOrganizerOpen(true); }}><FontAwesomeIcon icon={faListOl} /> Organizar PDF</button>
                     <button type="button" className="is-primary" onClick={startPrint}><FontAwesomeIcon icon={faFilePdf} /> Exportar PDF</button>
-                    <button type="button" disabled title="Disponível em breve"><FontAwesomeIcon icon={faWrench} /> Criar serviço a partir do orçamento</button>
+                    <button type="button" className="is-primary" disabled={allItems.length === 0} onClick={() => setServiceConversionOpen(true)}><FontAwesomeIcon icon={faWrench} /> Criar serviço a partir do orçamento</button>
                 </div>
 
                 <div className="budget-details-grid">
@@ -541,6 +553,13 @@ export function BudgetDetails() {
                     <section className="budget-print-observations"><h2>Observações gerais</h2><p>{budget.observations || "Nenhuma observação geral informada."}</p></section>
                 </section>
             </div>
+
+            <BudgetServiceItemsModal
+                isOpen={serviceConversionOpen}
+                budget={details}
+                onClose={() => setServiceConversionOpen(false)}
+                onCreated={serviceId => navigate(`/services/${encodeURIComponent(serviceId)}`, { replace: true })}
+            />
 
             <ClientSelectModal
                 isOpen={relationshipStep === "client"}
