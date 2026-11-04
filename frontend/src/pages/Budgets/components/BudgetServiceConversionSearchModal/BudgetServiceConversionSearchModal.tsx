@@ -5,7 +5,8 @@ import {
     faCalendarDays,
     faFilter,
     faMagnifyingGlass,
-    faRotateLeft
+    faRotateLeft,
+    faWrench
 } from "@fortawesome/free-solid-svg-icons";
 
 import { Modal } from "../../../../components/Modal/Modal";
@@ -267,7 +268,7 @@ export function BudgetServiceConversionSearchModal({
             <div className="budget-service-search">
                 <header className="budget-service-search__intro">
                     <span className="budget-service-search__eyebrow">
-                        <FontAwesomeIcon icon={faWrenchIconFallback} aria-hidden="true" />
+                        <FontAwesomeIcon icon={faWrench} aria-hidden="true" />
                         Conversão de orçamento
                     </span>
                     <p>
