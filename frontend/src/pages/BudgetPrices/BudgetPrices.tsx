@@ -12,7 +12,7 @@ const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "
 const blank = { categoryId: "", title: "", description: "", unitValue: "" };
 type PriceForm = typeof blank;
 
-export function BudgetPrices() {
+export function BudgetPrices() {\n    document.title = "Tabela de preços | Blue Admin";
     const [search, setSearch] = useState("");
     const [categoryId, setCategoryId] = useState("");
     const [filters, setFilters] = useState<FindBudgetPricesFilters>({ page: 1, limit: 100 });
@@ -57,7 +57,7 @@ export function BudgetPrices() {
     }
     async function save(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
-        const value = Number(form.unitValue.replace(",", "."));
+        const normalizedValue = form.unitValue.trim().replace(/\\s/g, "");\n        const parsedValue = normalizedValue.includes(",")\n            ? normalizedValue.replace(/\\./g, "").replace(",", ".")\n            : normalizedValue;\n        const value = Number(parsedValue);
         if (!form.categoryId || !form.title.trim() || !Number.isFinite(value) || value < 0) {
             setFormError("Informe categoria, nome e valor unitário válido."); return;
         }
@@ -70,15 +70,15 @@ export function BudgetPrices() {
         } catch (error) { setFormError(error instanceof Error ? error.message : "Não foi possível salvar o preço."); }
     }
     async function remove() {
-        if (!deleting) return;
+        if (!deleting || mutations.remove.isPending) return;
         setDeleteError(null);
         try { await mutations.remove.mutateAsync(deleting.id); setDeleting(null); }
         catch (error) { setDeleteError(error instanceof Error ? error.message : "Não foi possível excluir o preço."); }
     }
 
     return <main className="budget-prices-page">
-        <title>Tabela de preços | Blue Admin</title><AppHeader />
-        <nav className="page-back-row" aria-label="Navegação da página"><BackLink /></nav>
+        <AppHeader />
+        <nav className="page-back-row" aria-label="Navegação da página"><BackLink to="/budgets" label="Voltar ao dashboard de orçamentos" /></nav>
         <section className="budget-prices-content">
             <header className="budget-prices-heading">
                 <div><span>REFERÊNCIA COMERCIAL</span><h1>Tabela de preços</h1><p>Organize os valores de referência por categoria. Os preços cadastrados facilitam a montagem de novos orçamentos.</p></div>
@@ -100,23 +100,23 @@ export function BudgetPrices() {
                 {group.prices.map(price => <article className="budget-prices-item" key={price.id}>
                     <div><strong>{price.title}</strong><small>{price.description || "Sem descrição"}</small></div>
                     <strong className="budget-prices-value">{currency.format(Number(price.unitValue))}</strong>
-                    <div className="budget-prices-row-actions"><button type="button" title="Editar" aria-label={`Editar ${price.title}`} onClick={() => openEdit(price)}><FontAwesomeIcon icon={faPenToSquare} /></button><button type="button" title="Excluir" aria-label={`Excluir ${price.title}`} onClick={() => { setDeleting(price); setDeleteError(null); }}><FontAwesomeIcon icon={faTrashCan} /></button></div>
+                    <div className="budget-prices-row-actions"><button type="button" title="Editar preço" aria-label={`Editar ${price.title}`} onClick={() => openEdit(price)}><FontAwesomeIcon icon={faPenToSquare} /></button><button type="button" title="Excluir preço" aria-label={`Excluir ${price.title}`} onClick={() => { setDeleting(price); setDeleteError(null); }}><FontAwesomeIcon icon={faTrashCan} /></button></div>
                 </article>)}
             </section>)}</div>}
             {query.data && query.data.totalPages > 1 && <nav className="budget-prices-pagination" aria-label="Paginação"><span>Página {page} de {query.data.totalPages}</span><div><button disabled={page <= 1} onClick={() => setPage(p => p - 1)}>Anterior</button><button disabled={page >= query.data.totalPages} onClick={() => setPage(p => p + 1)}>Próxima</button></div></nav>}
         </section>
-        <Modal isOpen={formOpen} title={editing ? "Editar preço" : "Adicionar preço"} onClose={() => setFormOpen(false)}>
+        <Modal isOpen={formOpen} title={editing ? "Editar preço" : "Adicionar preço"} onClose={() => { if (!mutations.create.isPending && !mutations.update.isPending) setFormOpen(false); }}>
             <form className="budget-prices-form" onSubmit={save}>
                 <label>Categoria<select required value={form.categoryId} onChange={e => setForm(f => ({ ...f, categoryId: e.target.value }))}><option value="">Selecione</option>{editing && !editing.category.isActive && <option value={editing.categoryId}>{editing.category.name} · Inativa (atual)</option>}{activeCategories.map(item => <option key={item.id} value={item.id}>{item.name}</option>)}</select></label>
                 <label>Nome<input required maxLength={160} autoFocus value={form.title} onChange={e => setForm(f => ({ ...f, title: e.target.value }))} /></label>
                 <label>Descrição <span>(opcional)</span><textarea rows={3} maxLength={500} value={form.description} onChange={e => setForm(f => ({ ...f, description: e.target.value }))} /></label>
                 <label>Valor unitário (R$)<input required inputMode="decimal" placeholder="0,00" value={form.unitValue} onChange={e => setForm(f => ({ ...f, unitValue: e.target.value }))} /></label>
                 {formError && <p className="budget-prices-error" role="alert">{formError}</p>}
-                <footer><button type="button" className="budget-prices-secondary" onClick={() => setFormOpen(false)}>Cancelar</button><button className="budget-prices-primary" type="submit" disabled={mutations.create.isPending || mutations.update.isPending}>Salvar preço</button></footer>
+                <footer><button type="button" className="budget-prices-secondary" onClick={() => setFormOpen(false)} disabled={mutations.create.isPending || mutations.update.isPending}>Cancelar</button><button className="budget-prices-primary" type="submit" disabled={mutations.create.isPending || mutations.update.isPending}>Salvar preço</button></footer>
             </form>
         </Modal>
-        <Modal isOpen={Boolean(deleting)} title="Excluir preço" onClose={() => { setDeleting(null); setDeleteError(null); }}>
-            <div className="budget-prices-confirm"><p>Deseja excluir <strong>{deleting?.title}</strong> da tabela?</p><small>Orçamentos já criados não serão alterados; cada item mantém o valor registrado na proposta.</small>{deleteError && <p className="budget-prices-error" role="alert">{deleteError}</p>}<footer><button type="button" className="budget-prices-secondary" onClick={() => setDeleting(null)}>Cancelar</button><button type="button" className="budget-prices-danger" onClick={() => void remove()} disabled={mutations.remove.isPending}>Confirmar exclusão</button></footer></div>
+        <Modal isOpen={Boolean(deleting)} title="Excluir preço" onClose={() => { if (!mutations.remove.isPending) { setDeleting(null); setDeleteError(null); } }}>
+            <div className="budget-prices-confirm"><p>Deseja excluir <strong>{deleting?.title}</strong> da tabela?</p><small>Orçamentos já criados não serão alterados; cada item mantém o valor registrado na proposta.</small>{deleteError && <p className="budget-prices-error" role="alert">{deleteError}</p>}<footer><button type="button" className="budget-prices-secondary" onClick={() => setDeleting(null)} disabled={mutations.remove.isPending}>Cancelar</button><button type="button" className="budget-prices-danger" onClick={() => void remove()} disabled={mutations.remove.isPending}>Confirmar exclusão</button></footer></div>
         </Modal>
     </main>;
 }
