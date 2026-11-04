@@ -77,7 +77,7 @@ export function BudgetPrices() {
     async function remove() {
         if (!deleting || mutations.remove.isPending) return;
         setDeleteError(null);
-        try { await mutations.remove.mutateAsync(deleting.id); setDeleting(null); }
+        try { await mutations.remove.mutateAsync(deleting.id); setDeleting(null); setPage(1); }
         catch (error) { setDeleteError(error instanceof Error ? error.message : "Não foi possível excluir o preço."); }
     }
 
