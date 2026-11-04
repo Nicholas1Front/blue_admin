@@ -424,7 +424,10 @@ export function BudgetDetails() {
             setFormError(null);
             setDeleteBudgetOpen(true);
         } else if (action === "pdf") {
-            startPrint();
+            setOrganizerOpen(false);
+            setDialog(null);
+            setPrintMode(true);
+            window.setTimeout(() => window.print(), 150);
         }
     }, [details, searchParams, setSearchParams]);
 
