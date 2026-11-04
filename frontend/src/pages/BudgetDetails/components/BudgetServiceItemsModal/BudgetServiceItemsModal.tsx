@@ -43,7 +43,7 @@ export function BudgetServiceItemsModal({ isOpen, budget, onClose, onCreated }: 
         try {
             const result = await createService.mutateAsync({
                 budgetId: budget.budget.id,
-                budgetItemIds: selectedIds
+                budgetItemIds: items.filter(item => selectedIds.includes(item.id)).map(item => item.id)
             });
             onCreated(result.service.id);
         } catch (cause) {
