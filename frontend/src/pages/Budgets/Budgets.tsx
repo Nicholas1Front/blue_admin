@@ -318,8 +318,8 @@ export function Budgets() {
     async function createBudgetEquipament(data: CreateEquipamentRequest) {
         if (!budgetCreationClient) return;
         const equipament = await equipamentsQuery.addEquipament(budgetCreationClient.id, data);
-        setIsCreateBudgetEquipamentOpen(false);
         await createBudgetForEquipment(equipament.id);
+        setIsCreateBudgetEquipamentOpen(false);
     }
 
     function handleMonthChange(month: number) {
