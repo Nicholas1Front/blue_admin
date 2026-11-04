@@ -73,6 +73,7 @@ export function BudgetServiceConversionSearchModal({ isOpen, onClose, onSelect }
         setYear(nextYear);
         setPage(1);
         setSubmitted(null);
+        setFilters({ search: "", status: "", clientName: "", equipamentSearch: "" });
     }
 
     return (
