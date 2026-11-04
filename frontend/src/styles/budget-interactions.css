@@ -223,3 +223,139 @@
         transform: none;
     }
 }
+
+
+/*
+ * Modais são renderizados em document.body via portal; por isso precisam
+ * de seletores próprios, limitados aos formulários pertencentes a budgets.
+ */
+:is(
+    .modal:has(.budget-details-form),
+    .modal:has(.budget-details-confirm),
+    .modal:has(.budget-details-tabs),
+    .modal:has(.budget-print-organizer),
+    .modal:has(.budget-prices-form),
+    .modal:has(.budget-prices-confirm),
+    .modal:has(.budget-category-manager__form),
+    .modal:has(.budget-category-manager__confirm)
+) button {
+    -webkit-tap-highlight-color: transparent;
+    transition:
+        color var(--transition-fast),
+        background-color var(--transition-fast),
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast),
+        opacity var(--transition-fast),
+        transform var(--transition-fast),
+        filter var(--transition-fast);
+}
+
+:is(
+    .modal:has(.budget-details-form),
+    .modal:has(.budget-details-confirm),
+    .modal:has(.budget-details-tabs),
+    .modal:has(.budget-print-organizer),
+    .modal:has(.budget-prices-form),
+    .modal:has(.budget-prices-confirm),
+    .modal:has(.budget-category-manager__form),
+    .modal:has(.budget-category-manager__confirm)
+) button:not(:disabled):hover {
+    filter: brightness(1.08);
+}
+
+:is(
+    .modal:has(.budget-details-form),
+    .modal:has(.budget-details-confirm),
+    .modal:has(.budget-details-tabs),
+    .modal:has(.budget-print-organizer),
+    .modal:has(.budget-prices-form),
+    .modal:has(.budget-prices-confirm),
+    .modal:has(.budget-category-manager__form),
+    .modal:has(.budget-category-manager__confirm)
+) button:not(:disabled):active {
+    transform: translateY(1px) scale(.99);
+}
+
+:is(
+    .modal:has(.budget-details-form),
+    .modal:has(.budget-details-confirm),
+    .modal:has(.budget-details-tabs),
+    .modal:has(.budget-print-organizer),
+    .modal:has(.budget-prices-form),
+    .modal:has(.budget-prices-confirm),
+    .modal:has(.budget-category-manager__form),
+    .modal:has(.budget-category-manager__confirm)
+) button:focus-visible {
+    outline: 2px solid var(--color-primary-400);
+    outline-offset: 2px;
+}
+
+:is(
+    .modal:has(.budget-details-form),
+    .modal:has(.budget-prices-form),
+    .modal:has(.budget-category-manager__form)
+) :is(input, select, textarea) {
+    color: var(--color-text);
+    caret-color: var(--color-primary-400);
+    transition:
+        color var(--transition-fast),
+        background-color var(--transition-fast),
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast);
+}
+
+:is(
+    .modal:has(.budget-details-form),
+    .modal:has(.budget-prices-form),
+    .modal:has(.budget-category-manager__form)
+) :is(input, select, textarea):not(:disabled):hover {
+    border-color: var(--color-border-strong, var(--color-primary-400));
+}
+
+:is(
+    .modal:has(.budget-details-form),
+    .modal:has(.budget-prices-form),
+    .modal:has(.budget-category-manager__form)
+) :is(input, select, textarea):focus-visible {
+    border-color: var(--color-primary-400);
+    outline: 2px solid rgb(77 155 255 / .22);
+    outline-offset: 1px;
+    box-shadow: 0 0 0 3px rgb(77 155 255 / .08);
+}
+
+:is(
+    .modal:has(.budget-details-form),
+    .modal:has(.budget-prices-form),
+    .modal:has(.budget-category-manager__form)
+) :is(input, select, textarea)::placeholder {
+    color: var(--color-text-disabled);
+    opacity: 1;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    :is(
+        .modal:has(.budget-details-form),
+        .modal:has(.budget-details-confirm),
+        .modal:has(.budget-details-tabs),
+        .modal:has(.budget-print-organizer),
+        .modal:has(.budget-prices-form),
+        .modal:has(.budget-prices-confirm),
+        .modal:has(.budget-category-manager__form),
+        .modal:has(.budget-category-manager__confirm)
+    ) :is(button, input, select, textarea) {
+        transition: none;
+    }
+
+    :is(
+        .modal:has(.budget-details-form),
+        .modal:has(.budget-details-confirm),
+        .modal:has(.budget-details-tabs),
+        .modal:has(.budget-print-organizer),
+        .modal:has(.budget-prices-form),
+        .modal:has(.budget-prices-confirm),
+        .modal:has(.budget-category-manager__form),
+        .modal:has(.budget-category-manager__confirm)
+    ) button:not(:disabled):active {
+        transform: none;
+    }
+}
