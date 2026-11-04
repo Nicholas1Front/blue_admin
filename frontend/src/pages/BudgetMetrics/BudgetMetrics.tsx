@@ -239,7 +239,6 @@ export function BudgetMetrics() {
                     </>
                 )}
                 <p className="budget-metrics-footnote">{data?.interpretation ?? "Os indicadores representam atividade comercial, não valores financeiros ou receita realizada."}</p>
-                <div className="budget-metrics-footer"><BackLink to="/budgets" label="Voltar ao dashboard de orçamentos" /></div>
             </section>
         </main>
     );
