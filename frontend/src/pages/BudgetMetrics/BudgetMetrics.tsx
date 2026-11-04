@@ -21,6 +21,13 @@ const monthNames = Array.from({ length: 12 }, (_, index) =>
     new Intl.DateTimeFormat("pt-BR", { month: "long" }).format(new Date(2020, index, 1))
 );
 const availableYears = (year: number) => Array.from({ length: Math.max(1, year - 1999) }, (_, index) => year - index);
+const emptyStatusCounts: Record<BudgetStatus, number> = {
+    rascunho: 0, enviado: 0, aprovado: 0, rejeitado: 0, expirado: 0, cancelado: 0
+};
+const getStatusCounts = (counts?: Partial<Record<BudgetStatus, number>>) => ({
+    ...emptyStatusCounts,
+    ...(counts ?? {})
+});
 const percent = (value: number, total: number) => total > 0 ? value / total * 100 : 0;
 const formatPercent = (value: number) => `${value.toFixed(1).replace(".", ",")}%`;
 
@@ -49,21 +56,23 @@ export function BudgetMetrics() {
     const [visibleStatuses, setVisibleStatuses] = useState<BudgetStatus[]>(statuses);
     const query = useBudgetMetrics({ year: selectedYear });
     const data = query.data;
-    const monthData = data?.monthly.find(item => item.month === selectedMonth);
+    const annualStatusCounts = getStatusCounts(data?.annual?.statusCounts);
+    const monthData = data?.monthly?.find(item => item.month === selectedMonth);
+    const monthStatusCounts = getStatusCounts(monthData?.statusCounts);
     const monthCount = monthData?.budgetCount ?? 0;
 
     const chartData = useMemo(() => (data?.monthly ?? []).map(item => ({
         month: item.month,
         label: new Intl.DateTimeFormat("pt-BR", { month: "short" })
             .format(new Date(selectedYear, item.month - 1, 1)).replace(".", ""),
-        ...item.statusCounts
+        ...getStatusCounts(item.statusCounts)
     })), [data, selectedYear]);
 
-    const annualOpenRate = percent(data?.annual.openCount ?? 0, data?.annual.budgetCount ?? 0);
-    const annualWaitingRate = percent(data?.annual.awaitingResponseCount ?? 0, data?.annual.budgetCount ?? 0);
-    const annualApproval = percent(data?.annual.statusCounts.aprovado ?? 0, data?.annual.budgetCount ?? 0);
-    const monthlyApproval = percent(monthData?.statusCounts.aprovado ?? 0, monthCount);
-    const monthlyWaiting = percent(monthData?.statusCounts.enviado ?? 0, monthCount);
+    const annualOpenRate = percent(data?.annual?.openCount ?? 0, data?.annual?.budgetCount ?? 0);
+    const annualWaitingRate = percent(data?.annual?.awaitingResponseCount ?? 0, data?.annual?.budgetCount ?? 0);
+    const annualApproval = percent(annualStatusCounts.aprovado, data?.annual?.budgetCount ?? 0);
+    const monthlyApproval = percent(monthStatusCounts.aprovado, monthCount);
+    const monthlyWaiting = percent(monthStatusCounts.enviado, monthCount);
 
     function toggleStatus(status: BudgetStatus) {
         setVisibleStatuses(current => current.includes(status)
@@ -143,7 +152,7 @@ export function BudgetMetrics() {
                                 <MetricCard label="Aguardando resposta" value={String(data.annual.awaitingResponseCount)}
                                     detail={`${formatPercent(annualWaitingRate)} do total anual · propostas enviadas`} tone="violet" icon={faPaperPlane} />
                                 <MetricCard label="Taxa de aprovação" value={formatPercent(annualApproval)}
-                                    detail={`${data.annual.statusCounts.aprovado} aprovados sobre ${data.annual.budgetCount} criados`}
+                                    detail={`${annualStatusCounts.aprovado} aprovados sobre ${data.annual.budgetCount} criados`}
                                     tone="green" icon={faCheckCircle} />
                             </div>
                         </section>
@@ -208,18 +217,18 @@ export function BudgetMetrics() {
                             <div className="budget-metrics-month-kpis">
                                 <article>
                                     <span>Taxa de aprovação</span><strong>{formatPercent(monthlyApproval)}</strong>
-                                    <small>{monthData?.statusCounts.aprovado ?? 0} de {monthCount} propostas</small>
+                                    <small>{monthStatusCounts.aprovado} de {monthCount} propostas</small>
                                     <div className="budget-metrics-progress"><i className="is-approved" style={{ width: `${monthlyApproval}%` }} /></div>
                                 </article>
                                 <article>
                                     <span>Aguardando resposta do cliente</span><strong>{formatPercent(monthlyWaiting)}</strong>
-                                    <small>{monthData?.statusCounts.enviado ?? 0} de {monthCount} propostas</small>
+                                    <small>{monthStatusCounts.enviado} de {monthCount} propostas</small>
                                     <div className="budget-metrics-progress"><i className="is-waiting" style={{ width: `${monthlyWaiting}%` }} /></div>
                                 </article>
                             </div>
                             <div className="budget-metrics-status-grid">
                                 {statuses.map(status => {
-                                    const count = monthData?.statusCounts[status] ?? 0;
+                                    const count = monthStatusCounts[status];
                                     const share = percent(count, monthCount);
                                     return (
                                         <button type="button" key={status}
