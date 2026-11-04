@@ -5,8 +5,6 @@ import {
     faCalendarDays,
     faChevronRight,
     faFilter,
-    faMagnifyingGlass,
-    faBroom,
     faChartColumn,
     faFileCircleCheck,
     faFileCircleXmark,
