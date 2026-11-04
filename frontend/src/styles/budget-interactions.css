@@ -237,7 +237,9 @@
     .modal:has(.budget-prices-form),
     .modal:has(.budget-prices-confirm),
     .modal:has(.budget-category-manager__form),
-    .modal:has(.budget-category-manager__confirm)
+    .modal:has(.budget-category-manager__confirm),
+    .modal:has(.budget-service-items),
+    .modal:has(.budget-service-search)
 ) button {
     -webkit-tap-highlight-color: transparent;
     transition:
@@ -258,7 +260,9 @@
     .modal:has(.budget-prices-form),
     .modal:has(.budget-prices-confirm),
     .modal:has(.budget-category-manager__form),
-    .modal:has(.budget-category-manager__confirm)
+    .modal:has(.budget-category-manager__confirm),
+    .modal:has(.budget-service-items),
+    .modal:has(.budget-service-search)
 ) button:not(:disabled):hover {
     filter: brightness(1.08);
 }
@@ -271,7 +275,9 @@
     .modal:has(.budget-prices-form),
     .modal:has(.budget-prices-confirm),
     .modal:has(.budget-category-manager__form),
-    .modal:has(.budget-category-manager__confirm)
+    .modal:has(.budget-category-manager__confirm),
+    .modal:has(.budget-service-items),
+    .modal:has(.budget-service-search)
 ) button:not(:disabled):active {
     transform: translateY(1px) scale(.99);
 }
@@ -284,7 +290,9 @@
     .modal:has(.budget-prices-form),
     .modal:has(.budget-prices-confirm),
     .modal:has(.budget-category-manager__form),
-    .modal:has(.budget-category-manager__confirm)
+    .modal:has(.budget-category-manager__confirm),
+    .modal:has(.budget-service-items),
+    .modal:has(.budget-service-search)
 ) button:focus-visible {
     outline: 2px solid var(--color-primary-400);
     outline-offset: 2px;
