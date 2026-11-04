@@ -1,0 +1,26 @@
+.budget-service-search { display: grid; gap: var(--spacing-4); }
+.budget-service-search__intro { color: var(--color-text-muted); font-size: var(--font-size-sm); line-height: var(--line-height-relaxed); }
+.budget-service-search__filters { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--spacing-3); padding: var(--spacing-4); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-lg); }
+.budget-service-search__field { display: grid; gap: var(--spacing-1); min-width: 0; }
+.budget-service-search__field span { color: var(--color-text-secondary); font-size: var(--font-size-xs); font-weight: var(--font-weight-medium); }
+.budget-service-search__field input, .budget-service-search__field select { width: 100%; min-width: 0; min-height: 2.55rem; padding: 0 var(--spacing-3); color: var(--color-text); background: var(--color-surface-raised); border: 1px solid var(--color-border); border-radius: var(--radius-md); }
+.budget-service-search__field--search { grid-column: span 2; }
+.budget-service-search__actions { grid-column: 1 / -1; display: flex; justify-content: flex-end; gap: var(--spacing-2); }
+.budget-service-search__actions button, .budget-service-search__pagination button, .budget-service-search__state button { display: inline-flex; align-items: center; justify-content: center; gap: var(--spacing-2); min-height: 2.4rem; padding: 0 var(--spacing-3); border: 1px solid var(--color-border); border-radius: var(--radius-md); color: var(--color-text); background: var(--color-surface-raised); font-size: var(--font-size-sm); cursor: pointer; }
+.budget-service-search__actions button.is-primary { color: white; background: var(--color-primary-600, var(--color-primary-500)); border-color: transparent; }
+.budget-service-search__results { display: grid; gap: var(--spacing-3); }
+.budget-service-search__results-heading, .budget-service-search__pagination { display: flex; justify-content: space-between; align-items: center; gap: var(--spacing-3); }
+.budget-service-search__results-heading strong { font-size: var(--font-size-sm); }
+.budget-service-search__results-heading span, .budget-service-search__pagination > span { color: var(--color-text-muted); font-size: var(--font-size-xs); }
+.budget-service-search__list { display: grid; gap: var(--spacing-2); max-height: 22rem; overflow-y: auto; }
+.budget-service-search__item { display: flex; align-items: center; justify-content: space-between; gap: var(--spacing-4); width: 100%; padding: var(--spacing-3) var(--spacing-4); text-align: left; color: var(--color-text); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-md); cursor: pointer; transition: border-color var(--transition-fast), background var(--transition-fast); }
+.budget-service-search__item:hover { border-color: var(--color-primary-400); background: var(--color-surface-hover); }
+.budget-service-search__item-main { display: grid; gap: var(--spacing-1); min-width: 0; }
+.budget-service-search__item-main strong { overflow-wrap: anywhere; font-size: var(--font-size-sm); }
+.budget-service-search__item-main small { color: var(--color-text-muted); font-size: var(--font-size-xs); }
+.budget-service-search__item-value { flex: 0 0 auto; font-size: var(--font-size-sm); font-weight: var(--font-weight-semibold); }
+.budget-service-search__pagination > div { display: flex; gap: var(--spacing-2); }
+.budget-service-search__pagination button:disabled { opacity: .45; cursor: not-allowed; }
+.budget-service-search__state { padding: var(--spacing-5); text-align: center; color: var(--color-text-muted); font-size: var(--font-size-sm); }
+@media (max-width: 680px) { .budget-service-search__filters { grid-template-columns: repeat(2, minmax(0, 1fr)); } .budget-service-search__field--search { grid-column: 1 / -1; } }
+@media (max-width: 480px) { .budget-service-search__filters { grid-template-columns: minmax(0, 1fr); } .budget-service-search__field--search { grid-column: auto; } .budget-service-search__actions { flex-direction: column-reverse; } .budget-service-search__actions button { width: 100%; } .budget-service-search__item { align-items: flex-start; flex-direction: column; } .budget-service-search__pagination { align-items: flex-start; flex-direction: column; } }
