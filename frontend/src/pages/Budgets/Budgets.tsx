@@ -26,6 +26,7 @@ import { AppHeader } from "../../components/AppHeader/AppHeader";
 import { BudgetCategoriesManager } from "./components/BudgetCategoriesManager/BudgetCategoriesManager";
 import { BudgetAdvancedFiltersForm } from "./components/BudgetAdvancedFiltersForm/BudgetAdvancedFiltersForm";
 import { BudgetServiceConversionSearchModal } from "./components/BudgetServiceConversionSearchModal/BudgetServiceConversionSearchModal";
+import { updateBudgetAdvancedFilter, validateBudgetAdvancedFilters } from "./utils/budgetFilters.utils";
 import { BackLink } from "../../components/BackLink/BackLink";
 import {
     useBudgetDashboard,
@@ -264,64 +265,19 @@ export function Budgets() {
     }
 
     function updateFilter(key: keyof FindBudgetsByAdvancedFilters, value: string, numeric = false) {
-        setFilterForm(current => {
-            const next = { ...current };
-            const normalizedValue = value.trim();
-
-            if (!normalizedValue) {
-                delete next[key];
-            } else if (numeric) {
-                const parsedValue = Number(normalizedValue);
-                if (Number.isFinite(parsedValue)) {
-                    Object.assign(next, { [key]: parsedValue });
-                }
-            } else {
-                Object.assign(next, { [key]: normalizedValue });
-            }
-
-            return next;
-        });
+        setFilterForm(current => updateBudgetAdvancedFilter(current, key, value, numeric));
     }
 
     function submitAdvancedFilters(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
-        setFilterError(null);
+        const validationError = validateBudgetAdvancedFilters(filterForm);
 
-        const activeFilters = Object.entries(filterForm).filter(
-            ([key, value]) => !["page", "limit"].includes(key) && value !== undefined && value !== ""
-        );
-
-        if (activeFilters.length === 0) {
-            setFilterError("Informe ao menos um filtro para realizar a consulta.");
+        if (validationError) {
+            setFilterError(validationError);
             return;
         }
 
-        const rangePairs: Array<[keyof FindBudgetsByAdvancedFilters, keyof FindBudgetsByAdvancedFilters, string]> = [
-            ["createdAtFrom", "createdAtTo", "O período de criação"],
-            ["updatedAtFrom", "updatedAtTo", "O período de atualização"],
-            ["historyCreatedAtFrom", "historyCreatedAtTo", "O período do histórico"],
-            ["totalAmountMin", "totalAmountMax", "A faixa de valor total"],
-            ["globalDiscountMin", "globalDiscountMax", "A faixa de desconto global"],
-            ["finalAmountMin", "finalAmountMax", "A faixa de valor final"],
-            ["itemQuantityMin", "itemQuantityMax", "A faixa de quantidade dos itens"],
-            ["itemUnitValueMin", "itemUnitValueMax", "A faixa de valor unitário"],
-            ["itemTotalAmountMin", "itemTotalAmountMax", "A faixa de valor dos itens"],
-            ["itemDiscountMin", "itemDiscountMax", "A faixa de desconto dos itens"]
-        ];
-
-        for (const [minKey, maxKey, label] of rangePairs) {
-            const min = filterForm[minKey];
-            const max = filterForm[maxKey];
-            if (typeof min === "number" && typeof max === "number" && min > max) {
-                setFilterError(`${label}: o valor mínimo não pode ser maior que o máximo.`);
-                return;
-            }
-            if (typeof min === "string" && typeof max === "string" && min > max) {
-                setFilterError(`${label}: a data inicial não pode ser posterior à data final.`);
-                return;
-            }
-        }
-
+        setFilterError(null);
         setSubmittedFilters({ ...filterForm, page: 1, limit: PAGE_SIZE });
     }
 
