@@ -40,6 +40,7 @@ const blankForm = {
 
 type PriceForm = typeof blankForm;
 type PriceGroup = {
+    categoryId: string;
     category: BudgetCategory | null;
     prices: BudgetPrice[];
 };
@@ -62,10 +63,11 @@ function groupPricesByCategory(
     categories: BudgetCategory[]
 ): PriceGroup[] {
     const groups = prices.reduce<PriceGroup[]>((result, price) => {
-        let group = result.find(item => item.category?.id === price.categoryId);
+        let group = result.find(item => item.categoryId === price.categoryId);
 
         if (!group) {
             group = {
+                categoryId: price.categoryId,
                 category: price.category ?? categories.find(category => category.id === price.categoryId) ?? null,
                 prices: []
             };
@@ -350,7 +352,7 @@ export function BudgetPrices() {
                         {groups.map(group => (
                             <section
                                 className="budget-prices-group"
-                                key={group.category?.id ?? group.prices[0].categoryId}
+                                key={group.categoryId}
                             >
                                 <header>
                                     <div>
