@@ -7,6 +7,7 @@ import "./styles/variables.css";
 import "./styles/globals.css";
 
 import App from "./App.tsx";
+import "./styles/budget-interactions.css";
 import { queryClient } from "./lib/queryClient";
 
 createRoot(document.getElementById("root")!).render(
