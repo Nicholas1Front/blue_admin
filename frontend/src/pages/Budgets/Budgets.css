@@ -711,6 +711,22 @@
 }
 
 @media (max-width: 520px) {
+    .budgets-section-heading {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .budgets-section-heading__actions,
+    .budgets-filter-panel__header-actions {
+        width: 100%;
+        justify-content: space-between;
+        flex-wrap: wrap;
+    }
+
+    .budgets-collapse-toggle {
+        min-height: 2.4rem;
+    }
+
     .budgets-content {
         width: min(100% - 1.25rem, 84rem);
         padding-top: var(--spacing-5);
