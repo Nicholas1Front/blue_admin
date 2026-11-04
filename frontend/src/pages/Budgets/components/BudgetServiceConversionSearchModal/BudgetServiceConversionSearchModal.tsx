@@ -328,6 +328,7 @@ export function BudgetServiceConversionSearchModal({
                         </div>
                     )}
                 </section>
+                </div>
             </div>
         </Modal>
     );
