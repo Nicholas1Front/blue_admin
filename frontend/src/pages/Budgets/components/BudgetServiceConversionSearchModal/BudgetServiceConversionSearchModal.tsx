@@ -1,32 +1,23 @@
 import { useState, type FormEvent } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
-    faBroom,
     faCalendarDays,
     faFilter,
-    faMagnifyingGlass,
     faWrench
 } from "@fortawesome/free-solid-svg-icons";
 
 import { Modal } from "../../../../components/Modal/Modal";
+import { BudgetAdvancedFiltersForm } from "../BudgetAdvancedFiltersForm/BudgetAdvancedFiltersForm";
 import { useBudgetsByAdvancedFilters } from "../../../../modules/budgets";
 import type {
     BudgetSearchSummary,
-    BudgetStatus,
     FindBudgetsByAdvancedFilters
 } from "../../../../modules/budgets";
 import "./BudgetServiceConversionSearchModal.css";
 
 const PAGE_SIZE = 8;
 
-const statusLabels: Record<BudgetStatus, string> = {
-    rascunho: "Rascunho",
-    enviado: "Enviado",
-    aprovado: "Aprovado",
-    rejeitado: "Rejeitado",
-    expirado: "Expirado",
-    cancelado: "Cancelado"
-};
+
 
 const currencyFormatter = new Intl.NumberFormat("pt-BR", {
     style: "currency",
@@ -202,61 +193,6 @@ export function BudgetServiceConversionSearchModal({
         setPage(nextPage);
     }
 
-    function renderTextField(
-        key: keyof FindBudgetsByAdvancedFilters,
-        label: string,
-        placeholder?: string,
-        wide = false
-    ) {
-        return (
-            <label
-                className={`budget-service-search__field${wide ? " budget-service-search__field--wide" : ""}`}
-                key={key}
-            >
-                <span>{label}</span>
-                <input
-                    value={String(filterForm[key] ?? "")}
-                    onChange={event => updateFilter(key, event.target.value)}
-                    placeholder={placeholder}
-                />
-            </label>
-        );
-    }
-
-    function renderDateField(
-        key: keyof FindBudgetsByAdvancedFilters,
-        label: string
-    ) {
-        return (
-            <label className="budget-service-search__field" key={key}>
-                <span>{label}</span>
-                <input
-                    type="date"
-                    value={String(filterForm[key] ?? "")}
-                    onChange={event => updateFilter(key, event.target.value)}
-                />
-            </label>
-        );
-    }
-
-    function renderNumberFields(
-        fields: ReadonlyArray<readonly [keyof FindBudgetsByAdvancedFilters, string]>
-    ) {
-        return fields.map(([key, label]) => (
-            <label className="budget-service-search__field" key={key}>
-                <span>{label}</span>
-                <input
-                    type="number"
-                    min={String(key).includes("Quantity") ? "0.000001" : "0"}
-                    max={String(key).includes("Discount") ? 100 : undefined}
-                    step="0.01"
-                    value={String(filterForm[key] ?? "")}
-                    onChange={event => updateFilter(key, event.target.value, true)}
-                />
-            </label>
-        ));
-    }
-
     return (
         <Modal
             isOpen={isOpen}
@@ -325,131 +261,23 @@ export function BudgetServiceConversionSearchModal({
                             <div>
                                 <span className="budget-service-search__eyebrow">Busca avançada</span>
                                 <h3>Filtros de pesquisa</h3>
-                                <p>Combine os critérios para encontrar o orçamento correto.</p>
+                                <p>Use os mesmos critérios disponíveis no dashboard para localizar o orçamento.</p>
                             </div>
                             <span className="budget-service-search__filter-icon" aria-hidden="true">
                                 <FontAwesomeIcon icon={faFilter} />
                             </span>
                         </header>
 
-                        <div className="budget-service-search__quick-fields">
-                            {renderTextField(
-                                "search",
-                                "Busca geral",
-                                "Cliente, documento, equipamento, item ou observação",
-                                true
-                            )}
-                            {renderTextField("budgetId", "Código do orçamento", "Identificador")}
-                            <label className="budget-service-search__field">
-                                <span>Status</span>
-                                <select
-                                    value={filterForm.status ?? ""}
-                                    onChange={event => updateFilter("status", event.target.value)}
-                                >
-                                    <option value="">Todos</option>
-                                    {Object.entries(statusLabels).map(([value, label]) => (
-                                        <option key={value} value={value}>{label}</option>
-                                    ))}
-                                </select>
-                            </label>
-                        </div>
-
-                        <div className="budget-service-search__groups">
-                            <details className="budget-service-search__group" open>
-                                <summary>Cliente e equipamento</summary>
-                                <div className="budget-service-search__group-fields">
-                                    {renderTextField("clientName", "Nome do cliente")}
-                                    {renderTextField("clientDocument", "Documento do cliente")}
-                                    {renderTextField("clientId", "Cliente (ID)")}
-                                    {renderTextField(
-                                        "equipamentSearch",
-                                        "Equipamento",
-                                        "Tipo, marca, modelo ou identificação"
-                                    )}
-                                    {renderTextField("equipamentId", "Equipamento (ID)")}
-                                </div>
-                            </details>
-
-                            <details className="budget-service-search__group">
-                                <summary>Condições do orçamento</summary>
-                                <div className="budget-service-search__group-fields">
-                                    {renderTextField("paymentCondition", "Condição de pagamento", "Ex.: à vista")}
-                                    {renderTextField("validity", "Validade")}
-                                    {renderTextField("warranty", "Garantia")}
-                                    {renderTextField("deliveryTime", "Prazo de entrega")}
-                                    {renderTextField("observations", "Observações", undefined, true)}
-                                </div>
-                            </details>
-
-                            <details className="budget-service-search__group">
-                                <summary>Datas e valores</summary>
-                                <div className="budget-service-search__group-fields">
-                                    {renderDateField("createdAtFrom", "Criado a partir de")}
-                                    {renderDateField("createdAtTo", "Criado até")}
-                                    {renderDateField("updatedAtFrom", "Atualizado a partir de")}
-                                    {renderDateField("updatedAtTo", "Atualizado até")}
-                                    {renderNumberFields([
-                                        ["totalAmountMin", "Valor total mínimo"],
-                                        ["totalAmountMax", "Valor total máximo"],
-                                        ["globalDiscountMin", "Desconto global mínimo (%)"],
-                                        ["globalDiscountMax", "Desconto global máximo (%)"],
-                                        ["finalAmountMin", "Valor final mínimo"],
-                                        ["finalAmountMax", "Valor final máximo"]
-                                    ])}
-                                </div>
-                            </details>
-
-                            <details className="budget-service-search__group">
-                                <summary>Itens e categorias</summary>
-                                <div className="budget-service-search__group-fields">
-                                    {renderTextField("itemId", "Item (ID)")}
-                                    {renderTextField("itemTitle", "Título do item")}
-                                    {renderTextField("itemDescription", "Descrição do item")}
-                                    {renderTextField("itemCategoryName", "Categoria")}
-                                    {renderTextField("itemCategoryId", "Categoria (ID)")}
-                                    {renderNumberFields([
-                                        ["itemQuantityMin", "Quantidade mínima"],
-                                        ["itemQuantityMax", "Quantidade máxima"],
-                                        ["itemUnitValueMin", "Valor unitário mínimo"],
-                                        ["itemUnitValueMax", "Valor unitário máximo"],
-                                        ["itemTotalAmountMin", "Total dos itens mínimo"],
-                                        ["itemTotalAmountMax", "Total dos itens máximo"],
-                                        ["itemDiscountMin", "Desconto mínimo (%)"],
-                                        ["itemDiscountMax", "Desconto máximo (%)"]
-                                    ])}
-                                </div>
-                            </details>
-
-                            <details className="budget-service-search__group">
-                                <summary>Histórico</summary>
-                                <div className="budget-service-search__group-fields">
-                                    {renderTextField("historyId", "Histórico (ID)")}
-                                    {renderTextField("historyEventType", "Tipo de evento")}
-                                    {renderTextField("historyDescription", "Descrição do evento", undefined, true)}
-                                    {renderDateField("historyCreatedAtFrom", "Evento a partir de")}
-                                    {renderDateField("historyCreatedAtTo", "Evento até")}
-                                </div>
-                            </details>
-                        </div>
+                        <BudgetAdvancedFiltersForm
+                            values={filterForm}
+                            onChange={updateFilter}
+                            onSubmit={applyFilters}
+                            onClear={clearFilters}
+                            error={filterError}
+                        />
                     </section>
 
-                    {filterError && (
-                        <p className="budget-service-search__error" role="alert">{filterError}</p>
-                    )}
-
-                    <div className="budget-service-search__actions">
-                        <button type="button" className="is-secondary" onClick={clearFilters}>
-                            <FontAwesomeIcon icon={faBroom} aria-hidden="true" />
-                            Limpar filtros
-                        </button>
-                        <button type="submit" className="is-primary">
-                            <FontAwesomeIcon icon={faMagnifyingGlass} aria-hidden="true" />
-                            Buscar orçamentos
-                        </button>
-                    </div>
-                </form>
-
-                <section className="budget-service-search__results" aria-live="polite">
+                    <section className="budget-service-search__results" aria-live="polite">
                     <div className="budget-service-search__results-heading">
                         <div>
                             <span className="budget-service-search__eyebrow">Seleção</span>
