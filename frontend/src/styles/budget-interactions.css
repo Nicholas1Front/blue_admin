@@ -1,0 +1,225 @@
+/*
+ * Interações compartilhadas do módulo de orçamentos.
+ * Escopo restrito às telas de budgets para não alterar os demais módulos.
+ */
+
+:is(
+    .budgets-page,
+    .budget-details-page,
+    .budget-metrics-page,
+    .budget-prices-page
+) button {
+    -webkit-tap-highlight-color: transparent;
+    transition:
+        color var(--transition-fast),
+        background-color var(--transition-fast),
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast),
+        opacity var(--transition-fast),
+        transform var(--transition-fast),
+        filter var(--transition-fast);
+}
+
+:is(
+    .budgets-page,
+    .budget-details-page,
+    .budget-metrics-page,
+    .budget-prices-page
+) button:not(:disabled) {
+    cursor: pointer;
+}
+
+:is(
+    .budgets-page,
+    .budget-details-page,
+    .budget-metrics-page,
+    .budget-prices-page
+) button:not(:disabled):active {
+    transform: translateY(1px) scale(.99);
+}
+
+:is(
+    .budgets-page,
+    .budget-details-page,
+    .budget-metrics-page,
+    .budget-prices-page
+) button:disabled {
+    cursor: not-allowed;
+    opacity: .48;
+    box-shadow: none;
+    filter: saturate(.55);
+}
+
+:is(
+    .budgets-page,
+    .budget-details-page,
+    .budget-metrics-page,
+    .budget-prices-page
+) button:focus-visible {
+    outline: 2px solid var(--color-primary-400);
+    outline-offset: 2px;
+}
+
+:is(
+    .budgets-page,
+    .budget-details-page,
+    .budget-metrics-page,
+    .budget-prices-page
+) button:not(:disabled):hover {
+    filter: brightness(1.08);
+}
+
+:is(
+    .budgets-page,
+    .budget-details-page,
+    .budget-metrics-page,
+    .budget-prices-page
+) :is(input, select, textarea) {
+    color: var(--color-text);
+    caret-color: var(--color-primary-400);
+    transition:
+        color var(--transition-fast),
+        background-color var(--transition-fast),
+        border-color var(--transition-fast),
+        box-shadow var(--transition-fast);
+}
+
+:is(
+    .budgets-page,
+    .budget-details-page,
+    .budget-metrics-page,
+    .budget-prices-page
+) :is(input, select, textarea):not(:disabled):hover {
+    border-color: var(--color-border-strong, var(--color-primary-400));
+}
+
+:is(
+    .budgets-page,
+    .budget-details-page,
+    .budget-metrics-page,
+    .budget-prices-page
+) :is(input, select, textarea):focus-visible {
+    border-color: var(--color-primary-400);
+    outline: 2px solid rgb(77 155 255 / .22);
+    outline-offset: 1px;
+    box-shadow: 0 0 0 3px rgb(77 155 255 / .08);
+}
+
+:is(
+    .budgets-page,
+    .budget-details-page,
+    .budget-metrics-page,
+    .budget-prices-page
+) :is(input, select, textarea):disabled {
+    color: var(--color-text-disabled);
+    background-color: var(--color-surface-raised);
+    cursor: not-allowed;
+    opacity: .65;
+}
+
+:is(
+    .budgets-page,
+    .budget-details-page,
+    .budget-metrics-page,
+    .budget-prices-page
+) :is(input, textarea)::placeholder {
+    color: var(--color-text-disabled);
+    opacity: 1;
+}
+
+/* Ações primárias: criação, confirmação e salvamento. */
+:is(
+    .budgets-page,
+    .budget-details-page,
+    .budget-prices-page
+) :is(
+    .budgets-filter-submit,
+    .budget-category-manager__primary,
+    .budget-details-form__actions button[type="submit"],
+    .budget-prices-primary
+) {
+    box-shadow: 0 1px 2px rgb(0 0 0 / .12);
+}
+
+:is(
+    .budgets-page,
+    .budget-details-page,
+    .budget-prices-page
+) :is(
+    .budgets-filter-submit,
+    .budget-category-manager__primary,
+    .budget-details-form__actions button[type="submit"],
+    .budget-prices-primary
+):not(:disabled):hover {
+    box-shadow: 0 4px 12px rgb(11 116 229 / .2);
+    filter: brightness(1.12);
+}
+
+/* Ações destrutivas ficam identificadas em vermelho, sem depender só do texto. */
+:is(
+    .budgets-page,
+    .budget-details-page,
+    .budget-prices-page
+) :is(
+    .budgets-action-button--delete,
+    .budget-category-manager__item-actions button.is-danger,
+    .budget-category-manager__modal-actions button.is-danger,
+    .budget-details-page button.is-danger,
+    .budget-prices-danger
+) {
+    --budget-danger-hover: rgb(239 68 68 / .14);
+}
+
+:is(
+    .budgets-page,
+    .budget-details-page,
+    .budget-prices-page
+) :is(
+    .budget-action-button--delete,
+    .budgets-action-button--delete,
+    .budget-category-manager__item-actions button.is-danger,
+    .budget-category-manager__modal-actions button.is-danger,
+    button.is-danger,
+    .budget-prices-danger
+):not(:disabled):hover {
+    border-color: var(--color-danger, #ef4444);
+    box-shadow: 0 3px 10px rgb(239 68 68 / .12);
+}
+
+/* Campos inválidos ou com erro usam o tom semântico de alerta. */
+:is(
+    .budgets-page,
+    .budget-details-page,
+    .budget-prices-page
+) :is(input, select, textarea)[aria-invalid="true"] {
+    border-color: var(--color-danger, #ef4444);
+}
+
+:is(
+    .budgets-page,
+    .budget-details-page,
+    .budget-prices-page
+) :is(input, select, textarea)[aria-invalid="true"]:focus-visible {
+    outline-color: rgb(239 68 68 / .2);
+    box-shadow: 0 0 0 3px rgb(239 68 68 / .08);
+}
+
+@media (prefers-reduced-motion: reduce) {
+    :is(
+        .budgets-page,
+        .budget-details-page,
+        .budget-metrics-page,
+        .budget-prices-page
+    ) :is(button, input, select, textarea) {
+        transition: none;
+    }
+
+    :is(
+        .budgets-page,
+        .budget-details-page,
+        .budget-metrics-page,
+        .budget-prices-page
+    ) button:not(:disabled):active {
+        transform: none;
+    }
+}
