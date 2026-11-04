@@ -1,7 +1,7 @@
 import { useMemo, useState } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCheckCircle, faClock, faFileInvoiceDollar, faPaperPlane } from "@fortawesome/free-solid-svg-icons";
-import { Bar, BarChart, CartesianGrid, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
+import { Bar, BarChart, CartesianGrid, ReferenceLine, ResponsiveContainer, Tooltip, XAxis, YAxis } from "recharts";
 import { AppHeader } from "../../components/AppHeader/AppHeader";
 import { BackLink } from "../../components/BackLink/BackLink";
 import { useBudgetMetrics } from "../../modules/budgets";
@@ -166,24 +166,30 @@ export function BudgetMetrics() {
                                 <button type="button" className="budget-metrics-legend__reset" onClick={() => setVisibleStatuses(statuses)}>Todos</button>
                             </div>
                             <div className="budget-metrics-chart">
-                                <ResponsiveContainer width="100%" height="100%">
-                                    <BarChart data={chartData} margin={{ top: 12, right: 8, left: -18, bottom: 4 }}
-                                        barCategoryGap="22%" onClick={selectChartMonth}>
-                                        <CartesianGrid stroke="var(--color-border)" strokeDasharray="3 3" vertical={false} />
-                                        <XAxis dataKey="month" tickLine={false} axisLine={false}
-                                            tick={{ fill: "var(--color-text-muted)", fontSize: 12 }} />
-                                        <YAxis allowDecimals={false} tickLine={false} axisLine={false}
-                                            tick={{ fill: "var(--color-text-muted)", fontSize: 11 }} />
-                                        <Tooltip cursor={{ fill: "var(--color-surface-hover)", opacity: .45 }}
-                                            contentStyle={{ background: "var(--color-surface-raised)", border: "1px solid var(--color-border)", borderRadius: 10, color: "var(--color-text)" }}
-                                            labelFormatter={(_, payload) => payload?.[0]?.payload?.label ?? ""}
-                                            formatter={(value, name) => [Number(value ?? 0), statusConfig[name as BudgetStatus]?.label ?? String(name)]} />
-                                        {statuses.filter(status => visibleStatuses.includes(status)).map(status => (
-                                            <Bar key={status} dataKey={status} name={status} stackId="budgets"
-                                                fill={statusConfig[status].color} maxBarSize={42} />
-                                        ))}
-                                    </BarChart>
-                                </ResponsiveContainer>
+                                {data.annual.budgetCount > 0 ? (
+                                    <ResponsiveContainer width="100%" height="100%">
+                                        <BarChart data={chartData} margin={{ top: 12, right: 8, left: -18, bottom: 4 }}
+                                            barCategoryGap="22%" onClick={selectChartMonth}>
+                                            <CartesianGrid stroke="var(--color-border)" strokeDasharray="3 3" vertical={false} />
+                                            <XAxis dataKey="month" tickLine={false} axisLine={false}
+                                                tickFormatter={value => monthNames[Number(value) - 1]?.slice(0, 3) ?? String(value)}
+                                                tick={{ fill: "var(--color-text-muted)", fontSize: 12 }} />
+                                            <YAxis allowDecimals={false} tickLine={false} axisLine={false}
+                                                tick={{ fill: "var(--color-text-muted)", fontSize: 11 }} />
+                                            <Tooltip cursor={{ fill: "var(--color-surface-hover)", opacity: .45 }}
+                                                contentStyle={{ background: "var(--color-surface-raised)", border: "1px solid var(--color-border)", borderRadius: 10, color: "var(--color-text)" }}
+                                                labelFormatter={(_, payload) => payload?.[0]?.payload?.label ?? ""}
+                                                formatter={(value, name) => [Number(value ?? 0), statusConfig[name as BudgetStatus]?.label ?? String(name)]} />
+                                            <ReferenceLine x={selectedMonth} stroke="var(--color-primary-400)" strokeDasharray="4 4" />
+                                            {statuses.filter(status => visibleStatuses.includes(status)).map(status => (
+                                                <Bar key={status} dataKey={status} name={status} stackId="budgets"
+                                                    fill={statusConfig[status].color} maxBarSize={42} />
+                                            ))}
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                ) : (
+                                    <div className="budget-metrics-chart-empty">Nenhum orçamento foi criado em {selectedYear}.</div>
+                                )}
                             </div>
                             <p className="budget-metrics-chart-note">Cada coluna representa os orçamentos criados naquele mês, agrupados pelo status atual. Clique em uma coluna para destacá-la abaixo.</p>
                         </section>
