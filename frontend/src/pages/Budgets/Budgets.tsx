@@ -303,6 +303,7 @@ export function Budgets() {
             setBudgetCreationError(
                 error instanceof Error ? error.message : "Não foi possível criar o orçamento."
             );
+            setBudgetCreationStep("equipament");
         }
     }
 
