@@ -12,7 +12,8 @@ const currency = new Intl.NumberFormat("pt-BR", { style: "currency", currency: "
 const blank = { categoryId: "", title: "", description: "", unitValue: "" };
 type PriceForm = typeof blank;
 
-export function BudgetPrices() {\n    document.title = "Tabela de preços | Blue Admin";
+export function BudgetPrices() {
+    document.title = "Tabela de preços | Blue Admin";
     const [search, setSearch] = useState("");
     const [categoryId, setCategoryId] = useState("");
     const [filters, setFilters] = useState<FindBudgetPricesFilters>({ page: 1, limit: 100 });
@@ -57,7 +58,11 @@ export function BudgetPrices() {\n    document.title = "Tabela de preços | Blue
     }
     async function save(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
-        const normalizedValue = form.unitValue.trim().replace(/\\s/g, "");\n        const parsedValue = normalizedValue.includes(",")\n            ? normalizedValue.replace(/\\./g, "").replace(",", ".")\n            : normalizedValue;\n        const value = Number(parsedValue);
+        const normalizedValue = form.unitValue.trim().replace(/\s/g, "");
+        const parsedValue = normalizedValue.includes(",")
+            ? normalizedValue.replace(/\./g, "").replace(",", ".")
+            : normalizedValue;
+        const value = Number(parsedValue);
         if (!form.categoryId || !form.title.trim() || !Number.isFinite(value) || value < 0) {
             setFormError("Informe categoria, nome e valor unitário válido."); return;
         }
