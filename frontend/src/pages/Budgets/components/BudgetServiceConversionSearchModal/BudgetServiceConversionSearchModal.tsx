@@ -5,7 +5,6 @@ import {
     faCalendarDays,
     faFilter,
     faMagnifyingGlass,
-    faRotateLeft,
     faWrench
 } from "@fortawesome/free-solid-svg-icons";
 
