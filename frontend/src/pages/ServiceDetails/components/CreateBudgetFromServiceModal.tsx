@@ -124,6 +124,7 @@ export function CreateBudgetFromServiceModal({
     const canCreateBudget = selectedActivityIds.length > 0
         && selectedActivityIds.every(activityId => Boolean(categoryByActivity[activityId]))
         && !isSaving
+        && !isCreatingCategory
         && !categoriesQuery.isPending
         && !categoriesQuery.isError;
 
@@ -169,6 +170,7 @@ export function CreateBudgetFromServiceModal({
                                             <input
                                                 type="checkbox"
                                                 checked={isSelected}
+                                                disabled={isCreatingCategory}
                                                 onChange={event => toggleActivity(activity.id, event.target.checked)}
                                             />
                                             <span>

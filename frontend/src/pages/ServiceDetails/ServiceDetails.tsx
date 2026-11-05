@@ -239,15 +239,17 @@ export function ServiceDetails() {
                 <BackLink to="/services" label="Voltar ao dashboard de serviços" />
             </nav>
 
-                {details && (
-                    <>
+                {details && isBudgetConversionOpen && (
                     <CreateBudgetFromServiceModal
-                        isOpen={isBudgetConversionOpen}
+                        isOpen
                         serviceId={details.service.id}
                         activities={details.activities.list}
                         onClose={closeBudgetConversion}
                         onCreated={budgetId => navigate("/budgets/" + encodeURIComponent(budgetId))}
                     />
+                )}
+
+                {details && (
                     <Modal isOpen={showCreatedModal} title="Serviço criado com sucesso" onClose={closeCreatedModal}>
                         <div className="service-created-next-steps">
                             <p>O serviço já está registrado e seu histórico foi criado. Você pode complementar as informações agora ou voltar a isso depois.</p>
@@ -270,7 +272,6 @@ export function ServiceDetails() {
                             </div>
                         </div>
                     </Modal>
-                    </>
                 )}
 
             <div className="service-details-content">
