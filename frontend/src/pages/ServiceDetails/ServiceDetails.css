@@ -928,3 +928,40 @@
 .service-details-action:focus-visible{outline:2px solid var(--color-primary-400);outline-offset:2px}
 .service-details-hero__dates>.service-details-action{grid-column:1/-1;justify-self:start}
 @media(max-width:680px){.service-details-section__heading{flex-wrap:wrap}.service-details-section__action{width:100%;padding-left:calc(2.5rem + var(--spacing-3))}.service-details-section__action .service-details-action{white-space:normal}}
+
+
+.service-details-create-budget {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-2);
+    min-height: 2.55rem;
+    margin-top: var(--spacing-4);
+    padding: 0 var(--spacing-4);
+    color: var(--color-primary-300);
+    background: var(--color-info-bg);
+    border: 1px solid rgb(56 189 248 / 0.24);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+    transition: border-color var(--transition-fast), background-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.service-details-create-budget:hover {
+    color: var(--color-text);
+    background: var(--color-surface-hover);
+    border-color: var(--color-primary-400);
+    transform: translateY(-1px);
+}
+
+.service-details-create-budget:focus-visible {
+    outline: 2px solid var(--color-primary-400);
+    outline-offset: 2px;
+}
+
+@media (max-width: 680px) {
+    .service-details-create-budget {
+        width: 100%;
+    }
+}

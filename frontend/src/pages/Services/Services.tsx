@@ -1,12 +1,11 @@
 import { useState, type FormEvent } from "react";
-import { Link } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faCalendarDays,
     faClipboardList,
     faCoins,
     faMagnifyingGlass,
-    faRotateLeft,
     faTriangleExclamation
 } from "@fortawesome/free-solid-svg-icons";
 
@@ -18,12 +17,12 @@ import {
 } from "../../modules/services";
 import type {
     FindServicesByAdvancedFilters,
-    ServiceActivityStatus,
     ServiceStatus,
     ServiceSummary,
-    ServiceTitheStatus
 } from "../../modules/services";
 import { ServiceManagementActions } from "./components/ServiceManagementActions";
+import { ServiceAdvancedFiltersForm } from "./components/ServiceAdvancedFiltersForm";
+import { ServiceBudgetConversionSearchModal } from "./components/ServiceBudgetConversionSearchModal";
 import "./Services.css";
 
 const PAGE_SIZE = 10;
@@ -70,19 +69,6 @@ const statusTones: Record<ServiceStatus, string> = {
     aguardando_pagamento: "warning",
     pagamento_atrasado: "danger",
     pagamento_recebido: "success"
-};
-
-const activityStatusLabels: Record<ServiceActivityStatus, string> = {
-    pendente: "Pendente",
-    "em_execução": "Em execução",
-    concluida: "Concluída",
-    cancelada: "Cancelada"
-};
-
-const titheStatusLabels: Record<ServiceTitheStatus, string> = {
-    aguardando: "Aguardando",
-    "não concluído": "Não concluído",
-    "concluído": "Concluído"
 };
 
 type ServiceSearchForm = Omit<FindServicesByAdvancedFilters, "page" | "limit">;
@@ -157,6 +143,8 @@ function ServicesPagination({
 }
 
 export function Services() {
+    const navigate = useNavigate();
+    const [isBudgetSearchOpen, setIsBudgetSearchOpen] = useState(false);
     const now = new Date();
     const currentYear = now.getFullYear();
     const currentMonth = now.getMonth() + 1;
@@ -259,85 +247,6 @@ export function Services() {
         setAppliedSearchFilters(current => current
             ? { ...current, page }
             : current
-        );
-    }
-
-    function renderTextField(
-        label: string,
-        key: keyof ServiceSearchForm,
-        placeholder?: string
-    ) {
-        return (
-            <label className="services-filter-field" key={key}>
-                <span>{label}</span>
-                <input
-                    type="text"
-                    value={String(searchDraft[key] ?? "")}
-                    placeholder={placeholder ?? label}
-                    onChange={event => updateSearchField(key, event.target.value)}
-                />
-            </label>
-        );
-    }
-
-    function renderDateField(label: string, key: keyof ServiceSearchForm) {
-        return (
-            <label className="services-filter-field" key={key}>
-                <span>{label}</span>
-                <input
-                    type="date"
-                    value={String(searchDraft[key] ?? "")}
-                    onChange={event => updateSearchField(key, event.target.value)}
-                />
-            </label>
-        );
-    }
-
-    function renderNumberField(label: string, key: keyof ServiceSearchForm) {
-        return (
-            <label className="services-filter-field" key={key}>
-                <span>{label}</span>
-                <input
-                    type="number"
-                    min="0"
-                    step="any"
-                    value={String(searchDraft[key] ?? "")}
-                    onChange={event => updateSearchField(
-                        key,
-                        event.target.value === "" ? undefined : Number(event.target.value)
-                    )}
-                />
-            </label>
-        );
-    }
-
-    function renderSelectField(
-        label: string,
-        key: keyof ServiceSearchForm,
-        options: Array<{ value: string; label: string }>
-    ) {
-        return (
-            <label className="services-filter-field" key={key}>
-                <span>{label}</span>
-                <select
-                    value={String(searchDraft[key] ?? "")}
-                    onChange={event => updateSearchField(
-                        key,
-                        event.target.value === ""
-                            ? undefined
-                            : key === "exitDateIsNull"
-                                ? event.target.value === "true"
-                                : event.target.value
-                    )}
-                >
-                    <option value="">Todos</option>
-                    {options.map(option => (
-                        <option value={option.value} key={option.value}>
-                            {option.label}
-                        </option>
-                    ))}
-                </select>
-            </label>
         );
     }
 
@@ -467,7 +376,7 @@ export function Services() {
                     </div>
                 )}
 
-                <ServiceManagementActions />
+                <ServiceManagementActions onCreateBudgetFromService={() => setIsBudgetSearchOpen(true)} />
 
                 <Link className="services-insights-link" to="/services/metrics">
                     <span className="services-insights-link__icon" aria-hidden="true">
@@ -635,114 +544,12 @@ export function Services() {
                         </span>
                     </header>
 
-                    <form className="services-search-form" onSubmit={handleSearchSubmit}>
-                        <div className="services-search-primary">
-                            <label className="services-filter-field services-filter-field--search">
-                                <span>Busca geral</span>
-                                <input
-                                    type="search"
-                                    value={searchDraft.search ?? ""}
-                                    placeholder="Cliente, documento, equipamento, atividade ou código…"
-                                    onChange={event => updateSearchField("search", event.target.value)}
-                                />
-                            </label>
-                            {renderSelectField(
-                                "Status do serviço",
-                                "serviceStatus",
-                                serviceStatuses.map(status => ({ value: status, label: statusLabels[status] }))
-                            )}
-                            {renderDateField("Entrada a partir de", "entryDateFrom")}
-                            {renderDateField("Entrada até", "entryDateTo")}
-                        </div>
-
-                        <details className="services-search-advanced">
-                            <summary>
-                                <span>Mais filtros</span>
-                                <span className="services-search-advanced__hint">Cliente, equipamento, atividades, financeiro e histórico</span>
-                            </summary>
-
-                            <div className="services-filter-group">
-                                <h3>Cliente e equipamento</h3>
-                                <div className="services-filter-grid">
-                                    {renderTextField("Nome do cliente", "clientName")}
-                                    {renderTextField("Documento do cliente", "clientDocument")}
-                                    {renderTextField("ID do cliente", "clientId")}
-                                    {renderTextField("ID do equipamento", "equipamentId")}
-                                    {renderTextField("Buscar equipamento", "equipamentSearch", "Tipo, marca, modelo ou identificação")}
-                                    {renderTextField("ID do serviço", "serviceId")}
-                                </div>
-                            </div>
-
-                            <div className="services-filter-group">
-                                <h3>Datas, horas e dízimo</h3>
-                                <div className="services-filter-grid">
-                                    {renderDateField("Saída a partir de", "exitDateFrom")}
-                                    {renderDateField("Saída até", "exitDateTo")}
-                                    {renderSelectField("Situação da saída", "exitDateIsNull", [
-                                        { value: "true", label: "Ainda sem saída" },
-                                        { value: "false", label: "Já saiu" }
-                                    ])}
-                                    {renderNumberField("Horas mínimas", "hoursWorkedMin")}
-                                    {renderNumberField("Horas máximas", "hoursWorkedMax")}
-                                    {renderSelectField("Status do dízimo", "titheStatus", Object.entries(titheStatusLabels).map(([value, label]) => ({ value, label })))}
-                                    {renderTextField("ID da transação do dízimo", "titheTransactionId")}
-                                </div>
-                            </div>
-
-                            <div className="services-filter-group">
-                                <h3>Atividades</h3>
-                                <div className="services-filter-grid">
-                                    {renderTextField("ID da atividade", "activityId")}
-                                    {renderTextField("Título da atividade", "activityTitle")}
-                                    {renderTextField("Descrição da atividade", "activityDescription")}
-                                    {renderSelectField("Status da atividade", "activityStatus", Object.entries(activityStatusLabels).map(([value, label]) => ({ value, label })))}
-                                    {renderDateField("Atividade iniciada a partir de", "activityStartFrom")}
-                                    {renderDateField("Atividade iniciada até", "activityStartTo")}
-                                    {renderDateField("Atividade encerrada a partir de", "activityEndFrom")}
-                                    {renderDateField("Atividade encerrada até", "activityEndTo")}
-                                </div>
-                            </div>
-
-                            <div className="services-filter-group">
-                                <h3>Lançamentos financeiros</h3>
-                                <div className="services-filter-grid">
-                                    {renderSelectField("Tipo de lançamento", "transactionType", [
-                                        { value: "income", label: "Entrada" },
-                                        { value: "expense", label: "Saída" }
-                                    ])}
-                                    {renderTextField("ID da categoria", "transactionCategoryId")}
-                                    {renderTextField("Nome da categoria", "transactionCategoryName")}
-                                    {renderTextField("Descrição do lançamento", "transactionDescription")}
-                                    {renderNumberField("Valor mínimo", "transactionValueMin")}
-                                    {renderNumberField("Valor máximo", "transactionValueMax")}
-                                    {renderDateField("Lançamento a partir de", "transactionReferenceDateFrom")}
-                                    {renderDateField("Lançamento até", "transactionReferenceDateTo")}
-                                </div>
-                            </div>
-
-                            <div className="services-filter-group">
-                                <h3>Histórico do serviço</h3>
-                                <div className="services-filter-grid">
-                                    {renderTextField("ID do evento", "historyId")}
-                                    {renderTextField("Tipo do evento", "historyEventType")}
-                                    {renderTextField("Descrição do evento", "historyDescription")}
-                                    {renderDateField("Evento a partir de", "historyDateFrom")}
-                                    {renderDateField("Evento até", "historyDateTo")}
-                                </div>
-                            </div>
-                        </details>
-
-                        <div className="services-search-actions">
-                            <button className="services-search-submit" type="submit">
-                                <FontAwesomeIcon icon={faMagnifyingGlass} aria-hidden="true" />
-                                Pesquisar
-                            </button>
-                            <button className="services-search-reset" type="button" onClick={clearSearch}>
-                                <FontAwesomeIcon icon={faRotateLeft} aria-hidden="true" />
-                                Limpar filtros
-                            </button>
-                        </div>
-                    </form>
+                    <ServiceAdvancedFiltersForm
+                        values={searchDraft}
+                        onChange={updateSearchField}
+                        onSubmit={handleSearchSubmit}
+                        onClear={clearSearch}
+                    />
 
                     {searchQuery.isError && (
                         <div className="services-alert services-search-alert" role="alert">
@@ -792,6 +599,11 @@ export function Services() {
                     )}
                 </section>
             </section>
+            <ServiceBudgetConversionSearchModal
+                isOpen={isBudgetSearchOpen}
+                onClose={() => setIsBudgetSearchOpen(false)}
+                onSelect={serviceId => navigate("/services/" + encodeURIComponent(serviceId) + "?createBudget=1")}
+            />
         </main>
     );
 }

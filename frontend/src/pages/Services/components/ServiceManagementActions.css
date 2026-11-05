@@ -1,6 +1,6 @@
 .service-management {
     display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
+    grid-template-columns: repeat(auto-fit, minmax(min(100%, 13rem), 1fr));
     gap: var(--spacing-3);
     margin: 0 0 var(--spacing-6);
 }
@@ -383,4 +383,16 @@
     .service-management-search__form-actions > button {
         width: 100%;
     }
+}
+
+.service-management__button--budget {
+    color: var(--color-primary-300);
+    background: var(--color-info-bg);
+    border-color: rgb(56 189 248 / 0.24);
+}
+
+.service-management__button--budget:hover {
+    color: var(--color-text);
+    background: var(--color-surface-hover);
+    border-color: var(--color-primary-400);
 }

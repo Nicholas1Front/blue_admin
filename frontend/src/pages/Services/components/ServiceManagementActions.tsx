@@ -140,7 +140,11 @@ function formatServiceLabel(service: ServiceSummary) {
     return `${service.client.name} — ${formatEquipment(service.equipament)} — #${service.id.slice(0, 8)}`;
 }
 
-export function ServiceManagementActions() {
+export function ServiceManagementActions({
+    onCreateBudgetFromService
+}: {
+    onCreateBudgetFromService: () => void;
+}) {
     const navigate = useNavigate();
     const clients = useClients();
     const equipaments = useEquipaments();
@@ -295,6 +299,9 @@ export function ServiceManagementActions() {
                 </button>
                 <button className="service-management__button service-management__button--delete" type="button" onClick={() => startManagement("delete")}>
                     <FontAwesomeIcon icon={faTrash} aria-hidden="true" /> Excluir serviço
+                </button>
+                <button className="service-management__button service-management__button--budget" type="button" onClick={onCreateBudgetFromService}>
+                    <FontAwesomeIcon icon={faArrowRight} aria-hidden="true" /> Criar orçamento a partir de serviço
                 </button>
             </section>
 

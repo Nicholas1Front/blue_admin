@@ -13,13 +13,14 @@ import {
     faUser,
     faTruck
 } from "@fortawesome/free-solid-svg-icons";
-import { useParams, useSearchParams } from "react-router-dom";
+import { useNavigate, useParams, useSearchParams } from "react-router-dom";
 import { useEffect, useState, type ReactNode } from "react";
 
 import { AppHeader } from "../../components/AppHeader/AppHeader";
 import { BackLink } from "../../components/BackLink/BackLink";
 import { Modal } from "../../components/Modal/Modal";
 import { ServiceDetailsAction, ServiceDetailsManagement } from "./ServiceDetailsManagement";
+import { CreateBudgetFromServiceModal } from "./components/CreateBudgetFromServiceModal";
 import { useServiceById, useUpdateService } from "../../modules/services";
 import type {
     ServiceActivityStatus,
@@ -170,8 +171,10 @@ function TransactionRow({ transaction }: { transaction: ServiceFinancialTransact
 
 export function ServiceDetails() {
     const { serviceId } = useParams<{ serviceId: string }>();
+    const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
     const [showCreatedModal, setShowCreatedModal] = useState(() => searchParams.get("created") === "1");
+    const [isBudgetConversionOpen, setIsBudgetConversionOpen] = useState(() => searchParams.get("createBudget") === "1");
     const [isCalculatingCost, setIsCalculatingCost] = useState(false);
     const [costCalculationError, setCostCalculationError] = useState<string | null>(null);
     const [costCalculationSuccess, setCostCalculationSuccess] = useState(false);
@@ -186,6 +189,13 @@ export function ServiceDetails() {
             document.getElementById(targetId)?.scrollIntoView({ behavior: "smooth", block: "start" });
         });
     }, [details?.service.id, details?.activities.list.length, details?.history.length]);
+
+    function closeBudgetConversion() {
+        setIsBudgetConversionOpen(false);
+        const nextParams = new URLSearchParams(searchParams);
+        nextParams.delete("createBudget");
+        setSearchParams(nextParams, { replace: true });
+    }
 
     function closeCreatedModal() {
         setShowCreatedModal(false);
@@ -230,6 +240,14 @@ export function ServiceDetails() {
             </nav>
 
                 {details && (
+                    <>
+                    <CreateBudgetFromServiceModal
+                        isOpen={isBudgetConversionOpen}
+                        serviceId={details.service.id}
+                        activities={details.activities.list}
+                        onClose={closeBudgetConversion}
+                        onCreated={budgetId => navigate("/budgets/" + encodeURIComponent(budgetId))}
+                    />
                     <Modal isOpen={showCreatedModal} title="Serviço criado com sucesso" onClose={closeCreatedModal}>
                         <div className="service-created-next-steps">
                             <p>O serviço já está registrado e seu histórico foi criado. Você pode complementar as informações agora ou voltar a isso depois.</p>
@@ -252,6 +270,7 @@ export function ServiceDetails() {
                             </div>
                         </div>
                     </Modal>
+                    </>
                 )}
 
             <div className="service-details-content">
@@ -287,6 +306,14 @@ export function ServiceDetails() {
                                     </span>
                                 </div>
                                 <p>Consulte as informações do atendimento, do equipamento e dos registros relacionados.</p>
+                                <button
+                                    type="button"
+                                    className="service-details-create-budget"
+                                    onClick={() => setIsBudgetConversionOpen(true)}
+                                >
+                                    <FontAwesomeIcon icon={faFileInvoiceDollar} aria-hidden="true" />
+                                    Criar orçamento a partir deste serviço
+                                </button>
                             </div>
                             <div className="service-details-hero__dates">
                                 <div>

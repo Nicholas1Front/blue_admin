@@ -1,0 +1,254 @@
+.service-budget-search {
+    display: grid;
+    gap: var(--spacing-4);
+    min-width: 0;
+}
+
+.service-budget-search__intro {
+    display: grid;
+    gap: var(--spacing-2);
+}
+
+.service-budget-search__intro > span {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    color: var(--color-primary-300);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    letter-spacing: .04em;
+    text-transform: uppercase;
+}
+
+.service-budget-search__intro p {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    line-height: var(--line-height-relaxed);
+}
+
+.service-budget-search__filters {
+    min-width: 0;
+    max-height: min(52vh, 34rem);
+    padding: var(--spacing-3);
+    overflow-y: auto;
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+}
+
+.service-budget-search__filters .services-search-form {
+    margin-top: 0;
+}
+
+.service-budget-search__results {
+    display: grid;
+    gap: var(--spacing-3);
+    min-width: 0;
+    padding: var(--spacing-4);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+}
+
+.service-budget-search__results > header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-3);
+    padding-bottom: var(--spacing-3);
+    border-bottom: 1px solid var(--color-border);
+}
+
+.service-budget-search__results > header > div {
+    display: grid;
+    gap: var(--spacing-1);
+}
+
+.service-budget-search__results > header span {
+    color: var(--color-primary-300);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    text-transform: uppercase;
+}
+
+.service-budget-search__results h3 {
+    color: var(--color-text);
+    font-size: var(--font-size-md);
+}
+
+.service-budget-search__results > header > strong,
+.service-budget-search__pagination > span {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+}
+
+.service-budget-search__list {
+    display: grid;
+    gap: var(--spacing-2);
+    max-height: 22rem;
+    overflow-y: auto;
+    overscroll-behavior: contain;
+}
+
+.service-budget-search__item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-4);
+    width: 100%;
+    min-width: 0;
+    padding: var(--spacing-3) var(--spacing-4);
+    color: var(--color-text);
+    text-align: left;
+    background: var(--color-surface-raised);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    transition: border-color var(--transition-fast), background-color var(--transition-fast), transform var(--transition-fast);
+}
+
+.service-budget-search__item:hover {
+    background: var(--color-surface-hover);
+    border-color: var(--color-primary-400);
+    transform: translateY(-1px);
+}
+
+.service-budget-search__item:focus-visible {
+    outline: 2px solid var(--color-primary-400);
+    outline-offset: 2px;
+}
+
+.service-budget-search__item-main {
+    display: grid;
+    gap: var(--spacing-1);
+    min-width: 0;
+}
+
+.service-budget-search__item-heading {
+    display: flex;
+    align-items: center;
+    flex-wrap: wrap;
+    gap: var(--spacing-2);
+}
+
+.service-budget-search__item-heading strong {
+    color: var(--color-text);
+    font-size: var(--font-size-sm);
+}
+
+.service-budget-search__item-heading span {
+    padding: 2px var(--spacing-2);
+    color: var(--color-text-secondary);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: 999px;
+    font-size: 10px;
+    font-weight: var(--font-weight-semibold);
+}
+
+.service-budget-search__item-main small {
+    color: var(--color-text-muted);
+    font-size: var(--font-size-xs);
+    overflow-wrap: anywhere;
+}
+
+.service-budget-search__id {
+    color: var(--color-text-disabled) !important;
+}
+
+.service-budget-search__select {
+    flex: 0 0 auto;
+    color: var(--color-primary-300);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    text-align: right;
+}
+
+.service-budget-search__pagination {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: var(--spacing-3);
+    padding-top: var(--spacing-3);
+    border-top: 1px solid var(--color-border);
+}
+
+.service-budget-search__pagination strong {
+    color: var(--color-text);
+}
+
+.service-budget-search__pagination > div {
+    display: flex;
+    gap: var(--spacing-2);
+}
+
+.service-budget-search__pagination button,
+.service-budget-search__state button {
+    min-height: 2.4rem;
+    padding: 0 var(--spacing-3);
+    color: var(--color-text);
+    background: var(--color-surface-raised);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-sm);
+    cursor: pointer;
+}
+
+.service-budget-search__pagination button:disabled {
+    opacity: .45;
+    cursor: not-allowed;
+}
+
+.service-budget-search__state {
+    display: grid;
+    justify-items: center;
+    gap: var(--spacing-2);
+    min-height: 7rem;
+    padding: var(--spacing-4);
+    color: var(--color-text-muted);
+    font-size: var(--font-size-sm);
+    text-align: center;
+}
+
+.service-budget-search__state strong {
+    color: var(--color-text);
+}
+
+.service-budget-search__state p {
+    line-height: var(--line-height-relaxed);
+}
+
+@media (max-width: 560px) {
+    .service-budget-search__filters,
+    .service-budget-search__results {
+        padding: var(--spacing-3);
+    }
+
+    .service-budget-search__item {
+        align-items: flex-start;
+        flex-direction: column;
+    }
+
+    .service-budget-search__select {
+        align-self: flex-end;
+    }
+
+    .service-budget-search__pagination {
+        align-items: stretch;
+        flex-direction: column;
+    }
+
+    .service-budget-search__pagination > div {
+        width: 100%;
+    }
+
+    .service-budget-search__pagination button {
+        flex: 1;
+    }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .service-budget-search__item {
+        transition: none;
+    }
+}
