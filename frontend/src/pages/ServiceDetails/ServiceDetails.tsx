@@ -245,7 +245,7 @@ export function ServiceDetails() {
                         serviceId={details.service.id}
                         activities={details.activities.list}
                         onClose={closeBudgetConversion}
-                        onCreated={budgetId => navigate("/budgets/" + encodeURIComponent(budgetId))}
+                        onCreated={budgetId => { closeBudgetConversion(); navigate("/budgets/" + encodeURIComponent(budgetId)); }}
                     />
                 )}
 
