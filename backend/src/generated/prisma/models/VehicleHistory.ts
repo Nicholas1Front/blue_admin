@@ -27,24 +27,20 @@ export type AggregateVehicleHistory = {
 }
 
 export type VehicleHistoryAvgAggregateOutputType = {
-  kilometer: number | null
-  previousKilometer: number | null
+  kilometerSnapshot: number | null
 }
 
 export type VehicleHistorySumAggregateOutputType = {
-  kilometer: number | null
-  previousKilometer: number | null
+  kilometerSnapshot: number | null
 }
 
 export type VehicleHistoryMinAggregateOutputType = {
   id: string | null
   vehicleId: string | null
-  title: string | null
-  description: string | null
   eventType: string | null
+  description: string | null
+  kilometerSnapshot: number | null
   eventDate: Date | null
-  kilometer: number | null
-  previousKilometer: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -52,12 +48,10 @@ export type VehicleHistoryMinAggregateOutputType = {
 export type VehicleHistoryMaxAggregateOutputType = {
   id: string | null
   vehicleId: string | null
-  title: string | null
-  description: string | null
   eventType: string | null
+  description: string | null
+  kilometerSnapshot: number | null
   eventDate: Date | null
-  kilometer: number | null
-  previousKilometer: number | null
   createdAt: Date | null
   updatedAt: Date | null
 }
@@ -65,12 +59,10 @@ export type VehicleHistoryMaxAggregateOutputType = {
 export type VehicleHistoryCountAggregateOutputType = {
   id: number
   vehicleId: number
-  title: number
-  description: number
   eventType: number
+  description: number
+  kilometerSnapshot: number
   eventDate: number
-  kilometer: number
-  previousKilometer: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -78,24 +70,20 @@ export type VehicleHistoryCountAggregateOutputType = {
 
 
 export type VehicleHistoryAvgAggregateInputType = {
-  kilometer?: true
-  previousKilometer?: true
+  kilometerSnapshot?: true
 }
 
 export type VehicleHistorySumAggregateInputType = {
-  kilometer?: true
-  previousKilometer?: true
+  kilometerSnapshot?: true
 }
 
 export type VehicleHistoryMinAggregateInputType = {
   id?: true
   vehicleId?: true
-  title?: true
-  description?: true
   eventType?: true
+  description?: true
+  kilometerSnapshot?: true
   eventDate?: true
-  kilometer?: true
-  previousKilometer?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -103,12 +91,10 @@ export type VehicleHistoryMinAggregateInputType = {
 export type VehicleHistoryMaxAggregateInputType = {
   id?: true
   vehicleId?: true
-  title?: true
-  description?: true
   eventType?: true
+  description?: true
+  kilometerSnapshot?: true
   eventDate?: true
-  kilometer?: true
-  previousKilometer?: true
   createdAt?: true
   updatedAt?: true
 }
@@ -116,12 +102,10 @@ export type VehicleHistoryMaxAggregateInputType = {
 export type VehicleHistoryCountAggregateInputType = {
   id?: true
   vehicleId?: true
-  title?: true
-  description?: true
   eventType?: true
+  description?: true
+  kilometerSnapshot?: true
   eventDate?: true
-  kilometer?: true
-  previousKilometer?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -216,12 +200,10 @@ export type VehicleHistoryGroupByArgs<ExtArgs extends runtime.Types.Extensions.I
 export type VehicleHistoryGroupByOutputType = {
   id: string
   vehicleId: string
-  title: string
-  description: string | null
   eventType: string
+  description: string
+  kilometerSnapshot: number | null
   eventDate: Date
-  kilometer: number | null
-  previousKilometer: number | null
   createdAt: Date
   updatedAt: Date
   _count: VehicleHistoryCountAggregateOutputType | null
@@ -252,31 +234,25 @@ export type VehicleHistoryWhereInput = {
   NOT?: Prisma.VehicleHistoryWhereInput | Prisma.VehicleHistoryWhereInput[]
   id?: Prisma.StringFilter<"VehicleHistory"> | string
   vehicleId?: Prisma.StringFilter<"VehicleHistory"> | string
-  title?: Prisma.StringFilter<"VehicleHistory"> | string
-  description?: Prisma.StringNullableFilter<"VehicleHistory"> | string | null
   eventType?: Prisma.StringFilter<"VehicleHistory"> | string
+  description?: Prisma.StringFilter<"VehicleHistory"> | string
+  kilometerSnapshot?: Prisma.IntNullableFilter<"VehicleHistory"> | number | null
   eventDate?: Prisma.DateTimeFilter<"VehicleHistory"> | Date | string
-  kilometer?: Prisma.IntNullableFilter<"VehicleHistory"> | number | null
-  previousKilometer?: Prisma.IntNullableFilter<"VehicleHistory"> | number | null
   createdAt?: Prisma.DateTimeFilter<"VehicleHistory"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"VehicleHistory"> | Date | string
   vehicle?: Prisma.XOR<Prisma.VehicleScalarRelationFilter, Prisma.VehicleWhereInput>
-  items?: Prisma.VehicleHistoryItemListRelationFilter
 }
 
 export type VehicleHistoryOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   vehicleId?: Prisma.SortOrder
-  title?: Prisma.SortOrder
-  description?: Prisma.SortOrderInput | Prisma.SortOrder
   eventType?: Prisma.SortOrder
+  description?: Prisma.SortOrder
+  kilometerSnapshot?: Prisma.SortOrderInput | Prisma.SortOrder
   eventDate?: Prisma.SortOrder
-  kilometer?: Prisma.SortOrderInput | Prisma.SortOrder
-  previousKilometer?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   vehicle?: Prisma.VehicleOrderByWithRelationInput
-  items?: Prisma.VehicleHistoryItemOrderByRelationAggregateInput
 }
 
 export type VehicleHistoryWhereUniqueInput = Prisma.AtLeast<{
@@ -285,27 +261,22 @@ export type VehicleHistoryWhereUniqueInput = Prisma.AtLeast<{
   OR?: Prisma.VehicleHistoryWhereInput[]
   NOT?: Prisma.VehicleHistoryWhereInput | Prisma.VehicleHistoryWhereInput[]
   vehicleId?: Prisma.StringFilter<"VehicleHistory"> | string
-  title?: Prisma.StringFilter<"VehicleHistory"> | string
-  description?: Prisma.StringNullableFilter<"VehicleHistory"> | string | null
   eventType?: Prisma.StringFilter<"VehicleHistory"> | string
+  description?: Prisma.StringFilter<"VehicleHistory"> | string
+  kilometerSnapshot?: Prisma.IntNullableFilter<"VehicleHistory"> | number | null
   eventDate?: Prisma.DateTimeFilter<"VehicleHistory"> | Date | string
-  kilometer?: Prisma.IntNullableFilter<"VehicleHistory"> | number | null
-  previousKilometer?: Prisma.IntNullableFilter<"VehicleHistory"> | number | null
   createdAt?: Prisma.DateTimeFilter<"VehicleHistory"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"VehicleHistory"> | Date | string
   vehicle?: Prisma.XOR<Prisma.VehicleScalarRelationFilter, Prisma.VehicleWhereInput>
-  items?: Prisma.VehicleHistoryItemListRelationFilter
 }, "id">
 
 export type VehicleHistoryOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   vehicleId?: Prisma.SortOrder
-  title?: Prisma.SortOrder
-  description?: Prisma.SortOrderInput | Prisma.SortOrder
   eventType?: Prisma.SortOrder
+  description?: Prisma.SortOrder
+  kilometerSnapshot?: Prisma.SortOrderInput | Prisma.SortOrder
   eventDate?: Prisma.SortOrder
-  kilometer?: Prisma.SortOrderInput | Prisma.SortOrder
-  previousKilometer?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.VehicleHistoryCountOrderByAggregateInput
@@ -321,93 +292,75 @@ export type VehicleHistoryScalarWhereWithAggregatesInput = {
   NOT?: Prisma.VehicleHistoryScalarWhereWithAggregatesInput | Prisma.VehicleHistoryScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"VehicleHistory"> | string
   vehicleId?: Prisma.StringWithAggregatesFilter<"VehicleHistory"> | string
-  title?: Prisma.StringWithAggregatesFilter<"VehicleHistory"> | string
-  description?: Prisma.StringNullableWithAggregatesFilter<"VehicleHistory"> | string | null
   eventType?: Prisma.StringWithAggregatesFilter<"VehicleHistory"> | string
+  description?: Prisma.StringWithAggregatesFilter<"VehicleHistory"> | string
+  kilometerSnapshot?: Prisma.IntNullableWithAggregatesFilter<"VehicleHistory"> | number | null
   eventDate?: Prisma.DateTimeWithAggregatesFilter<"VehicleHistory"> | Date | string
-  kilometer?: Prisma.IntNullableWithAggregatesFilter<"VehicleHistory"> | number | null
-  previousKilometer?: Prisma.IntNullableWithAggregatesFilter<"VehicleHistory"> | number | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"VehicleHistory"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"VehicleHistory"> | Date | string
 }
 
 export type VehicleHistoryCreateInput = {
   id?: string
-  title: string
-  description?: string | null
   eventType: string
-  eventDate: Date | string
-  kilometer?: number | null
-  previousKilometer?: number | null
+  description: string
+  kilometerSnapshot?: number | null
+  eventDate?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
   vehicle: Prisma.VehicleCreateNestedOneWithoutHistoryInput
-  items?: Prisma.VehicleHistoryItemCreateNestedManyWithoutHistoryInput
 }
 
 export type VehicleHistoryUncheckedCreateInput = {
   id?: string
   vehicleId: string
-  title: string
-  description?: string | null
   eventType: string
-  eventDate: Date | string
-  kilometer?: number | null
-  previousKilometer?: number | null
+  description: string
+  kilometerSnapshot?: number | null
+  eventDate?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
-  items?: Prisma.VehicleHistoryItemUncheckedCreateNestedManyWithoutHistoryInput
 }
 
 export type VehicleHistoryUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  title?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   eventType?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  kilometerSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   eventDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  kilometer?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  previousKilometer?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   vehicle?: Prisma.VehicleUpdateOneRequiredWithoutHistoryNestedInput
-  items?: Prisma.VehicleHistoryItemUpdateManyWithoutHistoryNestedInput
 }
 
 export type VehicleHistoryUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   vehicleId?: Prisma.StringFieldUpdateOperationsInput | string
-  title?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   eventType?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  kilometerSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   eventDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  kilometer?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  previousKilometer?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  items?: Prisma.VehicleHistoryItemUncheckedUpdateManyWithoutHistoryNestedInput
 }
 
 export type VehicleHistoryCreateManyInput = {
   id?: string
   vehicleId: string
-  title: string
-  description?: string | null
   eventType: string
-  eventDate: Date | string
-  kilometer?: number | null
-  previousKilometer?: number | null
+  description: string
+  kilometerSnapshot?: number | null
+  eventDate?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type VehicleHistoryUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  title?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   eventType?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  kilometerSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   eventDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  kilometer?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  previousKilometer?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -415,12 +368,10 @@ export type VehicleHistoryUpdateManyMutationInput = {
 export type VehicleHistoryUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   vehicleId?: Prisma.StringFieldUpdateOperationsInput | string
-  title?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   eventType?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  kilometerSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   eventDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  kilometer?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  previousKilometer?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -438,30 +389,25 @@ export type VehicleHistoryOrderByRelationAggregateInput = {
 export type VehicleHistoryCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   vehicleId?: Prisma.SortOrder
-  title?: Prisma.SortOrder
-  description?: Prisma.SortOrder
   eventType?: Prisma.SortOrder
+  description?: Prisma.SortOrder
+  kilometerSnapshot?: Prisma.SortOrder
   eventDate?: Prisma.SortOrder
-  kilometer?: Prisma.SortOrder
-  previousKilometer?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type VehicleHistoryAvgOrderByAggregateInput = {
-  kilometer?: Prisma.SortOrder
-  previousKilometer?: Prisma.SortOrder
+  kilometerSnapshot?: Prisma.SortOrder
 }
 
 export type VehicleHistoryMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   vehicleId?: Prisma.SortOrder
-  title?: Prisma.SortOrder
-  description?: Prisma.SortOrder
   eventType?: Prisma.SortOrder
+  description?: Prisma.SortOrder
+  kilometerSnapshot?: Prisma.SortOrder
   eventDate?: Prisma.SortOrder
-  kilometer?: Prisma.SortOrder
-  previousKilometer?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
@@ -469,24 +415,16 @@ export type VehicleHistoryMaxOrderByAggregateInput = {
 export type VehicleHistoryMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   vehicleId?: Prisma.SortOrder
-  title?: Prisma.SortOrder
-  description?: Prisma.SortOrder
   eventType?: Prisma.SortOrder
+  description?: Prisma.SortOrder
+  kilometerSnapshot?: Prisma.SortOrder
   eventDate?: Prisma.SortOrder
-  kilometer?: Prisma.SortOrder
-  previousKilometer?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type VehicleHistorySumOrderByAggregateInput = {
-  kilometer?: Prisma.SortOrder
-  previousKilometer?: Prisma.SortOrder
-}
-
-export type VehicleHistoryScalarRelationFilter = {
-  is?: Prisma.VehicleHistoryWhereInput
-  isNot?: Prisma.VehicleHistoryWhereInput
+  kilometerSnapshot?: Prisma.SortOrder
 }
 
 export type VehicleHistoryCreateNestedManyWithoutVehicleInput = {
@@ -531,44 +469,24 @@ export type VehicleHistoryUncheckedUpdateManyWithoutVehicleNestedInput = {
   deleteMany?: Prisma.VehicleHistoryScalarWhereInput | Prisma.VehicleHistoryScalarWhereInput[]
 }
 
-export type VehicleHistoryCreateNestedOneWithoutItemsInput = {
-  create?: Prisma.XOR<Prisma.VehicleHistoryCreateWithoutItemsInput, Prisma.VehicleHistoryUncheckedCreateWithoutItemsInput>
-  connectOrCreate?: Prisma.VehicleHistoryCreateOrConnectWithoutItemsInput
-  connect?: Prisma.VehicleHistoryWhereUniqueInput
-}
-
-export type VehicleHistoryUpdateOneRequiredWithoutItemsNestedInput = {
-  create?: Prisma.XOR<Prisma.VehicleHistoryCreateWithoutItemsInput, Prisma.VehicleHistoryUncheckedCreateWithoutItemsInput>
-  connectOrCreate?: Prisma.VehicleHistoryCreateOrConnectWithoutItemsInput
-  upsert?: Prisma.VehicleHistoryUpsertWithoutItemsInput
-  connect?: Prisma.VehicleHistoryWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.VehicleHistoryUpdateToOneWithWhereWithoutItemsInput, Prisma.VehicleHistoryUpdateWithoutItemsInput>, Prisma.VehicleHistoryUncheckedUpdateWithoutItemsInput>
-}
-
 export type VehicleHistoryCreateWithoutVehicleInput = {
   id?: string
-  title: string
-  description?: string | null
   eventType: string
-  eventDate: Date | string
-  kilometer?: number | null
-  previousKilometer?: number | null
+  description: string
+  kilometerSnapshot?: number | null
+  eventDate?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
-  items?: Prisma.VehicleHistoryItemCreateNestedManyWithoutHistoryInput
 }
 
 export type VehicleHistoryUncheckedCreateWithoutVehicleInput = {
   id?: string
-  title: string
-  description?: string | null
   eventType: string
-  eventDate: Date | string
-  kilometer?: number | null
-  previousKilometer?: number | null
+  description: string
+  kilometerSnapshot?: number | null
+  eventDate?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
-  items?: Prisma.VehicleHistoryItemUncheckedCreateNestedManyWithoutHistoryInput
 }
 
 export type VehicleHistoryCreateOrConnectWithoutVehicleInput = {
@@ -603,190 +521,75 @@ export type VehicleHistoryScalarWhereInput = {
   NOT?: Prisma.VehicleHistoryScalarWhereInput | Prisma.VehicleHistoryScalarWhereInput[]
   id?: Prisma.StringFilter<"VehicleHistory"> | string
   vehicleId?: Prisma.StringFilter<"VehicleHistory"> | string
-  title?: Prisma.StringFilter<"VehicleHistory"> | string
-  description?: Prisma.StringNullableFilter<"VehicleHistory"> | string | null
   eventType?: Prisma.StringFilter<"VehicleHistory"> | string
+  description?: Prisma.StringFilter<"VehicleHistory"> | string
+  kilometerSnapshot?: Prisma.IntNullableFilter<"VehicleHistory"> | number | null
   eventDate?: Prisma.DateTimeFilter<"VehicleHistory"> | Date | string
-  kilometer?: Prisma.IntNullableFilter<"VehicleHistory"> | number | null
-  previousKilometer?: Prisma.IntNullableFilter<"VehicleHistory"> | number | null
   createdAt?: Prisma.DateTimeFilter<"VehicleHistory"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"VehicleHistory"> | Date | string
 }
 
-export type VehicleHistoryCreateWithoutItemsInput = {
-  id?: string
-  title: string
-  description?: string | null
-  eventType: string
-  eventDate: Date | string
-  kilometer?: number | null
-  previousKilometer?: number | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  vehicle: Prisma.VehicleCreateNestedOneWithoutHistoryInput
-}
-
-export type VehicleHistoryUncheckedCreateWithoutItemsInput = {
-  id?: string
-  vehicleId: string
-  title: string
-  description?: string | null
-  eventType: string
-  eventDate: Date | string
-  kilometer?: number | null
-  previousKilometer?: number | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-}
-
-export type VehicleHistoryCreateOrConnectWithoutItemsInput = {
-  where: Prisma.VehicleHistoryWhereUniqueInput
-  create: Prisma.XOR<Prisma.VehicleHistoryCreateWithoutItemsInput, Prisma.VehicleHistoryUncheckedCreateWithoutItemsInput>
-}
-
-export type VehicleHistoryUpsertWithoutItemsInput = {
-  update: Prisma.XOR<Prisma.VehicleHistoryUpdateWithoutItemsInput, Prisma.VehicleHistoryUncheckedUpdateWithoutItemsInput>
-  create: Prisma.XOR<Prisma.VehicleHistoryCreateWithoutItemsInput, Prisma.VehicleHistoryUncheckedCreateWithoutItemsInput>
-  where?: Prisma.VehicleHistoryWhereInput
-}
-
-export type VehicleHistoryUpdateToOneWithWhereWithoutItemsInput = {
-  where?: Prisma.VehicleHistoryWhereInput
-  data: Prisma.XOR<Prisma.VehicleHistoryUpdateWithoutItemsInput, Prisma.VehicleHistoryUncheckedUpdateWithoutItemsInput>
-}
-
-export type VehicleHistoryUpdateWithoutItemsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  title?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  eventType?: Prisma.StringFieldUpdateOperationsInput | string
-  eventDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  kilometer?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  previousKilometer?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  vehicle?: Prisma.VehicleUpdateOneRequiredWithoutHistoryNestedInput
-}
-
-export type VehicleHistoryUncheckedUpdateWithoutItemsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  vehicleId?: Prisma.StringFieldUpdateOperationsInput | string
-  title?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  eventType?: Prisma.StringFieldUpdateOperationsInput | string
-  eventDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  kilometer?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  previousKilometer?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
 export type VehicleHistoryCreateManyVehicleInput = {
   id?: string
-  title: string
-  description?: string | null
   eventType: string
-  eventDate: Date | string
-  kilometer?: number | null
-  previousKilometer?: number | null
+  description: string
+  kilometerSnapshot?: number | null
+  eventDate?: Date | string
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type VehicleHistoryUpdateWithoutVehicleInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  title?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   eventType?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  kilometerSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   eventDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  kilometer?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  previousKilometer?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  items?: Prisma.VehicleHistoryItemUpdateManyWithoutHistoryNestedInput
 }
 
 export type VehicleHistoryUncheckedUpdateWithoutVehicleInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  title?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   eventType?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  kilometerSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   eventDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  kilometer?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  previousKilometer?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  items?: Prisma.VehicleHistoryItemUncheckedUpdateManyWithoutHistoryNestedInput
 }
 
 export type VehicleHistoryUncheckedUpdateManyWithoutVehicleInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  title?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   eventType?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  kilometerSnapshot?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   eventDate?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  kilometer?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  previousKilometer?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-
-/**
- * Count Type VehicleHistoryCountOutputType
- */
-
-export type VehicleHistoryCountOutputType = {
-  items: number
-}
-
-export type VehicleHistoryCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  items?: boolean | VehicleHistoryCountOutputTypeCountItemsArgs
-}
-
-/**
- * VehicleHistoryCountOutputType without action
- */
-export type VehicleHistoryCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the VehicleHistoryCountOutputType
-   */
-  select?: Prisma.VehicleHistoryCountOutputTypeSelect<ExtArgs> | null
-}
-
-/**
- * VehicleHistoryCountOutputType without action
- */
-export type VehicleHistoryCountOutputTypeCountItemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.VehicleHistoryItemWhereInput
-}
 
 
 export type VehicleHistorySelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   vehicleId?: boolean
-  title?: boolean
-  description?: boolean
   eventType?: boolean
+  description?: boolean
+  kilometerSnapshot?: boolean
   eventDate?: boolean
-  kilometer?: boolean
-  previousKilometer?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   vehicle?: boolean | Prisma.VehicleDefaultArgs<ExtArgs>
-  items?: boolean | Prisma.VehicleHistory$itemsArgs<ExtArgs>
-  _count?: boolean | Prisma.VehicleHistoryCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["vehicleHistory"]>
 
 export type VehicleHistorySelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   vehicleId?: boolean
-  title?: boolean
-  description?: boolean
   eventType?: boolean
+  description?: boolean
+  kilometerSnapshot?: boolean
   eventDate?: boolean
-  kilometer?: boolean
-  previousKilometer?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   vehicle?: boolean | Prisma.VehicleDefaultArgs<ExtArgs>
@@ -795,12 +598,10 @@ export type VehicleHistorySelectCreateManyAndReturn<ExtArgs extends runtime.Type
 export type VehicleHistorySelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
   vehicleId?: boolean
-  title?: boolean
-  description?: boolean
   eventType?: boolean
+  description?: boolean
+  kilometerSnapshot?: boolean
   eventDate?: boolean
-  kilometer?: boolean
-  previousKilometer?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   vehicle?: boolean | Prisma.VehicleDefaultArgs<ExtArgs>
@@ -809,21 +610,17 @@ export type VehicleHistorySelectUpdateManyAndReturn<ExtArgs extends runtime.Type
 export type VehicleHistorySelectScalar = {
   id?: boolean
   vehicleId?: boolean
-  title?: boolean
-  description?: boolean
   eventType?: boolean
+  description?: boolean
+  kilometerSnapshot?: boolean
   eventDate?: boolean
-  kilometer?: boolean
-  previousKilometer?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type VehicleHistoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "vehicleId" | "title" | "description" | "eventType" | "eventDate" | "kilometer" | "previousKilometer" | "createdAt" | "updatedAt", ExtArgs["result"]["vehicleHistory"]>
+export type VehicleHistoryOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "vehicleId" | "eventType" | "description" | "kilometerSnapshot" | "eventDate" | "createdAt" | "updatedAt", ExtArgs["result"]["vehicleHistory"]>
 export type VehicleHistoryInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   vehicle?: boolean | Prisma.VehicleDefaultArgs<ExtArgs>
-  items?: boolean | Prisma.VehicleHistory$itemsArgs<ExtArgs>
-  _count?: boolean | Prisma.VehicleHistoryCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type VehicleHistoryIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   vehicle?: boolean | Prisma.VehicleDefaultArgs<ExtArgs>
@@ -836,17 +633,14 @@ export type $VehicleHistoryPayload<ExtArgs extends runtime.Types.Extensions.Inte
   name: "VehicleHistory"
   objects: {
     vehicle: Prisma.$VehiclePayload<ExtArgs>
-    items: Prisma.$VehicleHistoryItemPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     vehicleId: string
-    title: string
-    description: string | null
     eventType: string
+    description: string
+    kilometerSnapshot: number | null
     eventDate: Date
-    kilometer: number | null
-    previousKilometer: number | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["vehicleHistory"]>
@@ -1244,7 +1038,6 @@ readonly fields: VehicleHistoryFieldRefs;
 export interface Prisma__VehicleHistoryClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   vehicle<T extends Prisma.VehicleDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.VehicleDefaultArgs<ExtArgs>>): Prisma.Prisma__VehicleClient<runtime.Types.Result.GetResult<Prisma.$VehiclePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  items<T extends Prisma.VehicleHistory$itemsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.VehicleHistory$itemsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$VehicleHistoryItemPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1276,12 +1069,10 @@ export interface Prisma__VehicleHistoryClient<T, Null = never, ExtArgs extends r
 export interface VehicleHistoryFieldRefs {
   readonly id: Prisma.FieldRef<"VehicleHistory", 'String'>
   readonly vehicleId: Prisma.FieldRef<"VehicleHistory", 'String'>
-  readonly title: Prisma.FieldRef<"VehicleHistory", 'String'>
-  readonly description: Prisma.FieldRef<"VehicleHistory", 'String'>
   readonly eventType: Prisma.FieldRef<"VehicleHistory", 'String'>
+  readonly description: Prisma.FieldRef<"VehicleHistory", 'String'>
+  readonly kilometerSnapshot: Prisma.FieldRef<"VehicleHistory", 'Int'>
   readonly eventDate: Prisma.FieldRef<"VehicleHistory", 'DateTime'>
-  readonly kilometer: Prisma.FieldRef<"VehicleHistory", 'Int'>
-  readonly previousKilometer: Prisma.FieldRef<"VehicleHistory", 'Int'>
   readonly createdAt: Prisma.FieldRef<"VehicleHistory", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"VehicleHistory", 'DateTime'>
 }
@@ -1682,30 +1473,6 @@ export type VehicleHistoryDeleteManyArgs<ExtArgs extends runtime.Types.Extension
    * Limit how many VehicleHistories to delete.
    */
   limit?: number
-}
-
-/**
- * VehicleHistory.items
- */
-export type VehicleHistory$itemsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the VehicleHistoryItem
-   */
-  select?: Prisma.VehicleHistoryItemSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the VehicleHistoryItem
-   */
-  omit?: Prisma.VehicleHistoryItemOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.VehicleHistoryItemInclude<ExtArgs> | null
-  where?: Prisma.VehicleHistoryItemWhereInput
-  orderBy?: Prisma.VehicleHistoryItemOrderByWithRelationInput | Prisma.VehicleHistoryItemOrderByWithRelationInput[]
-  cursor?: Prisma.VehicleHistoryItemWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.VehicleHistoryItemScalarFieldEnum | Prisma.VehicleHistoryItemScalarFieldEnum[]
 }
 
 /**

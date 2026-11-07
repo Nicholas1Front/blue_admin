@@ -27,58 +27,48 @@ export type AggregateVehicle = {
 }
 
 export type VehicleAvgAggregateOutputType = {
-  year: number | null
   currentKilometer: number | null
-  lastMaintenanceKilometer: number | null
 }
 
 export type VehicleSumAggregateOutputType = {
-  year: number | null
   currentKilometer: number | null
-  lastMaintenanceKilometer: number | null
 }
 
 export type VehicleMinAggregateOutputType = {
   id: string | null
-  brand: string | null
-  model: string | null
-  year: number | null
+  title: string | null
   plate: string | null
   renavam: string | null
-  chassisNumber: string | null
+  crlv: string | null
+  crv: string | null
   currentKilometer: number | null
-  lastMaintenanceKilometer: number | null
-  lastMaintenanceDate: Date | null
+  observations: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
 
 export type VehicleMaxAggregateOutputType = {
   id: string | null
-  brand: string | null
-  model: string | null
-  year: number | null
+  title: string | null
   plate: string | null
   renavam: string | null
-  chassisNumber: string | null
+  crlv: string | null
+  crv: string | null
   currentKilometer: number | null
-  lastMaintenanceKilometer: number | null
-  lastMaintenanceDate: Date | null
+  observations: string | null
   createdAt: Date | null
   updatedAt: Date | null
 }
 
 export type VehicleCountAggregateOutputType = {
   id: number
-  brand: number
-  model: number
-  year: number
+  title: number
   plate: number
   renavam: number
-  chassisNumber: number
+  crlv: number
+  crv: number
   currentKilometer: number
-  lastMaintenanceKilometer: number
-  lastMaintenanceDate: number
+  observations: number
   createdAt: number
   updatedAt: number
   _all: number
@@ -86,58 +76,48 @@ export type VehicleCountAggregateOutputType = {
 
 
 export type VehicleAvgAggregateInputType = {
-  year?: true
   currentKilometer?: true
-  lastMaintenanceKilometer?: true
 }
 
 export type VehicleSumAggregateInputType = {
-  year?: true
   currentKilometer?: true
-  lastMaintenanceKilometer?: true
 }
 
 export type VehicleMinAggregateInputType = {
   id?: true
-  brand?: true
-  model?: true
-  year?: true
+  title?: true
   plate?: true
   renavam?: true
-  chassisNumber?: true
+  crlv?: true
+  crv?: true
   currentKilometer?: true
-  lastMaintenanceKilometer?: true
-  lastMaintenanceDate?: true
+  observations?: true
   createdAt?: true
   updatedAt?: true
 }
 
 export type VehicleMaxAggregateInputType = {
   id?: true
-  brand?: true
-  model?: true
-  year?: true
+  title?: true
   plate?: true
   renavam?: true
-  chassisNumber?: true
+  crlv?: true
+  crv?: true
   currentKilometer?: true
-  lastMaintenanceKilometer?: true
-  lastMaintenanceDate?: true
+  observations?: true
   createdAt?: true
   updatedAt?: true
 }
 
 export type VehicleCountAggregateInputType = {
   id?: true
-  brand?: true
-  model?: true
-  year?: true
+  title?: true
   plate?: true
   renavam?: true
-  chassisNumber?: true
+  crlv?: true
+  crv?: true
   currentKilometer?: true
-  lastMaintenanceKilometer?: true
-  lastMaintenanceDate?: true
+  observations?: true
   createdAt?: true
   updatedAt?: true
   _all?: true
@@ -231,15 +211,13 @@ export type VehicleGroupByArgs<ExtArgs extends runtime.Types.Extensions.Internal
 
 export type VehicleGroupByOutputType = {
   id: string
-  brand: string
-  model: string
-  year: number | null
+  title: string
   plate: string | null
   renavam: string | null
-  chassisNumber: string | null
+  crlv: string | null
+  crv: string | null
   currentKilometer: number | null
-  lastMaintenanceKilometer: number | null
-  lastMaintenanceDate: Date | null
+  observations: string | null
   createdAt: Date
   updatedAt: Date
   _count: VehicleCountAggregateOutputType | null
@@ -269,15 +247,13 @@ export type VehicleWhereInput = {
   OR?: Prisma.VehicleWhereInput[]
   NOT?: Prisma.VehicleWhereInput | Prisma.VehicleWhereInput[]
   id?: Prisma.StringFilter<"Vehicle"> | string
-  brand?: Prisma.StringFilter<"Vehicle"> | string
-  model?: Prisma.StringFilter<"Vehicle"> | string
-  year?: Prisma.IntNullableFilter<"Vehicle"> | number | null
+  title?: Prisma.StringFilter<"Vehicle"> | string
   plate?: Prisma.StringNullableFilter<"Vehicle"> | string | null
   renavam?: Prisma.StringNullableFilter<"Vehicle"> | string | null
-  chassisNumber?: Prisma.StringNullableFilter<"Vehicle"> | string | null
+  crlv?: Prisma.StringNullableFilter<"Vehicle"> | string | null
+  crv?: Prisma.StringNullableFilter<"Vehicle"> | string | null
   currentKilometer?: Prisma.IntNullableFilter<"Vehicle"> | number | null
-  lastMaintenanceKilometer?: Prisma.IntNullableFilter<"Vehicle"> | number | null
-  lastMaintenanceDate?: Prisma.DateTimeNullableFilter<"Vehicle"> | Date | string | null
+  observations?: Prisma.StringNullableFilter<"Vehicle"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Vehicle"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Vehicle"> | Date | string
   history?: Prisma.VehicleHistoryListRelationFilter
@@ -285,15 +261,13 @@ export type VehicleWhereInput = {
 
 export type VehicleOrderByWithRelationInput = {
   id?: Prisma.SortOrder
-  brand?: Prisma.SortOrder
-  model?: Prisma.SortOrder
-  year?: Prisma.SortOrderInput | Prisma.SortOrder
+  title?: Prisma.SortOrder
   plate?: Prisma.SortOrderInput | Prisma.SortOrder
   renavam?: Prisma.SortOrderInput | Prisma.SortOrder
-  chassisNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  crlv?: Prisma.SortOrderInput | Prisma.SortOrder
+  crv?: Prisma.SortOrderInput | Prisma.SortOrder
   currentKilometer?: Prisma.SortOrderInput | Prisma.SortOrder
-  lastMaintenanceKilometer?: Prisma.SortOrderInput | Prisma.SortOrder
-  lastMaintenanceDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  observations?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   history?: Prisma.VehicleHistoryOrderByRelationAggregateInput
@@ -303,32 +277,28 @@ export type VehicleWhereUniqueInput = Prisma.AtLeast<{
   id?: string
   plate?: string
   renavam?: string
-  chassisNumber?: string
   AND?: Prisma.VehicleWhereInput | Prisma.VehicleWhereInput[]
   OR?: Prisma.VehicleWhereInput[]
   NOT?: Prisma.VehicleWhereInput | Prisma.VehicleWhereInput[]
-  brand?: Prisma.StringFilter<"Vehicle"> | string
-  model?: Prisma.StringFilter<"Vehicle"> | string
-  year?: Prisma.IntNullableFilter<"Vehicle"> | number | null
+  title?: Prisma.StringFilter<"Vehicle"> | string
+  crlv?: Prisma.StringNullableFilter<"Vehicle"> | string | null
+  crv?: Prisma.StringNullableFilter<"Vehicle"> | string | null
   currentKilometer?: Prisma.IntNullableFilter<"Vehicle"> | number | null
-  lastMaintenanceKilometer?: Prisma.IntNullableFilter<"Vehicle"> | number | null
-  lastMaintenanceDate?: Prisma.DateTimeNullableFilter<"Vehicle"> | Date | string | null
+  observations?: Prisma.StringNullableFilter<"Vehicle"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Vehicle"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Vehicle"> | Date | string
   history?: Prisma.VehicleHistoryListRelationFilter
-}, "id" | "plate" | "renavam" | "chassisNumber">
+}, "id" | "plate" | "renavam">
 
 export type VehicleOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
-  brand?: Prisma.SortOrder
-  model?: Prisma.SortOrder
-  year?: Prisma.SortOrderInput | Prisma.SortOrder
+  title?: Prisma.SortOrder
   plate?: Prisma.SortOrderInput | Prisma.SortOrder
   renavam?: Prisma.SortOrderInput | Prisma.SortOrder
-  chassisNumber?: Prisma.SortOrderInput | Prisma.SortOrder
+  crlv?: Prisma.SortOrderInput | Prisma.SortOrder
+  crv?: Prisma.SortOrderInput | Prisma.SortOrder
   currentKilometer?: Prisma.SortOrderInput | Prisma.SortOrder
-  lastMaintenanceKilometer?: Prisma.SortOrderInput | Prisma.SortOrder
-  lastMaintenanceDate?: Prisma.SortOrderInput | Prisma.SortOrder
+  observations?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   _count?: Prisma.VehicleCountOrderByAggregateInput
@@ -343,30 +313,26 @@ export type VehicleScalarWhereWithAggregatesInput = {
   OR?: Prisma.VehicleScalarWhereWithAggregatesInput[]
   NOT?: Prisma.VehicleScalarWhereWithAggregatesInput | Prisma.VehicleScalarWhereWithAggregatesInput[]
   id?: Prisma.StringWithAggregatesFilter<"Vehicle"> | string
-  brand?: Prisma.StringWithAggregatesFilter<"Vehicle"> | string
-  model?: Prisma.StringWithAggregatesFilter<"Vehicle"> | string
-  year?: Prisma.IntNullableWithAggregatesFilter<"Vehicle"> | number | null
+  title?: Prisma.StringWithAggregatesFilter<"Vehicle"> | string
   plate?: Prisma.StringNullableWithAggregatesFilter<"Vehicle"> | string | null
   renavam?: Prisma.StringNullableWithAggregatesFilter<"Vehicle"> | string | null
-  chassisNumber?: Prisma.StringNullableWithAggregatesFilter<"Vehicle"> | string | null
+  crlv?: Prisma.StringNullableWithAggregatesFilter<"Vehicle"> | string | null
+  crv?: Prisma.StringNullableWithAggregatesFilter<"Vehicle"> | string | null
   currentKilometer?: Prisma.IntNullableWithAggregatesFilter<"Vehicle"> | number | null
-  lastMaintenanceKilometer?: Prisma.IntNullableWithAggregatesFilter<"Vehicle"> | number | null
-  lastMaintenanceDate?: Prisma.DateTimeNullableWithAggregatesFilter<"Vehicle"> | Date | string | null
+  observations?: Prisma.StringNullableWithAggregatesFilter<"Vehicle"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Vehicle"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Vehicle"> | Date | string
 }
 
 export type VehicleCreateInput = {
   id?: string
-  brand: string
-  model: string
-  year?: number | null
+  title: string
   plate?: string | null
   renavam?: string | null
-  chassisNumber?: string | null
+  crlv?: string | null
+  crv?: string | null
   currentKilometer?: number | null
-  lastMaintenanceKilometer?: number | null
-  lastMaintenanceDate?: Date | string | null
+  observations?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   history?: Prisma.VehicleHistoryCreateNestedManyWithoutVehicleInput
@@ -374,15 +340,13 @@ export type VehicleCreateInput = {
 
 export type VehicleUncheckedCreateInput = {
   id?: string
-  brand: string
-  model: string
-  year?: number | null
+  title: string
   plate?: string | null
   renavam?: string | null
-  chassisNumber?: string | null
+  crlv?: string | null
+  crv?: string | null
   currentKilometer?: number | null
-  lastMaintenanceKilometer?: number | null
-  lastMaintenanceDate?: Date | string | null
+  observations?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
   history?: Prisma.VehicleHistoryUncheckedCreateNestedManyWithoutVehicleInput
@@ -390,15 +354,13 @@ export type VehicleUncheckedCreateInput = {
 
 export type VehicleUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  brand?: Prisma.StringFieldUpdateOperationsInput | string
-  model?: Prisma.StringFieldUpdateOperationsInput | string
-  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  title?: Prisma.StringFieldUpdateOperationsInput | string
   plate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   renavam?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  chassisNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  crlv?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  crv?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentKilometer?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  lastMaintenanceKilometer?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  lastMaintenanceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  observations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   history?: Prisma.VehicleHistoryUpdateManyWithoutVehicleNestedInput
@@ -406,15 +368,13 @@ export type VehicleUpdateInput = {
 
 export type VehicleUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  brand?: Prisma.StringFieldUpdateOperationsInput | string
-  model?: Prisma.StringFieldUpdateOperationsInput | string
-  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  title?: Prisma.StringFieldUpdateOperationsInput | string
   plate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   renavam?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  chassisNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  crlv?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  crv?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentKilometer?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  lastMaintenanceKilometer?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  lastMaintenanceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  observations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   history?: Prisma.VehicleHistoryUncheckedUpdateManyWithoutVehicleNestedInput
@@ -422,104 +382,88 @@ export type VehicleUncheckedUpdateInput = {
 
 export type VehicleCreateManyInput = {
   id?: string
-  brand: string
-  model: string
-  year?: number | null
+  title: string
   plate?: string | null
   renavam?: string | null
-  chassisNumber?: string | null
+  crlv?: string | null
+  crv?: string | null
   currentKilometer?: number | null
-  lastMaintenanceKilometer?: number | null
-  lastMaintenanceDate?: Date | string | null
+  observations?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type VehicleUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  brand?: Prisma.StringFieldUpdateOperationsInput | string
-  model?: Prisma.StringFieldUpdateOperationsInput | string
-  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  title?: Prisma.StringFieldUpdateOperationsInput | string
   plate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   renavam?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  chassisNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  crlv?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  crv?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentKilometer?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  lastMaintenanceKilometer?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  lastMaintenanceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  observations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type VehicleUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  brand?: Prisma.StringFieldUpdateOperationsInput | string
-  model?: Prisma.StringFieldUpdateOperationsInput | string
-  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  title?: Prisma.StringFieldUpdateOperationsInput | string
   plate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   renavam?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  chassisNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  crlv?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  crv?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentKilometer?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  lastMaintenanceKilometer?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  lastMaintenanceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  observations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type VehicleCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  brand?: Prisma.SortOrder
-  model?: Prisma.SortOrder
-  year?: Prisma.SortOrder
+  title?: Prisma.SortOrder
   plate?: Prisma.SortOrder
   renavam?: Prisma.SortOrder
-  chassisNumber?: Prisma.SortOrder
+  crlv?: Prisma.SortOrder
+  crv?: Prisma.SortOrder
   currentKilometer?: Prisma.SortOrder
-  lastMaintenanceKilometer?: Prisma.SortOrder
-  lastMaintenanceDate?: Prisma.SortOrder
+  observations?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type VehicleAvgOrderByAggregateInput = {
-  year?: Prisma.SortOrder
   currentKilometer?: Prisma.SortOrder
-  lastMaintenanceKilometer?: Prisma.SortOrder
 }
 
 export type VehicleMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  brand?: Prisma.SortOrder
-  model?: Prisma.SortOrder
-  year?: Prisma.SortOrder
+  title?: Prisma.SortOrder
   plate?: Prisma.SortOrder
   renavam?: Prisma.SortOrder
-  chassisNumber?: Prisma.SortOrder
+  crlv?: Prisma.SortOrder
+  crv?: Prisma.SortOrder
   currentKilometer?: Prisma.SortOrder
-  lastMaintenanceKilometer?: Prisma.SortOrder
-  lastMaintenanceDate?: Prisma.SortOrder
+  observations?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type VehicleMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
-  brand?: Prisma.SortOrder
-  model?: Prisma.SortOrder
-  year?: Prisma.SortOrder
+  title?: Prisma.SortOrder
   plate?: Prisma.SortOrder
   renavam?: Prisma.SortOrder
-  chassisNumber?: Prisma.SortOrder
+  crlv?: Prisma.SortOrder
+  crv?: Prisma.SortOrder
   currentKilometer?: Prisma.SortOrder
-  lastMaintenanceKilometer?: Prisma.SortOrder
-  lastMaintenanceDate?: Prisma.SortOrder
+  observations?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
 }
 
 export type VehicleSumOrderByAggregateInput = {
-  year?: Prisma.SortOrder
   currentKilometer?: Prisma.SortOrder
-  lastMaintenanceKilometer?: Prisma.SortOrder
 }
 
 export type VehicleScalarRelationFilter = {
@@ -551,30 +495,26 @@ export type VehicleUpdateOneRequiredWithoutHistoryNestedInput = {
 
 export type VehicleCreateWithoutHistoryInput = {
   id?: string
-  brand: string
-  model: string
-  year?: number | null
+  title: string
   plate?: string | null
   renavam?: string | null
-  chassisNumber?: string | null
+  crlv?: string | null
+  crv?: string | null
   currentKilometer?: number | null
-  lastMaintenanceKilometer?: number | null
-  lastMaintenanceDate?: Date | string | null
+  observations?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
 export type VehicleUncheckedCreateWithoutHistoryInput = {
   id?: string
-  brand: string
-  model: string
-  year?: number | null
+  title: string
   plate?: string | null
   renavam?: string | null
-  chassisNumber?: string | null
+  crlv?: string | null
+  crv?: string | null
   currentKilometer?: number | null
-  lastMaintenanceKilometer?: number | null
-  lastMaintenanceDate?: Date | string | null
+  observations?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
@@ -597,30 +537,26 @@ export type VehicleUpdateToOneWithWhereWithoutHistoryInput = {
 
 export type VehicleUpdateWithoutHistoryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  brand?: Prisma.StringFieldUpdateOperationsInput | string
-  model?: Prisma.StringFieldUpdateOperationsInput | string
-  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  title?: Prisma.StringFieldUpdateOperationsInput | string
   plate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   renavam?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  chassisNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  crlv?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  crv?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentKilometer?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  lastMaintenanceKilometer?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  lastMaintenanceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  observations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
 export type VehicleUncheckedUpdateWithoutHistoryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
-  brand?: Prisma.StringFieldUpdateOperationsInput | string
-  model?: Prisma.StringFieldUpdateOperationsInput | string
-  year?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
+  title?: Prisma.StringFieldUpdateOperationsInput | string
   plate?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   renavam?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  chassisNumber?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  crlv?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  crv?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   currentKilometer?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  lastMaintenanceKilometer?: Prisma.NullableIntFieldUpdateOperationsInput | number | null
-  lastMaintenanceDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  observations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
@@ -658,15 +594,13 @@ export type VehicleCountOutputTypeCountHistoryArgs<ExtArgs extends runtime.Types
 
 export type VehicleSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  brand?: boolean
-  model?: boolean
-  year?: boolean
+  title?: boolean
   plate?: boolean
   renavam?: boolean
-  chassisNumber?: boolean
+  crlv?: boolean
+  crv?: boolean
   currentKilometer?: boolean
-  lastMaintenanceKilometer?: boolean
-  lastMaintenanceDate?: boolean
+  observations?: boolean
   createdAt?: boolean
   updatedAt?: boolean
   history?: boolean | Prisma.Vehicle$historyArgs<ExtArgs>
@@ -675,50 +609,44 @@ export type VehicleSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs 
 
 export type VehicleSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  brand?: boolean
-  model?: boolean
-  year?: boolean
+  title?: boolean
   plate?: boolean
   renavam?: boolean
-  chassisNumber?: boolean
+  crlv?: boolean
+  crv?: boolean
   currentKilometer?: boolean
-  lastMaintenanceKilometer?: boolean
-  lastMaintenanceDate?: boolean
+  observations?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["vehicle"]>
 
 export type VehicleSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
-  brand?: boolean
-  model?: boolean
-  year?: boolean
+  title?: boolean
   plate?: boolean
   renavam?: boolean
-  chassisNumber?: boolean
+  crlv?: boolean
+  crv?: boolean
   currentKilometer?: boolean
-  lastMaintenanceKilometer?: boolean
-  lastMaintenanceDate?: boolean
+  observations?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }, ExtArgs["result"]["vehicle"]>
 
 export type VehicleSelectScalar = {
   id?: boolean
-  brand?: boolean
-  model?: boolean
-  year?: boolean
+  title?: boolean
   plate?: boolean
   renavam?: boolean
-  chassisNumber?: boolean
+  crlv?: boolean
+  crv?: boolean
   currentKilometer?: boolean
-  lastMaintenanceKilometer?: boolean
-  lastMaintenanceDate?: boolean
+  observations?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type VehicleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "brand" | "model" | "year" | "plate" | "renavam" | "chassisNumber" | "currentKilometer" | "lastMaintenanceKilometer" | "lastMaintenanceDate" | "createdAt" | "updatedAt", ExtArgs["result"]["vehicle"]>
+export type VehicleOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "title" | "plate" | "renavam" | "crlv" | "crv" | "currentKilometer" | "observations" | "createdAt" | "updatedAt", ExtArgs["result"]["vehicle"]>
 export type VehicleInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   history?: boolean | Prisma.Vehicle$historyArgs<ExtArgs>
   _count?: boolean | Prisma.VehicleCountOutputTypeDefaultArgs<ExtArgs>
@@ -733,15 +661,13 @@ export type $VehiclePayload<ExtArgs extends runtime.Types.Extensions.InternalArg
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
-    brand: string
-    model: string
-    year: number | null
+    title: string
     plate: string | null
     renavam: string | null
-    chassisNumber: string | null
+    crlv: string | null
+    crv: string | null
     currentKilometer: number | null
-    lastMaintenanceKilometer: number | null
-    lastMaintenanceDate: Date | null
+    observations: string | null
     createdAt: Date
     updatedAt: Date
   }, ExtArgs["result"]["vehicle"]>
@@ -1169,15 +1095,13 @@ export interface Prisma__VehicleClient<T, Null = never, ExtArgs extends runtime.
  */
 export interface VehicleFieldRefs {
   readonly id: Prisma.FieldRef<"Vehicle", 'String'>
-  readonly brand: Prisma.FieldRef<"Vehicle", 'String'>
-  readonly model: Prisma.FieldRef<"Vehicle", 'String'>
-  readonly year: Prisma.FieldRef<"Vehicle", 'Int'>
+  readonly title: Prisma.FieldRef<"Vehicle", 'String'>
   readonly plate: Prisma.FieldRef<"Vehicle", 'String'>
   readonly renavam: Prisma.FieldRef<"Vehicle", 'String'>
-  readonly chassisNumber: Prisma.FieldRef<"Vehicle", 'String'>
+  readonly crlv: Prisma.FieldRef<"Vehicle", 'String'>
+  readonly crv: Prisma.FieldRef<"Vehicle", 'String'>
   readonly currentKilometer: Prisma.FieldRef<"Vehicle", 'Int'>
-  readonly lastMaintenanceKilometer: Prisma.FieldRef<"Vehicle", 'Int'>
-  readonly lastMaintenanceDate: Prisma.FieldRef<"Vehicle", 'DateTime'>
+  readonly observations: Prisma.FieldRef<"Vehicle", 'String'>
   readonly createdAt: Prisma.FieldRef<"Vehicle", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Vehicle", 'DateTime'>
 }

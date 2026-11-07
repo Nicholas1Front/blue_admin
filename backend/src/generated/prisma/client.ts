@@ -126,8 +126,3 @@ export type Vehicle = Prisma.VehicleModel
  * 
  */
 export type VehicleHistory = Prisma.VehicleHistoryModel
-/**
- * Model VehicleHistoryItem
- * 
- */
-export type VehicleHistoryItem = Prisma.VehicleHistoryItemModel

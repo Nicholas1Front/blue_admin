@@ -413,8 +413,7 @@ export const ModelName = {
   BudgetPrice: 'BudgetPrice',
   BudgetHistory: 'BudgetHistory',
   Vehicle: 'Vehicle',
-  VehicleHistory: 'VehicleHistory',
-  VehicleHistoryItem: 'VehicleHistoryItem'
+  VehicleHistory: 'VehicleHistory'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -430,7 +429,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "client" | "clientContact" | "equipament" | "financialCategory" | "financialTransaction" | "monthlyExpense" | "service" | "serviceHistory" | "serviceActivity" | "budget" | "budgetItem" | "budgetCategory" | "budgetPrice" | "budgetHistory" | "vehicle" | "vehicleHistory" | "vehicleHistoryItem"
+    modelProps: "user" | "client" | "clientContact" | "equipament" | "financialCategory" | "financialTransaction" | "monthlyExpense" | "service" | "serviceHistory" | "serviceActivity" | "budget" | "budgetItem" | "budgetCategory" | "budgetPrice" | "budgetHistory" | "vehicle" | "vehicleHistory"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1692,80 +1691,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    VehicleHistoryItem: {
-      payload: Prisma.$VehicleHistoryItemPayload<ExtArgs>
-      fields: Prisma.VehicleHistoryItemFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.VehicleHistoryItemFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$VehicleHistoryItemPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.VehicleHistoryItemFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$VehicleHistoryItemPayload>
-        }
-        findFirst: {
-          args: Prisma.VehicleHistoryItemFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$VehicleHistoryItemPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.VehicleHistoryItemFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$VehicleHistoryItemPayload>
-        }
-        findMany: {
-          args: Prisma.VehicleHistoryItemFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$VehicleHistoryItemPayload>[]
-        }
-        create: {
-          args: Prisma.VehicleHistoryItemCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$VehicleHistoryItemPayload>
-        }
-        createMany: {
-          args: Prisma.VehicleHistoryItemCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.VehicleHistoryItemCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$VehicleHistoryItemPayload>[]
-        }
-        delete: {
-          args: Prisma.VehicleHistoryItemDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$VehicleHistoryItemPayload>
-        }
-        update: {
-          args: Prisma.VehicleHistoryItemUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$VehicleHistoryItemPayload>
-        }
-        deleteMany: {
-          args: Prisma.VehicleHistoryItemDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.VehicleHistoryItemUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.VehicleHistoryItemUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$VehicleHistoryItemPayload>[]
-        }
-        upsert: {
-          args: Prisma.VehicleHistoryItemUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$VehicleHistoryItemPayload>
-        }
-        aggregate: {
-          args: Prisma.VehicleHistoryItemAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateVehicleHistoryItem>
-        }
-        groupBy: {
-          args: Prisma.VehicleHistoryItemGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.VehicleHistoryItemGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.VehicleHistoryItemCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.VehicleHistoryItemCountAggregateOutputType> | number
-        }
-      }
-    }
   }
 } & {
   other: {
@@ -2018,15 +1943,13 @@ export type BudgetHistoryScalarFieldEnum = (typeof BudgetHistoryScalarFieldEnum)
 
 export const VehicleScalarFieldEnum = {
   id: 'id',
-  brand: 'brand',
-  model: 'model',
-  year: 'year',
+  title: 'title',
   plate: 'plate',
   renavam: 'renavam',
-  chassisNumber: 'chassisNumber',
+  crlv: 'crlv',
+  crv: 'crv',
   currentKilometer: 'currentKilometer',
-  lastMaintenanceKilometer: 'lastMaintenanceKilometer',
-  lastMaintenanceDate: 'lastMaintenanceDate',
+  observations: 'observations',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
@@ -2037,29 +1960,15 @@ export type VehicleScalarFieldEnum = (typeof VehicleScalarFieldEnum)[keyof typeo
 export const VehicleHistoryScalarFieldEnum = {
   id: 'id',
   vehicleId: 'vehicleId',
-  title: 'title',
-  description: 'description',
   eventType: 'eventType',
+  description: 'description',
+  kilometerSnapshot: 'kilometerSnapshot',
   eventDate: 'eventDate',
-  kilometer: 'kilometer',
-  previousKilometer: 'previousKilometer',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'
 } as const
 
 export type VehicleHistoryScalarFieldEnum = (typeof VehicleHistoryScalarFieldEnum)[keyof typeof VehicleHistoryScalarFieldEnum]
-
-
-export const VehicleHistoryItemScalarFieldEnum = {
-  id: 'id',
-  historyId: 'historyId',
-  title: 'title',
-  description: 'description',
-  createdAt: 'createdAt',
-  updatedAt: 'updatedAt'
-} as const
-
-export type VehicleHistoryItemScalarFieldEnum = (typeof VehicleHistoryItemScalarFieldEnum)[keyof typeof VehicleHistoryItemScalarFieldEnum]
 
 
 export const SortOrder = {
@@ -2336,7 +2245,6 @@ export type GlobalOmitConfig = {
   budgetHistory?: Prisma.BudgetHistoryOmit
   vehicle?: Prisma.VehicleOmit
   vehicleHistory?: Prisma.VehicleHistoryOmit
-  vehicleHistoryItem?: Prisma.VehicleHistoryItemOmit
 }
 
 /* Types for Logging */
