@@ -65,7 +65,10 @@ export const ModelName = {
   BudgetItem: 'BudgetItem',
   BudgetCategory: 'BudgetCategory',
   BudgetPrice: 'BudgetPrice',
-  BudgetHistory: 'BudgetHistory'
+  BudgetHistory: 'BudgetHistory',
+  Vehicle: 'Vehicle',
+  VehicleHistory: 'VehicleHistory',
+  VehicleHistoryItem: 'VehicleHistoryItem'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -293,6 +296,52 @@ export const BudgetHistoryScalarFieldEnum = {
 } as const
 
 export type BudgetHistoryScalarFieldEnum = (typeof BudgetHistoryScalarFieldEnum)[keyof typeof BudgetHistoryScalarFieldEnum]
+
+
+export const VehicleScalarFieldEnum = {
+  id: 'id',
+  brand: 'brand',
+  model: 'model',
+  year: 'year',
+  plate: 'plate',
+  renavam: 'renavam',
+  chassisNumber: 'chassisNumber',
+  currentKilometer: 'currentKilometer',
+  lastMaintenanceKilometer: 'lastMaintenanceKilometer',
+  lastMaintenanceDate: 'lastMaintenanceDate',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type VehicleScalarFieldEnum = (typeof VehicleScalarFieldEnum)[keyof typeof VehicleScalarFieldEnum]
+
+
+export const VehicleHistoryScalarFieldEnum = {
+  id: 'id',
+  vehicleId: 'vehicleId',
+  title: 'title',
+  description: 'description',
+  eventType: 'eventType',
+  eventDate: 'eventDate',
+  kilometer: 'kilometer',
+  previousKilometer: 'previousKilometer',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type VehicleHistoryScalarFieldEnum = (typeof VehicleHistoryScalarFieldEnum)[keyof typeof VehicleHistoryScalarFieldEnum]
+
+
+export const VehicleHistoryItemScalarFieldEnum = {
+  id: 'id',
+  historyId: 'historyId',
+  title: 'title',
+  description: 'description',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type VehicleHistoryItemScalarFieldEnum = (typeof VehicleHistoryItemScalarFieldEnum)[keyof typeof VehicleHistoryItemScalarFieldEnum]
 
 
 export const SortOrder = {

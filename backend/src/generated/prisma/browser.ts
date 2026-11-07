@@ -92,3 +92,18 @@ export type BudgetPrice = Prisma.BudgetPriceModel
  * 
  */
 export type BudgetHistory = Prisma.BudgetHistoryModel
+/**
+ * Model Vehicle
+ * 
+ */
+export type Vehicle = Prisma.VehicleModel
+/**
+ * Model VehicleHistory
+ * 
+ */
+export type VehicleHistory = Prisma.VehicleHistoryModel
+/**
+ * Model VehicleHistoryItem
+ * 
+ */
+export type VehicleHistoryItem = Prisma.VehicleHistoryItemModel

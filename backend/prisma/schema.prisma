@@ -258,3 +258,59 @@ model BudgetHistory {
   @@index([budgetId, createdAt])
   @@map("budgets_history")
 }
+
+
+model Vehicle {
+  id                       String   @id @default(uuid())
+  brand                    String
+  model                    String
+  year                     Int?
+  plate                    String?  @unique
+  renavam                  String?  @unique
+  chassisNumber            String?  @unique @map("chassis_number")
+  currentKilometer         Int?     @map("current_kilometer")
+  lastMaintenanceKilometer Int?     @map("last_maintenance_kilometer")
+  lastMaintenanceDate      DateTime? @map("last_maintenance_date")
+  createdAt                DateTime @default(now()) @map("created_at")
+  updatedAt                DateTime @updatedAt @map("updated_at")
+
+  history VehicleHistory[]
+
+  @@map("vehicles")
+}
+
+model VehicleHistory {
+  id                String   @id @default(uuid())
+  vehicleId         String   @map("vehicle_id")
+  title             String
+  description       String?
+  eventType         String   @map("event_type")
+  eventDate         DateTime @map("event_date")
+  kilometer         Int?
+  previousKilometer Int?     @map("previous_kilometer")
+  createdAt         DateTime @default(now()) @map("created_at")
+  updatedAt         DateTime @updatedAt @map("updated_at")
+
+  vehicle Vehicle             @relation(fields: [vehicleId], references: [id], onDelete: Restrict)
+  items   VehicleHistoryItem[]
+
+  @@index([vehicleId, eventDate])
+  @@index([eventType, eventDate])
+  @@map("vehicles_history")
+}
+
+model VehicleHistoryItem {
+  id          String   @id @default(uuid())
+  historyId   String   @map("history_id")
+  title       String
+  description String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  history VehicleHistory @relation(fields: [historyId], references: [id], onDelete: Cascade)
+
+  @@index([historyId])
+  @@index([title])
+  @@map("vehicles_history_items")
+}
+
