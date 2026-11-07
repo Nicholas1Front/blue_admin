@@ -18,7 +18,6 @@ export const updateVehicleSchema = z.object({
     renavam: nullableText,
     crlv: nullableText,
     crv: nullableText,
-    currentKilometer: z.coerce.number().int().min(0).nullable().optional(),
     observations: z.string().trim().nullable().optional()
 }).refine(
     data => Object.keys(data).length > 0,
