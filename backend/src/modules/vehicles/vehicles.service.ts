@@ -1,6 +1,5 @@
 import { AppError } from '../../shared/errors/AppError.js'
 import { removeUndefined } from '../../shared/helpers/objects/removeUndefined.js'
-import { undefinedToNull } from '../../shared/helpers/objects/undefinedToNull.js'
 import vehiclesRepository from './vehicles.repository.js'
 import type {
     createVehicleDTO,
@@ -10,8 +9,7 @@ import type {
 
 class VehiclesService {
     async create(data: createVehicleDTO) {
-        const cleanedData = undefinedToNull(data)
-        const duplicate = await vehiclesRepository.findDuplicate(cleanedData.plate, cleanedData.renavam)
+        const duplicate = await vehiclesRepository.findDuplicate(data.plate, data.renavam)
 
         if (duplicate) {
             throw new AppError(
