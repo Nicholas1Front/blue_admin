@@ -236,8 +236,8 @@ class BudgetQueriesService {
         ) as Record<string, number>
 
         const budgetCount = monthly.reduce((total, month) => total + month.budgetCount, 0)
-        const openCount = statusCounts.rascunho + statusCounts.enviado
-        const awaitingResponseCount = statusCounts.enviado
+        const openCount = (statusCounts.rascunho ?? 0) + (statusCounts.enviado ?? 0)
+        const awaitingResponseCount = statusCounts.enviado ?? 0
 
         return {
             year: filters.year,
