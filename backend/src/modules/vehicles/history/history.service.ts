@@ -1,4 +1,5 @@
 import { AppError } from '../../../shared/errors/AppError.js'
+import { removeUndefined } from '../../../shared/helpers/objects/removeUndefined.js'
 import vehicleHistoryRepository from './history.repository.js'
 import type {
     createVehicleHistoryDTO,
@@ -33,7 +34,8 @@ class VehicleHistoryService {
             )
         }
 
-        return vehicleHistoryRepository.update(id, data)
+        const cleanedData = removeUndefined(data)
+        return vehicleHistoryRepository.update(id, cleanedData)
     }
 
     async delete(id: string) {
