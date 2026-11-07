@@ -1,5 +1,6 @@
+import { Prisma } from '../../generated/prisma/client.js'
 import { prisma } from '../../shared/database/prisma.js'
-import type { createVehicleDTO, updateVehicleDTO } from './vehicles.schema.js'
+import type { createVehicleDTO } from './vehicles.schema.js'
 
 class VehiclesRepository {
     create(data: createVehicleDTO) {
@@ -35,7 +36,7 @@ class VehiclesRepository {
         })
     }
 
-    update(id: string, data: updateVehicleDTO) {
+    update(id: string, data: Prisma.VehicleUpdateInput) {
         return prisma.vehicle.update({
             where: { id },
             data
