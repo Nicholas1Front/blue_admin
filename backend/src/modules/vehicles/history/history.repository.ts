@@ -1,8 +1,6 @@
 import { Prisma } from '../../../generated/prisma/client.js'
 import { prisma } from '../../../shared/database/prisma.js'
-import type {
-    createVehicleHistoryDTO,
-} from './history.schema.js'
+import type { createVehicleHistoryDTO } from './history.schema.js'
 
 class VehicleHistoryRepository {
     vehicleExists(vehicleId: string) {
