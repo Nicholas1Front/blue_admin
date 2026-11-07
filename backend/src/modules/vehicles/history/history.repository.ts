@@ -1,7 +1,7 @@
+import { Prisma } from '../../../generated/prisma/client.js'
 import { prisma } from '../../../shared/database/prisma.js'
 import type {
     createVehicleHistoryDTO,
-    updateVehicleHistoryDTO
 } from './history.schema.js'
 
 class VehicleHistoryRepository {
@@ -28,7 +28,7 @@ class VehicleHistoryRepository {
         return prisma.vehicleHistory.findUnique({ where: { id } })
     }
 
-    update(id: string, data: updateVehicleHistoryDTO) {
+    update(id: string, data: Prisma.VehicleHistoryUpdateInput) {
         return prisma.vehicleHistory.update({
             where: { id },
             data
