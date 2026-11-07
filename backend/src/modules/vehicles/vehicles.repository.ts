@@ -22,7 +22,7 @@ class VehiclesRepository {
     }
 
     findDuplicate(plate?: string | null, renavam?: string | null, exceptId?: string) {
-        const identifiers = []
+        const identifiers: Prisma.VehicleWhereInput[] = []
         if (plate) identifiers.push({ plate })
         if (renavam) identifiers.push({ renavam })
         if (identifiers.length === 0) return null
