@@ -62,6 +62,17 @@ class VehiclesService {
             )
         }
 
+        if (data.isReset && (
+            vehicle.currentKilometer === null ||
+            data.kilometer >= vehicle.currentKilometer
+        )) {
+            throw new AppError(
+                'An odometer reset must replace a known reading with a lower reading',
+                400,
+                'INVALID_ODOMETER_RESET'
+            )
+        }
+
         if (data.isReset && !data.description) {
             throw new AppError(
                 'A description is required when registering an odometer reset',
