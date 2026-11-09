@@ -65,10 +65,6 @@ class VehiclesRepository {
         })
     }
 
-    hasHistory(vehicleId: string) {
-        return prisma.vehicleHistory.count({ where: { vehicleId } }).then(count => count > 0)
-    }
-
     delete(id: string) {
         return prisma.vehicle.delete({ where: { id } })
     }
