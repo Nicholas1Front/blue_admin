@@ -90,14 +90,6 @@ class VehiclesService {
         const vehicle = await vehiclesRepository.findById(id)
         if (!vehicle) throw new AppError('Vehicle not found', 404, 'VEHICLE_NOT_FOUND')
 
-        if (await vehiclesRepository.hasHistory(id)) {
-            throw new AppError(
-                'Vehicles with history records cannot be deleted',
-                409,
-                'VEHICLE_HAS_HISTORY'
-            )
-        }
-
         await vehiclesRepository.delete(id)
         return true
     }
