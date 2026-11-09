@@ -168,15 +168,16 @@ class VehicleQueriesRepository {
         }
 
         const where: Prisma.VehicleWhereInput = andFilters.length > 0 ? { AND: andFilters } : {}
-        const matchingHistoryWhere: Prisma.VehicleHistoryWhereInput = {
-            ...historyWhere,
-            ...(filters.search !== undefined && {
-                OR: [
-                    { eventType: contains(filters.search) },
-                    { description: contains(filters.search) }
-                ]
-            })
-        }
+        const matchingHistoryWhere: Prisma.VehicleHistoryWhereInput = hasHistoryFilters
+            ? historyWhere
+            : filters.search !== undefined
+                ? {
+                    OR: [
+                        { eventType: contains(filters.search) },
+                        { description: contains(filters.search) }
+                    ]
+                }
+                : {}
 
         const [total, vehicles] = await Promise.all([
             prisma.vehicle.count({ where }),
@@ -185,9 +186,9 @@ class VehicleQueriesRepository {
                 select: {
                     ...vehicleSummarySelect,
                     history: {
-                        where: Object.keys(matchingHistoryWhere).length > 0
-                            ? matchingHistoryWhere
-                            : undefined,
+                        ...(Object.keys(matchingHistoryWhere).length > 0 && {
+                            where: matchingHistoryWhere
+                        }),
                         take: 5,
                         orderBy: [
                             { eventDate: 'desc' },
