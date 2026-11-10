@@ -23,6 +23,8 @@ import { Budgets } from "./pages/Budgets/Budgets";
 import { BudgetDetails } from "./pages/BudgetDetails/BudgetDetails";
 import { BudgetPrices } from "./pages/BudgetPrices/BudgetPrices";
 import { BudgetMetrics } from "./pages/BudgetMetrics/BudgetMetrics";
+import { Vehicles } from "./pages/Vehicles/Vehicles";
+import { VehicleDetails } from "./pages/VehicleDetails/VehicleDetails";
 
 function App() {
     return (
@@ -82,6 +84,15 @@ function App() {
                                 <Services />
                             </ProtectedRoute>
                         }
+                    />
+
+                    <Route
+                        path="/vehicles"
+                        element={<ProtectedRoute><Vehicles /></ProtectedRoute>}
+                    />
+                    <Route
+                        path="/vehicles/:vehicleId"
+                        element={<ProtectedRoute><VehicleDetails /></ProtectedRoute>}
                     />
 
                     <Route
