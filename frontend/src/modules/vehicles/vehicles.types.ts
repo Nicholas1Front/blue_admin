@@ -136,7 +136,13 @@ export interface FindVehiclesByFilters {
     limit?: number;
 }
 
-export interface VehicleFilteredSummary extends VehicleSummary {
+export interface VehicleFilteredSummary extends Pick<
+    VehicleRecord,
+    "id" | "title" | "plate" | "renavam" | "currentKilometer" | "createdAt" | "updatedAt"
+> {
+    _count: {
+        history: number;
+    };
     history: Array<
         Pick<
             VehicleHistoryEvent,
