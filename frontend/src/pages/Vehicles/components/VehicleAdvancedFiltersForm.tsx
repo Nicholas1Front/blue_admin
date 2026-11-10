@@ -65,6 +65,27 @@ export function VehicleAdvancedFiltersForm({
         );
     }
 
+    function selectField(
+        label: string,
+        key: keyof FilterDraft,
+        options: Array<{ value: string; label: string }>
+    ) {
+        return (
+            <label className="vehicle-filter-field" key={key}>
+                <span>{label}</span>
+                <select
+                    value={String(values[key] ?? "")}
+                    onChange={event => onChange(key, event.target.value || undefined)}
+                >
+                    <option value="">Todos</option>
+                    {options.map(option => (
+                        <option key={option.value} value={option.value}>{option.label}</option>
+                    ))}
+                </select>
+            </label>
+        );
+    }
+
     return (
         <form className="vehicle-filter-form" onSubmit={onSubmit}>
             <div className="vehicle-filter-form__primary">
@@ -120,7 +141,13 @@ export function VehicleAdvancedFiltersForm({
                     <h3>Histórico do veículo</h3>
                     <div className="vehicle-filter-grid">
                         {textField("ID do evento", "historyId")}
-                        {textField("Tipo do evento", "historyEventType", "Ex.: maintenance, issue…")}
+                        {selectField("Tipo do evento", "historyEventType", [
+                            { value: "maintenance", label: "Manutenção" },
+                            { value: "issue", label: "Problema identificado" },
+                            { value: "observation", label: "Observação" },
+                            { value: "problem_solved", label: "Problema resolvido" },
+                            { value: "odometer_reset", label: "Reinicialização do hodômetro" }
+                        ])}
                         {textField("Descrição do evento", "historyDescription")}
                         {numberField("Quilometragem mínima do evento", "historyKilometerMin")}
                         {numberField("Quilometragem máxima do evento", "historyKilometerMax")}

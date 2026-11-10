@@ -39,9 +39,9 @@ export function VehicleHistoryFormModal({ isOpen, event, currentKilometer, isSav
         if (!isOpen) return;
         setEventType(event && event.eventType !== "odometer_reset" ? event.eventType : "maintenance");
         setDescription(event?.description ?? "");
-        setKilometer(event?.kilometerSnapshot == null
-            ? currentKilometer == null ? "" : String(currentKilometer)
-            : String(event.kilometerSnapshot));
+        setKilometer(event
+            ? event.kilometerSnapshot == null ? "" : String(event.kilometerSnapshot)
+            : currentKilometer == null ? "" : String(currentKilometer));
         setEventDate(dateInput(event?.eventDate));
         setError(null);
     }, [isOpen, event, currentKilometer]);

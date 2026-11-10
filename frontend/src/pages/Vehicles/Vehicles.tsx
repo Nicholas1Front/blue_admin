@@ -23,7 +23,7 @@ function VehicleRow({ vehicle }: { vehicle: VehicleSummary }) {
   <span className="vehicles-row__body">
    <span className="vehicles-row__title"><strong>{vehicle.title}</strong><small>{vehicle.plate || "Sem placa"}</small></span>
    <span className="vehicles-row__meta"><span><FontAwesomeIcon icon={faGaugeHigh}/> {km(vehicle.currentKilometer)}</span><span><FontAwesomeIcon icon={faWrench}/> {vehicle.historyCount} {vehicle.historyCount===1?"evento":"eventos"}</span></span>
-   {vehicle.lastEvent ? <span className="vehicles-row__event"><b className={`vehicles-tag vehicles-tag--${tones[vehicle.lastEvent.eventType]}`}>{labels[vehicle.lastEvent.eventType]}</b><span>{vehicle.lastEvent.description}</span><time>{date(vehicle.lastEvent.createdAt)}</time></span> : <span className="vehicles-row__event vehicles-row__event--empty">Nenhum evento registrado</span>}
+   {vehicle.lastEvent ? <span className="vehicles-row__event"><b className={`vehicles-tag vehicles-tag--${tones[vehicle.lastEvent.eventType]}`}>{labels[vehicle.lastEvent.eventType]}</b><span>{vehicle.lastEvent.description}</span><time>Registrado em {date(vehicle.lastEvent.createdAt)}</time></span> : <span className="vehicles-row__event vehicles-row__event--empty">Nenhum evento registrado</span>}
   </span><FontAwesomeIcon className="vehicles-row__arrow" icon={faArrowRight}/>
  </Link>;
 }
