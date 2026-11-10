@@ -126,7 +126,7 @@ export interface FindVehiclesByFilters {
     vehicleUpdatedAtFrom?: string;
     vehicleUpdatedAtTo?: string;
     historyId?: string;
-    historyEventType?: VehicleEventType;
+    historyEventType?: string;
     historyDescription?: string;
     historyKilometerMin?: number;
     historyKilometerMax?: number;
