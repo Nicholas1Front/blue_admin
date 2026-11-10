@@ -5,7 +5,7 @@ import { faCar, faGaugeHigh, faPlus, faRotate, faWrench, faArrowRight } from "@f
 import { AppHeader } from "../../components/AppHeader/AppHeader";
 import { BackLink } from "../../components/BackLink/BackLink";
 import { useVehicleDashboard, useVehicleMutations, useVehiclesByFilters } from "../../modules/vehicles/vehicles.hooks";
-import type { CreateVehicleRequest, FindVehiclesByFilters, VehicleEventType, VehicleSummary } from "../../modules/vehicles/vehicles.types";
+import type { CreateVehicleRequest, FindVehiclesByFilters, VehicleEventType, VehicleFilteredSummary, VehicleSummary } from "../../modules/vehicles/vehicles.types";
 import { VehicleAdvancedFiltersForm } from "./components/VehicleAdvancedFiltersForm";
 import { VehicleFormModal } from "./components/VehicleFormModal";
 import "./Vehicles.css";
@@ -17,13 +17,16 @@ type Draft = Omit<FindVehiclesByFilters,"page"|"limit">;
 const date = (v?:string|null) => v && !Number.isNaN(new Date(v).getTime()) ? new Date(v).toLocaleDateString("pt-BR") : "Não informado";
 const km = (v?:number|null) => v == null ? "Não informado" : new Intl.NumberFormat("pt-BR").format(v)+" km";
 
-function VehicleRow({ vehicle }: { vehicle: VehicleSummary }) {
+function VehicleRow({ vehicle }: { vehicle: VehicleSummary | VehicleFilteredSummary }) {
+ const historyCount = "historyCount" in vehicle ? vehicle.historyCount : vehicle._count.history;
+ const events = "history" in vehicle ? vehicle.history : vehicle.lastEvent ? [vehicle.lastEvent] : [];
+ const isFilteredResult = "history" in vehicle;
  return <Link className="vehicles-row" to={`/vehicles/${encodeURIComponent(vehicle.id)}`}>
   <span className="vehicles-row__icon"><FontAwesomeIcon icon={faCar}/></span>
   <span className="vehicles-row__body">
    <span className="vehicles-row__title"><strong>{vehicle.title}</strong><small>{vehicle.plate || "Sem placa"}</small></span>
-   <span className="vehicles-row__meta"><span><FontAwesomeIcon icon={faGaugeHigh}/> {km(vehicle.currentKilometer)}</span><span><FontAwesomeIcon icon={faWrench}/> {vehicle.historyCount} {vehicle.historyCount===1?"evento":"eventos"}</span></span>
-   {vehicle.lastEvent ? <span className="vehicles-row__event"><b className={`vehicles-tag vehicles-tag--${tones[vehicle.lastEvent.eventType]}`}>{labels[vehicle.lastEvent.eventType]}</b><span>{vehicle.lastEvent.description}</span><time>Registrado em {date(vehicle.lastEvent.createdAt)}</time></span> : <span className="vehicles-row__event vehicles-row__event--empty">Nenhum evento registrado</span>}
+   <span className="vehicles-row__meta"><span><FontAwesomeIcon icon={faGaugeHigh}/> {km(vehicle.currentKilometer)}</span><span><FontAwesomeIcon icon={faWrench}/> {historyCount} {historyCount===1?"evento":"eventos"}</span></span>
+   {events.length > 0 ? <span className="vehicles-row__events">{events.map(event => <span className="vehicles-row__event" key={event.id}><b className={`vehicles-tag vehicles-tag--${tones[event.eventType]}`}>{labels[event.eventType]}</b><span>{event.description}</span><time>{isFilteredResult ? `Evento em ${date(event.eventDate)}` : `Registrado em ${date(event.createdAt)}`}</time></span>)}</span> : <span className="vehicles-row__event vehicles-row__event--empty">Nenhum evento registrado</span>}
   </span><FontAwesomeIcon className="vehicles-row__arrow" icon={faArrowRight}/>
  </Link>;
 }
