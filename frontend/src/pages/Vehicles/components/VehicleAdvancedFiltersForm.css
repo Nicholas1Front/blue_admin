@@ -24,7 +24,8 @@
     font-weight: var(--font-weight-semibold);
 }
 
-.vehicle-filter-field input {
+.vehicle-filter-field input,
+.vehicle-filter-field select {
     width: 100%;
     min-width: 0;
     min-height: var(--control-height-md);
