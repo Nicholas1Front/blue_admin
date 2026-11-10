@@ -16,12 +16,5 @@ export const vehiclesQueryKeys = {
             vehicleId: string | undefined,
             filters: FindVehicleHistoryByPeriodFilters | undefined
         ) => ["vehicles", "queries", "history-by-period", vehicleId ?? null, filters ?? null] as const
-    },
-    history: {
-        all: ["vehicles", "history"] as const,
-        byPeriod: (
-            vehicleId: string | undefined,
-            filters: FindVehicleHistoryByPeriodFilters | undefined
-        ) => ["vehicles", "history", "by-period", vehicleId ?? null, filters ?? null] as const
     }
 } as const;
