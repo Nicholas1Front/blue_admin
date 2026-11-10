@@ -11,7 +11,11 @@ const options: Array<{ value: VehicleHistoryCreatableEventType; label: string }>
 ];
 
 function dateInput(value?: string) {
-    if (!value) return new Date().toLocaleDateString("en-CA");
+    if (!value) {
+        const today = new Date();
+        const local = new Date(today.getTime() - today.getTimezoneOffset() * 60000);
+        return local.toISOString().slice(0, 10);
+    }
     return value.slice(0, 10);
 }
 

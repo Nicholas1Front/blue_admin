@@ -32,15 +32,15 @@ export function VehicleOdometerModal({ isOpen, currentKilometer, isSaving, onClo
             setError("Informe uma leitura inteira e não negativa.");
             return;
         }
-        if (currentKilometer == null) {
-            setError("Este veículo ainda não possui uma leitura anterior conhecida. Cadastre a leitura inicial nos dados do veículo.");
+        if (isReset && currentKilometer == null) {
+            setError("Não é possível registrar uma reinicialização sem uma leitura anterior conhecida.");
             return;
         }
-        if (next < currentKilometer && !isReset) {
+        if (currentKilometer != null && next < currentKilometer && !isReset) {
             setError("A nova leitura é menor que a atual. Marque a opção de reinicialização para registrar essa mudança no histórico.");
             return;
         }
-        if (isReset && (next >= currentKilometer || !description.trim())) {
+        if (isReset && (currentKilometer == null || next >= currentKilometer || !description.trim())) {
             setError("A reinicialização exige uma leitura menor que a atual e uma descrição do motivo.");
             return;
         }
