@@ -63,7 +63,7 @@ export function VehicleHistoryFormModal({ isOpen, event, currentKilometer, isSav
                 eventType,
                 description: description.trim(),
                 kilometerSnapshot: kmValue,
-                eventDate: new Date(eventDate + "T12:00:00").toISOString()
+                eventDate
             });
         } catch (caught) {
             setError(caught instanceof Error ? caught.message : "Não foi possível salvar o evento.");

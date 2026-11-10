@@ -219,3 +219,5 @@
     color: var(--color-success);
     background: var(--color-success-bg);
 }
+
+.dashboard-card__icon--vehicles{color:var(--color-primary-300);background:var(--color-info-bg)}

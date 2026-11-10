@@ -4,7 +4,8 @@ import {
     faBuilding,
     faChartLine,
     faScrewdriverWrench,
-    faFileInvoiceDollar
+    faFileInvoiceDollar,
+    faTruck
 } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 
@@ -100,6 +101,21 @@ export function Dashboard() {
                             <p>
                                 Acompanhe os atendimentos, os status e os resultados dos serviços.
                             </p>
+                        </div>
+                    </button>
+
+                    <button
+                        className="dashboard-card dashboard-card--action"
+                        type="button"
+                        onClick={() => navigate("/vehicles")}
+                    >
+                        <div className="dashboard-card__icon dashboard-card__icon--vehicles">
+                            <FontAwesomeIcon icon={faTruck} />
+                        </div>
+                        <div>
+                            <span className="dashboard-card__label">Operação da oficina</span>
+                            <strong>Veículos</strong>
+                            <p>Consulte os veículos cadastrados e acompanhe manutenções, ocorrências e hodômetros.</p>
                         </div>
                     </button>
 
