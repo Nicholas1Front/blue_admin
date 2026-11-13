@@ -470,3 +470,11 @@ Foi preparado `allocations/helpers/sugerirCompetenciaDestino.ts` para selecionar
 ### Semântica da alocação de adiantamento
 
 Na tabela `employee_payment_allocations`, `obligationId` é anulável apenas quando `type = credito_adiantamento`. Para `pagamento` e `aplicacao_adiantamento`, a obrigação de destino é obrigatória. Essa regra é validada pelo backend. A aplicação futura é uma movimentação sem transação financeira, ligada ao pagamento original por `sourceMovementId`.
+
+
+### Limites e validações ainda pendentes
+
+- A política para vínculos simultâneos/ sobrepostos ainda não foi fechada. A primeira camada não bloqueia sobreposição automaticamente; essa validação deve ser definida antes de criar a query de vínculos e o fluxo de cadastro definitivo.
+- O estorno de pagamentos ainda não está disponível. O endpoint genérico bloqueia essa operação porque é necessário definir o lançamento financeiro de reversão sem apagar a saída original. Estornos de ocorrências, descontos e aplicações de adiantamento já são tratados.
+- As regras semânticas de alocação (por exemplo, `credito_adiantamento` com `obligationId = null`) são validadas no backend. O Prisma Schema não expressa CHECK constraints; se quisermos reforço direto no PostgreSQL, adicionar essas constraints na migration SQL gerada/revisada antes da aplicação.
+- Não há ainda query de leitura, sugestão de competência via endpoint, dashboard, filtros ou frontend. O helper de sugestão está pronto para ser usado pela futura query.
