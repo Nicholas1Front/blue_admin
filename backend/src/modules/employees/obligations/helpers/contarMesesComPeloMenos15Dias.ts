@@ -10,7 +10,9 @@ export const contarMesesComPeloMenos15Dias = (
     dataInicio: Date,
     dataFim: Date
 ): number => {
-    if (dataFim < dataInicio) throw new Error('O fim do período não pode anteceder o início.')
+    const inicioPeriodo = inicioDoDiaUtc(dataInicio)
+    const fimPeriodo = inicioDoDiaUtc(dataFim)
+    if (fimPeriodo < inicioPeriodo) throw new Error('O fim do período não pode anteceder o início.')
 
     let meses = 0
     let ano = dataInicio.getUTCFullYear()
@@ -21,8 +23,8 @@ export const contarMesesComPeloMenos15Dias = (
     while (ano < ultimoAno || (ano === ultimoAno && mes <= ultimoMes)) {
         const inicioMes = Date.UTC(ano, mes, 1)
         const fimMes = Date.UTC(ano, mes + 1, 0)
-        const inicioValido = Math.max(inicioDoDiaUtc(dataInicio), inicioMes)
-        const fimValido = Math.min(inicioDoDiaUtc(dataFim), fimMes)
+        const inicioValido = Math.max(inicioPeriodo, inicioMes)
+        const fimValido = Math.min(fimPeriodo, fimMes)
         const diasNoPeriodo = Math.floor((fimValido - inicioValido) / 86_400_000) + 1
 
         if (diasNoPeriodo >= 15) meses += 1

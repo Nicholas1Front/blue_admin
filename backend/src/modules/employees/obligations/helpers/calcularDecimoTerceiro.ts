@@ -22,7 +22,9 @@ export const contarMesesDecimoTerceiro = (
     const inicioValido = dataInicio > inicioAno ? dataInicio : inicioAno
     const fimValido = dataFim < fimAno ? dataFim : fimAno
 
-    if (fimValido < inicioValido) return 0
+    const inicioDia = Date.UTC(inicioValido.getUTCFullYear(), inicioValido.getUTCMonth(), inicioValido.getUTCDate())
+    const fimDia = Date.UTC(fimValido.getUTCFullYear(), fimValido.getUTCMonth(), fimValido.getUTCDate())
+    if (fimDia < inicioDia) return 0
     return contarMesesComPeloMenos15Dias(inicioValido, fimValido)
 }
 
