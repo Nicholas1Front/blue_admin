@@ -133,7 +133,7 @@ Livro de eventos financeiros e não financeiros do vínculo.
 Campos previstos:
 - `id` (UUID)
 - `engagementId` (FK)
-- `type` (string: `pagamento`, `falta`, `atraso`, `saida_antecipada`, `desconto`, `ajuste`, `bonus`, `aplicacao_adiantamento`, `estorno`, `registro_administrativo`)
+- `type` (string: `pagamento`, `falta`, `atraso`, `saida_antecipada`, `desconto`, `ajuste`, `bonus`, `adiantamento`, `aplicacao_adiantamento`, `estorno`, `registro_administrativo`)
 - `title`
 - `description` (opcional)
 - `value` (Decimal opcional; pode ser nulo para eventos sem valor)

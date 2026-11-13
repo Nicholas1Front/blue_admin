@@ -95,7 +95,7 @@ Conjuntos esperados:
 - `tiposDeObrigacao`: `salario`, `decimo_terceiro`, `ferias`, `rescisao`, `bonus`, `comissao`, `ajuste`, `outro`. Crédito de adiantamento não é obrigação.
 - `statusDaObrigacao`: `em_revisao`, `pendente`, `parcial`, `pago`, `cancelado`.
 - `origensDaObrigacao`: `manual`, `sugestao_sistema`, `historico_importado`.
-- `tiposDeMovimentacao`: `pagamento`, `falta`, `atraso`, `saida_antecipada`, `desconto`, `ajuste`, `bonus`, `aplicacao_adiantamento`, `estorno`, `registro_administrativo`.
+- `tiposDeMovimentacao`: `pagamento`, `falta`, `atraso`, `saida_antecipada`, `desconto`, `ajuste`, `bonus`, `adiantamento`, `aplicacao_adiantamento`, `estorno`, `registro_administrativo`.
 - `tiposDeHistorico`: tipos de auditoria em português.
 - `tiposDeAlocacao`: `pagamento`, `credito_adiantamento`, `aplicacao_adiantamento`.
 

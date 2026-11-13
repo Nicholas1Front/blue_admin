@@ -142,7 +142,7 @@ class AllocationsRepository {
                 await atualizarStatusObrigacao(tx, obligation.id, nextTotal)
             }
 
-            let advanceMovement = null
+            let advanceMovement: Awaited<ReturnType<typeof tx.employeeMovement.findUnique>> = null
             if (data.advanceCreditValue > 0) {
                 const creditValue = new Prisma.Decimal(data.advanceCreditValue)
                 await tx.employeePaymentAllocation.create({
