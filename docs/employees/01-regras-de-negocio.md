@@ -343,3 +343,19 @@ A confirmação de uma sugestão deve revalidar a situação atual e impedir dup
 - Política de reversão de pagamentos/alocações e reflexo no saldo.
 - Se eventos de ausência/atraso poderão afetar mais de uma competência (a primeira proposta prevê um `obligationId` opcional por evento).
 - Regras de permissão/autorização, conforme padrão de autenticação atual do projeto.
+
+
+## 12. Regras operacionais consolidadas para a primeira camada do backend
+
+- A lista de modalidades, status, tipos e origens é persistida como String; não usar enums Prisma. Os valores permitidos ficam em shareds em português.
+- CPF é validado como documento numérico de 11 posições. CNPJ aceita o formato numérico existente e o alfanumérico de 14 posições, mantendo letras nas 12 primeiras e dígitos verificadores numéricos. O documento é opcional, normalizado e único quando informado.
+- O saldo salarial proporcional e o valor-hora referencial usam uma referência administrativa de 30 dias. Não substituem divisor contratual ou cálculo oficial de folha.
+- O 13º CLT estima 1/12 por mês com pelo menos 15 dias no vínculo, usando a remuneração-base informada. Médias variáveis, adicionais, afastamentos e projeção de aviso exigem revisão.
+- Férias adquiridas usam as faixas de dias de direito por faltas injustificadas (30, 24, 18, 12 ou zero) e adicional de 1/3. Há helper separado para estimativa proporcional. Períodos, afastamentos, abono, médias e motivo de rescisão precisam ser conferidos.
+- Falta e atraso são registrados como ocorrências. O helper de atraso aplica a tolerância de 5 minutos por marcação e 10 minutos diários como triagem CLT; não cria desconto.
+- Um desconto só é registrado por ação explícita do responsável, com justificativa e obrigação de destino. O backend reduz `finalValue`, preserva `originalValue`, impede que o novo valor fique abaixo do total já pago e grava histórico. A ocorrência que motivou o desconto permanece separada.
+- Rescisão não é calculada automaticamente por motivo. O helper apenas consolida componentes previamente calculados/revisados; aviso prévio, FGTS, encargos, médias e compensações exigem dados e validação.
+- Um pagamento pode ser distribuído entre obrigações e crédito de adiantamento. A alocação `credito_adiantamento` usa `obligationId = null`; aplicações futuras são movimentações não financeiras com `sourceMovementId` apontando para o pagamento original e alocação `aplicacao_adiantamento`. Aplicar crédito não cria nova transação financeira.
+- `transactionId` é opcional. Pagamentos históricos podem existir sem transação; pagamentos novos podem criar uma transação de despesa ou vincular uma transação de despesa existente ainda sem origem.
+- Ocorrências e aplicações de adiantamento podem ser estornadas com motivo. Pagamentos não são estornados pelo fluxo genérico: exigem fluxo financeiro específico para não apagar ou distorcer a saída de caixa.
+- Nesta etapa não foram criadas queries específicas de dashboard/filtros/histórico, nem telas frontend. Os fluxos de escrita e a estrutura de domínio são a base para essas etapas futuras.

@@ -12,3 +12,8 @@ Esta pasta reúne as decisões funcionais e a proposta técnica do módulo de co
 Documentação de planejamento, anterior à implementação. Os pontos marcados como "a validar" devem ser fechados durante a revisão do schema e dos fluxos, antes de criar migrations.
 
 A documentação não autoriza implementar cálculos oficiais de folha ou obrigações legais automaticamente. O módulo é uma ferramenta administrativa com revisão humana.
+
+
+## Implementação
+
+Em 13/11/2026 foi adicionada a primeira camada de schema e backend do módulo. O schema ainda depende da migration e da geração do Prisma Client pelo responsável pelo projeto. As queries específicas e o frontend permanecem pendentes.

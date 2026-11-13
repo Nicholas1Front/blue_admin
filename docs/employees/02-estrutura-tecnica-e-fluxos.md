@@ -416,3 +416,47 @@ Checklist obrigatório:
 - [ ] Conferir precisão Decimal e serialização da API.
 - [ ] Revisar o schema completo com cuidado antes de rodar migration.
 - [ ] Deixar a execução de `migrate dev` e `generate` para o fluxo combinado com o responsável pelo projeto.
+
+
+## 13. Implementação inicial registrada no repositório
+
+A primeira camada foi organizada em submódulos por responsabilidade:
+- `employees`: cadastro pessoal;
+- `engagements`: vínculo, remuneração atual e encerramento;
+- `obligations`: registro em revisão, confirmação, atualização e cancelamento;
+- `movements`: faltas, atrasos, descontos revisados, ocorrências e estornos;
+- `allocations`: pagamentos, distribuição entre obrigações, reserva e aplicação de adiantamentos;
+- `history`: gravação interna da trilha de auditoria;
+- `shared`: listas de valores em português.
+
+Os endpoints de escrita estão registrados em `backend/src/modules/employees/employees.routes.ts` e montados em `backend/src/routes/index.ts`. A autenticação é aplicada no router raiz do módulo.
+
+### Regras técnicas implementadas
+
+- O cadastro normaliza e valida CPF/CNPJ, incluindo CNPJ alfanumérico, e o campo é único quando informado.
+- As operações que criam ou alteram mais de uma entidade usam transações Prisma.
+- Pagamentos e aplicações de adiantamento usam isolamento Serializable para proteger a consistência de saldos.
+- A obrigação mantém `originalValue` e `finalValue`; o valor original é preservado quando a obrigação é revisada pela primeira vez.
+- A alocação de crédito de adiantamento não possui obrigação de destino; cada aplicação futura tem obrigação de destino e referência à movimentação que originou o crédito.
+- Transações financeiras vinculadas a pagamentos de colaboradores não podem ser editadas diretamente pelo módulo financeiro.
+- Não há exclusão física de colaborador, vínculo, obrigação, movimentação ou histórico nesta camada.
+
+### Endpoints de escrita disponíveis
+
+| Submódulo | Método e caminho |
+|---|---|
+| Colaboradores | `POST /employees/create-employee` |
+| Colaboradores | `PUT /employees/update-employee/:id` |
+| Vínculos | `POST /employees/engagements/create-engagement` |
+| Vínculos | `PUT /employees/engagements/update-engagement/:id` |
+| Vínculos | `PATCH /employees/engagements/close-engagement/:id` |
+| Obrigações | `POST /employees/obligations/create-obligation` |
+| Obrigações | `PUT /employees/obligations/update-obligation/:id` |
+| Obrigações | `PATCH /employees/obligations/review-obligation/:id` |
+| Obrigações | `PATCH /employees/obligations/cancel-obligation/:id` |
+| Movimentações | `POST /employees/movements/create-movement` |
+| Movimentações | `PATCH /employees/movements/reverse-movement/:id` |
+| Alocações | `POST /employees/allocations/register-payment` |
+| Alocações | `POST /employees/allocations/apply-advance` |
+
+As queries de leitura, filtros, dashboard, sugestão automática da competência destino e frontend permanecem para etapas futuras, conforme o escopo solicitado.
