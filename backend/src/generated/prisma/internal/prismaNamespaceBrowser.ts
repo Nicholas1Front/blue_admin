@@ -67,7 +67,13 @@ export const ModelName = {
   BudgetPrice: 'BudgetPrice',
   BudgetHistory: 'BudgetHistory',
   Vehicle: 'Vehicle',
-  VehicleHistory: 'VehicleHistory'
+  VehicleHistory: 'VehicleHistory',
+  Employee: 'Employee',
+  EmployeeEngagement: 'EmployeeEngagement',
+  EmployeeObligation: 'EmployeeObligation',
+  EmployeeMovement: 'EmployeeMovement',
+  EmployeePaymentAllocation: 'EmployeePaymentAllocation',
+  EmployeeHistory: 'EmployeeHistory'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -327,12 +333,132 @@ export const VehicleHistoryScalarFieldEnum = {
 export type VehicleHistoryScalarFieldEnum = (typeof VehicleHistoryScalarFieldEnum)[keyof typeof VehicleHistoryScalarFieldEnum]
 
 
+export const EmployeeScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  cpfCnpj: 'cpfCnpj',
+  address: 'address',
+  birthDate: 'birthDate',
+  observations: 'observations',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type EmployeeScalarFieldEnum = (typeof EmployeeScalarFieldEnum)[keyof typeof EmployeeScalarFieldEnum]
+
+
+export const EmployeeEngagementScalarFieldEnum = {
+  id: 'id',
+  employeeId: 'employeeId',
+  entryDate: 'entryDate',
+  exitDate: 'exitDate',
+  position: 'position',
+  currentSalary: 'currentSalary',
+  dailyHours: 'dailyHours',
+  modality: 'modality',
+  status: 'status',
+  terminationReason: 'terminationReason',
+  noticeType: 'noticeType',
+  noticeDate: 'noticeDate',
+  noticeEndDate: 'noticeEndDate',
+  observations: 'observations',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type EmployeeEngagementScalarFieldEnum = (typeof EmployeeEngagementScalarFieldEnum)[keyof typeof EmployeeEngagementScalarFieldEnum]
+
+
+export const EmployeeObligationScalarFieldEnum = {
+  id: 'id',
+  engagementId: 'engagementId',
+  type: 'type',
+  title: 'title',
+  description: 'description',
+  originalValue: 'originalValue',
+  finalValue: 'finalValue',
+  status: 'status',
+  referenceStart: 'referenceStart',
+  referenceEnd: 'referenceEnd',
+  dueDate: 'dueDate',
+  source: 'source',
+  referenceKey: 'referenceKey',
+  calculationDetails: 'calculationDetails',
+  reviewedAt: 'reviewedAt',
+  reviewedById: 'reviewedById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type EmployeeObligationScalarFieldEnum = (typeof EmployeeObligationScalarFieldEnum)[keyof typeof EmployeeObligationScalarFieldEnum]
+
+
+export const EmployeeMovementScalarFieldEnum = {
+  id: 'id',
+  engagementId: 'engagementId',
+  type: 'type',
+  title: 'title',
+  description: 'description',
+  value: 'value',
+  eventDate: 'eventDate',
+  transactionId: 'transactionId',
+  obligationId: 'obligationId',
+  sourceMovementId: 'sourceMovementId',
+  durationMinutes: 'durationMinutes',
+  absenceDays: 'absenceDays',
+  justificationStatus: 'justificationStatus',
+  createdById: 'createdById',
+  reversedAt: 'reversedAt',
+  reversalReason: 'reversalReason',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type EmployeeMovementScalarFieldEnum = (typeof EmployeeMovementScalarFieldEnum)[keyof typeof EmployeeMovementScalarFieldEnum]
+
+
+export const EmployeePaymentAllocationScalarFieldEnum = {
+  id: 'id',
+  movementId: 'movementId',
+  obligationId: 'obligationId',
+  type: 'type',
+  value: 'value',
+  createdAt: 'createdAt'
+} as const
+
+export type EmployeePaymentAllocationScalarFieldEnum = (typeof EmployeePaymentAllocationScalarFieldEnum)[keyof typeof EmployeePaymentAllocationScalarFieldEnum]
+
+
+export const EmployeeHistoryScalarFieldEnum = {
+  id: 'id',
+  employeeId: 'employeeId',
+  engagementId: 'engagementId',
+  type: 'type',
+  title: 'title',
+  description: 'description',
+  metadata: 'metadata',
+  eventDate: 'eventDate',
+  createdById: 'createdById',
+  createdAt: 'createdAt'
+} as const
+
+export type EmployeeHistoryScalarFieldEnum = (typeof EmployeeHistoryScalarFieldEnum)[keyof typeof EmployeeHistoryScalarFieldEnum]
+
+
 export const SortOrder = {
   asc: 'asc',
   desc: 'desc'
 } as const
 
 export type SortOrder = (typeof SortOrder)[keyof typeof SortOrder]
+
+
+export const NullableJsonNullValueInput = {
+  DbNull: DbNull,
+  JsonNull: JsonNull
+} as const
+
+export type NullableJsonNullValueInput = (typeof NullableJsonNullValueInput)[keyof typeof NullableJsonNullValueInput]
 
 
 export const QueryMode = {
@@ -349,4 +475,13 @@ export const NullsOrder = {
 } as const
 
 export type NullsOrder = (typeof NullsOrder)[keyof typeof NullsOrder]
+
+
+export const JsonNullValueFilter = {
+  DbNull: DbNull,
+  JsonNull: JsonNull,
+  AnyNull: AnyNull
+} as const
+
+export type JsonNullValueFilter = (typeof JsonNullValueFilter)[keyof typeof JsonNullValueFilter]
 

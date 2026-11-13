@@ -190,6 +190,9 @@ export type UserWhereInput = {
   passwordHash?: Prisma.StringFilter<"User"> | string
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
+  employeeObligationsReviewed?: Prisma.EmployeeObligationListRelationFilter
+  employeeMovementsCreated?: Prisma.EmployeeMovementListRelationFilter
+  employeeHistoryCreated?: Prisma.EmployeeHistoryListRelationFilter
 }
 
 export type UserOrderByWithRelationInput = {
@@ -199,6 +202,9 @@ export type UserOrderByWithRelationInput = {
   passwordHash?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
+  employeeObligationsReviewed?: Prisma.EmployeeObligationOrderByRelationAggregateInput
+  employeeMovementsCreated?: Prisma.EmployeeMovementOrderByRelationAggregateInput
+  employeeHistoryCreated?: Prisma.EmployeeHistoryOrderByRelationAggregateInput
 }
 
 export type UserWhereUniqueInput = Prisma.AtLeast<{
@@ -211,6 +217,9 @@ export type UserWhereUniqueInput = Prisma.AtLeast<{
   passwordHash?: Prisma.StringFilter<"User"> | string
   createdAt?: Prisma.DateTimeFilter<"User"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"User"> | Date | string
+  employeeObligationsReviewed?: Prisma.EmployeeObligationListRelationFilter
+  employeeMovementsCreated?: Prisma.EmployeeMovementListRelationFilter
+  employeeHistoryCreated?: Prisma.EmployeeHistoryListRelationFilter
 }, "id" | "email">
 
 export type UserOrderByWithAggregationInput = {
@@ -244,6 +253,9 @@ export type UserCreateInput = {
   passwordHash: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  employeeObligationsReviewed?: Prisma.EmployeeObligationCreateNestedManyWithoutReviewedByInput
+  employeeMovementsCreated?: Prisma.EmployeeMovementCreateNestedManyWithoutCreatedByInput
+  employeeHistoryCreated?: Prisma.EmployeeHistoryCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserUncheckedCreateInput = {
@@ -253,6 +265,9 @@ export type UserUncheckedCreateInput = {
   passwordHash: string
   createdAt?: Date | string
   updatedAt?: Date | string
+  employeeObligationsReviewed?: Prisma.EmployeeObligationUncheckedCreateNestedManyWithoutReviewedByInput
+  employeeMovementsCreated?: Prisma.EmployeeMovementUncheckedCreateNestedManyWithoutCreatedByInput
+  employeeHistoryCreated?: Prisma.EmployeeHistoryUncheckedCreateNestedManyWithoutCreatedByInput
 }
 
 export type UserUpdateInput = {
@@ -262,6 +277,9 @@ export type UserUpdateInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  employeeObligationsReviewed?: Prisma.EmployeeObligationUpdateManyWithoutReviewedByNestedInput
+  employeeMovementsCreated?: Prisma.EmployeeMovementUpdateManyWithoutCreatedByNestedInput
+  employeeHistoryCreated?: Prisma.EmployeeHistoryUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserUncheckedUpdateInput = {
@@ -271,6 +289,9 @@ export type UserUncheckedUpdateInput = {
   passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  employeeObligationsReviewed?: Prisma.EmployeeObligationUncheckedUpdateManyWithoutReviewedByNestedInput
+  employeeMovementsCreated?: Prisma.EmployeeMovementUncheckedUpdateManyWithoutCreatedByNestedInput
+  employeeHistoryCreated?: Prisma.EmployeeHistoryUncheckedUpdateManyWithoutCreatedByNestedInput
 }
 
 export type UserCreateManyInput = {
@@ -327,6 +348,11 @@ export type UserMinOrderByAggregateInput = {
   updatedAt?: Prisma.SortOrder
 }
 
+export type UserNullableScalarRelationFilter = {
+  is?: Prisma.UserWhereInput | null
+  isNot?: Prisma.UserWhereInput | null
+}
+
 export type StringFieldUpdateOperationsInput = {
   set?: string
 }
@@ -335,6 +361,281 @@ export type DateTimeFieldUpdateOperationsInput = {
   set?: Date | string
 }
 
+export type UserCreateNestedOneWithoutEmployeeObligationsReviewedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutEmployeeObligationsReviewedInput, Prisma.UserUncheckedCreateWithoutEmployeeObligationsReviewedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutEmployeeObligationsReviewedInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutEmployeeObligationsReviewedNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutEmployeeObligationsReviewedInput, Prisma.UserUncheckedCreateWithoutEmployeeObligationsReviewedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutEmployeeObligationsReviewedInput
+  upsert?: Prisma.UserUpsertWithoutEmployeeObligationsReviewedInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutEmployeeObligationsReviewedInput, Prisma.UserUpdateWithoutEmployeeObligationsReviewedInput>, Prisma.UserUncheckedUpdateWithoutEmployeeObligationsReviewedInput>
+}
+
+export type UserCreateNestedOneWithoutEmployeeMovementsCreatedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutEmployeeMovementsCreatedInput, Prisma.UserUncheckedCreateWithoutEmployeeMovementsCreatedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutEmployeeMovementsCreatedInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutEmployeeMovementsCreatedNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutEmployeeMovementsCreatedInput, Prisma.UserUncheckedCreateWithoutEmployeeMovementsCreatedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutEmployeeMovementsCreatedInput
+  upsert?: Prisma.UserUpsertWithoutEmployeeMovementsCreatedInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutEmployeeMovementsCreatedInput, Prisma.UserUpdateWithoutEmployeeMovementsCreatedInput>, Prisma.UserUncheckedUpdateWithoutEmployeeMovementsCreatedInput>
+}
+
+export type UserCreateNestedOneWithoutEmployeeHistoryCreatedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutEmployeeHistoryCreatedInput, Prisma.UserUncheckedCreateWithoutEmployeeHistoryCreatedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutEmployeeHistoryCreatedInput
+  connect?: Prisma.UserWhereUniqueInput
+}
+
+export type UserUpdateOneWithoutEmployeeHistoryCreatedNestedInput = {
+  create?: Prisma.XOR<Prisma.UserCreateWithoutEmployeeHistoryCreatedInput, Prisma.UserUncheckedCreateWithoutEmployeeHistoryCreatedInput>
+  connectOrCreate?: Prisma.UserCreateOrConnectWithoutEmployeeHistoryCreatedInput
+  upsert?: Prisma.UserUpsertWithoutEmployeeHistoryCreatedInput
+  disconnect?: Prisma.UserWhereInput | boolean
+  delete?: Prisma.UserWhereInput | boolean
+  connect?: Prisma.UserWhereUniqueInput
+  update?: Prisma.XOR<Prisma.XOR<Prisma.UserUpdateToOneWithWhereWithoutEmployeeHistoryCreatedInput, Prisma.UserUpdateWithoutEmployeeHistoryCreatedInput>, Prisma.UserUncheckedUpdateWithoutEmployeeHistoryCreatedInput>
+}
+
+export type UserCreateWithoutEmployeeObligationsReviewedInput = {
+  id?: string
+  name: string
+  email: string
+  passwordHash: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  employeeMovementsCreated?: Prisma.EmployeeMovementCreateNestedManyWithoutCreatedByInput
+  employeeHistoryCreated?: Prisma.EmployeeHistoryCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserUncheckedCreateWithoutEmployeeObligationsReviewedInput = {
+  id?: string
+  name: string
+  email: string
+  passwordHash: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  employeeMovementsCreated?: Prisma.EmployeeMovementUncheckedCreateNestedManyWithoutCreatedByInput
+  employeeHistoryCreated?: Prisma.EmployeeHistoryUncheckedCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserCreateOrConnectWithoutEmployeeObligationsReviewedInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutEmployeeObligationsReviewedInput, Prisma.UserUncheckedCreateWithoutEmployeeObligationsReviewedInput>
+}
+
+export type UserUpsertWithoutEmployeeObligationsReviewedInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutEmployeeObligationsReviewedInput, Prisma.UserUncheckedUpdateWithoutEmployeeObligationsReviewedInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutEmployeeObligationsReviewedInput, Prisma.UserUncheckedCreateWithoutEmployeeObligationsReviewedInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutEmployeeObligationsReviewedInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutEmployeeObligationsReviewedInput, Prisma.UserUncheckedUpdateWithoutEmployeeObligationsReviewedInput>
+}
+
+export type UserUpdateWithoutEmployeeObligationsReviewedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  employeeMovementsCreated?: Prisma.EmployeeMovementUpdateManyWithoutCreatedByNestedInput
+  employeeHistoryCreated?: Prisma.EmployeeHistoryUpdateManyWithoutCreatedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutEmployeeObligationsReviewedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  employeeMovementsCreated?: Prisma.EmployeeMovementUncheckedUpdateManyWithoutCreatedByNestedInput
+  employeeHistoryCreated?: Prisma.EmployeeHistoryUncheckedUpdateManyWithoutCreatedByNestedInput
+}
+
+export type UserCreateWithoutEmployeeMovementsCreatedInput = {
+  id?: string
+  name: string
+  email: string
+  passwordHash: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  employeeObligationsReviewed?: Prisma.EmployeeObligationCreateNestedManyWithoutReviewedByInput
+  employeeHistoryCreated?: Prisma.EmployeeHistoryCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserUncheckedCreateWithoutEmployeeMovementsCreatedInput = {
+  id?: string
+  name: string
+  email: string
+  passwordHash: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  employeeObligationsReviewed?: Prisma.EmployeeObligationUncheckedCreateNestedManyWithoutReviewedByInput
+  employeeHistoryCreated?: Prisma.EmployeeHistoryUncheckedCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserCreateOrConnectWithoutEmployeeMovementsCreatedInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutEmployeeMovementsCreatedInput, Prisma.UserUncheckedCreateWithoutEmployeeMovementsCreatedInput>
+}
+
+export type UserUpsertWithoutEmployeeMovementsCreatedInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutEmployeeMovementsCreatedInput, Prisma.UserUncheckedUpdateWithoutEmployeeMovementsCreatedInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutEmployeeMovementsCreatedInput, Prisma.UserUncheckedCreateWithoutEmployeeMovementsCreatedInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutEmployeeMovementsCreatedInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutEmployeeMovementsCreatedInput, Prisma.UserUncheckedUpdateWithoutEmployeeMovementsCreatedInput>
+}
+
+export type UserUpdateWithoutEmployeeMovementsCreatedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  employeeObligationsReviewed?: Prisma.EmployeeObligationUpdateManyWithoutReviewedByNestedInput
+  employeeHistoryCreated?: Prisma.EmployeeHistoryUpdateManyWithoutCreatedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutEmployeeMovementsCreatedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  employeeObligationsReviewed?: Prisma.EmployeeObligationUncheckedUpdateManyWithoutReviewedByNestedInput
+  employeeHistoryCreated?: Prisma.EmployeeHistoryUncheckedUpdateManyWithoutCreatedByNestedInput
+}
+
+export type UserCreateWithoutEmployeeHistoryCreatedInput = {
+  id?: string
+  name: string
+  email: string
+  passwordHash: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  employeeObligationsReviewed?: Prisma.EmployeeObligationCreateNestedManyWithoutReviewedByInput
+  employeeMovementsCreated?: Prisma.EmployeeMovementCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserUncheckedCreateWithoutEmployeeHistoryCreatedInput = {
+  id?: string
+  name: string
+  email: string
+  passwordHash: string
+  createdAt?: Date | string
+  updatedAt?: Date | string
+  employeeObligationsReviewed?: Prisma.EmployeeObligationUncheckedCreateNestedManyWithoutReviewedByInput
+  employeeMovementsCreated?: Prisma.EmployeeMovementUncheckedCreateNestedManyWithoutCreatedByInput
+}
+
+export type UserCreateOrConnectWithoutEmployeeHistoryCreatedInput = {
+  where: Prisma.UserWhereUniqueInput
+  create: Prisma.XOR<Prisma.UserCreateWithoutEmployeeHistoryCreatedInput, Prisma.UserUncheckedCreateWithoutEmployeeHistoryCreatedInput>
+}
+
+export type UserUpsertWithoutEmployeeHistoryCreatedInput = {
+  update: Prisma.XOR<Prisma.UserUpdateWithoutEmployeeHistoryCreatedInput, Prisma.UserUncheckedUpdateWithoutEmployeeHistoryCreatedInput>
+  create: Prisma.XOR<Prisma.UserCreateWithoutEmployeeHistoryCreatedInput, Prisma.UserUncheckedCreateWithoutEmployeeHistoryCreatedInput>
+  where?: Prisma.UserWhereInput
+}
+
+export type UserUpdateToOneWithWhereWithoutEmployeeHistoryCreatedInput = {
+  where?: Prisma.UserWhereInput
+  data: Prisma.XOR<Prisma.UserUpdateWithoutEmployeeHistoryCreatedInput, Prisma.UserUncheckedUpdateWithoutEmployeeHistoryCreatedInput>
+}
+
+export type UserUpdateWithoutEmployeeHistoryCreatedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  employeeObligationsReviewed?: Prisma.EmployeeObligationUpdateManyWithoutReviewedByNestedInput
+  employeeMovementsCreated?: Prisma.EmployeeMovementUpdateManyWithoutCreatedByNestedInput
+}
+
+export type UserUncheckedUpdateWithoutEmployeeHistoryCreatedInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  name?: Prisma.StringFieldUpdateOperationsInput | string
+  email?: Prisma.StringFieldUpdateOperationsInput | string
+  passwordHash?: Prisma.StringFieldUpdateOperationsInput | string
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  employeeObligationsReviewed?: Prisma.EmployeeObligationUncheckedUpdateManyWithoutReviewedByNestedInput
+  employeeMovementsCreated?: Prisma.EmployeeMovementUncheckedUpdateManyWithoutCreatedByNestedInput
+}
+
+
+/**
+ * Count Type UserCountOutputType
+ */
+
+export type UserCountOutputType = {
+  employeeObligationsReviewed: number
+  employeeMovementsCreated: number
+  employeeHistoryCreated: number
+}
+
+export type UserCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  employeeObligationsReviewed?: boolean | UserCountOutputTypeCountEmployeeObligationsReviewedArgs
+  employeeMovementsCreated?: boolean | UserCountOutputTypeCountEmployeeMovementsCreatedArgs
+  employeeHistoryCreated?: boolean | UserCountOutputTypeCountEmployeeHistoryCreatedArgs
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the UserCountOutputType
+   */
+  select?: Prisma.UserCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountEmployeeObligationsReviewedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.EmployeeObligationWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountEmployeeMovementsCreatedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.EmployeeMovementWhereInput
+}
+
+/**
+ * UserCountOutputType without action
+ */
+export type UserCountOutputTypeCountEmployeeHistoryCreatedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.EmployeeHistoryWhereInput
+}
 
 
 export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -344,6 +645,10 @@ export type UserSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = r
   passwordHash?: boolean
   createdAt?: boolean
   updatedAt?: boolean
+  employeeObligationsReviewed?: boolean | Prisma.User$employeeObligationsReviewedArgs<ExtArgs>
+  employeeMovementsCreated?: boolean | Prisma.User$employeeMovementsCreatedArgs<ExtArgs>
+  employeeHistoryCreated?: boolean | Prisma.User$employeeHistoryCreatedArgs<ExtArgs>
+  _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["user"]>
 
 export type UserSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -374,10 +679,22 @@ export type UserSelectScalar = {
 }
 
 export type UserOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "email" | "passwordHash" | "createdAt" | "updatedAt", ExtArgs["result"]["user"]>
+export type UserInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  employeeObligationsReviewed?: boolean | Prisma.User$employeeObligationsReviewedArgs<ExtArgs>
+  employeeMovementsCreated?: boolean | Prisma.User$employeeMovementsCreatedArgs<ExtArgs>
+  employeeHistoryCreated?: boolean | Prisma.User$employeeHistoryCreatedArgs<ExtArgs>
+  _count?: boolean | Prisma.UserCountOutputTypeDefaultArgs<ExtArgs>
+}
+export type UserIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
+export type UserIncludeUpdateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {}
 
 export type $UserPayload<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   name: "User"
-  objects: {}
+  objects: {
+    employeeObligationsReviewed: Prisma.$EmployeeObligationPayload<ExtArgs>[]
+    employeeMovementsCreated: Prisma.$EmployeeMovementPayload<ExtArgs>[]
+    employeeHistoryCreated: Prisma.$EmployeeHistoryPayload<ExtArgs>[]
+  }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
     name: string
@@ -779,6 +1096,9 @@ readonly fields: UserFieldRefs;
  */
 export interface Prisma__UserClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
+  employeeObligationsReviewed<T extends Prisma.User$employeeObligationsReviewedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$employeeObligationsReviewedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EmployeeObligationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  employeeMovementsCreated<T extends Prisma.User$employeeMovementsCreatedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$employeeMovementsCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EmployeeMovementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
+  employeeHistoryCreated<T extends Prisma.User$employeeHistoryCreatedArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.User$employeeHistoryCreatedArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EmployeeHistoryPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -831,6 +1151,10 @@ export type UserFindUniqueArgs<ExtArgs extends runtime.Types.Extensions.Internal
    */
   omit?: Prisma.UserOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  /**
    * Filter, which User to fetch.
    */
   where: Prisma.UserWhereUniqueInput
@@ -849,6 +1173,10 @@ export type UserFindUniqueOrThrowArgs<ExtArgs extends runtime.Types.Extensions.I
    */
   omit?: Prisma.UserOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  /**
    * Filter, which User to fetch.
    */
   where: Prisma.UserWhereUniqueInput
@@ -866,6 +1194,10 @@ export type UserFindFirstArgs<ExtArgs extends runtime.Types.Extensions.InternalA
    * Omit specific fields from the User
    */
   omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
   /**
    * Filter, which User to fetch.
    */
@@ -915,6 +1247,10 @@ export type UserFindFirstOrThrowArgs<ExtArgs extends runtime.Types.Extensions.In
    */
   omit?: Prisma.UserOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  /**
    * Filter, which User to fetch.
    */
   where?: Prisma.UserWhereInput
@@ -962,6 +1298,10 @@ export type UserFindManyArgs<ExtArgs extends runtime.Types.Extensions.InternalAr
    * Omit specific fields from the User
    */
   omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
   /**
    * Filter, which Users to fetch.
    */
@@ -1011,6 +1351,10 @@ export type UserCreateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs
    */
   omit?: Prisma.UserOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  /**
    * The data needed to create a User.
    */
   data: Prisma.XOR<Prisma.UserCreateInput, Prisma.UserUncheckedCreateInput>
@@ -1058,6 +1402,10 @@ export type UserUpdateArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs
    * Omit specific fields from the User
    */
   omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
   /**
    * The data needed to update a User.
    */
@@ -1125,6 +1473,10 @@ export type UserUpsertArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs
    */
   omit?: Prisma.UserOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  /**
    * The filter to search for the User to update in case it exists.
    */
   where: Prisma.UserWhereUniqueInput
@@ -1151,6 +1503,10 @@ export type UserDeleteArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs
    */
   omit?: Prisma.UserOmit<ExtArgs> | null
   /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
+  /**
    * Filter which User to delete.
    */
   where: Prisma.UserWhereUniqueInput
@@ -1171,6 +1527,78 @@ export type UserDeleteManyArgs<ExtArgs extends runtime.Types.Extensions.Internal
 }
 
 /**
+ * User.employeeObligationsReviewed
+ */
+export type User$employeeObligationsReviewedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the EmployeeObligation
+   */
+  select?: Prisma.EmployeeObligationSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the EmployeeObligation
+   */
+  omit?: Prisma.EmployeeObligationOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EmployeeObligationInclude<ExtArgs> | null
+  where?: Prisma.EmployeeObligationWhereInput
+  orderBy?: Prisma.EmployeeObligationOrderByWithRelationInput | Prisma.EmployeeObligationOrderByWithRelationInput[]
+  cursor?: Prisma.EmployeeObligationWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.EmployeeObligationScalarFieldEnum | Prisma.EmployeeObligationScalarFieldEnum[]
+}
+
+/**
+ * User.employeeMovementsCreated
+ */
+export type User$employeeMovementsCreatedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the EmployeeMovement
+   */
+  select?: Prisma.EmployeeMovementSelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the EmployeeMovement
+   */
+  omit?: Prisma.EmployeeMovementOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EmployeeMovementInclude<ExtArgs> | null
+  where?: Prisma.EmployeeMovementWhereInput
+  orderBy?: Prisma.EmployeeMovementOrderByWithRelationInput | Prisma.EmployeeMovementOrderByWithRelationInput[]
+  cursor?: Prisma.EmployeeMovementWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.EmployeeMovementScalarFieldEnum | Prisma.EmployeeMovementScalarFieldEnum[]
+}
+
+/**
+ * User.employeeHistoryCreated
+ */
+export type User$employeeHistoryCreatedArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the EmployeeHistory
+   */
+  select?: Prisma.EmployeeHistorySelect<ExtArgs> | null
+  /**
+   * Omit specific fields from the EmployeeHistory
+   */
+  omit?: Prisma.EmployeeHistoryOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.EmployeeHistoryInclude<ExtArgs> | null
+  where?: Prisma.EmployeeHistoryWhereInput
+  orderBy?: Prisma.EmployeeHistoryOrderByWithRelationInput | Prisma.EmployeeHistoryOrderByWithRelationInput[]
+  cursor?: Prisma.EmployeeHistoryWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.EmployeeHistoryScalarFieldEnum | Prisma.EmployeeHistoryScalarFieldEnum[]
+}
+
+/**
  * User without action
  */
 export type UserDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
@@ -1182,4 +1610,8 @@ export type UserDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArg
    * Omit specific fields from the User
    */
   omit?: Prisma.UserOmit<ExtArgs> | null
+  /**
+   * Choose, which related nodes to fetch as well
+   */
+  include?: Prisma.UserInclude<ExtArgs> | null
 }
