@@ -25,14 +25,14 @@ class MovementsRepository {
             })
             if (!engagement) throw new AppError('Engagement not found', 404, 'ENGAGEMENT_NOT_FOUND')
 
-            let obligation: Prisma.EmployeeObligation | null = null
-            if (data.obligationId) {
-                obligation = await tx.employeeObligation.findFirst({
+            const obligation = data.obligationId
+                ? await tx.employeeObligation.findFirst({
                     where: { id: data.obligationId, engagementId: data.engagementId }
                 })
-                if (!obligation) {
-                    throw new AppError('The selected obligation does not belong to this engagement', 400, 'OBLIGATION_ENGAGEMENT_MISMATCH')
-                }
+                : null
+
+            if (data.obligationId && !obligation) {
+                throw new AppError('The selected obligation does not belong to this engagement', 400, 'OBLIGATION_ENGAGEMENT_MISMATCH')
             }
 
             if (data.type === 'desconto') {

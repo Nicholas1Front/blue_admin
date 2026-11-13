@@ -60,7 +60,7 @@ class AllocationsRepository {
                 }
             })
 
-            let transaction: Prisma.FinancialTransaction | null = null
+            let transaction: Awaited<ReturnType<typeof tx.financialTransaction.findUnique>> = null
             if (data.categoryId) {
                 const category = await tx.financialCategory.findUnique({ where: { id: data.categoryId } })
                 if (!category) throw new AppError('Financial category not found', 404, 'CATEGORY_NOT_FOUND')
@@ -110,7 +110,6 @@ class AllocationsRepository {
                 })
             }
 
-            const createdAllocations = []
             for (const allocation of data.allocations) {
                 const obligation = await tx.employeeObligation.findFirst({
                     where: {
@@ -132,7 +131,7 @@ class AllocationsRepository {
                     throw new AppError('Allocation exceeds the remaining obligation balance', 409, 'OBLIGATION_BALANCE_EXCEEDED')
                 }
 
-                const row = await tx.employeePaymentAllocation.create({
+                await tx.employeePaymentAllocation.create({
                     data: {
                         movementId: movement.id,
                         obligationId: obligation.id,
@@ -140,19 +139,18 @@ class AllocationsRepository {
                         value: allocationValue
                     }
                 })
-                createdAllocations.push(row)
                 await atualizarStatusObrigacao(tx, obligation.id, nextTotal)
             }
 
             if (data.advanceCreditValue > 0) {
-                createdAllocations.push(await tx.employeePaymentAllocation.create({
+                await tx.employeePaymentAllocation.create({
                     data: {
                         movementId: movement.id,
                         obligationId: null,
                         type: 'credito_adiantamento',
                         value: new Prisma.Decimal(data.advanceCreditValue)
                     }
-                }))
+                })
             }
 
             await registrarHistorico(tx, {

@@ -122,6 +122,7 @@ class ObligationsRepository {
             const obligation = await tx.employeeObligation.update({
                 where: { id },
                 data: {
+                    originalValue: current.originalValue ?? new Prisma.Decimal(data.finalValue),
                     finalValue: new Prisma.Decimal(data.finalValue),
                     dueDate: data.dueDate !== undefined ? data.dueDate : current.dueDate,
                     status: 'pendente',
