@@ -42,7 +42,7 @@ Representa a pessoa, não o vínculo.
 Campos previstos:
 - `id` (UUID)
 - `name` (obrigatório)
-- `cpfCnpj` (opcional, texto)
+- `cpfCnpj` (opcional, texto; aceitar CPF numérico e CNPJ numérico ou alfanumérico de 14 posições)
 - `address` (opcional)
 - `birthDate` (opcional)
 - `observations` (opcional)
@@ -52,7 +52,7 @@ Regras:
 - Permitir cadastro com informações incompletas.
 - Não colocar situação ativo/inativo na pessoa; essa situação pertence ao vínculo.
 - Uma pessoa pode ter vários vínculos ao longo do tempo.
-- CPF/CNPJ não deve ser obrigatório para cadastrar registros históricos/incompletos. A estratégia de unicidade/normalização deve ser definida na implementação, considerando valores nulos e documentos digitados com máscara.
+- CPF/CNPJ não deve ser obrigatório para cadastrar registros históricos/incompletos. Normalizar removendo máscara e mantendo letras em maiúsculo. O CNPJ alfanumérico aceita letras e números nas 12 primeiras posições e mantém os dois dígitos verificadores numéricos; CNPJs numéricos existentes continuam válidos. Documento informado deve ser validado e único, mas nulos são permitidos.
 
 ### 3.2 Vínculos — `employee_engagements`
 
