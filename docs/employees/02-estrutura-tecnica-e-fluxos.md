@@ -90,14 +90,14 @@ A lista exata de campos está descrita em `01-regras-de-negocio.md`. Antes da mi
 Criar listas centralizadas para valores persistidos como strings. O caminho exato deve acompanhar a organização atual do projeto; a intenção é manter um único contrato de valores e labels para backend e frontend.
 
 Conjuntos esperados:
-- `employeeModality`: `clt`, `pj`, `informal`, `other` (lista inicial ilustrativa).
-- `employeeEngagementStatus`: `active`, `suspended`, `away`, `ended`.
-- `employeeObligationType`: salário, 13º, férias, bônus, rescisão, ajuste, crédito de adiantamento e outros tipos necessários.
-- `employeeObligationStatus`: revisão pendente, pendente, parcial, pago, cancelado.
-- `employeeObligationSource`: manual, system_suggestion.
-- `employeeMovementType`: pagamento, ausência, atraso, ajuste, bônus, adiantamento, aplicação de adiantamento, reversão/correção, registro administrativo.
-- `employeeHistoryType`: tipos de auditoria relevantes.
-- `employeeAllocationType`: `payment`, `advance_application`.
+- `modalidadesDeVinculo`: `clt`, `pj`, `nao_formalizado`, `outro`.
+- `statusDoVinculo`: `ativo`, `suspenso`, `afastado`, `encerrado`.
+- `tiposDeObrigacao`: `salario`, `decimo_terceiro`, `ferias`, `rescisao`, `bonus`, `comissao`, `ajuste`, `outro`. Crédito de adiantamento não é obrigação.
+- `statusDaObrigacao`: `em_revisao`, `pendente`, `parcial`, `pago`, `cancelado`.
+- `origensDaObrigacao`: `manual`, `sugestao_sistema`, `historico_importado`.
+- `tiposDeMovimentacao`: `pagamento`, `falta`, `atraso`, `saida_antecipada`, `desconto`, `ajuste`, `bonus`, `aplicacao_adiantamento`, `estorno`, `registro_administrativo`.
+- `tiposDeHistorico`: tipos de auditoria em português.
+- `tiposDeAlocacao`: `pagamento`, `credito_adiantamento`, `aplicacao_adiantamento`.
 
 Os valores acima são uma proposta inicial; a lista definitiva deve ser definida durante a implementação. Shareds devem oferecer constantes tipadas e, se útil, labels/traduções. O backend valida os valores recebidos. O frontend não deve manter cópias divergentes das listas.
 
@@ -465,3 +465,8 @@ As queries de leitura, filtros, dashboard, sugestão automática da competência
 ### Helper de sugestão de destino do adiantamento
 
 Foi preparado `allocations/helpers/sugerirCompetenciaDestino.ts` para selecionar a competência futura elegível mais próxima, priorizando salário em caso de empate. A função é pura e não grava nem aplica crédito. A query futura deverá fornecer as competências com seus saldos; a interface continuará permitindo que o responsável escolha outro destino antes da confirmação.
+
+
+### Semântica da alocação de adiantamento
+
+Na tabela `employee_payment_allocations`, `obligationId` é anulável apenas quando `type = credito_adiantamento`. Para `pagamento` e `aplicacao_adiantamento`, a obrigação de destino é obrigatória. Essa regra é validada pelo backend. A aplicação futura é uma movimentação sem transação financeira, ligada ao pagamento original por `sourceMovementId`.

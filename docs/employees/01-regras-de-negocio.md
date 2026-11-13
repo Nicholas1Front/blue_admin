@@ -66,8 +66,8 @@ Campos previstos:
 - `position` (função/cargo)
 - `currentSalary` (Decimal; pode ser nulo quando desconhecido ou não aplicável)
 - `dailyHours` (opcional; horas diárias de referência, não horas efetivamente trabalhadas)
-- `modality` (string: por exemplo, `clt`, `pj`, `informal`, `other`)
-- `status` (string: por exemplo, `active`, `suspended`, `away`, `ended`)
+- `modality` (string: `clt`, `pj`, `nao_formalizado`, `outro`)
+- `status` (string: `ativo`, `suspenso`, `afastado`, `encerrado`)
 - `observations` (opcional)
 - `createdAt` e `updatedAt`
 
@@ -89,15 +89,15 @@ Representa valores administrativos associados a um vínculo e a uma competência
 Campos previstos:
 - `id` (UUID)
 - `engagementId` (FK)
-- `type` (string: salário, 13º, férias, bônus, rescisão, ajuste, adiantamento/crédito etc.)
+- `type` (string: `salario`, `decimo_terceiro`, `ferias`, `rescisao`, `bonus`, `comissao`, `ajuste`, `outro`; crédito de adiantamento não é obrigação)
 - `title`
 - `description` (opcional)
 - `originalValue` (Decimal, pode ser nulo durante revisão)
 - `finalValue` (Decimal, pode ser nulo durante revisão)
-- `status` (string: revisão pendente, pendente, parcial, pago, cancelado — valores finais a centralizar nos shareds)
+- `status` (string: `em_revisao`, `pendente`, `parcial`, `pago`, `cancelado`)
 - `startReference` / `endReference` (opcionais, período de referência)
 - `dueDate` (opcional, vencimento/pagamento previsto)
-- `source` (string: manual ou sugestão do sistema)
+- `source` (string: `manual`, `sugestao_sistema`, `historico_importado`)
 - `referenceKey` (chave de referência para evitar duplicação)
 - `reviewedAt` (opcional)
 - `createdAt` e `updatedAt`
@@ -359,3 +359,8 @@ A confirmação de uma sugestão deve revalidar a situação atual e impedir dup
 - `transactionId` é opcional. Pagamentos históricos podem existir sem transação; pagamentos novos podem criar uma transação de despesa ou vincular uma transação de despesa existente ainda sem origem.
 - Ocorrências e aplicações de adiantamento podem ser estornadas com motivo. Pagamentos não são estornados pelo fluxo genérico: exigem fluxo financeiro específico para não apagar ou distorcer a saída de caixa.
 - Nesta etapa não foram criadas queries específicas de dashboard/filtros/histórico, nem telas frontend. Os fluxos de escrita e a estrutura de domínio são a base para essas etapas futuras.
+
+
+### Observação sobre os status das obrigações
+
+O status `pago` representa saldo reconhecido zerado. Quando isso ocorrer após pagamento parcial combinado com desconto confirmado, a movimentação de desconto e seu histórico deixam explícito que parte do valor foi abatida, não paga em dinheiro. O saldo é sempre a fonte para determinar se ainda há valor em aberto.
