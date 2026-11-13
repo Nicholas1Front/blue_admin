@@ -55,6 +55,17 @@ class TransactionsService{
             throw new AppError('Transaction not found', 404, 'TRANSACTION_NOT_FOUND')
         }
 
+        if (
+            transactionExists.originType === 'employee_movement' ||
+            (transactionExists.originId !== null && transactionExists.originType === 'employee_movement')
+        ) {
+            throw new AppError(
+                'Employee payment transactions cannot be edited directly; use the employee payment correction flow',
+                409,
+                'EMPLOYEE_PAYMENT_TRANSACTION_IMMUTABLE'
+            )
+        }
+
         if(cleanedData.categoryId !== undefined){
             const categoryExists = await categoryRepository.findCategoryById(cleanedData.categoryId)
 

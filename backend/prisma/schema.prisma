@@ -304,7 +304,7 @@ model VehicleHistory {
 model Employee {
   id          String   @id @default(uuid())
   name        String
-  cpfCnpj     String?  @map("cpf_cnpj") @db.VarChar(14)
+  cpfCnpj     String?  @unique @map("cpf_cnpj") @db.VarChar(14)
   address     String?
   birthDate   DateTime? @map("birth_date")
   observations String?
