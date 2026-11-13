@@ -140,7 +140,7 @@ Campos previstos:
 - `eventDate` (data em que o fato ocorreu/foi efetivado)
 - `transactionId` (UUID opcional, referência a `financial_transactions`)
 - `obligationId` (FK opcional para eventos não financeiros que afetem uma competência específica; pagamentos não devem depender desse vínculo direto)
-- `sourceMovementId` (FK opcional para identificar a movimentação de adiantamento que está sendo aplicada; detalhes na seção 7)
+- `sourceMovementId` (FK opcional para rastrear a cadeia: a movimentação `adiantamento` aponta para o pagamento original; a movimentação `aplicacao_adiantamento` aponta para a movimentação de adiantamento)
 - `createdAt` e `updatedAt`
 
 Regras:
@@ -184,7 +184,7 @@ Tabela associativa para distribuir um pagamento entre várias obrigações e per
 
 Campos previstos:
 - `id` (UUID)
-- `movementId` (FK para a movimentação que representa o pagamento ou aplicação de crédito)
+- `movementId` (FK para a movimentação de pagamento quando o tipo é `pagamento`/`credito_adiantamento`, ou para a movimentação de aplicação quando o tipo é `aplicacao_adiantamento`)
 - `obligationId` (FK opcional; nulo somente para a reserva de crédito de adiantamento)
 - `value` (Decimal positivo)
 - `type` (string: `pagamento`, `credito_adiantamento`, `aplicacao_adiantamento`)
@@ -251,7 +251,7 @@ O excedente de um pagamento não deve ficar sem destino nem ser confundido com u
 2. O sistema apresenta as obrigações abertas e seus saldos.
 3. O responsável distribui o valor entre as obrigações.
 4. Se houver excedente, o sistema oferece registrar esse valor como **crédito de adiantamento**.
-5. O sistema procura competências futuras elegíveis e sugere uma competência destino (por exemplo, a próxima competência salarial ainda não quitada).
+5. O sistema registra uma movimentação explícita de `adiantamento`, ligada ao pagamento original, e procura competências futuras elegíveis para sugerir um destino (por exemplo, a próxima competência salarial ainda não quitada).
 6. O responsável escolhe/confirma a competência destino sugerida; pode ajustar a escolha.
 7. O crédito aplicado reduz o saldo a pagar daquela competência. Não cria um novo pagamento e não gera nova transação financeira.
 8. O histórico deve mostrar o pagamento original, a origem do crédito, a competência destino, o valor aplicado e eventual saldo de crédito ainda disponível.
@@ -269,11 +269,11 @@ O excedente de um pagamento não deve ficar sem destino nem ser confundido com u
 - Não usar uma competência comum como se fosse uma dívida negativa sem distinguir explicitamente o tipo e a semântica de crédito.
 - A modelagem final deve permitir validar atomicamente: crédito disponível, valor aplicado, saldo da competência e vínculo de origem.
 
-### Diretriz técnica a preservar
+### Diretriz técnica implementada
 
-A estrutura de seis partes deve ser mantida, sem criar uma tabela extra sem necessidade. A proposta é registrar o pagamento original como movimentação financeira, reservar a parcela excedente como crédito identificável e registrar cada aplicação futura como movimentação não financeira ligada à movimentação de origem (`sourceMovementId`), com alocação para a competência destino. A tabela de alocações deve distinguir `payment` de `advance_application`. O saldo do crédito deve ser calculável pela origem menos aplicações válidas e reversões.
+A estrutura de seis partes é mantida. O pagamento original é uma movimentação financeira e recebe a alocação `credito_adiantamento` com `obligationId = null`. Para tornar o crédito visível no livro de movimentações, o backend cria uma movimentação `adiantamento` cujo `sourceMovementId` aponta para o pagamento original. Cada aplicação futura cria uma movimentação não financeira `aplicacao_adiantamento`, cujo `sourceMovementId` aponta para a movimentação `adiantamento`, e uma alocação para a competência destino. O saldo disponível é o crédito reservado no pagamento menos as aplicações válidas; estornos de aplicações devolvem o valor ao crédito disponível.
 
-**Ponto de validação na implementação:** fechar o modelo relacional e as restrições para que a alocação inicial do pagamento ao crédito e as aplicações futuras não contem o mesmo dinheiro duas vezes, nem exijam que a soma de alocações de uma aplicação represente uma nova transação. A regra funcional acima está acordada; a forma exata de persistir o crédito deve ser revisada junto do schema antes da migration.
+A aplicação não cria uma segunda transação financeira. O fluxo valida que a movimentação de adiantamento, o pagamento original, o vínculo, o crédito reservado e o saldo da competência continuam consistentes dentro de uma transação Prisma. O estorno do pagamento ou do crédito reservado exige um fluxo financeiro específico e não é permitido pelo endpoint genérico de estorno.
 
 ## 8. Modalidade e cautela legal
 
