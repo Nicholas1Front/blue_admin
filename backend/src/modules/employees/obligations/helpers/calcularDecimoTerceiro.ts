@@ -1,4 +1,5 @@
 import { Prisma } from '../../../../generated/prisma/client.js'
+import { contarMesesComPeloMenos15Dias } from './contarMesesComPeloMenos15Dias.js'
 
 export interface ResultadoDecimoTerceiro {
     mesesConsiderados: number
@@ -16,27 +17,13 @@ export const contarMesesDecimoTerceiro = (
     dataFim: Date,
     ano: number
 ): number => {
-    if (dataFim < dataInicio) throw new Error('O fim do período não pode anteceder o início.')
+    const inicioAno = new Date(Date.UTC(ano, 0, 1))
+    const fimAno = new Date(Date.UTC(ano, 11, 31))
+    const inicioValido = dataInicio > inicioAno ? dataInicio : inicioAno
+    const fimValido = dataFim < fimAno ? dataFim : fimAno
 
-    let meses = 0
-    for (let mes = 0; mes < 12; mes += 1) {
-        const inicioMes = new Date(Date.UTC(ano, mes, 1))
-        const fimMes = new Date(Date.UTC(ano, mes + 1, 0))
-        const inicioValido = dataInicio > inicioMes ? dataInicio : inicioMes
-        const fimValido = dataFim < fimMes ? dataFim : fimMes
-
-        if (fimValido < inicioValido) continue
-
-        const diasNoPeriodo = Math.floor(
-            (Date.UTC(fimValido.getUTCFullYear(), fimValido.getUTCMonth(), fimValido.getUTCDate()) -
-                Date.UTC(inicioValido.getUTCFullYear(), inicioValido.getUTCMonth(), inicioValido.getUTCDate())) /
-                86_400_000
-        ) + 1
-
-        if (diasNoPeriodo >= 15) meses += 1
-    }
-
-    return meses
+    if (fimValido < inicioValido) return 0
+    return contarMesesComPeloMenos15Dias(inicioValido, fimValido)
 }
 
 export const calcularDecimoTerceiro = (
