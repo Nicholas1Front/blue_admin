@@ -15,6 +15,10 @@ model User {
   passwordHash String   @map("password_hash")
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+
+  employeeObligationsReviewed EmployeeObligation[] @relation("EmployeeObligationReviewer")
+  employeeMovementsCreated    EmployeeMovement[]   @relation("EmployeeMovementActor")
+  employeeHistoryCreated      EmployeeHistory[]    @relation("EmployeeHistoryActor")
 }
 
 model Client {
@@ -84,7 +88,8 @@ model FinancialTransaction {
   updatedAt     DateTime          @updatedAt
 
   category       FinancialCategory @relation(fields: [categoryId], references: [id])
-  titheForService Service?         @relation("ServiceTitheTransaction")
+  titheForService  Service?         @relation("ServiceTitheTransaction")
+  employeeMovement EmployeeMovement?
 
   @@index([categoryId])
   @@index([referenceDate])
@@ -294,3 +299,155 @@ model VehicleHistory {
   @@map("vehicles_history")
 }
 
+
+
+model Employee {
+  id          String   @id @default(uuid())
+  name        String
+  cpfCnpj     String?  @map("cpf_cnpj") @db.VarChar(14)
+  address     String?
+  birthDate   DateTime? @map("birth_date")
+  observations String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  engagements EmployeeEngagement[]
+  history     EmployeeHistory[]
+
+  @@index([name])
+  @@map("employees")
+}
+
+model EmployeeEngagement {
+  id                String    @id @default(uuid())
+  employeeId        String    @map("employee_id")
+  entryDate         DateTime  @map("entry_date")
+  exitDate          DateTime? @map("exit_date")
+  position          String?
+  currentSalary     Decimal?  @map("current_salary")
+  dailyHours        Decimal?  @map("daily_hours")
+  modality          String
+  status            String    @default("ativo")
+  terminationReason String?   @map("termination_reason")
+  noticeType        String?   @map("notice_type")
+  noticeDate        DateTime? @map("notice_date")
+  noticeEndDate     DateTime? @map("notice_end_date")
+  observations      String?
+  createdAt         DateTime  @default(now()) @map("created_at")
+  updatedAt         DateTime  @updatedAt @map("updated_at")
+
+  employee    Employee             @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+  obligations EmployeeObligation[]
+  movements   EmployeeMovement[]
+  history     EmployeeHistory[]
+
+  @@index([employeeId, entryDate])
+  @@index([status, entryDate])
+  @@index([exitDate])
+  @@map("employee_engagements")
+}
+
+model EmployeeObligation {
+  id             String    @id @default(uuid())
+  engagementId   String    @map("engagement_id")
+  type           String
+  title          String
+  description    String?
+  originalValue  Decimal?  @map("original_value")
+  finalValue     Decimal?  @map("final_value")
+  status         String    @default("em_revisao")
+  referenceStart DateTime? @map("reference_start")
+  referenceEnd   DateTime? @map("reference_end")
+  dueDate        DateTime? @map("due_date")
+  source         String    @default("manual")
+  referenceKey   String?   @map("reference_key")
+  calculationDetails Json? @map("calculation_details")
+  reviewedAt     DateTime? @map("reviewed_at")
+  reviewedById   String?   @map("reviewed_by_id")
+  createdAt      DateTime  @default(now()) @map("created_at")
+  updatedAt      DateTime  @updatedAt @map("updated_at")
+
+  engagement EmployeeEngagement          @relation(fields: [engagementId], references: [id], onDelete: Restrict)
+  reviewedBy User?                       @relation("EmployeeObligationReviewer", fields: [reviewedById], references: [id], onDelete: SetNull)
+  movements  EmployeeMovement[]
+  allocations EmployeePaymentAllocation[]
+
+  @@unique([engagementId, referenceKey])
+  @@index([engagementId, status, dueDate])
+  @@index([type, referenceStart, referenceEnd])
+  @@map("employee_obligations")
+}
+
+model EmployeeMovement {
+  id                   String    @id @default(uuid())
+  engagementId         String    @map("engagement_id")
+  type                 String
+  title                String
+  description          String?
+  value                Decimal?
+  eventDate            DateTime  @map("event_date")
+  transactionId        String?   @unique @map("transaction_id")
+  obligationId         String?   @map("obligation_id")
+  sourceMovementId     String?   @map("source_movement_id")
+  durationMinutes      Int?      @map("duration_minutes")
+  absenceDays          Decimal?  @map("absence_days")
+  justificationStatus  String?   @map("justification_status")
+  createdById          String?   @map("created_by_id")
+  reversedAt           DateTime? @map("reversed_at")
+  reversalReason       String?   @map("reversal_reason")
+  createdAt            DateTime  @default(now()) @map("created_at")
+  updatedAt            DateTime  @updatedAt @map("updated_at")
+
+  engagement         EmployeeEngagement          @relation(fields: [engagementId], references: [id], onDelete: Restrict)
+  financialTransaction FinancialTransaction?     @relation(fields: [transactionId], references: [id], onDelete: Restrict)
+  obligation         EmployeeObligation?          @relation(fields: [obligationId], references: [id], onDelete: Restrict)
+  sourceMovement     EmployeeMovement?            @relation("EmployeeAdvanceSource", fields: [sourceMovementId], references: [id], onDelete: Restrict)
+  advanceApplications EmployeeMovement[]          @relation("EmployeeAdvanceSource")
+  createdBy          User?                        @relation("EmployeeMovementActor", fields: [createdById], references: [id], onDelete: SetNull)
+  allocations        EmployeePaymentAllocation[]
+
+  @@index([engagementId, eventDate])
+  @@index([type, eventDate])
+  @@index([obligationId])
+  @@index([sourceMovementId])
+  @@map("employee_movements")
+}
+
+model EmployeePaymentAllocation {
+  id           String   @id @default(uuid())
+  movementId   String   @map("movement_id")
+  obligationId String?  @map("obligation_id")
+  type         String
+  value        Decimal
+  createdAt    DateTime @default(now()) @map("created_at")
+
+  movement   EmployeeMovement   @relation(fields: [movementId], references: [id], onDelete: Restrict)
+  obligation EmployeeObligation? @relation(fields: [obligationId], references: [id], onDelete: Restrict)
+
+  @@index([movementId])
+  @@index([obligationId])
+  @@index([type, createdAt])
+  @@map("employee_payment_allocations")
+}
+
+model EmployeeHistory {
+  id          String   @id @default(uuid())
+  employeeId  String   @map("employee_id")
+  engagementId String? @map("engagement_id")
+  type        String
+  title       String
+  description String?
+  metadata    Json?
+  eventDate   DateTime @map("event_date")
+  createdById String?  @map("created_by_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+
+  employee   Employee           @relation(fields: [employeeId], references: [id], onDelete: Restrict)
+  engagement EmployeeEngagement? @relation(fields: [engagementId], references: [id], onDelete: Restrict)
+  createdBy User?               @relation("EmployeeHistoryActor", fields: [createdById], references: [id], onDelete: SetNull)
+
+  @@index([employeeId, eventDate])
+  @@index([engagementId, eventDate])
+  @@index([type, eventDate])
+  @@map("employee_history")
+}
