@@ -10,7 +10,7 @@ export const criarMovimentacaoSchema = z.object({
     eventDate: z.coerce.date(),
     obligationId: z.string().uuid().nullable().optional(),
     durationMinutes: z.coerce.number().int().positive().nullable().optional(),
-    absenceDays: z.coerce.number().positive().nullable().optional(),
+    absenceDays: z.coerce.number().int().positive().nullable().optional(),
     justificationStatus: z.enum(statusDaJustificativa).nullable().optional()
 }).superRefine((data, context) => {
     if (data.type === 'falta') {

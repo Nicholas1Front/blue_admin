@@ -9,7 +9,7 @@ export interface ComponentesEstimativaRescisao {
     multaFgts?: Prisma.Decimal | number
     outrosProventos?: Prisma.Decimal | number
     descontosRevisados?: Prisma.Decimal | number
-    adiantamentosDisponiveis?: Prisma.Decimal | number
+    adiantamentosCompensaveisRevisados?: Prisma.Decimal | number
 }
 
 export interface ResultadoEstimativaRescisao {
@@ -21,9 +21,10 @@ export interface ResultadoEstimativaRescisao {
 }
 
 /**
- * Consolida componentes calculados/conferidos por outras rotinas ou informados
- * pelo responsável. Não decide direitos por motivo de desligamento e não calcula
- * aviso, FGTS, INSS, IRRF ou verbas legais automaticamente.
+ * Consolida componentes previamente calculados/conferidos ou informados pelo
+ * responsável. Não decide direitos pelo motivo do desligamento e não calcula
+ * aviso, FGTS, INSS, IRRF ou descontos automaticamente. Adiantamentos só entram
+ * como desconto quando o responsável os informar como compensáveis após revisão.
  */
 export const calcularTotalEstimadoRescisao = (
     componentes: ComponentesEstimativaRescisao
@@ -37,7 +38,7 @@ export const calcularTotalEstimadoRescisao = (
         multaFgts: 'Multa do FGTS',
         outrosProventos: 'Outros proventos',
         descontosRevisados: 'Descontos revisados',
-        adiantamentosDisponiveis: 'Adiantamentos a compensar'
+        adiantamentosCompensaveisRevisados: 'Adiantamentos revisados para compensação'
     }
 
     const itens: Record<string, string> = {}
@@ -50,7 +51,7 @@ export const calcularTotalEstimadoRescisao = (
         if (decimal.isNegative()) throw new Error('Os componentes da estimativa devem ser não negativos.')
         itens[nomes[chave]] = decimal.toFixed(2)
 
-        if (chave === 'descontosRevisados' || chave === 'adiantamentosDisponiveis') {
+        if (chave === 'descontosRevisados' || chave === 'adiantamentosCompensaveisRevisados') {
             descontos = descontos.plus(decimal)
         } else {
             proventos = proventos.plus(decimal)

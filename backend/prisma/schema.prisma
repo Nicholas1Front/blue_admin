@@ -390,7 +390,7 @@ model EmployeeMovement {
   obligationId         String?   @map("obligation_id")
   sourceMovementId     String?   @map("source_movement_id")
   durationMinutes      Int?      @map("duration_minutes")
-  absenceDays          Decimal?  @map("absence_days")
+  absenceDays          Int?      @map("absence_days")
   justificationStatus  String?   @map("justification_status")
   createdById          String?   @map("created_by_id")
   reversedAt           DateTime? @map("reversed_at")
