@@ -12,7 +12,10 @@ export const calcularSaldoSalario = (
         throw new Error('A quantidade de dias deve ser um inteiro entre 0 e 30.')
     }
 
-    return new Prisma.Decimal(remuneracaoMensal)
+    const remuneracao = new Prisma.Decimal(remuneracaoMensal)
+    if (remuneracao.isNegative()) throw new Error('A remuneração não pode ser negativa.')
+
+    return remuneracao
         .div(30)
         .mul(diasConsiderados)
         .toDecimalPlaces(2, Prisma.Decimal.ROUND_HALF_UP)

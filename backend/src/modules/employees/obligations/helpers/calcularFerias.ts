@@ -25,7 +25,10 @@ export const calcularValorFeriasAdquiridas = (
         throw new Error('Os dias de férias devem corresponder a 0, 12, 18, 24 ou 30.')
     }
 
-    const remuneracao = new Prisma.Decimal(remuneracaoBase)
+    const salario = new Prisma.Decimal(remuneracaoBase)
+    if (salario.isNegative()) throw new Error('A remuneração-base não pode ser negativa.')
+
+    const remuneracao = salario
         .mul(diasDeDireito)
         .div(30)
 

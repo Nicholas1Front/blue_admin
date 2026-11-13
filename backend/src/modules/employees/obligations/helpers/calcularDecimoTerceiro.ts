@@ -47,7 +47,10 @@ export const calcularDecimoTerceiro = (
         throw new Error('A quantidade de meses deve ser um inteiro entre 0 e 12.')
     }
 
-    const valorEstimado = new Prisma.Decimal(remuneracaoBase)
+    const remuneracao = new Prisma.Decimal(remuneracaoBase)
+    if (remuneracao.isNegative()) throw new Error('A remuneração-base não pode ser negativa.')
+
+    const valorEstimado = remuneracao
         .mul(mesesConsiderados)
         .div(12)
         .toDecimalPlaces(2, Prisma.Decimal.ROUND_HALF_UP)

@@ -49,7 +49,12 @@ class EngagementsRepository {
                 type: 'vinculo_criado',
                 title: 'Vínculo cadastrado',
                 description: `Vínculo iniciado em ${data.entryDate.toLocaleDateString('pt-BR')}.`,
-                metadata: { modalidade: data.modality, funcao: data.position ?? null },
+                metadata: {
+                    modalidade: data.modality,
+                    funcao: data.position ?? null,
+                    remuneracaoInicial: data.currentSalary ?? null,
+                    horasDiarias: data.dailyHours ?? null
+                },
                 eventDate: data.entryDate,
                 createdById
             })

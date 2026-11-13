@@ -13,7 +13,10 @@ export const calcularFeriasProporcionais = (
         throw new Error('A quantidade de meses deve ser um inteiro entre 0 e 12.')
     }
 
-    return new Prisma.Decimal(remuneracaoBase)
+    const remuneracao = new Prisma.Decimal(remuneracaoBase)
+    if (remuneracao.isNegative()) throw new Error('A remuneração-base não pode ser negativa.')
+
+    return remuneracao
         .mul(mesesConsiderados)
         .div(12)
         .mul(new Prisma.Decimal(4).div(3))
