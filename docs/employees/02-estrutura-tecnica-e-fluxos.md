@@ -226,8 +226,8 @@ Toda validação de saldo deve acontecer dentro da transação e proteger contra
 3. Permitir ao responsável selecionar a competência destino.
 4. Validar vínculo, saldo do crédito e saldo da competência.
 5. Criar movimentação de aplicação sem nova transação financeira.
-6. Criar alocação do tipo `advance_application` para a competência destino.
-7. Vincular a aplicação à movimentação que originou o crédito (`sourceMovementId`).
+6. Criar alocação do tipo `aplicacao_adiantamento` para a competência destino.
+7. Vincular a aplicação à movimentação `adiantamento` por `sourceMovementId`; essa movimentação, por sua vez, aponta para o pagamento original.
 8. Atualizar saldos calculados e histórico.
 9. Impedir consumo acima do crédito disponível ou do saldo da competência.
 
@@ -469,7 +469,7 @@ Foi preparado `allocations/helpers/sugerirCompetenciaDestino.ts` para selecionar
 
 ### Semântica da alocação de adiantamento
 
-Na tabela `employee_payment_allocations`, `obligationId` é anulável apenas quando `type = credito_adiantamento`. Para `pagamento` e `aplicacao_adiantamento`, a obrigação de destino é obrigatória. Essa regra é validada pelo backend. A aplicação futura é uma movimentação sem transação financeira, ligada ao pagamento original por `sourceMovementId`.
+Na tabela `employee_payment_allocations`, `obligationId` é anulável apenas quando `type = credito_adiantamento`. Para `pagamento` e `aplicacao_adiantamento`, a obrigação de destino é obrigatória. Essa regra é validada pelo backend. O pagamento contém a alocação de crédito; uma movimentação `adiantamento` aponta para o pagamento original; cada aplicação futura é uma movimentação sem transação financeira ligada à movimentação `adiantamento` por `sourceMovementId`.
 
 
 ### Limites e validações ainda pendentes
