@@ -1,7 +1,19 @@
 import { AppError } from '../../../shared/errors/AppError.js'
+import { isPrismaErrorCode } from '../../../shared/errors/isPrismaErrorCode.js'
 import { tiposDeObrigacao, origensDaObrigacao } from '../shared/index.js'
 import obligationsRepository from './obligations.repository.js'
 import type { AtualizarObrigacaoDTO, CancelarObrigacaoDTO, CriarObrigacaoDTO, RevisarObrigacaoDTO } from './obligations.schema.js'
+
+const executarComTratamentoDeConcorrencia = async <T>(operation: () => Promise<T>): Promise<T> => {
+    try {
+        return await operation()
+    } catch (error) {
+        if (isPrismaErrorCode(error, 'P2034')) {
+            throw new AppError('The obligation changed concurrently. Refresh the data and try again.', 409, 'OBLIGATION_CONCURRENT_UPDATE')
+        }
+        throw error
+    }
+}
 
 class ObligationsService {
     async create(data: CriarObrigacaoDTO, createdById: string) {
@@ -14,7 +26,14 @@ class ObligationsService {
             throw new AppError('Reference end date cannot be before its start date', 400, 'INVALID_OBLIGATION_PERIOD')
         }
 
-        return obligationsRepository.create(data, createdById)
+        try {
+            return await obligationsRepository.create(data, createdById)
+        } catch (error) {
+            if (isPrismaErrorCode(error, 'P2002')) {
+                throw new AppError('An obligation already exists for this engagement and reference key', 409, 'OBLIGATION_REFERENCE_ALREADY_EXISTS')
+            }
+            throw error
+        }
     }
 
     async update(id: string, data: AtualizarObrigacaoDTO, createdById: string) {
@@ -27,9 +46,11 @@ class ObligationsService {
             throw new AppError('Reference end date cannot be before its start date', 400, 'INVALID_OBLIGATION_PERIOD')
         }
 
-        const updated = await obligationsRepository.update(id, data, createdById)
-        if (!updated) throw new AppError('Obligation not found', 404, 'OBLIGATION_NOT_FOUND')
-        return updated
+        return executarComTratamentoDeConcorrencia(async () => {
+            const updated = await obligationsRepository.update(id, data, createdById)
+            if (!updated) throw new AppError('Obligation not found', 404, 'OBLIGATION_NOT_FOUND')
+            return updated
+        })
     }
 
     async review(id: string, data: RevisarObrigacaoDTO, reviewedById: string) {
@@ -38,7 +59,7 @@ class ObligationsService {
         if (current.status !== 'em_revisao') {
             throw new AppError('Only obligations under review can be confirmed', 409, 'OBLIGATION_NOT_UNDER_REVIEW')
         }
-        return obligationsRepository.review(id, data, reviewedById)
+        return executarComTratamentoDeConcorrencia(() => obligationsRepository.review(id, data, reviewedById))
     }
 
     async cancel(id: string, data: CancelarObrigacaoDTO, createdById: string) {
@@ -47,7 +68,7 @@ class ObligationsService {
         if (current.status === 'pago' || current.status === 'cancelado' || await obligationsRepository.hasAllocations(id)) {
             throw new AppError('An obligation with payments cannot be canceled directly', 409, 'OBLIGATION_CANNOT_BE_CANCELED')
         }
-        return obligationsRepository.cancel(id, data.reason, createdById)
+        return executarComTratamentoDeConcorrencia(() => obligationsRepository.cancel(id, data.reason, createdById))
     }
 }
 
