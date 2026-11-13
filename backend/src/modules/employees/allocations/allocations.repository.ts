@@ -142,13 +142,28 @@ class AllocationsRepository {
                 await atualizarStatusObrigacao(tx, obligation.id, nextTotal)
             }
 
+            let advanceMovement = null
             if (data.advanceCreditValue > 0) {
+                const creditValue = new Prisma.Decimal(data.advanceCreditValue)
                 await tx.employeePaymentAllocation.create({
                     data: {
                         movementId: movement.id,
                         obligationId: null,
                         type: 'credito_adiantamento',
-                        value: new Prisma.Decimal(data.advanceCreditValue)
+                        value: creditValue
+                    }
+                })
+
+                advanceMovement = await tx.employeeMovement.create({
+                    data: {
+                        engagementId: data.engagementId,
+                        type: 'adiantamento',
+                        title: 'Crédito de adiantamento reservado',
+                        description: `Crédito originado do pagamento ${movement.id}.`,
+                        value: creditValue,
+                        eventDate: data.eventDate,
+                        sourceMovementId: movement.id,
+                        createdById
                     }
                 })
             }
@@ -176,7 +191,11 @@ class AllocationsRepository {
                     type: 'adiantamento_reservado',
                     title: 'Crédito de adiantamento reservado',
                     description: `Crédito de R$ ${data.advanceCreditValue.toFixed(2)} disponível para uma competência futura.`,
-                    metadata: { sourceMovementId: movement.id, value: data.advanceCreditValue },
+                    metadata: {
+                        sourcePaymentMovementId: movement.id,
+                        advanceMovementId: advanceMovement?.id ?? null,
+                        value: data.advanceCreditValue
+                    },
                     eventDate: data.eventDate,
                     createdById
                 })
@@ -187,36 +206,59 @@ class AllocationsRepository {
                 include: { allocations: true }
             })
 
-            return { movement: updatedMovement, transaction }
+            return { movement: updatedMovement, transaction, advanceMovement }
         }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable })
     }
 
     async applyAdvance(data: AplicarAdiantamentoDTO, createdById: string) {
         return prisma.$transaction(async tx => {
-            const source = await tx.employeeMovement.findUnique({
+            const advance = await tx.employeeMovement.findUnique({
                 where: { id: data.sourceMovementId },
-                select: { id: true, engagementId: true, type: true, reversedAt: true }
+                select: {
+                    id: true,
+                    engagementId: true,
+                    type: true,
+                    sourceMovementId: true,
+                    value: true,
+                    reversedAt: true
+                }
             })
-            if (!source || source.type !== 'pagamento' || source.reversedAt !== null) {
-                throw new AppError('A valid, unreversed source payment was not found', 404, 'ADVANCE_SOURCE_NOT_FOUND')
+            if (
+                !advance ||
+                advance.type !== 'adiantamento' ||
+                !advance.sourceMovementId ||
+                advance.reversedAt !== null
+            ) {
+                throw new AppError('A valid, unreversed advance movement was not found', 404, 'ADVANCE_SOURCE_NOT_FOUND')
+            }
+
+            const paymentSource = await tx.employeeMovement.findUnique({
+                where: { id: advance.sourceMovementId },
+                select: { id: true, type: true, reversedAt: true }
+            })
+            if (!paymentSource || paymentSource.type !== 'pagamento' || paymentSource.reversedAt !== null) {
+                throw new AppError('The original payment for this advance is unavailable', 409, 'ADVANCE_PAYMENT_SOURCE_INVALID')
             }
 
             const creditResult = await tx.employeePaymentAllocation.aggregate({
                 where: {
-                    movementId: source.id,
+                    movementId: paymentSource.id,
                     type: 'credito_adiantamento',
                     obligationId: null
                 },
                 _sum: { value: true }
             })
             const creditTotal = creditResult._sum.value ?? new Prisma.Decimal(0)
+            if (advance.value === null || !advance.value.equals(creditTotal)) {
+                throw new AppError('Advance movement and reserved credit values do not match', 409, 'ADVANCE_CREDIT_INCONSISTENT')
+            }
 
             const appliedResult = await tx.employeePaymentAllocation.aggregate({
                 where: {
                     type: 'aplicacao_adiantamento',
                     movement: {
                         is: {
-                            sourceMovementId: source.id,
+                            sourceMovementId: advance.id,
                             reversedAt: null
                         }
                     }
@@ -234,11 +276,11 @@ class AllocationsRepository {
             const obligation = await tx.employeeObligation.findFirst({
                 where: {
                     id: data.obligationId,
-                    engagementId: source.engagementId
+                    engagementId: advance.engagementId
                 }
             })
             if (!obligation) {
-                throw new AppError('The destination obligation does not belong to the source engagement', 400, 'OBLIGATION_ENGAGEMENT_MISMATCH')
+                throw new AppError('The destination obligation does not belong to this engagement', 400, 'OBLIGATION_ENGAGEMENT_MISMATCH')
             }
             if (obligation.finalValue === null || obligation.status === 'em_revisao' || obligation.status === 'cancelado') {
                 throw new AppError('Only confirmed and open obligations can receive advance credit', 409, 'OBLIGATION_NOT_PAYABLE')
@@ -252,13 +294,13 @@ class AllocationsRepository {
 
             const movement = await tx.employeeMovement.create({
                 data: {
-                    engagementId: source.engagementId,
+                    engagementId: advance.engagementId,
                     type: 'aplicacao_adiantamento',
                     title: data.title,
                     description: data.description ?? null,
                     value: applicationValue,
                     eventDate: data.eventDate,
-                    sourceMovementId: source.id,
+                    sourceMovementId: advance.id,
                     obligationId: obligation.id,
                     createdById
                 }
@@ -276,17 +318,18 @@ class AllocationsRepository {
             await atualizarStatusObrigacao(tx, obligation.id, nextTotal)
 
             const engagement = await tx.employeeEngagement.findUniqueOrThrow({
-                where: { id: source.engagementId },
+                where: { id: advance.engagementId },
                 select: { employeeId: true }
             })
             await registrarHistorico(tx, {
                 employeeId: engagement.employeeId,
-                engagementId: source.engagementId,
+                engagementId: advance.engagementId,
                 type: 'adiantamento_aplicado',
                 title: 'Adiantamento aplicado à competência',
                 description: `R$ ${applicationValue.toFixed(2)} aplicados em "${obligation.title}". Nenhuma nova saída financeira foi criada.`,
                 metadata: {
-                    sourceMovementId: source.id,
+                    sourceAdvanceMovementId: advance.id,
+                    sourcePaymentMovementId: paymentSource.id,
                     applicationMovementId: movement.id,
                     obligationId: obligation.id,
                     value: applicationValue.toFixed(2)

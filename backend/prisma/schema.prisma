@@ -402,7 +402,7 @@ model EmployeeMovement {
   financialTransaction FinancialTransaction?     @relation(fields: [transactionId], references: [id], onDelete: Restrict)
   obligation         EmployeeObligation?          @relation(fields: [obligationId], references: [id], onDelete: Restrict)
   sourceMovement     EmployeeMovement?            @relation("EmployeeAdvanceSource", fields: [sourceMovementId], references: [id], onDelete: Restrict)
-  advanceApplications EmployeeMovement[]          @relation("EmployeeAdvanceSource")
+  derivedMovements    EmployeeMovement[]          @relation("EmployeeAdvanceSource")
   createdBy          User?                        @relation("EmployeeMovementActor", fields: [createdById], references: [id], onDelete: SetNull)
   allocations        EmployeePaymentAllocation[]
 

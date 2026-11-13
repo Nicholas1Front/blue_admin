@@ -104,8 +104,8 @@ class MovementsRepository {
             const current = await tx.employeeMovement.findUnique({ where: { id } })
             if (!current) throw new AppError('Employee movement not found', 404, 'EMPLOYEE_MOVEMENT_NOT_FOUND')
             if (current.reversedAt) throw new AppError('Movement is already reversed', 409, 'MOVEMENT_ALREADY_REVERSED')
-            if (current.type === 'pagamento') {
-                throw new AppError('Payments require a dedicated financial reversal flow', 409, 'PAYMENT_REVERSAL_REQUIRES_FINANCIAL_FLOW')
+            if (current.type === 'pagamento' || current.type === 'adiantamento') {
+                throw new AppError('Payments and reserved advance credits require a dedicated financial correction flow', 409, 'PAYMENT_REVERSAL_REQUIRES_FINANCIAL_FLOW')
             }
 
             const reversedAt = new Date()

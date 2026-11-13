@@ -6,6 +6,7 @@ export const tiposDeMovimentacao = [
     'desconto',
     'ajuste',
     'bonus',
+    'adiantamento',
     'aplicacao_adiantamento',
     'estorno',
     'registro_administrativo'

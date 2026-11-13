@@ -43,7 +43,7 @@ EmployeePaymentAllocation
 
 EmployeeMovement
   ├── FinancialTransaction? (via transactionId opcional)
-  └── EmployeeMovement? (self relation opcional para origem de aplicação de adiantamento)
+  └── EmployeeMovement? (self relation: adiantamento aponta para pagamento; aplicação aponta para adiantamento)
 ```
 
 ### 3.1 Relações e cardinalidade
