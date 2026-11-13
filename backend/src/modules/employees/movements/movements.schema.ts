@@ -1,9 +1,9 @@
 import { z } from 'zod'
-import { statusDaJustificativa } from '../shared/index.js'
+import { statusDaJustificativa, tiposDeOcorrencia } from '../shared/index.js'
 
 export const criarMovimentacaoSchema = z.object({
     engagementId: z.string().uuid(),
-    type: z.enum(['falta', 'atraso', 'saida_antecipada', 'ajuste', 'bonus', 'registro_administrativo']),
+    type: z.enum(tiposDeOcorrencia),
     title: z.string().trim().min(1).max(160),
     description: z.string().trim().max(2000).nullable().optional(),
     value: z.coerce.number().min(0).nullable().optional(),

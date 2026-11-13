@@ -1,6 +1,18 @@
+import { Prisma } from '../../../generated/prisma/client.js'
 import { prisma } from '../../../shared/database/prisma.js'
 import { registrarHistorico } from '../history/history.repository.js'
 import type { AtualizarVinculoDTO, CriarVinculoDTO, EncerrarVinculoDTO } from './engagements.schema.js'
+
+const valorHistorico = (value: unknown): string | null => {
+    if (value === null || value === undefined) return null
+    if (value instanceof Date) return value.toISOString()
+    return String(value)
+}
+
+const valoresIguais = (a: unknown, b: unknown) => {
+    if (a instanceof Date && b instanceof Date) return a.getTime() === b.getTime()
+    return String(a) === String(b)
+}
 
 class EngagementsRepository {
     findById(id: string) {
@@ -70,11 +82,16 @@ class EngagementsRepository {
                 }
             })
 
-            const changes: Record<string, { anterior: unknown; atual: unknown }> = {}
+            const changes: Record<string, { anterior: string | null; atual: string | null }> = {}
             for (const key of Object.keys(fields) as (keyof typeof fields)[]) {
                 const previous = current[key as keyof typeof current]
                 const next = updated[key as keyof typeof updated]
-                if (previous !== next) changes[String(key)] = { anterior: previous, atual: next }
+                if (!valoresIguais(previous, next)) {
+                    changes[String(key)] = {
+                        anterior: valorHistorico(previous),
+                        atual: valorHistorico(next)
+                    }
+                }
             }
 
             if (Object.keys(changes).length > 0) {
@@ -85,7 +102,7 @@ class EngagementsRepository {
                     type: salarioAlterado ? 'salario_alterado' : 'vinculo_atualizado',
                     title: salarioAlterado ? 'Remuneração do vínculo alterada' : 'Vínculo atualizado',
                     description: `Campos alterados: ${Object.keys(changes).join(', ')}.`,
-                    metadata: changes as unknown as import('../../../generated/prisma/client.js').Prisma.InputJsonObject,
+                    metadata: changes as Prisma.InputJsonObject,
                     eventDate: effectiveDate ?? new Date(),
                     createdById
                 })

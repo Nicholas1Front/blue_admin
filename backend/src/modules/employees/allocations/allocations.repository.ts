@@ -60,7 +60,7 @@ class AllocationsRepository {
                 }
             })
 
-            let transaction = null
+            let transaction: Prisma.FinancialTransaction | null = null
             if (data.categoryId) {
                 const category = await tx.financialCategory.findUnique({ where: { id: data.categoryId } })
                 if (!category) throw new AppError('Financial category not found', 404, 'CATEGORY_NOT_FOUND')
@@ -85,17 +85,23 @@ class AllocationsRepository {
                     data: { transactionId: transaction.id }
                 })
             } else if (data.transactionId) {
-                transaction = await tx.financialTransaction.findUnique({ where: { id: data.transactionId } })
-                if (!transaction) throw new AppError('Financial transaction not found', 404, 'TRANSACTION_NOT_FOUND')
-                if (transaction.type !== 'expense' || !transaction.value.equals(paymentValue)) {
+                const existingTransaction = await tx.financialTransaction.findUnique({
+                    where: { id: data.transactionId },
+                    include: { titheForService: { select: { id: true } } }
+                })
+                if (!existingTransaction) throw new AppError('Financial transaction not found', 404, 'TRANSACTION_NOT_FOUND')
+                if (existingTransaction.titheForService !== null) {
+                    throw new AppError('A service tithe transaction cannot be linked to an employee payment', 409, 'TRANSACTION_ALREADY_LINKED')
+                }
+                if (existingTransaction.type !== 'expense' || !existingTransaction.value.equals(paymentValue)) {
                     throw new AppError('The linked transaction must be an expense with the same value', 400, 'INVALID_EMPLOYEE_PAYMENT_TRANSACTION')
                 }
-                if (transaction.originId !== null || transaction.originType !== null) {
+                if (existingTransaction.originId !== null || existingTransaction.originType !== null) {
                     throw new AppError('Financial transaction is already linked to another origin', 409, 'TRANSACTION_ALREADY_LINKED')
                 }
 
                 transaction = await tx.financialTransaction.update({
-                    where: { id: transaction.id },
+                    where: { id: existingTransaction.id },
                     data: { originType: 'employee_movement', originId: movement.id }
                 })
                 await tx.employeeMovement.update({

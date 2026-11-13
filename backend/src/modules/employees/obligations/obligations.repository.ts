@@ -1,5 +1,6 @@
 import { Prisma } from '../../../generated/prisma/client.js'
 import { prisma } from '../../../shared/database/prisma.js'
+import { AppError } from '../../../shared/errors/AppError.js'
 import { registrarHistorico } from '../history/history.repository.js'
 import type { AtualizarObrigacaoDTO, CriarObrigacaoDTO, RevisarObrigacaoDTO } from './obligations.schema.js'
 
@@ -67,6 +68,15 @@ class ObligationsRepository {
         return prisma.$transaction(async tx => {
             const current = await tx.employeeObligation.findUnique({ where: { id } })
             if (!current) return null
+            if (current.status === 'pago' || current.status === 'cancelado') {
+                throw new AppError('Paid or canceled obligations cannot be edited', 409, 'OBLIGATION_NOT_EDITABLE')
+            }
+            if (data.originalValue !== undefined) {
+                const allocationCount = await tx.employeePaymentAllocation.count({ where: { obligationId: id } })
+                if (allocationCount > 0) {
+                    throw new AppError('An obligation with payment allocations cannot have its original value changed', 409, 'OBLIGATION_HAS_ALLOCATIONS')
+                }
+            }
 
             const updated = await tx.employeeObligation.update({
                 where: { id },
@@ -98,13 +108,16 @@ class ObligationsRepository {
             })
 
             return updated
-        })
+        }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable })
     }
 
     review(id: string, data: RevisarObrigacaoDTO, reviewedById: string) {
         return prisma.$transaction(async tx => {
             const current = await tx.employeeObligation.findUnique({ where: { id } })
             if (!current) return null
+            if (current.status !== 'em_revisao') {
+                throw new AppError('Only obligations under review can be confirmed', 409, 'OBLIGATION_NOT_UNDER_REVIEW')
+            }
 
             const obligation = await tx.employeeObligation.update({
                 where: { id },
@@ -134,13 +147,21 @@ class ObligationsRepository {
             })
 
             return obligation
-        })
+        }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable })
     }
 
     cancel(id: string, reason: string, createdById: string) {
         return prisma.$transaction(async tx => {
             const current = await tx.employeeObligation.findUnique({ where: { id } })
             if (!current) return null
+            if (current.status === 'pago' || current.status === 'cancelado') {
+                throw new AppError('Paid or canceled obligations cannot be canceled again', 409, 'OBLIGATION_NOT_CANCELLABLE')
+            }
+
+            const allocationCount = await tx.employeePaymentAllocation.count({ where: { obligationId: id } })
+            if (allocationCount > 0) {
+                throw new AppError('An obligation with payment allocations cannot be canceled directly', 409, 'OBLIGATION_HAS_ALLOCATIONS')
+            }
 
             const obligation = await tx.employeeObligation.update({
                 where: { id },
@@ -164,7 +185,7 @@ class ObligationsRepository {
             })
 
             return obligation
-        })
+        }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable })
     }
 }
 

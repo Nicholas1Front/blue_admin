@@ -2,6 +2,9 @@ import { prisma } from '../../shared/database/prisma.js'
 import { registrarHistorico } from './history/history.repository.js'
 import type { AtualizarColaboradorDTO, CriarColaboradorDTO } from './employees.schema.js'
 
+const mesmaData = (a: Date | null | undefined, b: Date | null | undefined) =>
+    a?.getTime() === b?.getTime()
+
 class EmployeesRepository {
     findById(id: string) {
         return prisma.employee.findUnique({ where: { id } })
@@ -58,18 +61,33 @@ class EmployeesRepository {
                 }
             })
 
-            const changedFields = Object.keys(data)
-            if (changedFields.length > 0) {
+            const changes: Record<string, { anterior: string | null; atual: string | null }> = {}
+            if (data.name !== undefined && data.name !== current.name) {
+                changes.name = { anterior: current.name, atual: employee.name }
+            }
+            if (cpfCnpj !== undefined && cpfCnpj !== current.cpfCnpj) {
+                changes.cpfCnpj = { anterior: current.cpfCnpj, atual: employee.cpfCnpj }
+            }
+            if (data.address !== undefined && data.address !== current.address) {
+                changes.address = { anterior: current.address, atual: employee.address }
+            }
+            if (data.birthDate !== undefined && !mesmaData(data.birthDate, current.birthDate)) {
+                changes.birthDate = {
+                    anterior: current.birthDate?.toISOString() ?? null,
+                    atual: employee.birthDate?.toISOString() ?? null
+                }
+            }
+            if (data.observations !== undefined && data.observations !== current.observations) {
+                changes.observations = { anterior: current.observations, atual: employee.observations }
+            }
+
+            if (Object.keys(changes).length > 0) {
                 await registrarHistorico(tx, {
                     employeeId: id,
                     type: 'dados_atualizados',
                     title: 'Dados cadastrais atualizados',
-                    description: `Campos revisados: ${changedFields.join(', ')}.`,
-                    metadata: {
-                        campos: changedFields,
-                        documentoAnterior: current.cpfCnpj,
-                        documentoAtual: employee.cpfCnpj
-                    },
+                    description: `Campos alterados: ${Object.keys(changes).join(', ')}.`,
+                    metadata: changes,
                     eventDate: new Date(),
                     createdById
                 })
