@@ -460,3 +460,8 @@ Os endpoints de escrita estão registrados em `backend/src/modules/employees/emp
 | Alocações | `POST /employees/allocations/apply-advance` |
 
 As queries de leitura, filtros, dashboard, sugestão automática da competência destino e frontend permanecem para etapas futuras, conforme o escopo solicitado.
+
+
+### Helper de sugestão de destino do adiantamento
+
+Foi preparado `allocations/helpers/sugerirCompetenciaDestino.ts` para selecionar a competência futura elegível mais próxima, priorizando salário em caso de empate. A função é pura e não grava nem aplica crédito. A query futura deverá fornecer as competências com seus saldos; a interface continuará permitindo que o responsável escolha outro destino antes da confirmação.
