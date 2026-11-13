@@ -39,7 +39,7 @@ Employee
 
 EmployeePaymentAllocation
   ├── EmployeeMovement
-  └── EmployeeObligation
+  └── EmployeeObligation? (nulo somente para crédito de adiantamento)
 
 EmployeeMovement
   ├── FinancialTransaction? (via transactionId opcional)

@@ -133,7 +133,7 @@ Livro de eventos financeiros e não financeiros do vínculo.
 Campos previstos:
 - `id` (UUID)
 - `engagementId` (FK)
-- `type` (string: pagamento, ausência, atraso, ajuste, bônus, adiantamento, aplicação de adiantamento, reversão/correção, registro administrativo etc.)
+- `type` (string: `pagamento`, `falta`, `atraso`, `saida_antecipada`, `desconto`, `ajuste`, `bonus`, `aplicacao_adiantamento`, `estorno`, `registro_administrativo`)
 - `title`
 - `description` (opcional)
 - `value` (Decimal opcional; pode ser nulo para eventos sem valor)
@@ -185,9 +185,9 @@ Tabela associativa para distribuir um pagamento entre várias obrigações e per
 Campos previstos:
 - `id` (UUID)
 - `movementId` (FK para a movimentação que representa o pagamento ou aplicação de crédito)
-- `obligationId` (FK para a competência que recebe o valor)
+- `obligationId` (FK opcional; nulo somente para a reserva de crédito de adiantamento)
 - `value` (Decimal positivo)
-- `type` (string para distinguir alocação de pagamento efetivo e aplicação de crédito; valores centralizados nos shareds)
+- `type` (string: `pagamento`, `credito_adiantamento`, `aplicacao_adiantamento`)
 - `createdAt`
 
 Cardinalidade:
