@@ -3,6 +3,7 @@ export const tiposDeMovimentacao = [
     'falta',
     'atraso',
     'saida_antecipada',
+    'desconto',
     'ajuste',
     'bonus',
     'aplicacao_adiantamento',

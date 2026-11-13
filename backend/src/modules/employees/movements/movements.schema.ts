@@ -28,6 +28,18 @@ export const criarMovimentacaoSchema = z.object({
         }
     }
 
+    if (data.type === 'desconto') {
+        if (!data.obligationId) {
+            context.addIssue({ code: 'custom', path: ['obligationId'], message: 'Um desconto precisa estar vinculado à competência afetada.' })
+        }
+        if (data.value === undefined || data.value === null || data.value <= 0) {
+            context.addIssue({ code: 'custom', path: ['value'], message: 'Informe um valor de desconto maior que zero.' })
+        }
+        if (!data.description || data.description.trim().length < 5) {
+            context.addIssue({ code: 'custom', path: ['description'], message: 'Informe a justificativa do desconto.' })
+        }
+    }
+
     if (data.type !== 'falta' && data.absenceDays !== undefined && data.absenceDays !== null) {
         context.addIssue({ code: 'custom', path: ['absenceDays'], message: 'Dias de ausência só podem ser informados em faltas.' })
     }
