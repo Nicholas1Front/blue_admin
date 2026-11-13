@@ -9,6 +9,7 @@ export const tiposDeHistorico = [
     'obrigacao_revisada',
     'obrigacao_cancelada',
     'movimentacao_criada',
+    'movimentacao_estornada',
     'pagamento_registrado',
     'adiantamento_reservado',
     'adiantamento_aplicado',

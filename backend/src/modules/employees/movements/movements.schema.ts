@@ -45,4 +45,9 @@ export const criarMovimentacaoSchema = z.object({
     }
 })
 
+export const estornarMovimentacaoSchema = z.object({
+    reason: z.string().trim().min(5).max(1000)
+})
+
 export type CriarMovimentacaoDTO = z.infer<typeof criarMovimentacaoSchema>
+export type EstornarMovimentacaoDTO = z.infer<typeof estornarMovimentacaoSchema>

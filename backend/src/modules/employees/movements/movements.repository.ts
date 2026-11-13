@@ -2,7 +2,19 @@ import { Prisma } from '../../../generated/prisma/client.js'
 import { prisma } from '../../../shared/database/prisma.js'
 import { AppError } from '../../../shared/errors/AppError.js'
 import { registrarHistorico } from '../history/history.repository.js'
-import type { CriarMovimentacaoDTO } from './movements.schema.js'
+import type { CriarMovimentacaoDTO, EstornarMovimentacaoDTO } from './movements.schema.js'
+
+const somarPagamentosDaObrigacao = async (tx: Prisma.TransactionClient, obligationId: string) => {
+    const result = await tx.employeePaymentAllocation.aggregate({
+        where: {
+            obligationId,
+            type: { in: ['pagamento', 'aplicacao_adiantamento'] },
+            movement: { is: { reversedAt: null } }
+        },
+        _sum: { value: true }
+    })
+    return result._sum.value ?? new Prisma.Decimal(0)
+}
 
 class MovementsRepository {
     create(data: CriarMovimentacaoDTO, createdById: string) {
@@ -13,7 +25,7 @@ class MovementsRepository {
             })
             if (!engagement) throw new AppError('Engagement not found', 404, 'ENGAGEMENT_NOT_FOUND')
 
-            let obligation = null
+            let obligation: Prisma.EmployeeObligation | null = null
             if (data.obligationId) {
                 obligation = await tx.employeeObligation.findFirst({
                     where: { id: data.obligationId, engagementId: data.engagementId }
@@ -31,15 +43,7 @@ class MovementsRepository {
                     throw new AppError('Only open confirmed obligations can receive a discount adjustment', 409, 'OBLIGATION_NOT_ADJUSTABLE')
                 }
 
-                const paidResult = await tx.employeePaymentAllocation.aggregate({
-                    where: {
-                        obligationId: obligation.id,
-                        type: { in: ['pagamento', 'aplicacao_adiantamento'] },
-                        movement: { is: { reversedAt: null } }
-                    },
-                    _sum: { value: true }
-                })
-                const paidValue = paidResult._sum.value ?? new Prisma.Decimal(0)
+                const paidValue = await somarPagamentosDaObrigacao(tx, obligation.id)
                 const discountValue = new Prisma.Decimal(data.value)
                 const adjustedValue = obligation.finalValue.minus(discountValue)
 
@@ -85,9 +89,79 @@ class MovementsRepository {
                     tipo: data.type,
                     valorInformado: data.value ?? null,
                     obligationId: data.obligationId ?? null,
-                    valorOriginalDaObrigacao: data.type === 'desconto' ? obligation?.finalValue?.toFixed(2) ?? null : null
+                    valorAnteriorDaObrigacao: data.type === 'desconto' ? obligation?.finalValue?.toFixed(2) ?? null : null
                 },
                 eventDate: data.eventDate,
+                createdById
+            })
+
+            return movement
+        }, { isolationLevel: Prisma.TransactionIsolationLevel.Serializable })
+    }
+
+    reverse(id: string, data: EstornarMovimentacaoDTO, createdById: string) {
+        return prisma.$transaction(async tx => {
+            const current = await tx.employeeMovement.findUnique({ where: { id } })
+            if (!current) throw new AppError('Employee movement not found', 404, 'EMPLOYEE_MOVEMENT_NOT_FOUND')
+            if (current.reversedAt) throw new AppError('Movement is already reversed', 409, 'MOVEMENT_ALREADY_REVERSED')
+            if (current.type === 'pagamento') {
+                throw new AppError('Payments require a dedicated financial reversal flow', 409, 'PAYMENT_REVERSAL_REQUIRES_FINANCIAL_FLOW')
+            }
+
+            const reversedAt = new Date()
+            const movement = await tx.employeeMovement.update({
+                where: { id },
+                data: { reversedAt, reversalReason: data.reason }
+            })
+
+            if (current.type === 'desconto' && current.obligationId && current.value) {
+                const obligation = await tx.employeeObligation.findUnique({
+                    where: { id: current.obligationId }
+                })
+                if (!obligation || obligation.status === 'cancelado' || obligation.finalValue === null) {
+                    throw new AppError('The adjusted obligation can no longer be restored automatically', 409, 'DISCOUNT_REVERSAL_NOT_AVAILABLE')
+                }
+
+                const restoredValue = obligation.finalValue.plus(current.value)
+                const paidValue = await somarPagamentosDaObrigacao(tx, obligation.id)
+                await tx.employeeObligation.update({
+                    where: { id: obligation.id },
+                    data: {
+                        finalValue: restoredValue,
+                        status: paidValue.isZero() ? 'pendente' : paidValue.equals(restoredValue) ? 'pago' : 'parcial'
+                    }
+                })
+            }
+
+            if (current.type === 'aplicacao_adiantamento' && current.obligationId) {
+                const obligation = await tx.employeeObligation.findUnique({
+                    where: { id: current.obligationId }
+                })
+                if (!obligation || obligation.finalValue === null || obligation.status === 'cancelado') {
+                    throw new AppError('The destination obligation can no longer be recalculated', 409, 'ADVANCE_REVERSAL_NOT_AVAILABLE')
+                }
+
+                const paidValue = await somarPagamentosDaObrigacao(tx, obligation.id)
+                await tx.employeeObligation.update({
+                    where: { id: obligation.id },
+                    data: {
+                        status: paidValue.isZero() ? 'pendente' : paidValue.equals(obligation.finalValue) ? 'pago' : 'parcial'
+                    }
+                })
+            }
+
+            const engagement = await tx.employeeEngagement.findUniqueOrThrow({
+                where: { id: current.engagementId },
+                select: { employeeId: true }
+            })
+            await registrarHistorico(tx, {
+                employeeId: engagement.employeeId,
+                engagementId: current.engagementId,
+                type: 'movimentacao_estornada',
+                title: 'Movimentação estornada',
+                description: data.reason,
+                metadata: { movementId: id, tipo: current.type, valor: current.value?.toString() ?? null },
+                eventDate: reversedAt,
                 createdById
             })
 

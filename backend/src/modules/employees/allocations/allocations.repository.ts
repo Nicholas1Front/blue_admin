@@ -261,6 +261,7 @@ class AllocationsRepository {
                     value: applicationValue,
                     eventDate: data.eventDate,
                     sourceMovementId: source.id,
+                    obligationId: obligation.id,
                     createdById
                 }
             })
