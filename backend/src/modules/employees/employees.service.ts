@@ -28,7 +28,7 @@ class EmployeesService {
             }
         }
 
-        if (Object.keys(changes).length === 0) return employee
+        if (Object.keys(changes).length === 0) return { employee, history: null }
 
         return employeesRepository.updateEmployee(id, cleanedData, changes)
     }
