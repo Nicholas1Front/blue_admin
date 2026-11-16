@@ -198,7 +198,7 @@ Cardinalidade:
 Campos candidatos:
 - `id`
 - `movementId` (movimentação de pagamento ou operação de aplicação, conforme o tipo)
-- `obligationId` (obrigação destinatária; nulo apenas para uma destinação de crédito ainda não aplicada, se esse fluxo for mantido)
+- `obligationId` (obrigação destinatária; obrigatório para cada alocação)
 - `type`
 - `value`
 - timestamps
