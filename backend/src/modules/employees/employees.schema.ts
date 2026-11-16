@@ -14,10 +14,5 @@ export const updateEmployeeSchema = z.object({
     message: 'At least one field must be provided to update employee'
 })
 
-export const findEmployeesByFiltersSchema = z.object({
-    id: z.string().trim().min(1).optional(),
-    name: z.string().trim().min(1).optional(),
-    document: z.string().trim().min(1).optional()
-}).refine(data => Object.keys(data).length > 0, {
-    message: 'At least one field must be provided to find employees'
-})
+export type createEmployeeDTO = z.infer<typeof createEmployeeSchema>
+export type updateEmployeeDTO = z.infer<typeof updateEmployeeSchema>
