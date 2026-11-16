@@ -1,5 +1,5 @@
 import { prisma } from '../../../shared/database/prisma.js'
-import type { createEngagementDTO, updateEngagementDTO, findEngagementsByFiltersDTO } from './engagements.dto.js'
+import type { createEngagementDTO, updateEngagementDTO } from './engagements.schema.js'
 
 class EngagementsRepository {
     async employeeExists(employeeId: string) {
@@ -51,13 +51,9 @@ class EngagementsRepository {
         })
     }
 
-    async findEngagementsByEmployee(employeeId: string, filters: findEngagementsByFiltersDTO) {
+    async findEngagementsByEmployee(employeeId: string) {
         return prisma.employeeEngagement.findMany({
-            where: {
-                employeeId,
-                ...(filters.status !== undefined && { status: filters.status }),
-                ...(filters.modality !== undefined && { modality: filters.modality })
-            },
+            where: { employeeId },
             orderBy: [
                 { entryDate: 'desc' },
                 { createdAt: 'desc' }
@@ -68,7 +64,7 @@ class EngagementsRepository {
     async updateEngagement(
         employeeId: string,
         engagementId: string,
-        data: Omit<updateEngagementDTO, 'effectiveDate'>,
+        data: updateEngagementDTO,
         changes: Record<string, { previous: string | number | null; current: string | number | null }>,
         eventDate: Date,
         salaryChanged: boolean
@@ -76,7 +72,15 @@ class EngagementsRepository {
         return prisma.$transaction(async tx => {
             const engagement = await tx.employeeEngagement.update({
                 where: { id: engagementId },
-                data
+                data: {
+                    ...(data.entryDate !== undefined ? { entryDate: data.entryDate } : {}),
+                    ...(data.exitDate !== undefined ? { exitDate: data.exitDate } : {}),
+                    ...(data.status !== undefined ? { status: data.status } : {}),
+                    ...(data.currentSalary !== undefined ? { currentSalary: data.currentSalary } : {}),
+                    ...(data.hourlyRate !== undefined ? { hourlyRate: data.hourlyRate } : {}),
+                    ...(data.modality !== undefined ? { modality: data.modality } : {}),
+                    ...(data.observations !== undefined ? { observations: data.observations } : {})
+                }
             })
 
             const history = await tx.employeeHistory.create({
