@@ -26,7 +26,5 @@ export const updateEngagementSchema = z.object({
     message: 'At least one engagement field must be provided to update'
 })
 
-export const findEngagementsByFiltersSchema = z.object({
-    status: z.string().trim().min(1).optional(),
-    modality: z.string().trim().min(1).optional()
-})
+export type createEngagementDTO = z.infer<typeof createEngagementSchema>
+export type updateEngagementDTO = z.infer<typeof updateEngagementSchema>
