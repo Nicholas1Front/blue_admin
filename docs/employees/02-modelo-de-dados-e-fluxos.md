@@ -84,7 +84,7 @@ Tabela associativa que destina partes de uma movimentação de pagamento.
 
 Responsabilidades:
 - movimentação de origem;
-- obrigação de destino;
+- obrigação de destino (obrigatória em cada alocação; o excedente destinado a bonificação recebe uma nova obrigação de bonificação);
 - tipo de destinação;
 - valor.
 
