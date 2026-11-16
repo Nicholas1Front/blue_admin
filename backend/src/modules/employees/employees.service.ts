@@ -1,7 +1,6 @@
 import { AppError } from '../../shared/errors/AppError.js'
-import { removeUndefined } from '../../shared/helpers/objects/removeUndefined.js'
 import employeesRepository from './employees.repository.js'
-import type { createEmployeeDTO, updateEmployeeDTO, findEmployeesByFiltersDTO } from './employees.dto.js'
+import type { createEmployeeDTO, updateEmployeeDTO } from './employees.schema.js'
 
 class EmployeesService {
     async createEmployee(data: createEmployeeDTO) {
@@ -12,11 +11,10 @@ class EmployeesService {
         const employee = await employeesRepository.findEmployeeById(id)
         if (!employee) throw new AppError('Employee not found', 404, 'EMPLOYEE_NOT_FOUND')
 
-        const cleanedData = removeUndefined(data)
         const changes: Record<string, { previous: string | null; current: string | null }> = {}
 
         for (const field of ['name', 'document', 'observations'] as const) {
-            const nextValue = cleanedData[field]
+            const nextValue = data[field]
             if (nextValue === undefined) continue
 
             const previousValue = employee[field]
@@ -30,21 +28,13 @@ class EmployeesService {
 
         if (Object.keys(changes).length === 0) return { employee, history: null }
 
-        return employeesRepository.updateEmployee(id, cleanedData, changes)
+        return employeesRepository.updateEmployee(id, data, changes)
     }
 
     async findEmployeeById(id: string) {
         const employee = await employeesRepository.findEmployeeById(id)
         if (!employee) throw new AppError('Employee not found', 404, 'EMPLOYEE_NOT_FOUND')
         return employee
-    }
-
-    async findAllEmployees() {
-        return employeesRepository.findAllEmployees()
-    }
-
-    async findEmployeesByFilters(filters: findEmployeesByFiltersDTO) {
-        return employeesRepository.findEmployeesByFilters(removeUndefined(filters))
     }
 }
 
