@@ -10,9 +10,7 @@ router.use(authMiddleware)
 router.post('/create-employee', employeesController.createEmployee)
 router.put('/update-employee/:id', employeesController.updateEmployee)
 router.get('/find-employee-by-id/:id', employeesController.findEmployeeById)
-router.get('/find-all-employees', employeesController.findAllEmployees)
-router.get('/find-employees-by-filters', employeesController.findEmployeesByFilters)
 
-router.use('/:employeeId/engagements', engagementsRoutes)
+router.use('/engagements', engagementsRoutes)
 
 export default router
