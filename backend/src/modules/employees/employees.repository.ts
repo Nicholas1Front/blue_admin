@@ -1,5 +1,5 @@
 import { prisma } from '../../shared/database/prisma.js'
-import type { createEmployeeDTO, updateEmployeeDTO, findEmployeesByFiltersDTO } from './employees.dto.js'
+import type { createEmployeeDTO, updateEmployeeDTO } from './employees.schema.js'
 
 class EmployeesRepository {
     async createEmployee(data: createEmployeeDTO) {
@@ -35,34 +35,15 @@ class EmployeesRepository {
         })
     }
 
-    async findAllEmployees() {
-        return prisma.employee.findMany({
-            orderBy: { name: 'asc' }
-        })
-    }
-
-    async findEmployeesByFilters(filters: findEmployeesByFiltersDTO) {
-        return prisma.employee.findMany({
-            where: {
-                ...(filters.id !== undefined && {
-                    id: { contains: filters.id, mode: 'insensitive' }
-                }),
-                ...(filters.name !== undefined && {
-                    name: { contains: filters.name, mode: 'insensitive' }
-                }),
-                ...(filters.document !== undefined && {
-                    document: { contains: filters.document, mode: 'insensitive' }
-                })
-            },
-            orderBy: { name: 'asc' }
-        })
-    }
-
     async updateEmployee(id: string, data: updateEmployeeDTO, changes: Record<string, { previous: string | null; current: string | null }>) {
         return prisma.$transaction(async tx => {
             const employee = await tx.employee.update({
                 where: { id },
-                data
+                data: {
+                    ...(data.name !== undefined ? { name: data.name } : {}),
+                    ...(data.document !== undefined ? { document: data.document } : {}),
+                    ...(data.observations !== undefined ? { observations: data.observations } : {})
+                }
             })
 
             const history = await tx.employeeHistory.create({
