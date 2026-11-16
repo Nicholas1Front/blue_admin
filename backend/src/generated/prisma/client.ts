@@ -126,3 +126,33 @@ export type Vehicle = Prisma.VehicleModel
  * 
  */
 export type VehicleHistory = Prisma.VehicleHistoryModel
+/**
+ * Model Employee
+ * 
+ */
+export type Employee = Prisma.EmployeeModel
+/**
+ * Model EmployeeEngagement
+ * 
+ */
+export type EmployeeEngagement = Prisma.EmployeeEngagementModel
+/**
+ * Model EmployeeObligation
+ * 
+ */
+export type EmployeeObligation = Prisma.EmployeeObligationModel
+/**
+ * Model EmployeeMovement
+ * 
+ */
+export type EmployeeMovement = Prisma.EmployeeMovementModel
+/**
+ * Model EmployeePaymentAllocation
+ * 
+ */
+export type EmployeePaymentAllocation = Prisma.EmployeePaymentAllocationModel
+/**
+ * Model EmployeeHistory
+ * 
+ */
+export type EmployeeHistory = Prisma.EmployeeHistoryModel
