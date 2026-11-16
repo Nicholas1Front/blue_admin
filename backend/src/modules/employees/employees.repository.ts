@@ -31,12 +31,7 @@ class EmployeesRepository {
 
     async findEmployeeById(id: string) {
         return prisma.employee.findUnique({
-            where: { id },
-            include: {
-                engagements: {
-                    orderBy: { createdAt: 'desc' }
-                }
-            }
+            where: { id }
         })
     }
 
