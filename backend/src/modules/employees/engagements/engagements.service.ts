@@ -54,7 +54,7 @@ class EngagementsService {
             }
         }
 
-        if (Object.keys(changes).length === 0) return existingEngagement
+        if (Object.keys(changes).length === 0) return { engagement: existingEngagement, history: null }
 
         const salaryChanged = Object.hasOwn(changes, 'currentSalary')
         return engagementsRepository.updateEngagement(
