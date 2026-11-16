@@ -7,6 +7,7 @@ import financialRoutes from '../modules/financial/indexRoutes.js';
 import serviceRoutes from '../modules/services/services.routes.js'
 import budgetsRoutes from '../modules/budgets/budgets.routes.js'
 import vehiclesRoutes from '../modules/vehicles/vehicles.routes.js'
+import employeesRoutes from '../modules/employees/employees.routes.js'
 
 const routes = Router();
 
@@ -18,5 +19,6 @@ routes.use('/financial', financialRoutes);
 routes.use('/services', serviceRoutes)
 routes.use('/budgets', budgetsRoutes)
 routes.use('/vehicles', vehiclesRoutes)
+routes.use('/employees', employeesRoutes)
 
 export default routes;
