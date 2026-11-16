@@ -157,7 +157,6 @@ Exemplos:
 - pagamento;
 - desconto;
 - bonificação;
-- adiantamento/crédito, se necessário ao fluxo;
 - alteração ou ajuste administrativo;
 - outros registros importantes.
 
@@ -303,7 +302,6 @@ Os pontos abaixo não devem ser resolvidos por suposição durante a implementa�
 - Semântica final de datas desconhecidas nas consultas e helpers.
 - Regra detalhada de meses trabalhados e salário de referência para décimo terceiro.
 - Detalhes de períodos aquisitivos, faltas relevantes e cálculo de férias.
-- Se haverá crédito de adiantamento sem destinação imediata ou se todo excedente deverá ser alocado a obrigação pendente ou bonificação no mesmo fluxo.
 - Política de correção/estorno de pagamento já vinculado ao financeiro.
 
 Essas decisões serão fechadas quando o fluxo correspondente for desenhado, sem antecipar complexidade desnecessária.
