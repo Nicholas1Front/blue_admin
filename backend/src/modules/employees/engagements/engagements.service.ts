@@ -1,7 +1,6 @@
 import { AppError } from '../../../shared/errors/AppError.js'
-import { removeUndefined } from '../../../shared/helpers/objects/removeUndefined.js'
 import engagementsRepository from './engagements.repository.js'
-import type { createEngagementDTO, updateEngagementDTO, findEngagementsByFiltersDTO } from './engagements.dto.js'
+import type { createEngagementDTO, updateEngagementDTO } from './engagements.schema.js'
 
 const validateEngagementPeriod = (entryDate: Date | null, exitDate: Date | null) => {
     if (entryDate && exitDate && exitDate < entryDate) {
@@ -31,16 +30,15 @@ class EngagementsService {
         }
 
         const { effectiveDate, ...updateData } = data
-        const cleanedData = removeUndefined(updateData)
-        const entryDate = cleanedData.entryDate !== undefined ? cleanedData.entryDate : existingEngagement.entryDate
-        const exitDate = cleanedData.exitDate !== undefined ? cleanedData.exitDate : existingEngagement.exitDate
+        const entryDate = updateData.entryDate !== undefined ? updateData.entryDate : existingEngagement.entryDate
+        const exitDate = updateData.exitDate !== undefined ? updateData.exitDate : existingEngagement.exitDate
         validateEngagementPeriod(entryDate, exitDate)
 
         const changes: Record<string, { previous: string | number | null; current: string | number | null }> = {}
         const fields = ['entryDate', 'exitDate', 'status', 'currentSalary', 'hourlyRate', 'modality', 'observations'] as const
 
         for (const field of fields) {
-            const nextValue = cleanedData[field]
+            const nextValue = updateData[field]
             if (nextValue === undefined) continue
 
             const previousValue = existingEngagement[field]
@@ -60,18 +58,18 @@ class EngagementsService {
         return engagementsRepository.updateEngagement(
             employeeId,
             engagementId,
-            cleanedData,
+            updateData,
             changes,
             effectiveDate ?? new Date(),
             salaryChanged
         )
     }
 
-    async findEngagementsByEmployee(employeeId: string, filters: findEngagementsByFiltersDTO) {
+    async findEngagementsByEmployee(employeeId: string) {
         const employeeExists = await engagementsRepository.employeeExists(employeeId)
         if (!employeeExists) throw new AppError('Employee not found', 404, 'EMPLOYEE_NOT_FOUND')
 
-        return engagementsRepository.findEngagementsByEmployee(employeeId, removeUndefined(filters))
+        return engagementsRepository.findEngagementsByEmployee(employeeId)
     }
 }
 
