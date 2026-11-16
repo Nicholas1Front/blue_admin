@@ -2,8 +2,7 @@ import type { Request, Response } from 'express'
 import { AppError } from '../../shared/errors/AppError.js'
 import {
     createEmployeeSchema,
-    updateEmployeeSchema,
-    findEmployeesByFiltersSchema
+    updateEmployeeSchema
 } from './employees.schema.js'
 import employeesService from './employees.service.js'
 
@@ -39,28 +38,6 @@ class EmployeesController {
         return res.status(200).json({
             message: 'Employee found successfully',
             data: employee
-        })
-    }
-
-    async findAllEmployees(req: Request, res: Response) {
-        if (!req.user) throw new AppError('User not authenticated', 401, 'USER_NOT_AUTHENTICATED')
-
-        const employees = await employeesService.findAllEmployees()
-        return res.status(200).json({
-            message: 'Employees found successfully',
-            data: employees
-        })
-    }
-
-    async findEmployeesByFilters(req: Request, res: Response) {
-        if (!req.user) throw new AppError('User not authenticated', 401, 'USER_NOT_AUTHENTICATED')
-
-        const filters = findEmployeesByFiltersSchema.parse(req.query)
-        const employees = await employeesService.findEmployeesByFilters(filters)
-
-        return res.status(200).json({
-            message: 'Employees found successfully',
-            data: employees
         })
     }
 }
