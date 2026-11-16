@@ -11,6 +11,6 @@ router.post('/create-employee', employeesController.createEmployee)
 router.put('/update-employee/:id', employeesController.updateEmployee)
 router.get('/find-employee-by-id/:id', employeesController.findEmployeeById)
 
-router.use('/engagements', engagementsRoutes)
+router.use('/', engagementsRoutes)
 
 export default router
