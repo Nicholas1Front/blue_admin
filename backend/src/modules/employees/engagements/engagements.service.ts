@@ -9,7 +9,7 @@ const validateEngagementPeriod = (entryDate: Date | null, exitDate: Date | null)
     }
 }
 
-const historyValue = (value: Date | { toString(): string } | string | null) => {
+const historyValue = (value: Date | { toString(): string } | string | number | null) => {
     if (value instanceof Date) return value.toISOString()
     if (value !== null && typeof value === 'object') return value.toString()
     return value
