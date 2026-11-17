@@ -1,5 +1,9 @@
 import { z } from 'zod'
-import { engagementModalitySchema, engagementStatusSchema } from '../employees.schema.js'
+import { allowedEngagementModalities } from '../shareds/allowedEngagementModalities.js'
+import { allowedEngagementStatus } from '../shareds/allowedEngagementStatus.js'
+
+const engagementModalitySchema = z.enum(allowedEngagementModalities)
+const engagementStatusSchema = z.enum(allowedEngagementStatus)
 
 const optionalDate = z.coerce.date().nullable().optional()
 const optionalAmount = z.coerce.number().min(0).nullable().optional()
