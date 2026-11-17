@@ -1,4 +1,5 @@
 import { z } from 'zod'
+import { engagementModalitySchema, engagementStatusSchema } from '../employees.schema.js'
 
 const optionalDate = z.coerce.date().nullable().optional()
 const optionalAmount = z.coerce.number().min(0).nullable().optional()
@@ -6,20 +7,20 @@ const optionalAmount = z.coerce.number().min(0).nullable().optional()
 export const createEngagementSchema = z.object({
     entryDate: optionalDate,
     exitDate: optionalDate,
-    status: z.string().trim().min(1),
+    status: engagementStatusSchema,
     currentSalary: optionalAmount,
     hourlyRate: optionalAmount,
-    modality: z.string().trim().min(1),
+    modality: engagementModalitySchema,
     observations: z.string().trim().min(1).nullable().optional()
 })
 
 export const updateEngagementSchema = z.object({
     entryDate: optionalDate,
     exitDate: optionalDate,
-    status: z.string().trim().min(1).optional(),
+    status: engagementStatusSchema.optional(),
     currentSalary: optionalAmount,
     hourlyRate: optionalAmount,
-    modality: z.string().trim().min(1).optional(),
+    modality: engagementModalitySchema.optional(),
     observations: z.string().trim().min(1).nullable().optional(),
     effectiveDate: z.coerce.date().optional()
 }).refine(data => Object.keys(data).some(field => field !== 'effectiveDate'), {
