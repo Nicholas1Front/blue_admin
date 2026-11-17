@@ -1,6 +1,4 @@
 import { z } from 'zod'
-import { allowedEngagementModalities } from './shareds/allowedEngagementModalities.js'
-import { allowedEngagementStatus } from './shareds/allowedEngagementStatus.js'
 
 export const createEmployeeSchema = z.object({
     name: z.string().trim().min(1),
@@ -18,6 +16,3 @@ export const updateEmployeeSchema = z.object({
 
 export type createEmployeeDTO = z.infer<typeof createEmployeeSchema>
 export type updateEmployeeDTO = z.infer<typeof updateEmployeeSchema>
-
-export const engagementModalitySchema = z.enum(allowedEngagementModalities)
-export const engagementStatusSchema = z.enum(allowedEngagementStatus)
