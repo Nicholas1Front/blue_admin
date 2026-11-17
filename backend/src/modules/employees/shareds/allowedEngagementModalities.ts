@@ -2,5 +2,5 @@ export const allowedEngagementModalities = [
     'CLT',
     'PJ',
     'Informal',
-    'Outros'
+    'outros'
 ] as const
