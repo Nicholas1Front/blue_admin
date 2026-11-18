@@ -323,11 +323,12 @@ export const calculateSalaryCompetencies = (
             requiresReview = true
         }
 
-        if (existing.length === 1 && (
-            !existing[0]?.referenceStart ||
-            !existing[0]?.referenceEnd ||
-            !sameMonth(existing[0].referenceStart, start) ||
-            !sameMonth(existing[0].referenceEnd, end)
+        const existingObligation = existing[0]
+        if (existing.length === 1 && existingObligation && (
+            !existingObligation.referenceStart ||
+            !existingObligation.referenceEnd ||
+            !sameMonth(existingObligation.referenceStart, start) ||
+            !sameMonth(existingObligation.referenceEnd, end)
         )) {
             itemWarnings.push('The existing salary obligation has incomplete or inconsistent reference dates.')
             requiresReview = true
