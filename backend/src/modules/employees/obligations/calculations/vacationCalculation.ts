@@ -22,13 +22,6 @@ export const calculateVacationCompetencies = (
     period: CalculationPeriod,
     today = new Date()
 ): CalculationResult => {
-    if (!context.entryDate) {
-        return {
-            items: [],
-            warnings: ['The engagement entry date is missing; vacation acquisition periods cannot be identified.']
-        }
-    }
-
     if (['demitiu-se', 'demitido'].includes(context.status) && !context.exitDate) {
         return {
             items: [],
@@ -42,7 +35,58 @@ export const calculateVacationCompetencies = (
     const activeEnd = context.exitDate ? utcDay(context.exitDate) : rangeEnd
     const items: CalculationItem[] = []
     const warnings: string[] = []
-    let periodStart = utcDay(context.entryDate)
+    const recordedVacations = context.obligations
+        .filter(obligation =>
+            obligation.type === 'ferias' &&
+            obligation.status !== 'cancelado' &&
+            obligation.referenceStart !== null &&
+            obligation.referenceEnd !== null &&
+            obligation.referenceEnd >= obligation.referenceStart
+        )
+        .sort((left, right) =>
+            (right.referenceEnd?.getTime() ?? 0) - (left.referenceEnd?.getTime() ?? 0)
+        )
+
+    let periodStart: Date
+    let anchorRequiresReview = false
+
+    if (context.entryDate) {
+        periodStart = utcDay(context.entryDate)
+    } else {
+        const latestVacation = recordedVacations[0]
+        if (!latestVacation?.referenceEnd) {
+            return {
+                items,
+                warnings: ['The engagement entry date and a valid recorded vacation competence are both missing; vacation periods cannot be projected safely.']
+            }
+        }
+
+        periodStart = new Date(utcDay(latestVacation.referenceEnd).getTime() + DAY_IN_MS)
+        anchorRequiresReview = true
+        warnings.push('The engagement entry date is missing. The next acquisition period is projected from the latest valid recorded vacation competence; earlier periods cannot be reconstructed.')
+
+        const latestPeriodCount = recordedVacations.filter(obligation =>
+            obligation.referenceEnd !== null &&
+            sameMonth(obligation.referenceEnd, latestVacation.referenceEnd as Date)
+        ).length
+
+        if (latestPeriodCount > 1) {
+            warnings.push('More than one vacation obligation exists for the latest recorded acquisition period; confirm the correct reference before relying on the projection.')
+        }
+    }
+
+    const hasIncompleteReferences = context.obligations.some(obligation =>
+        obligation.type === 'ferias' && (
+            obligation.referenceStart === null ||
+            obligation.referenceEnd === null ||
+            obligation.referenceEnd < obligation.referenceStart
+        )
+    )
+
+    if (hasIncompleteReferences) {
+        warnings.push('Some vacation obligations have incomplete or invalid reference dates and cannot be placed reliably in the acquisition history.')
+    }
+
     let periodCount = 0
 
     while (periodCount < 80) {
@@ -52,7 +96,7 @@ export const calculateVacationCompetencies = (
 
         if (periodEnd >= rangeStart) {
             const itemWarnings: string[] = []
-            let requiresReview = false
+            let requiresReview = anchorRequiresReview
             const matchingObligations = context.obligations.filter(obligation =>
                 obligation.type === 'ferias' &&
                 obligation.referenceStart !== null &&
@@ -66,6 +110,10 @@ export const calculateVacationCompetencies = (
                 ? null
                 : roundCurrency(salary.value + salary.value / 3)
             let calculation = 'Estimated full vacation amount: latest available gross salary reference for the acquisition period end plus one third. No taxes, variable additions, absences affecting vacation days, or suspension/loss of the acquisition period are calculated.'
+
+            if (anchorRequiresReview) {
+                itemWarnings.push('The acquisition period is projected from the latest recorded vacation competence because the engagement entry date is missing.')
+            }
 
             if (
                 salary.assumed &&
