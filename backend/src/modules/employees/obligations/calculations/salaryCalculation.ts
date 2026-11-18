@@ -20,6 +20,7 @@ export type SalaryReference = {
     value: number | null
     source: 'salary_competence' | 'salary_history' | 'current_salary' | 'unavailable'
     assumed: boolean
+    requiresReview: boolean
     warning?: string
 }
 
@@ -135,6 +136,7 @@ export const getSalaryAtDate = (
             value: null,
             source: 'unavailable',
             assumed: true,
+            requiresReview: true,
             warning: 'No reliable salary value is available for the requested date.'
         }
     }
@@ -144,6 +146,7 @@ export const getSalaryAtDate = (
         value: salary,
         source: assumed ? 'current_salary' : 'salary_history',
         assumed,
+        requiresReview: incomplete,
         ...(assumed
             ? { warning: 'The salary history is incomplete or unavailable; the current salary is being used as an estimate.' }
             : {})
@@ -193,6 +196,7 @@ export const getSalaryReference = (
                 value: null,
                 source: 'unavailable',
                 assumed: true,
+                requiresReview: true,
                 warning: 'More than one salary competence exists for the latest month; confirm which value should be used.'
             }
         }
@@ -223,6 +227,7 @@ export const getSalaryReference = (
             value: null,
             source: 'unavailable',
             assumed: true,
+            requiresReview: true,
             warning: 'The latest salary competence has no positive gross amount.'
         }
     }
@@ -274,6 +279,7 @@ const getMonthSalary = (
                 salary = {
                     ...latestCompetence,
                     assumed: true,
+                    requiresReview: latestCompetence.requiresReview || segmentEnd < utcDay(today),
                     warning: latestCompetence.warning ?? 'Salary estimated from the latest recorded salary competence.'
                 }
             }
@@ -286,7 +292,7 @@ const getMonthSalary = (
 
         total += salary.value * days / monthDays
         assumed ||= salary.assumed
-        requiresReview ||= salary.source === 'salary_competence' && salary.assumed
+        requiresReview ||= salary.requiresReview
         if (salary.warning) warnings.push(salary.warning)
     }
 
