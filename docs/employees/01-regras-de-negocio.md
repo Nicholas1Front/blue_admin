@@ -251,7 +251,7 @@ O helper percorre cada mês do período e estima a obrigação salarial do vínc
 - O divisor é a quantidade de dias corridos do mês. Exemplo: 15 dias ativos em um mês de 30 dias correspondem a 15/30 do salário.
 - O histórico de alterações salariais é usado para reconstruir os valores por data efetiva.
 - Quando o histórico não permite reconstrução de um mês passado, o helper pode usar a última competência salarial anterior como referência. Se não houver competência anterior, usa o salário atual apenas como estimativa e exige revisão para períodos passados.
-- Competências salariais existentes são comparadas com o cálculo. Registros duplicados ou com referências incompletas exigem revisão.
+- Competências salariais existentes são comparadas com o cálculo. A identificação e a proteção contra duplicidade consideram o mês/ano de referenceStart e referenceEnd, não a igualdade exata dos dias. Registros duplicados ou com referências incompletas exigem revisão.
 - A referência mensal da obrigação usa o primeiro e o último dia do mês, mesmo quando o valor é proporcional.
 
 Não são calculados descontos automáticos por falta, atraso ou saída antecipada. Também não são considerados adicionais variáveis ou regras específicas de folha.
