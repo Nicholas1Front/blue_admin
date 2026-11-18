@@ -82,8 +82,12 @@ const findMatchingObligations = (
             obligation.referenceEnd.getUTCFullYear() === item.referenceEnd.getUTCFullYear()
     }
 
-    return sameDay(obligation.referenceStart, item.referenceStart) &&
-        sameDay(obligation.referenceEnd, item.referenceEnd)
+    if (item.type === 'ferias') {
+        return sameDay(obligation.referenceStart, item.referenceStart) ||
+            sameDay(obligation.referenceEnd, item.referenceEnd)
+    }
+
+    return false
 })
 
 const buildSuggestion = (
@@ -93,6 +97,16 @@ const buildSuggestion = (
     const warnings = [...item.warnings]
     const existing = existingObligations[0]
     const hasDuplicates = existingObligations.length > 1
+    const hasInvalidReference = existing !== undefined && (
+        item.type === 'salario'
+            ? !sameMonth(existing.referenceStart ?? item.referenceStart, item.referenceStart) ||
+                !sameMonth(existing.referenceEnd ?? item.referenceEnd, item.referenceEnd)
+            : item.type === 'ferias'
+                ? !sameDay(existing.referenceStart ?? item.referenceStart, item.referenceStart) ||
+                    !sameDay(existing.referenceEnd ?? item.referenceEnd, item.referenceEnd)
+                : existing.referenceStart?.getUTCFullYear() !== item.referenceStart.getUTCFullYear() ||
+                    existing.referenceEnd?.getUTCFullYear() !== item.referenceEnd.getUTCFullYear()
+    )
 
     if (hasDuplicates) {
         warnings.push('More than one obligation matches this reference period. Review the records before creating or changing anything.')
@@ -117,6 +131,14 @@ const buildSuggestion = (
         warnings.push('The allocated payment amount exceeds the recognized obligation value. Review the financial records.')
     }
 
+    if (hasInvalidReference) {
+        warnings.push('The existing obligation has an incomplete or different reference period. Review the reference dates before changing it.')
+    }
+
+    if (existing?.status === 'cancelado') {
+        warnings.push('The existing obligation is cancelled. Review the cancellation before creating or changing another competence.')
+    }
+
     if (existing?.status === 'parcial' && allocatedValue === 0) {
         warnings.push('The obligation is marked as partially paid but has no payment allocations to identify the paid amount.')
     }
@@ -135,14 +157,13 @@ const buildSuggestion = (
 
     let action: SuggestionAction = 'none'
 
-    if (hasDuplicates || item.requiresReview) {
+    if (hasDuplicates || hasInvalidReference || item.requiresReview) {
         action = 'manual_review'
     } else if (!existing) {
         action = item.estimatedValue !== null && item.estimatedValue > 0
             ? 'create'
             : 'manual_review'
     } else if (existing.status === 'cancelado') {
-        warnings.push('The existing obligation is cancelled. Review the cancellation before creating or changing another competence.')
         action = 'manual_review'
     } else if (existing.status === 'parcial' && allocatedValue === 0) {
         action = 'manual_review'
