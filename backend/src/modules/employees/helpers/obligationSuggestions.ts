@@ -1,7 +1,6 @@
 import {
     calculateSalaryCompetencies,
     roundCurrency,
-    sameDay,
     sameMonth,
     toNumber
 } from '../obligations/calculations/salaryCalculation.js'
@@ -64,6 +63,12 @@ type AnalysisOptions = {
 
 const toISOString = (date: Date) => date.toISOString()
 
+const overlapsPeriod = (obligation: ObligationRecord, item: CalculationItem) =>
+    obligation.referenceStart !== null &&
+    obligation.referenceEnd !== null &&
+    obligation.referenceStart <= item.referenceEnd &&
+    obligation.referenceEnd >= item.referenceStart
+
 const findMatchingObligations = (
     obligations: ObligationRecord[],
     item: CalculationItem
@@ -72,50 +77,61 @@ const findMatchingObligations = (
     if (!obligation.referenceStart || !obligation.referenceEnd) return false
 
     if (item.type === 'salario') {
-        return sameMonth(obligation.referenceStart, obligation.referenceEnd) &&
-            sameMonth(obligation.referenceStart, item.referenceStart)
+        return sameMonth(obligation.referenceStart, item.referenceStart) &&
+            sameMonth(obligation.referenceEnd, item.referenceEnd) &&
+            sameMonth(obligation.referenceStart, obligation.referenceEnd)
     }
 
     if (item.type === 'decimo_terceiro') {
-        return Boolean(
-            obligation.referenceStart?.getUTCFullYear() === item.referenceStart.getUTCFullYear() ||
-            obligation.referenceEnd?.getUTCFullYear() === item.referenceEnd.getUTCFullYear()
-        )
+        const year = item.referenceStart.getUTCFullYear()
+        return obligation.referenceStart.getUTCFullYear() === year &&
+            obligation.referenceEnd.getUTCFullYear() === year
     }
 
-    if (item.type === 'ferias') {
-        return (
-            sameDay(obligation.referenceStart, item.referenceStart) &&
-            sameDay(obligation.referenceEnd, item.referenceEnd)
-        ) || (
-            obligation.referenceStart <= item.referenceEnd &&
-            obligation.referenceEnd >= item.referenceStart
-        )
-    }
-
-    return false
+    return sameMonth(obligation.referenceStart, item.referenceStart) &&
+        sameMonth(obligation.referenceEnd, item.referenceEnd)
 })
 
-const hasUnreliableReference = (
+const hasUnreliableReferenceForItem = (
     obligations: ObligationRecord[],
     item: CalculationItem
 ) => obligations.some(obligation => {
     if (obligation.type !== item.type) return false
+
+    // Without reference dates, the record cannot be safely assigned to a competence.
     if (!obligation.referenceStart || !obligation.referenceEnd) return true
 
     if (item.type === 'salario') {
-        return !sameMonth(obligation.referenceStart, obligation.referenceEnd)
+        const relevant = overlapsPeriod(obligation, item) ||
+            sameMonth(obligation.referenceStart, item.referenceStart) ||
+            sameMonth(obligation.referenceEnd, item.referenceEnd)
+
+        return relevant && !sameMonth(obligation.referenceStart, obligation.referenceEnd)
     }
 
     if (item.type === 'decimo_terceiro') {
-        return obligation.referenceStart.getUTCFullYear() !== obligation.referenceEnd.getUTCFullYear() ||
-            obligation.referenceStart.getUTCMonth() !== 0 ||
-            obligation.referenceStart.getUTCDate() !== 1 ||
-            obligation.referenceEnd.getUTCMonth() !== 11 ||
-            obligation.referenceEnd.getUTCDate() !== 31
+        const year = item.referenceStart.getUTCFullYear()
+        const relevant = obligation.referenceStart.getUTCFullYear() <= year &&
+            obligation.referenceEnd.getUTCFullYear() >= year
+        const isValidAnnualReference =
+            obligation.referenceStart.getUTCFullYear() === year &&
+            obligation.referenceStart.getUTCMonth() === 0 &&
+            obligation.referenceStart.getUTCDate() === 1 &&
+            obligation.referenceEnd.getUTCFullYear() === year &&
+            obligation.referenceEnd.getUTCMonth() === 11 &&
+            obligation.referenceEnd.getUTCDate() === 31
+
+        return relevant && !isValidAnnualReference
     }
 
-    return false
+    const relevant = overlapsPeriod(obligation, item) ||
+        sameMonth(obligation.referenceStart, item.referenceStart) ||
+        sameMonth(obligation.referenceEnd, item.referenceEnd)
+    const matchesAcquisitionMonths =
+        sameMonth(obligation.referenceStart, item.referenceStart) &&
+        sameMonth(obligation.referenceEnd, item.referenceEnd)
+
+    return relevant && !matchesAcquisitionMonths
 })
 
 const buildSuggestion = (
@@ -131,8 +147,8 @@ const buildSuggestion = (
             ? !existing.referenceStart || !sameMonth(existing.referenceStart, item.referenceStart) ||
                 !existing.referenceEnd || !sameMonth(existing.referenceEnd, item.referenceEnd)
             : item.type === 'ferias'
-                ? !existing.referenceStart || !sameDay(existing.referenceStart, item.referenceStart) ||
-                    !existing.referenceEnd || !sameDay(existing.referenceEnd, item.referenceEnd)
+                ? !existing.referenceStart || !sameMonth(existing.referenceStart, item.referenceStart) ||
+                    !existing.referenceEnd || !sameMonth(existing.referenceEnd, item.referenceEnd)
                 : !existing.referenceStart ||
                     existing.referenceStart.getUTCFullYear() !== item.referenceStart.getUTCFullYear() ||
                     existing.referenceStart.getUTCMonth() !== 0 ||
@@ -167,7 +183,7 @@ const buildSuggestion = (
     }
 
     if (hasInvalidReference) {
-        warnings.push('One or more obligations of this type have incomplete or inconsistent reference dates. Review the existing records before creating or changing this competence.')
+        warnings.push('One or more obligations of this type have incomplete or inconsistent reference dates for this period. Review the existing records before creating or changing this competence.')
     }
 
     const projectedAnnualObligation = item.type === 'decimo_terceiro' && item.isProjection && existing !== undefined
@@ -298,7 +314,7 @@ export const suggestBenefitObligations = (
         .map(item => buildSuggestion(
             item,
             findMatchingObligations(context.obligations, item),
-            hasUnreliableReference(context.obligations, item)
+            hasUnreliableReferenceForItem(context.obligations, item)
         ))
 
     return {
