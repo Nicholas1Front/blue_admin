@@ -63,7 +63,16 @@ class ObligationsService {
 
         const seenPeriods = new Set<string>()
         for (const candidate of duplicateCandidates) {
-            const key = `${candidate.type}:${candidate.referenceStart.getTime()}:${candidate.referenceEnd.getTime()}`
+            const start = candidate.referenceStart
+            const end = candidate.referenceEnd
+            const startMonth = `${start.getUTCFullYear()}-${String(start.getUTCMonth() + 1).padStart(2, '0')}`
+            const endMonth = `${end.getUTCFullYear()}-${String(end.getUTCMonth() + 1).padStart(2, '0')}`
+            const key = candidate.type === 'salario' || candidate.type === 'ferias'
+                ? `${candidate.type}:${startMonth}:${endMonth}`
+                : candidate.type === 'decimo_terceiro'
+                    ? `${candidate.type}:${start.getUTCFullYear()}:${end.getUTCFullYear()}`
+                    : `${candidate.type}:${start.getTime()}:${end.getTime()}`
+
             if (seenPeriods.has(key)) {
                 throw new AppError(
                     'The batch contains duplicate obligations for the same reference period',
