@@ -185,22 +185,25 @@ const buildSuggestion = (
     existing?: ExistingObligation,
     extra?: { monthsWorked?: number; concessionDeadline?: Date }
 ): Suggestion => {
-    const paidValue = existing
+    const allocatedValue = existing
         ? roundCurrency(existing.allocations.reduce((total, allocation) => total + (toNumber(allocation.value) ?? 0), 0))
         : 0
+    const paidValue = existing?.status === 'pago'
+        ? Math.max(allocatedValue, toNumber(existing.finalValue) ?? 0)
+        : allocatedValue
     const recognizedValue = existing ? toNumber(existing.finalValue) : null
     const balance = recognizedValue === null ? null : roundCurrency(Math.max(0, recognizedValue - paidValue))
     const hasFinancialRecords = Boolean(existing && (
         existing.allocations.length > 0 || existing.movements.length > 0
     ))
-    const canUpdate = Boolean(existing && !hasFinancialRecords && !['pago', 'cancelado'].includes(existing.status))
+    const canUpdate = Boolean(existing && !hasFinancialRecords && !['parcial', 'pago', 'cancelado'].includes(existing.status))
     const differs = existing && estimatedValue !== null && recognizedValue !== null &&
         Math.abs(estimatedValue - recognizedValue) >= 0.01
 
-    let action: Suggestion['action'] = 'create'
-    if (warnings.length > 0 || estimatedValue === null) action = 'manual_review'
-    else if (existing && differs && canUpdate) action = 'update'
-    else if (existing) action = 'none'
+    let action: Suggestion['action'] = estimatedValue === null ? 'manual_review' : 'create'
+    if (existing && estimatedValue !== null && differs && canUpdate) action = 'update'
+    else if (existing && estimatedValue !== null && !differs) action = 'none'
+    else if (existing && estimatedValue !== null && differs) action = 'manual_review'
     if (existing && differs && hasFinancialRecords) {
         warnings.push('A obrigação possui movimentações ou alocações; revise manualmente antes de alterar o valor.')
         action = 'manual_review'
@@ -343,7 +346,7 @@ export const suggestBenefitObligations = (
             yearEnd
         )
         const dueDate = new Date(Date.UTC(year, 11, 20))
-        const calculation = `Estimativa: soma do salário bruto de cada mês elegível dividido por 12. Meses considerados: ${months.length}. Fórmula acordada: salário bruto / 12 * meses trabalhados.`
+        const calculation = `Estimativa: soma do salário bruto de cada mês elegível dividido por 12. Meses considerados: ${months.length}. Fórmula acordada: salário bruto / 12 * meses trabalhados. O pagamento pode ocorrer em parcela única até 30/11 ou em duas parcelas, com a segunda até 20/12.`
 
         const suggestion = buildSuggestion(
             'decimo_terceiro',
@@ -394,6 +397,9 @@ export const suggestBenefitObligations = (
 
         const concessionDeadline = new Date(addYears(nextPeriodStart, 1).getTime() - DAY_IN_MS)
         const terminationPeriod = Boolean(engagement.exitDate)
+        if (concessionDeadline < currentDate && !engagement.exitDate) {
+            periodWarnings.push('O prazo concessivo já terminou. Confirme se as férias foram concedidas; se houve concessão fora do prazo, pode existir obrigação de pagamento em dobro.')
+        }
         if (terminationPeriod) {
             periodWarnings.push('O vínculo foi encerrado. A situação das férias deve ser conferida junto à rescisão; o helper não calcula verbas rescisórias.')
         }
