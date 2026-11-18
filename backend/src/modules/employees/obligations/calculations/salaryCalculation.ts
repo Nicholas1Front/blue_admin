@@ -147,7 +147,7 @@ export const findLatestSalaryCompetence = (
 ): ObligationRecord | null => {
     const candidates = obligations
         .filter(obligation => {
-            if (obligation.type !== 'salario') return false
+            if (obligation.type !== 'salario' || obligation.status === 'cancelado') return false
             const competenceDate = getSalaryCompetenceDate(obligation)
             return competenceDate !== null && utcDay(competenceDate) <= utcDay(referenceDate)
         })
@@ -201,7 +201,8 @@ const getMonthSalary = (
     year: number,
     month: number,
     activeStart: Date,
-    activeEnd: Date
+    activeEnd: Date,
+    today: Date
 ) => {
     const { changes } = readSalaryChanges(context)
     const monthDays = monthEnd(year, month).getUTCDate()
@@ -231,7 +232,26 @@ const getMonthSalary = (
         const days = Math.floor((segmentEnd.getTime() - segmentStart.getTime()) / DAY_IN_MS) + 1
         if (days <= 0) continue
 
-        const salary = getSalaryAtDate(context, segmentStart)
+        let salary = getSalaryAtDate(context, segmentStart)
+        if (segmentEnd < utcDay(today) && salary.assumed) {
+            const latestCompetence = findLatestSalaryCompetence(context.obligations, segmentStart)
+            const competenceValue = latestCompetence
+                ? toNumber(latestCompetence.originalValue)
+                : null
+
+            if (competenceValue !== null && competenceValue > 0) {
+                const competenceDate = latestCompetence?.referenceEnd ?? latestCompetence?.referenceStart
+                salary = {
+                    value: competenceValue,
+                    source: 'salary_competence',
+                    assumed: true,
+                    warning: competenceDate
+                        ? `Salary estimated from the latest recorded competence (${String(competenceDate.getUTCMonth() + 1).padStart(2, '0')}/${competenceDate.getUTCFullYear()}).`
+                        : 'Salary estimated from the latest recorded competence.'
+                }
+            }
+        }
+
         if (salary.value === null) {
             warnings.push(salary.warning ?? 'Salary could not be identified for part of this month.')
             return { value: null, assumed: true, warnings }
@@ -343,7 +363,8 @@ export const calculateSalaryCompetencies = (
                 year,
                 month,
                 activePeriod.start,
-                activePeriod.end
+                activePeriod.end,
+                currentDate
             )
 
             estimatedValue = monthlySalary.value
