@@ -236,56 +236,71 @@ Eventos esperados:
 
 O campo metadata pode armazenar detalhes estruturados, como valores anterior/novo, competência, obrigação afetada e motivo. O histórico não será fonte de saldo financeiro; sua finalidade é auditoria e contexto.
 
-## 11. Helpers: férias e décimo terceiro
+## 11. Análise e sugestão de competências
 
-Os helpers serão auxiliares de consulta e estimativa. Não criam obrigações nem pagamentos automaticamente. Outros helpers poderão ser criados conforme a necessidade real surgir.
+A análise é um mecanismo administrativo para identificar competências que podem precisar ser criadas ou revisadas. Ela consulta o vínculo, o histórico salarial e as obrigações já registradas. Não cria nem altera obrigações automaticamente.
 
-### 11.1 Décimo terceiro
+A análise é feita por período mensal: mês/ano inicial e mês/ano final, ambos inclusivos. O período máximo aceito é de 40 anos. A consulta permite habilitar ou desabilitar separadamente os cálculos de salário, férias e décimo terceiro; por padrão, os três são executados.
 
-Fórmula administrativa acordada:
+### 11.1 Salários
 
-`salário bruto / 12 * meses trabalhados`
+O helper percorre cada mês do período e estima a obrigação salarial do vínculo.
 
-O mês é elegível quando houver pelo menos 15 dias de vínculo dentro dele. Para a estimativa anual, utiliza-se o salário bruto de dezembro dividido por 12 e multiplicado pela quantidade de meses elegíveis. O salário de dezembro é reconstruído pelo histórico de alterações salariais em `employee_history`; quando esse histórico não permite reconstrução, o helper pode usar o salário atual como aproximação e deve sinalizar isso.
+- O valor mensal é proporcional aos dias corridos de vínculo ativo dentro do mês.
+- Se houver alteração salarial com data efetiva dentro do mês, o cálculo divide o mês pelos intervalos em que cada salário esteve vigente.
+- O divisor é a quantidade de dias corridos do mês. Exemplo: 15 dias ativos em um mês de 30 dias correspondem a 15/30 do salário.
+- O histórico de alterações salariais é usado para reconstruir os valores por data efetiva.
+- Quando o histórico não permite reconstrução de um mês passado, o helper pode usar a última competência salarial anterior como referência. Se não houver competência anterior, usa o salário atual apenas como estimativa e exige revisão para períodos passados.
+- Competências salariais existentes são comparadas com o cálculo. Registros duplicados ou com referências incompletas exigem revisão.
+- A referência mensal da obrigação usa o primeiro e o último dia do mês, mesmo quando o valor é proporcional.
 
-Regras de calendário usadas como referência:
-- pagamento em parcela única até 30 de novembro; ou
-- primeira parcela até 30 de novembro e segunda até 20 de dezembro;
-- para a competência anual única, o vencimento de referência será 20 de dezembro.
-
-O helper consulta as obrigações de décimo terceiro já registradas para o vínculo e ano:
-- sem obrigação: sugere criação com memória de cálculo;
-- obrigação existente: apresenta valor reconhecido, valor alocado como pago e saldo;
-- valor estimado diferente e obrigação sem movimentações/alocações: pode sugerir edição;
-- obrigação com pagamentos/movimentações ou marcada como parcial/paga/cancelada: exige revisão manual;
-- histórico ou datas insuficientes: informa a limitação, sem inventar valores.
-
-O ano de desligamento fica para revisão manual, pois o pagamento proporcional e seu vencimento dependem do contexto da rescisão. O helper não calcula rescisão, remuneração variável, adicionais, descontos ou encargos.
+Não são calculados descontos automáticos por falta, atraso ou saída antecipada. Também não são considerados adicionais variáveis ou regras específicas de folha.
 
 ### 11.2 Férias
 
-O helper acompanha períodos aquisitivos de 12 meses a partir da data de entrada do vínculo. Cada período completo é identificado pelas datas de início e fim e pode gerar uma competência de férias. Não haverá tabela exclusiva para períodos de férias: o histórico permanece nas obrigações e alocações.
+O helper parte da data de entrada do vínculo e identifica períodos aquisitivos consecutivos de 12 meses.
 
-Estimativa acordada:
-- remuneração bruta vigente na data da concessão das férias, conforme art. 142 da CLT;
-- acréscimo de um terço;
-- sem retenções ou impostos nesta etapa.
+- Cada período é representado por referenceStart e referenceEnd na obrigação do tipo férias.
+- As competências existentes são consultadas para reconhecer os períodos já registrados e evitar duplicidade.
+- O próximo período é identificado a partir da sequência aquisitiva do vínculo; o helper não reinicia o período aquisitivo pela data em que o pagamento foi registrado.
+- A estimativa usa a remuneração disponível para o fim do período aquisitivo, acrescida de um terço, sem impostos ou retenções.
+- Para identificar a remuneração, usa a última competência salarial anterior ou, quando necessário, o histórico salarial e o salário atual como estimativa.
+- Quando já existe uma competência histórica de férias, mas não há histórico salarial suficiente, o valor original dessa obrigação é preservado como referência, em vez de substituí-lo pelo salário atual.
+- Um período histórico completo sem obrigação registrada exige revisão manual: a ausência de registro não prova que as férias não foram concedidas ou pagas.
+- O prazo concessivo é informado como 12 meses após o fim do período aquisitivo. Se estiver vencido, exige conferência sobre a concessão e eventual pagamento em dobro; o helper não aplica dobra automaticamente.
+- dueDate permanece nulo quando não existe data real de início das férias. Não se inventa vencimento com base no período aquisitivo.
 
-Como o vínculo não possui campo para agendar o início das férias, o helper usa o salário atual quando ainda não há uma data de concessão. Se uma obrigação existente tiver vencimento informado, usa essa data como referência para reconstruir o salário pelo histórico. A estimativa deve ser revisada quando a data real de concessão for definida.
+O cálculo não considera abono pecuniário, faltas que alterem os dias de férias, remuneração variável, suspensão/perda do período aquisitivo ou efeitos específicos de afastamentos. Vínculos encerrados e afastados exigem revisão.
 
-O helper também informa o prazo concessivo: os 12 meses seguintes ao fim do período aquisitivo. A data exata do pagamento não pode ser determinada sem a data de início das férias; quando houver agendamento, o pagamento deve ocorrer até dois dias antes do início. O helper não inventa essa data e deixa `dueDate` vazio.
+### 11.3 Décimo terceiro
 
-O helper consulta obrigações existentes para o período:
-- sem obrigação: sugere criação, quando os dados forem suficientes;
-- obrigação existente: apresenta valor reconhecido, valor alocado como pago e saldo;
-- valor estimado diferente e obrigação sem movimentações/alocações: pode sugerir edição;
-- obrigação com pagamentos/movimentações ou marcada como parcial/paga/cancelada: exige revisão manual;
-- prazo concessivo encerrado: exige confirmação manual sobre concessão das férias e eventual pagamento em dobro;
-- vínculo encerrado: exige revisão no contexto da rescisão.
+Para cada ano que intersecta o período consultado, o helper calcula os meses elegíveis desde janeiro até o mês final da análise naquele ano.
 
-O cálculo inicial não considera abono pecuniário, faltas que alterem a quantidade de dias, adicionais variáveis, hipóteses de suspensão/perda do período aquisitivo ou particularidades de afastamentos. Esses casos devem ser sinalizados para conferência. O helper não é cálculo oficial de folha.
+- Um mês conta quando existem pelo menos 15 dias de vínculo ativo nele.
+- A base é a última competência de salário registrada até o mês de referência do cálculo, usando o valor original da obrigação salarial (remuneração bruta).
+- Se não existir competência salarial anterior, utiliza currentSalary do vínculo como estimativa.
+- Se a estimativa histórica depender de currentSalary ou de uma competência salarial de ano anterior, o resultado exige revisão manual.
+- A fórmula administrativa acordada é salário de referência / 12 * meses trabalhados.
+- A competência anual usa referenceStart em 1º de janeiro e referenceEnd em 31 de dezembro. Se a análise terminar antes de dezembro, o valor representa uma projeção acumulada até o mês final informado.
+- O vencimento de referência é 20 de dezembro. O calendário legal também admite pagamento em parcela única até 30 de novembro ou em duas parcelas, com a segunda até 20 de dezembro.
+- Competências existentes, valores pagos e saldos são apresentados para evitar duplicidade e preservar o histórico.
 
-### 11.3 Referências consultadas
+O ano de desligamento, vínculos afastados, salário de referência antigo, registros salariais ambíguos e ausência de dados confiáveis exigem revisão manual. O helper não calcula verbas rescisórias, impostos ou encargos.
+
+### 11.4 Ações e segurança da análise
+
+Cada sugestão retorna uma das ações:
+
+- create: competência ausente e cálculo suficientemente confiável para revisão e criação pelo usuário;
+- update: valor estimado diferente, sem pagamentos, movimentações ou ajuste manual no valor reconhecido;
+- none: competência existente compatível com o cálculo;
+- manual_review: dados incompletos, duplicidade, referência inválida, histórico insuficiente ou registro financeiro que impede alteração segura.
+
+A resposta distingue valor estimado, valor reconhecido, total alocado como pago e saldo da obrigação. Uma sugestão não é uma dívida reconhecida e não entra no financeiro antes da criação explícita da competência.
+
+Os três benefícios são analisados para todas as modalidades de vínculo (CLT, PJ, Informal e outros), conforme decisão atual do projeto. A regra poderá ser revista futuramente.
+
+### 11.5 Referências consultadas
 
 - [Ministério do Trabalho e Emprego — perguntas frequentes sobre 13º salário e férias](https://www.gov.br/trabalho-e-emprego/pt-br/acesso-a-informacao/acoes-e-programas/programas-projetos-acoes-obras-e-atividades/proteja/duvidas-frequentes/perguntas-frequentes)
 - [eSocial — pagamento do décimo terceiro salário](https://www.gov.br/esocial/pt-br/empregador-domestico/perguntas-frequentes/perguntas-frequentes)
