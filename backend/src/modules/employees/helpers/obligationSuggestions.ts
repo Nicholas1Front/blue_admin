@@ -69,11 +69,11 @@ const findMatchingObligations = (
     item: CalculationItem
 ) => obligations.filter(obligation => {
     if (obligation.type !== item.type) return false
-    if (!obligation.referenceStart || !obligation.referenceEnd) return true
+    if (!obligation.referenceStart || !obligation.referenceEnd) return false
 
     if (item.type === 'salario') {
-        if (!sameMonth(obligation.referenceStart, obligation.referenceEnd)) return true
-        return sameMonth(obligation.referenceStart, item.referenceStart)
+        return sameMonth(obligation.referenceStart, obligation.referenceEnd) &&
+            sameMonth(obligation.referenceStart, item.referenceStart)
     }
 
     if (item.type === 'decimo_terceiro') {
@@ -91,14 +91,37 @@ const findMatchingObligations = (
     return false
 })
 
+const hasUnreliableReference = (
+    obligations: ObligationRecord[],
+    item: CalculationItem
+) => obligations.some(obligation => {
+    if (obligation.type !== item.type) return false
+    if (!obligation.referenceStart || !obligation.referenceEnd) return true
+
+    if (item.type === 'salario') {
+        return !sameMonth(obligation.referenceStart, obligation.referenceEnd)
+    }
+
+    if (item.type === 'decimo_terceiro') {
+        return obligation.referenceStart.getUTCFullYear() !== obligation.referenceEnd.getUTCFullYear() ||
+            obligation.referenceStart.getUTCMonth() !== 0 ||
+            obligation.referenceStart.getUTCDate() !== 1 ||
+            obligation.referenceEnd.getUTCMonth() !== 11 ||
+            obligation.referenceEnd.getUTCDate() !== 31
+    }
+
+    return false
+})
+
 const buildSuggestion = (
     item: CalculationItem,
-    existingObligations: ObligationRecord[]
+    existingObligations: ObligationRecord[],
+    hasUnreliableExistingReference: boolean
 ): ObligationSuggestion => {
     const warnings = [...item.warnings]
     const existing = existingObligations[0]
     const hasDuplicates = existingObligations.length > 1
-    const hasInvalidReference = existing !== undefined && (
+    const hasInvalidReference = hasUnreliableExistingReference || (existing !== undefined && (
         item.type === 'salario'
             ? !existing.referenceStart || !sameMonth(existing.referenceStart, item.referenceStart) ||
                 !existing.referenceEnd || !sameMonth(existing.referenceEnd, item.referenceEnd)
@@ -113,7 +136,7 @@ const buildSuggestion = (
                     existing.referenceEnd.getUTCFullYear() !== item.referenceEnd.getUTCFullYear() ||
                     existing.referenceEnd.getUTCMonth() !== 11 ||
                     existing.referenceEnd.getUTCDate() !== 31
-    )
+    ))
 
     if (hasDuplicates) {
         warnings.push('More than one obligation matches this reference period. Review the records before creating or changing anything.')
@@ -139,7 +162,7 @@ const buildSuggestion = (
     }
 
     if (hasInvalidReference) {
-        warnings.push('The existing obligation has an incomplete or different reference period. Review the reference dates before changing it.')
+        warnings.push('One or more obligations of this type have incomplete or inconsistent reference dates. Review the existing records before creating or changing this competence.')
     }
 
     if (existing?.status === 'cancelado') {
@@ -264,7 +287,8 @@ export const suggestBenefitObligations = (
         )
         .map(item => buildSuggestion(
             item,
-            findMatchingObligations(context.obligations, item)
+            findMatchingObligations(context.obligations, item),
+            hasUnreliableReference(context.obligations, item)
         ))
 
     return {
