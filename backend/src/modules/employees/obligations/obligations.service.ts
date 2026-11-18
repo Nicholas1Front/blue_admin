@@ -1,5 +1,6 @@
 import { AppError } from '../../../shared/errors/AppError.js'
 import { repeatableObligationTypes } from '../shareds/repeatableObligationTypes.js'
+import { suggestBenefitObligations } from '../helpers/obligationSuggestions.js'
 import obligationsRepository from './obligations.repository.js'
 import type {
     analyzeObligationsQueryDTO,
@@ -7,7 +8,6 @@ import type {
     createObligationsBatchDTO,
     updateObligationDTO
 } from './obligations.schema.js'
-import { suggestBenefitObligations } from '../helpers/obligationSuggestions.js'
 
 const historyValue = (value: Date | { toString(): string } | string | number | null) => {
     if (value instanceof Date) return value.toISOString()
@@ -26,11 +26,21 @@ class ObligationsService {
             throw new AppError('Engagement not found', 404, 'ENGAGEMENT_NOT_FOUND')
         }
 
-        const currentYear = new Date().getUTCFullYear()
-        const fromYear = query.fromYear ?? context.entryDate?.getUTCFullYear() ?? currentYear
-        const toYear = query.toYear ?? currentYear
+        const {
+            startMonth,
+            startYear,
+            endMonth,
+            endYear,
+            calculateSalary,
+            calculateVacation,
+            calculateThirteenthSalary
+        } = query
 
-        return suggestBenefitObligations(context, fromYear, toYear)
+        return suggestBenefitObligations(
+            context,
+            { startMonth, startYear, endMonth, endYear },
+            { calculateSalary, calculateVacation, calculateThirteenthSalary }
+        )
     }
 
     async createObligationsBatch(engagementId: string, data: createObligationsBatchDTO) {
@@ -241,5 +251,4 @@ class ObligationsService {
         return true
     }
 }
-
 export default new ObligationsService()
