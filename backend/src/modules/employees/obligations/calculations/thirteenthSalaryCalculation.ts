@@ -4,6 +4,7 @@ import {
     monthEnd,
     monthStart,
     roundCurrency,
+    sameMonth,
     toNumber,
     utcDay
 } from './salaryCalculation.js'
@@ -110,6 +111,15 @@ export const calculateThirteenthSalaryCompetencies = (
         }
 
         if (latestSalaryCompetence) {
+            if (
+                !latestSalaryCompetence.referenceStart ||
+                !latestSalaryCompetence.referenceEnd ||
+                !sameMonth(latestSalaryCompetence.referenceStart, latestSalaryCompetence.referenceEnd)
+            ) {
+                itemWarnings.push('The latest salary competence has incomplete or non-monthly reference dates; confirm the salary base.')
+                requiresReview = true
+            }
+
             const salaryDate = latestSalaryCompetence.referenceEnd ?? latestSalaryCompetence.referenceStart
             if (salaryDate && salaryDate.getUTCFullYear() < year) {
                 itemWarnings.push(`The latest recorded salary competence is from ${String(salaryDate.getUTCMonth() + 1).padStart(2, '0')}/${salaryDate.getUTCFullYear()} and is being used as the reference.`)
