@@ -106,7 +106,11 @@ class ObligationsService {
             obligationId,
             data,
             changes,
-            preventsDuplicate(nextType),
+            preventsDuplicate(nextType) && (
+                changes.type !== undefined ||
+                changes.referenceStart !== undefined ||
+                changes.referenceEnd !== undefined
+            ),
             nextType,
             nextStart,
             nextEnd
@@ -155,11 +159,14 @@ class ObligationsService {
             {
                 type: existing.type,
                 title: existing.title,
+                description: existing.description,
                 referenceStart: historyValue(existing.referenceStart),
                 referenceEnd: historyValue(existing.referenceEnd),
+                dueDate: historyValue(existing.dueDate),
                 originalValue: existing.originalValue.toString(),
                 finalValue: existing.finalValue.toString(),
-                status: existing.status
+                status: existing.status,
+                observations: existing.observations
             }
         )
 
