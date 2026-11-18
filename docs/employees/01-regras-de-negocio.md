@@ -267,9 +267,11 @@ O ano de desligamento fica para revisão manual, pois o pagamento proporcional e
 O helper acompanha períodos aquisitivos de 12 meses a partir da data de entrada do vínculo. Cada período completo é identificado pelas datas de início e fim e pode gerar uma competência de férias. Não haverá tabela exclusiva para períodos de férias: o histórico permanece nas obrigações e alocações.
 
 Estimativa acordada:
-- salário bruto de referência ao final do período aquisitivo;
+- remuneração bruta vigente na data da concessão das férias, conforme art. 142 da CLT;
 - acréscimo de um terço;
 - sem retenções ou impostos nesta etapa.
+
+Como o vínculo não possui campo para agendar o início das férias, o helper usa o salário atual quando ainda não há uma data de concessão. Se uma obrigação existente tiver vencimento informado, usa essa data como referência para reconstruir o salário pelo histórico. A estimativa deve ser revisada quando a data real de concessão for definida.
 
 O helper também informa o prazo concessivo: os 12 meses seguintes ao fim do período aquisitivo. A data exata do pagamento não pode ser determinada sem a data de início das férias; quando houver agendamento, o pagamento deve ocorrer até dois dias antes do início. O helper não inventa essa data e deixa `dueDate` vazio.
 
