@@ -50,6 +50,7 @@ export type CalculationItem = {
     requiresReview: boolean
     isProjection: boolean
     monthsWorked?: number
+    concessionDeadline?: Date
 }
 
 export type CalculationResult = {
