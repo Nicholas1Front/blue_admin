@@ -151,7 +151,7 @@ const createSalaryLookup = (engagement: BenefitEngagement) => {
 
         for (let index = changes.length - 1; index >= 0; index -= 1) {
             const change = changes[index]
-            if (change && change.date > date) salary = change.previous
+            if (change && toUtcDate(change.date) > toUtcDate(date)) salary = change.previous
         }
 
         if (salary === null) {
@@ -219,7 +219,9 @@ const buildSuggestion = (
         title,
         referenceStart: formatDate(start),
         referenceEnd: formatDate(end),
-        dueDate: dueDate ? formatDate(dueDate) : null,
+        dueDate: existing?.dueDate
+            ? formatDate(existing.dueDate)
+            : dueDate ? formatDate(dueDate) : null,
         estimatedValue,
         recognizedValue,
         paidValue,
