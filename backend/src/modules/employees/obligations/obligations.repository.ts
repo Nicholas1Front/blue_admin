@@ -220,7 +220,7 @@ class ObligationsRepository {
                     ]
                 },
                 obligations: {
-                    where: { type: { in: ['ferias', 'decimo_terceiro'] } },
+                    where: { type: { in: ['salario', 'ferias', 'decimo_terceiro'] } },
                     select: {
                         id: true,
                         type: true,
@@ -320,7 +320,6 @@ class ObligationsRepository {
             }
         })
     }
-
 }
 
 export default new ObligationsRepository()
