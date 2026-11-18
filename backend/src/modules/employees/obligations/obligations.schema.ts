@@ -6,6 +6,9 @@ const obligationTypeSchema = z.enum(allowedObligationTypes)
 const obligationStatusSchema = z.enum(allowedObligationStatus)
 const optionalDate = z.coerce.date().nullable().optional()
 const amountSchema = z.coerce.number().finite().positive()
+const monthSchema = z.coerce.number().int().min(1).max(12)
+const yearSchema = z.coerce.number().int().min(1900).max(2200)
+const queryBoolean = z.enum(['true', 'false']).default('true').transform(value => value === 'true')
 
 export const createObligationSchema = z.object({
     type: obligationTypeSchema,
@@ -56,15 +59,33 @@ export const createObligationsBatchSchema = z.object({
 })
 
 export const analyzeObligationsQuerySchema = z.object({
-    fromYear: z.coerce.number().int().min(1900).max(2200).optional(),
-    toYear: z.coerce.number().int().min(1900).max(2200).optional()
-}).refine(data =>
-    data.fromYear === undefined ||
-    data.toYear === undefined ||
-    data.fromYear <= data.toYear,
-{
-    message: 'Start year cannot be after end year',
-    path: ['toYear']
+    startMonth: monthSchema,
+    startYear: yearSchema,
+    endMonth: monthSchema,
+    endYear: yearSchema,
+    calculateSalary: queryBoolean,
+    calculateVacation: queryBoolean,
+    calculateThirteenthSalary: queryBoolean
+}).superRefine((data, context) => {
+    const start = data.startYear * 12 + data.startMonth
+    const end = data.endYear * 12 + data.endMonth
+
+    if (start > end) {
+        context.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'Start month cannot be after end month',
+            path: ['endMonth']
+        })
+        return
+    }
+
+    if (end - start >= 480) {
+        context.addIssue({
+            code: z.ZodIssueCode.custom,
+            message: 'The analysis period cannot exceed 40 years',
+            path: ['endYear']
+        })
+    }
 })
 
 export type createObligationsBatchDTO = z.infer<typeof createObligationsBatchSchema>
