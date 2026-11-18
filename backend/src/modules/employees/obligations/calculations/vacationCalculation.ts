@@ -112,7 +112,8 @@ export const calculateVacationCompetencies = (
                 calculation: 'Estimated full vacation amount: salary reference for the acquisition period end plus one third. No taxes, variable additions, absences affecting vacation days, or suspension/loss of the acquisition period are calculated.',
                 warnings: [...new Set(itemWarnings)],
                 requiresReview,
-                isProjection
+                isProjection,
+                concessionDeadline
             })
         }
 
