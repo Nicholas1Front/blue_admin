@@ -175,12 +175,15 @@ export const getSalaryReference = (
             sameMonth(competence.referenceStart, competence.referenceEnd)
         )
         if (value !== null && value > 0) {
+            const needsReview = !hasCompleteMonthlyReference || competence.status === 'em_revisao'
             return {
                 value,
                 source: 'salary_competence',
-                assumed: !hasCompleteMonthlyReference,
-                ...(!hasCompleteMonthlyReference
-                    ? { warning: 'The latest salary competence has incomplete or non-monthly reference dates.' }
+                assumed: needsReview,
+                ...(needsReview
+                    ? { warning: competence.status === 'em_revisao'
+                        ? 'The latest salary competence is still under review.'
+                        : 'The latest salary competence has incomplete or non-monthly reference dates.' }
                     : {})
             }
         }
@@ -234,20 +237,12 @@ const getMonthSalary = (
 
         let salary = getSalaryAtDate(context, segmentStart)
         if (segmentEnd < utcDay(today) && salary.assumed) {
-            const latestCompetence = findLatestSalaryCompetence(context.obligations, segmentStart)
-            const competenceValue = latestCompetence
-                ? toNumber(latestCompetence.originalValue)
-                : null
-
-            if (competenceValue !== null && competenceValue > 0) {
-                const competenceDate = latestCompetence?.referenceEnd ?? latestCompetence?.referenceStart
+            const latestCompetence = getSalaryReference(context, segmentStart)
+            if (latestCompetence.source === 'salary_competence' && latestCompetence.value !== null) {
                 salary = {
-                    value: competenceValue,
-                    source: 'salary_competence',
+                    ...latestCompetence,
                     assumed: true,
-                    warning: competenceDate
-                        ? `Salary estimated from the latest recorded competence (${String(competenceDate.getUTCMonth() + 1).padStart(2, '0')}/${competenceDate.getUTCFullYear()}).`
-                        : 'Salary estimated from the latest recorded competence.'
+                    warning: latestCompetence.warning ?? 'Salary estimated from the latest recorded salary competence.'
                 }
             }
         }
