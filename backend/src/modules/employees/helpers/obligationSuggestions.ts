@@ -195,6 +195,10 @@ const buildSuggestion = (
         warnings.push('The obligation status is inconsistent with its payment allocations. Review the financial records before changing it.')
     }
 
+    if (existing?.status === 'pago' && allocatedValue === 0) {
+        warnings.push('The obligation is marked as paid without payment allocations; its recognized value is being treated as paid for this analysis.')
+    }
+
     if (hasInvalidReference) {
         warnings.push('One or more obligations of this type have incomplete or inconsistent reference dates for this period. Review the existing records before creating or changing this competence.')
     }
