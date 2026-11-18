@@ -44,7 +44,9 @@ export const calculateVacationCompetencies = (
             obligation.referenceEnd >= obligation.referenceStart
         )
         .sort((left, right) =>
-            (right.referenceEnd?.getTime() ?? 0) - (left.referenceEnd?.getTime() ?? 0)
+            (right.referenceEnd?.getTime() ?? 0) - (left.referenceEnd?.getTime() ?? 0) ||
+            (right.referenceStart?.getTime() ?? 0) - (left.referenceStart?.getTime() ?? 0) ||
+            left.id.localeCompare(right.id)
         )
 
     let periodStart: Date
@@ -69,9 +71,7 @@ export const calculateVacationCompetencies = (
         warnings.push('The engagement entry date is missing. The next acquisition period is projected from the latest valid recorded vacation competence; earlier periods cannot be reconstructed.')
 
         const latestPeriodCount = recordedVacations.filter(obligation =>
-            obligation.referenceStart !== null &&
             obligation.referenceEnd !== null &&
-            sameMonth(obligation.referenceStart, latestVacationStart) &&
             sameMonth(obligation.referenceEnd, latestVacationEnd)
         ).length
 
