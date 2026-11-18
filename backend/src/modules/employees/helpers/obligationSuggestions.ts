@@ -402,13 +402,26 @@ export const suggestBenefitObligations = (
         }
         if (periodEnd.getUTCFullYear() > toYear) break
 
-        const salary = salaryAt(periodEnd)
+        const existing = findExistingObligation(
+            engagement.obligations,
+            'ferias',
+            periodStart,
+            periodEnd
+        )
+        const salaryReferenceDate = existing?.dueDate
+            ? toUtcDate(existing.dueDate)
+            : engagement.exitDate
+                ? toUtcDate(engagement.exitDate)
+                : currentDate
+        const salary = salaryAt(salaryReferenceDate)
         const estimatedValue = salary.value === null
             ? null
             : roundCurrency(salary.value + salary.value / 3)
         const periodWarnings: string[] = []
         if (salary.value === null) periodWarnings.push('Não há salário bruto identificável para estimar as férias.')
-        if (salary.assumed) periodWarnings.push('O cálculo utiliza o salário atual como referência porque o histórico salarial está incompleto ou ausente.')
+        if (salary.assumed && (existing?.dueDate || engagement.exitDate)) {
+            periodWarnings.push('Não há histórico salarial suficiente para reconstruir a remuneração na data de referência das férias.')
+        }
         if (engagement.status === 'afastado') {
             periodWarnings.push('O vínculo está afastado. O helper não avalia os efeitos específicos do afastamento sobre o período aquisitivo.')
         }
@@ -416,20 +429,14 @@ export const suggestBenefitObligations = (
         const concessionDeadline = new Date(addYears(nextPeriodStart, 1).getTime() - DAY_IN_MS)
         const terminationPeriod = Boolean(engagement.exitDate)
         if (concessionDeadline < currentDate && !engagement.exitDate) {
-            periodWarnings.push('O prazo concessivo já terminou. Confirme se as férias foram concedidas; se houve concessão fora do prazo, pode existir obrigação de pagamento em dobro.')
+            periodWarnings.push('O prazo concessivo já terminou. Confirme se as férias foram concedidas; se houve concessão fora do prazo, pode existir obrigação de pagamento em dobro. Sem data de concessão, a estimativa usa o salário atual.')
         }
         if (terminationPeriod) {
             periodWarnings.push('O vínculo foi encerrado. A situação das férias deve ser conferida junto à rescisão; o helper não calcula verbas rescisórias.')
         }
 
         const concessionPeriodExpired = concessionDeadline < currentDate && !engagement.exitDate
-        const existing = findExistingObligation(
-            engagement.obligations,
-            'ferias',
-            periodStart,
-            periodEnd
-        )
-        const calculation = 'Estimativa para período aquisitivo completo: salário bruto de referência + 1/3, sem retenções ou impostos. Não considera abono pecuniário, faltas que reduzam dias, adicionais variáveis ou hipóteses de suspensão/perda do período.'
+        const calculation = 'Estimativa para período aquisitivo completo: remuneração vigente na data da concessão + 1/3, sem retenções ou impostos. Quando não há data de concessão, usa o salário atual; se a obrigação já possui vencimento, usa essa data como referência. Não considera abono pecuniário, faltas que alterem os dias, adicionais variáveis ou hipóteses de suspensão/perda do período.'
 
         const suggestion = buildSuggestion(
             'ferias',
