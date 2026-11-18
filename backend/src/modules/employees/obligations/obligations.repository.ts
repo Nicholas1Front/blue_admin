@@ -210,9 +210,13 @@ class ObligationsRepository {
                     select: {
                         eventType: true,
                         eventDate: true,
+                        createdAt: true,
                         metadata: true
                     },
-                    orderBy: { eventDate: 'asc' }
+                    orderBy: [
+                        { eventDate: 'asc' },
+                        { createdAt: 'asc' }
+                    ]
                 },
                 obligations: {
                     where: { type: { in: ['ferias', 'decimo_terceiro'] } },
