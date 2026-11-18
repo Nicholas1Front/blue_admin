@@ -15,7 +15,8 @@ import type {
     CalculationItem,
     CalculationPeriod,
     EngagementCalculationContext,
-    ObligationRecord
+    ObligationRecord,
+    CalculationResult
 } from '../obligations/calculations/types.js'
 
 type SuggestionAction = 'create' | 'update' | 'none' | 'manual_review'
@@ -68,21 +69,25 @@ const findMatchingObligations = (
     item: CalculationItem
 ) => obligations.filter(obligation => {
     if (obligation.type !== item.type) return false
-    if (!obligation.referenceStart || !obligation.referenceEnd) return false
-
     if (item.type === 'salario') {
-        return sameMonth(obligation.referenceStart, item.referenceStart) ||
-            sameMonth(obligation.referenceEnd, item.referenceEnd)
+        return Boolean(
+            (obligation.referenceStart && sameMonth(obligation.referenceStart, item.referenceStart)) ||
+            (obligation.referenceEnd && sameMonth(obligation.referenceEnd, item.referenceEnd))
+        )
     }
 
     if (item.type === 'decimo_terceiro') {
-        return obligation.referenceStart.getUTCFullYear() === item.referenceStart.getUTCFullYear() ||
-            obligation.referenceEnd.getUTCFullYear() === item.referenceEnd.getUTCFullYear()
+        return Boolean(
+            obligation.referenceStart?.getUTCFullYear() === item.referenceStart.getUTCFullYear() ||
+            obligation.referenceEnd?.getUTCFullYear() === item.referenceEnd.getUTCFullYear()
+        )
     }
 
     if (item.type === 'ferias') {
-        return sameDay(obligation.referenceStart, item.referenceStart) ||
-            sameDay(obligation.referenceEnd, item.referenceEnd)
+        return Boolean(
+            (obligation.referenceStart && sameDay(obligation.referenceStart, item.referenceStart)) ||
+            (obligation.referenceEnd && sameDay(obligation.referenceEnd, item.referenceEnd))
+        )
     }
 
     return false
@@ -97,11 +102,11 @@ const buildSuggestion = (
     const hasDuplicates = existingObligations.length > 1
     const hasInvalidReference = existing !== undefined && (
         item.type === 'salario'
-            ? !sameMonth(existing.referenceStart ?? item.referenceStart, item.referenceStart) ||
-                !sameMonth(existing.referenceEnd ?? item.referenceEnd, item.referenceEnd)
+            ? !existing.referenceStart || !sameMonth(existing.referenceStart, item.referenceStart) ||
+                !existing.referenceEnd || !sameMonth(existing.referenceEnd, item.referenceEnd)
             : item.type === 'ferias'
-                ? !sameDay(existing.referenceStart ?? item.referenceStart, item.referenceStart) ||
-                    !sameDay(existing.referenceEnd ?? item.referenceEnd, item.referenceEnd)
+                ? !existing.referenceStart || !sameDay(existing.referenceStart, item.referenceStart) ||
+                    !existing.referenceEnd || !sameDay(existing.referenceEnd, item.referenceEnd)
                 : existing.referenceStart?.getUTCFullYear() !== item.referenceStart.getUTCFullYear() ||
                     existing.referenceEnd?.getUTCFullYear() !== item.referenceEnd.getUTCFullYear()
     )
@@ -232,7 +237,7 @@ export const suggestBenefitObligations = (
     options: AnalysisOptions,
     today = new Date()
 ) => {
-    const calculationResults = []
+    const calculationResults: CalculationResult[] = []
 
     if (options.calculateSalary) {
         calculationResults.push(calculateSalaryCompetencies(context, period, today))
