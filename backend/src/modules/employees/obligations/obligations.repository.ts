@@ -1,4 +1,4 @@
-import { Prisma } from '@prisma/client'
+import type { Prisma } from '@prisma/client'
 import { prisma } from '../../../shared/database/prisma.js'
 import type { createObligationDTO, updateObligationDTO } from './obligations.schema.js'
 
@@ -133,7 +133,6 @@ class ObligationsRepository {
                     })
 
                     if (duplicate) return { duplicate: true as const, obligation: null }
-                }
             }
 
             const obligation = await tx.employeeObligation.update({
