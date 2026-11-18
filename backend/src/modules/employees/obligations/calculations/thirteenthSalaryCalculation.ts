@@ -111,6 +111,11 @@ export const calculateThirteenthSalaryCompetencies = (
         }
 
         if (latestSalaryCompetence) {
+            if (latestSalaryCompetence.status === 'em_revisao') {
+                itemWarnings.push('The latest salary competence is still under review; confirm its value before using it as the thirteenth salary base.')
+                requiresReview = true
+            }
+
             if (
                 !latestSalaryCompetence.referenceStart ||
                 !latestSalaryCompetence.referenceEnd ||
