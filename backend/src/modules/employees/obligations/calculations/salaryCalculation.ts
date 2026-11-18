@@ -102,16 +102,34 @@ const readSalaryChanges = (context: EngagementCalculationContext) => {
         left.createdAt.getTime() - right.createdAt.getTime()
     )
 
+    const salariesMatch = (left: number | null, right: number | null) =>
+        left === null || right === null
+            ? left === right
+            : Math.abs(left - right) < 0.01
+
     for (let index = 1; index < changes.length; index += 1) {
         const currentChange = changes[index]
         const previousChange = changes[index - 1]
         if (
             currentChange &&
             previousChange &&
-            sameDay(currentChange.effectiveDate, previousChange.effectiveDate)
+            (
+                sameDay(currentChange.effectiveDate, previousChange.effectiveDate) ||
+                !salariesMatch(previousChange.current, currentChange.previous)
+            )
         ) {
             incomplete = true
         }
+    }
+
+    const latestChange = changes[changes.length - 1]
+    const currentSalary = toNumber(context.currentSalary)
+    if (
+        latestChange &&
+        currentSalary !== null &&
+        !salariesMatch(latestChange.current, currentSalary)
+    ) {
+        incomplete = true
     }
 
     return { changes, incomplete }
