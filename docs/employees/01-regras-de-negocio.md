@@ -293,7 +293,7 @@ O ano de desligamento, vínculos afastados, salário de referência antigo, regi
 Cada sugestão retorna uma das ações:
 
 - create: competência ausente e cálculo suficientemente confiável para revisão e criação pelo usuário;
-- update: valor estimado diferente, sem pagamentos, movimentações ou ajuste manual no valor reconhecido;
+- update: valor estimado diferente, obrigação pendente, sem pagamentos, movimentações ou ajuste manual no valor reconhecido;
 - none: competência existente compatível com o cálculo;
 - manual_review: dados incompletos, duplicidade, referência inválida, histórico insuficiente, obrigação cancelada ou em revisão, obrigação parcial sem alocações ou divergência que exigiria alterar uma obrigação paga/parcial ou com registros financeiros.
 
