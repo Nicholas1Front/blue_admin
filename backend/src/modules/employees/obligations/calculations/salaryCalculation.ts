@@ -208,6 +208,7 @@ export const getSalaryReference = (
         const hasCompleteMonthlyReference = Boolean(
             competence.referenceStart &&
             competence.referenceEnd &&
+            competence.referenceEnd >= competence.referenceStart &&
             sameMonth(competence.referenceStart, competence.referenceEnd)
         )
         if (value !== null && value > 0) {
