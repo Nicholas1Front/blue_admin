@@ -50,3 +50,22 @@ export const updateObligationSchema = z.object({
 
 export type createObligationDTO = z.infer<typeof createObligationSchema>
 export type updateObligationDTO = z.infer<typeof updateObligationSchema>
+
+export const createObligationsBatchSchema = z.object({
+    obligations: z.array(createObligationSchema).min(1).max(100)
+})
+
+export const analyzeObligationsQuerySchema = z.object({
+    fromYear: z.coerce.number().int().min(1900).max(2200).optional(),
+    toYear: z.coerce.number().int().min(1900).max(2200).optional()
+}).refine(data =>
+    data.fromYear === undefined ||
+    data.toYear === undefined ||
+    data.fromYear <= data.toYear,
+{
+    message: 'Start year cannot be after end year',
+    path: ['toYear']
+})
+
+export type createObligationsBatchDTO = z.infer<typeof createObligationsBatchSchema>
+export type analyzeObligationsQueryDTO = z.infer<typeof analyzeObligationsQuerySchema>
