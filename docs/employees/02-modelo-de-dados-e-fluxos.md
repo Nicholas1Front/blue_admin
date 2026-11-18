@@ -323,7 +323,7 @@ A prioridade inicial é banco de dados e backend.
 - Testes de consistência, concorrência e integração financeira.
 
 ### Etapa 6 — Helpers
-- Décimo terceiro e férias somente após validar os dados disponíveis e regras.
+- Salários, férias e décimo terceiro calculados por período mensal, respeitando o histórico disponível e as regras acordadas.
 - Memória de cálculo e sinalização de dados incompletos.
 - Detecção de obrigação já criada e saldo já pago.
 - Nenhuma criação automática de obrigação.
