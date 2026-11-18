@@ -172,15 +172,27 @@ const buildSuggestion = (
         : 0
     const recognizedValue = existing ? toNumber(existing.finalValue) : null
     const recognizedOriginalValue = existing ? toNumber(existing.originalValue) : null
-    const paidValue = existing?.status === 'pago'
-        ? Math.max(allocatedValue, recognizedValue ?? 0)
+    const paidValue = existing?.status === 'pago' && allocatedValue === 0
+        ? recognizedValue ?? 0
         : allocatedValue
-    const balance = existing && recognizedValue !== null
+    const balance = existing &&
+        recognizedValue !== null &&
+        !['cancelado', 'em_revisao'].includes(existing.status)
         ? roundCurrency(Math.max(0, recognizedValue - paidValue))
         : null
+    const paymentStatusMismatch = Boolean(existing && (
+        (existing.status === 'pendente' && allocatedValue > 0) ||
+        (existing.status === 'parcial' && recognizedValue !== null && allocatedValue >= recognizedValue) ||
+        (existing.status === 'pago' && allocatedValue > 0 && recognizedValue !== null &&
+            Math.abs(allocatedValue - recognizedValue) >= 0.01)
+    ))
 
     if (existing && recognizedValue !== null && paidValue > recognizedValue) {
         warnings.push('The allocated payment amount exceeds the recognized obligation value. Review the financial records.')
+    }
+
+    if (paymentStatusMismatch) {
+        warnings.push('The obligation status is inconsistent with its payment allocations. Review the financial records before changing it.')
     }
 
     if (hasInvalidReference) {
@@ -218,7 +230,13 @@ const buildSuggestion = (
 
     let action: SuggestionAction = 'none'
 
-    if (hasDuplicates || hasInvalidReference || item.requiresReview || projectedAnnualObligation) {
+    if (
+        hasDuplicates ||
+        hasInvalidReference ||
+        item.requiresReview ||
+        projectedAnnualObligation ||
+        paymentStatusMismatch
+    ) {
         action = 'manual_review'
     } else if (!existing) {
         action = item.estimatedValue !== null && item.estimatedValue > 0
