@@ -1,4 +1,4 @@
-import { Prisma } from '../../../generated/prisma/client.js'
+import { Prisma, type EmployeeObligation } from '../../../generated/prisma/client.js'
 import { prisma } from '../../../shared/database/prisma.js'
 import type { createObligationDTO, updateObligationDTO } from './obligations.schema.js'
 
@@ -270,7 +270,7 @@ class ObligationsRepository {
                 }
             }
 
-            const obligations: Awaited<ReturnType<typeof tx.employeeObligation.create>>[] = []
+            const obligations: EmployeeObligation[] = []
             for (const item of data) {
                 const obligation = await tx.employeeObligation.create({
                     data: {
