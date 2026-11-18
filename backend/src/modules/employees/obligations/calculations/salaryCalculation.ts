@@ -110,7 +110,7 @@ export const getSalaryAtDate = (
 ): SalaryReference => {
     const currentSalary = toNumber(context.currentSalary)
     const { changes, incomplete } = readSalaryChanges(context)
-    let salary = currentSalary
+    let salary = currentSalary ?? changes[changes.length - 1]?.current ?? null
     const targetDate = utcDay(date)
 
     for (let index = changes.length - 1; index >= 0; index -= 1) {
