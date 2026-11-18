@@ -399,15 +399,21 @@ export const calculateSalaryCompetencies = (
                 requiresReview = true
             }
 
-            if (existing.length === 1 && monthlySalary.assumed && !monthlySalary.requiresReview) {
+            if (
+                existing.length === 1 &&
+                monthlySalary.assumed &&
+                existingObligation?.referenceStart &&
+                existingObligation.referenceEnd &&
+                sameMonth(existingObligation.referenceStart, start) &&
+                sameMonth(existingObligation.referenceEnd, end) &&
+                !['cancelado', 'em_revisao'].includes(existingObligation.status)
+            ) {
                 const recordedValue = toNumber(existing[0]?.originalValue ?? null)
                 if (recordedValue !== null && recordedValue > 0) {
                     estimatedValue = recordedValue
                     calculation = 'Existing salary competence retained as the historical reference because the salary history is incomplete.'
                     itemWarnings.push('The existing salary competence is being used as the historical reference instead of replacing it with the current salary.')
-                    if (!existingObligation?.referenceStart || !existingObligation.referenceEnd) {
-                        requiresReview = true
-                    }
+                    requiresReview = false
                 }
             }
         }
