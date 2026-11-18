@@ -310,9 +310,8 @@ Regras de integração:
 Os pontos abaixo não devem ser resolvidos por suposição durante a implementação:
 - Política para vínculos com períodos sobrepostos.
 - Regras de operação em vínculo encerrado ou suspenso, distinguindo lançamento histórico de nova operação.
-- Semântica final de datas desconhecidas nas consultas e helpers.
-- Regra detalhada de meses trabalhados e salário de referência para décimo terceiro.
-- Detalhes de períodos aquisitivos, faltas relevantes e cálculo de férias.
+- Semântica final de datas desconhecidas em outros helpers e operações.
+- Tratamento futuro de remuneração variável, adicionais, afastamentos e faltas nos cálculos.
 - Política de correção/estorno de pagamento já vinculado ao financeiro.
 
 Essas decisões serão fechadas quando o fluxo correspondente for desenhado, sem antecipar complexidade desnecessária.
