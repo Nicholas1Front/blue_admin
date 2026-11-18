@@ -4,7 +4,7 @@ import {
     monthEnd,
     monthStart,
     roundCurrency,
-    sameDay,
+    sameMonth,
     toNumber,
     utcDay
 } from './salaryCalculation.js'
@@ -57,15 +57,15 @@ export const calculateVacationCompetencies = (
                 obligation.type === 'ferias' &&
                 obligation.referenceStart !== null &&
                 obligation.referenceEnd !== null &&
-                sameDay(obligation.referenceStart, periodStart) &&
-                sameDay(obligation.referenceEnd, periodEnd)
+                sameMonth(obligation.referenceStart, periodStart) &&
+                sameMonth(obligation.referenceEnd, periodEnd)
             )
             const salary = getSalaryReference(context, periodEnd)
             let usedExistingValue = false
             let estimatedValue = salary.value === null
                 ? null
                 : roundCurrency(salary.value + salary.value / 3)
-            let calculation = 'Estimated full vacation amount: salary reference for the acquisition period end plus one third. No taxes, variable additions, absences affecting vacation days, or suspension/loss of the acquisition period are calculated.'
+            let calculation = 'Estimated full vacation amount: latest available gross salary reference for the acquisition period end plus one third. No taxes, variable additions, absences affecting vacation days, or suspension/loss of the acquisition period are calculated.'
 
             if (
                 salary.assumed &&
