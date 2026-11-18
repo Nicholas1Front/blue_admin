@@ -336,6 +336,9 @@ export const suggestBenefitObligations = (
         const yearWarnings: string[] = []
         if (estimatedValue === null) yearWarnings.push('Não há salário bruto identificável para estimar o décimo terceiro.')
         if (assumedSalary) yearWarnings.push('Parte do cálculo utiliza o salário atual como referência porque o histórico salarial está incompleto ou ausente.')
+        if (year === currentDate.getUTCFullYear() && currentDate < yearEnd) {
+            yearWarnings.push('O ano ainda não terminou; o salário atual é usado como estimativa para a remuneração de dezembro.')
+        }
         if (engagement.status === 'afastado') {
             yearWarnings.push('O vínculo está afastado. O helper não avalia os efeitos específicos do afastamento sobre o décimo terceiro.')
         }
