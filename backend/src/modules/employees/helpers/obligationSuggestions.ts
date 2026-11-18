@@ -100,6 +100,7 @@ const hasUnreliableReferenceForItem = (
 
     // Without reference dates, the record cannot be safely assigned to a competence.
     if (!obligation.referenceStart || !obligation.referenceEnd) return true
+    if (obligation.referenceEnd < obligation.referenceStart) return true
 
     if (item.type === 'salario') {
         const relevant = overlapsPeriod(obligation, item) ||
