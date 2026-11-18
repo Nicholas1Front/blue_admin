@@ -261,7 +261,8 @@ Não são calculados descontos automáticos por falta, atraso ou saída antecipa
 O helper parte da data de entrada do vínculo e identifica períodos aquisitivos consecutivos de 12 meses.
 
 - Cada período é representado por referenceStart e referenceEnd na obrigação do tipo férias.
-- As competências existentes são consultadas para reconhecer os períodos já registrados e evitar duplicidade.
+- A identificação de uma competência de férias considera mês e ano de referenceStart e referenceEnd. Diferenças de dia não devem fazer o sistema tratar o mesmo período aquisitivo como uma competência diferente.
+- As competências existentes são consultadas para reconhecer os períodos já registrados, identificar o último período conhecido e evitar duplicidade.
 - O próximo período é identificado a partir da sequência aquisitiva do vínculo; o helper não reinicia o período aquisitivo pela data em que o pagamento foi registrado.
 - A estimativa usa a remuneração disponível para o fim do período aquisitivo, acrescida de um terço, sem impostos ou retenções.
 - Para identificar a remuneração, usa a última competência salarial anterior ou, quando necessário, o histórico salarial e o salário atual como estimativa.
