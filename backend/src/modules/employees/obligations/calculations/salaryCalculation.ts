@@ -385,6 +385,10 @@ export const calculateSalaryCompetencies = (
             itemWarnings.push('The engagement is marked as away; the effects of this absence on salary are not calculated automatically.')
             requiresReview = true
         } else {
+            if (context.exitDate && sameMonth(context.exitDate, start)) {
+                itemWarnings.push('This month includes the engagement exit date. Review the final salary and any termination payment before registering the obligation.')
+                requiresReview = true
+            }
             const monthlySalary = getMonthSalary(
                 context,
                 year,
