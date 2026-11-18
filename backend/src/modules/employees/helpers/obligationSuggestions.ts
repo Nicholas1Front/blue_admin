@@ -105,8 +105,14 @@ const buildSuggestion = (
             : item.type === 'ferias'
                 ? !existing.referenceStart || !sameDay(existing.referenceStart, item.referenceStart) ||
                     !existing.referenceEnd || !sameDay(existing.referenceEnd, item.referenceEnd)
-                : existing.referenceStart?.getUTCFullYear() !== item.referenceStart.getUTCFullYear() ||
-                    existing.referenceEnd?.getUTCFullYear() !== item.referenceEnd.getUTCFullYear()
+                : !existing.referenceStart ||
+                    existing.referenceStart.getUTCFullYear() !== item.referenceStart.getUTCFullYear() ||
+                    existing.referenceStart.getUTCMonth() !== 0 ||
+                    existing.referenceStart.getUTCDate() !== 1 ||
+                    !existing.referenceEnd ||
+                    existing.referenceEnd.getUTCFullYear() !== item.referenceEnd.getUTCFullYear() ||
+                    existing.referenceEnd.getUTCMonth() !== 11 ||
+                    existing.referenceEnd.getUTCDate() !== 31
     )
 
     if (hasDuplicates) {
