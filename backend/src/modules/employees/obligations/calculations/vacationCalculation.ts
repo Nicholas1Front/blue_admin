@@ -61,6 +61,7 @@ export const calculateVacationCompetencies = (
                 sameDay(obligation.referenceEnd, periodEnd)
             )
             const salary = getSalaryReference(context, periodEnd)
+            let usedExistingValue = false
             let estimatedValue = salary.value === null
                 ? null
                 : roundCurrency(salary.value + salary.value / 3)
@@ -74,6 +75,7 @@ export const calculateVacationCompetencies = (
                 const recordedValue = toNumber(matchingObligations[0]?.originalValue ?? null)
                 if (recordedValue !== null && recordedValue > 0) {
                     estimatedValue = recordedValue
+                    usedExistingValue = true
                     calculation = 'Existing vacation obligation retained as the historical reference because the salary history is incomplete.'
                     itemWarnings.push('The existing vacation competence is being used as the historical value instead of replacing it with the current salary.')
                 }
@@ -81,7 +83,7 @@ export const calculateVacationCompetencies = (
                 itemWarnings.push(salary.warning)
             }
 
-            if (salary.value === null || estimatedValue === null || estimatedValue <= 0) {
+            if ((!usedExistingValue && salary.value === null) || estimatedValue === null || estimatedValue <= 0) {
                 itemWarnings.push('A reliable salary reference is not available for the vacation estimate.')
                 requiresReview = true
             }
