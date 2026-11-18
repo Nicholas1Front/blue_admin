@@ -9,6 +9,7 @@ type SalaryChange = {
 type HistoryEntry = {
     eventType: string
     eventDate: Date | null
+    createdAt: Date
     metadata: unknown
 }
 
