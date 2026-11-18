@@ -249,7 +249,7 @@ O helper percorre cada mês do período e estima a obrigação salarial do vínc
 - O valor mensal é proporcional aos dias corridos de vínculo ativo dentro do mês.
 - Se houver alteração salarial com data efetiva dentro do mês, o cálculo divide o mês pelos intervalos em que cada salário esteve vigente.
 - O divisor é a quantidade de dias corridos do mês. Exemplo: 15 dias ativos em um mês de 30 dias correspondem a 15/30 do salário.
-- O histórico de alterações salariais é usado para reconstruir os valores por data efetiva.
+- O histórico de alterações salariais é usado para reconstruir os valores por data efetiva. A sequência de salário anterior/novo e o último valor do histórico são comparados com currentSalary; divergências tornam a referência incompleta e exigem conferência.
 - Quando o histórico não permite reconstrução de um mês passado, o helper pode usar a última competência salarial anterior como referência. Se não houver competência anterior, usa o salário atual apenas como estimativa e exige revisão para períodos passados.
 - Competências salariais existentes são comparadas com o cálculo. A identificação e a proteção contra duplicidade consideram o mês/ano de referenceStart e referenceEnd, não a igualdade exata dos dias. Registros duplicados ou com referências incompletas exigem revisão.
 - A referência mensal da obrigação usa o primeiro e o último dia do mês, mesmo quando o valor é proporcional.
