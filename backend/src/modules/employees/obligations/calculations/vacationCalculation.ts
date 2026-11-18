@@ -54,14 +54,16 @@ export const calculateVacationCompetencies = (
         periodStart = utcDay(context.entryDate)
     } else {
         const latestVacation = recordedVacations[0]
-        if (!latestVacation?.referenceEnd) {
+        const latestVacationStart = latestVacation?.referenceStart
+        const latestVacationEnd = latestVacation?.referenceEnd
+
+        if (!latestVacationStart || !latestVacationEnd) {
             return {
                 items,
                 warnings: ['The engagement entry date and a valid recorded vacation competence are both missing; vacation periods cannot be projected safely.']
             }
         }
 
-        const latestVacationEnd = latestVacation.referenceEnd
         periodStart = new Date(utcDay(latestVacationEnd).getTime() + DAY_IN_MS)
         anchorRequiresReview = true
         warnings.push('The engagement entry date is missing. The next acquisition period is projected from the latest valid recorded vacation competence; earlier periods cannot be reconstructed.')
@@ -69,7 +71,7 @@ export const calculateVacationCompetencies = (
         const latestPeriodCount = recordedVacations.filter(obligation =>
             obligation.referenceStart !== null &&
             obligation.referenceEnd !== null &&
-            sameMonth(obligation.referenceStart, latestVacation.referenceStart as Date) &&
+            sameMonth(obligation.referenceStart, latestVacationStart) &&
             sameMonth(obligation.referenceEnd, latestVacationEnd)
         ).length
 
