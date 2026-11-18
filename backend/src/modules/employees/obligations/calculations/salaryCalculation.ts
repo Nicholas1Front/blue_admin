@@ -212,7 +212,9 @@ export const getSalaryReference = (
                 ...(needsReview
                     ? { warning: competence.status === 'em_revisao'
                         ? 'The latest salary competence is still under review.'
-                        : 'The latest salary competence has incomplete or non-monthly reference dates.' }
+                        : !hasCompleteMonthlyReference
+                            ? 'The latest salary competence has incomplete or non-monthly reference dates.'
+                            : 'The latest salary competence is from a previous year; confirm that it is still a valid salary reference.' }
                     : {})
             }
         }
