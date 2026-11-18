@@ -2,6 +2,7 @@ import { Router } from 'express'
 import { authMiddleware } from '../../middlewares/auth.middleware.js'
 import employeesController from './employees.controller.js'
 import engagementsRoutes from './engagements/engagements.routes.js'
+import obligationsRoutes from './obligations/obligations.routes.js'
 
 const router = Router()
 
@@ -12,5 +13,6 @@ router.put('/update-employee/:id', employeesController.updateEmployee)
 router.get('/find-employee-by-id/:id', employeesController.findEmployeeById)
 
 router.use('/', engagementsRoutes)
+router.use('/', obligationsRoutes)
 
 export default router
