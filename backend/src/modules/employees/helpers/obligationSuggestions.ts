@@ -312,21 +312,16 @@ export const suggestBenefitObligations = (
 
         if (months.length === 0) continue
 
-        let total = 0
-        let missingSalary = false
-        let assumedSalary = false
+        const terminationYear = Boolean(engagement.exitDate && engagement.exitDate.getUTCFullYear() === year)
+        const salaryReferenceDate = terminationYear && engagement.exitDate
+            ? toUtcDate(engagement.exitDate)
+            : yearEnd
+        const salary = salaryAt(salaryReferenceDate)
+        const estimatedValue = salary.value === null
+            ? null
+            : roundCurrency(salary.value / 12 * months.length)
+        const assumedSalary = salary.assumed
 
-        for (const month of months) {
-            const salary = salaryAt(month.salaryDate)
-            if (salary.value === null) {
-                missingSalary = true
-                continue
-            }
-            total += salary.value / 12
-            assumedSalary ||= salary.assumed
-        }
-
-        const estimatedValue = missingSalary ? null : roundCurrency(total)
         const yearWarnings: string[] = []
         if (missingSalary) yearWarnings.push('Não há salário bruto identificável para todos os meses considerados.')
         if (assumedSalary) yearWarnings.push('Parte do cálculo utiliza o salário atual como referência porque o histórico salarial está incompleto ou ausente.')
@@ -334,7 +329,6 @@ export const suggestBenefitObligations = (
             yearWarnings.push('O vínculo está afastado. O helper não avalia os efeitos específicos do afastamento sobre o décimo terceiro.')
         }
 
-        const terminationYear = Boolean(engagement.exitDate && engagement.exitDate.getUTCFullYear() === year)
         if (terminationYear) {
             yearWarnings.push('O vínculo terminou neste ano. O valor proporcional exige conferência no contexto da rescisão e não deve ser criado automaticamente.')
         } else if (['demitiu-se', 'demitido'].includes(engagement.status)) {
@@ -348,7 +342,7 @@ export const suggestBenefitObligations = (
             yearEnd
         )
         const dueDate = new Date(Date.UTC(year, 11, 20))
-        const calculation = `Estimativa: soma do salário bruto de cada mês elegível dividido por 12. Meses considerados: ${months.length}. Fórmula acordada: salário bruto / 12 * meses trabalhados. O pagamento pode ocorrer em parcela única até 30/11 ou em duas parcelas, com a segunda até 20/12.`
+        const calculation = `Estimativa: salário bruto de dezembro / 12 × ${months.length} mês(es) elegível(is). O salário de dezembro é reconstruído pelo histórico salarial quando disponível. O pagamento pode ocorrer em parcela única até 30/11 ou em duas parcelas, com a segunda até 20/12.`
 
         const suggestion = buildSuggestion(
             'decimo_terceiro',
