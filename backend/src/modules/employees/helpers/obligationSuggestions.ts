@@ -1,46 +1,30 @@
-type NumericValue = number | { toString(): string } | null
+import {
+    calculateSalaryCompetencies
+} from '../obligations/calculations/salaryCalculation.js'
+import {
+    calculateVacationCompetencies
+} from '../obligations/calculations/vacationCalculation.js'
+import {
+    calculateThirteenthSalaryCompetencies
+} from '../obligations/calculations/thirteenthSalaryCalculation.js'
+import {
+    roundCurrency,
+    sameDay,
+    sameMonth,
+    toNumber
+} from '../obligations/calculations/salaryCalculation.js'
+import type {
+    CalculationItem,
+    CalculationPeriod,
+    EngagementCalculationContext,
+    ObligationRecord
+} from '../obligations/calculations/types.js'
 
-type SalaryChange = {
-    date: Date
-    createdAt: Date
-    previous: number | null
-    current: number | null
-}
+type SuggestionAction = 'create' | 'update' | 'none' | 'manual_review'
 
-type HistoryEntry = {
-    eventType: string
-    eventDate: Date | null
-    createdAt: Date
-    metadata: unknown
-}
-
-type ExistingObligation = {
-    id: string
-    type: string
-    title: string
-    referenceStart: Date | null
-    referenceEnd: Date | null
-    dueDate: Date | null
-    originalValue: NumericValue
-    finalValue: NumericValue
-    status: string
-    allocations: { value: NumericValue }[]
-    movements: { id: string }[]
-}
-
-type BenefitEngagement = {
-    id: string
-    entryDate: Date | null
-    exitDate: Date | null
-    status: string
-    currentSalary: NumericValue
-    history: HistoryEntry[]
-    obligations: ExistingObligation[]
-}
-
-type Suggestion = {
-    benefit: 'ferias' | 'decimo_terceiro'
-    action: 'create' | 'update' | 'none' | 'manual_review'
+type ObligationSuggestion = {
+    type: CalculationItem['type']
+    action: SuggestionAction
     title: string
     referenceStart: string
     referenceEnd: string
@@ -50,13 +34,14 @@ type Suggestion = {
     recognizedStatus?: string
     paidValue: number
     balance: number | null
-    monthsWorked?: number
-    concessionDeadline?: string
     calculation: string
     warnings: string[]
+    isProjection: boolean
+    monthsWorked?: number
+    concessionDeadline?: string
     obligationId?: string
     createPayload?: {
-        type: 'ferias' | 'decimo_terceiro'
+        type: CalculationItem['type']
         title: string
         referenceStart: string
         referenceEnd: string
@@ -72,404 +57,191 @@ type Suggestion = {
     }
 }
 
-const DAY_IN_MS = 24 * 60 * 60 * 1000
-
-const toNumber = (value: NumericValue): number | null => {
-    if (value === null) return null
-    const parsed = Number(value)
-    return Number.isFinite(parsed) ? parsed : null
+type AnalysisOptions = {
+    calculateSalary: boolean
+    calculateVacation: boolean
+    calculateThirteenthSalary: boolean
 }
 
-const roundCurrency = (value: number) => Math.round((value + Number.EPSILON) * 100) / 100
+const toISOString = (date: Date) => date.toISOString()
 
-const toUtcDate = (date: Date) => new Date(Date.UTC(
-    date.getUTCFullYear(),
-    date.getUTCMonth(),
-    date.getUTCDate()
-))
+const findMatchingObligations = (
+    obligations: ObligationRecord[],
+    item: CalculationItem
+) => obligations.filter(obligation => {
+    if (obligation.type !== item.type) return false
+    if (!obligation.referenceStart || !obligation.referenceEnd) return false
 
-const addMonths = (date: Date, months: number) => {
-    const result = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + months, 1))
-    const lastDay = new Date(Date.UTC(result.getUTCFullYear(), result.getUTCMonth() + 1, 0)).getUTCDate()
-    result.setUTCDate(Math.min(date.getUTCDate(), lastDay))
-    return result
-}
-
-const addYears = (date: Date, years: number) => addMonths(date, years * 12)
-
-const formatDate = (date: Date) => date.toISOString()
-
-const isRecord = (value: unknown): value is Record<string, unknown> =>
-    typeof value === 'object' && value !== null && !Array.isArray(value)
-
-const readSalaryChanges = (history: HistoryEntry[]) => {
-    const changes: SalaryChange[] = []
-    let incomplete = false
-
-    for (const entry of history) {
-        if (entry.eventType !== 'salario_vinculo_atualizado') continue
-
-        if (!entry.eventDate || !isRecord(entry.metadata)) {
-            incomplete = true
-            continue
-        }
-
-        const metadataChanges = entry.metadata.changes
-        if (!isRecord(metadataChanges) || !isRecord(metadataChanges.currentSalary)) {
-            incomplete = true
-            continue
-        }
-
-        const salaryChange = metadataChanges.currentSalary
-        const previous = salaryChange.previous === null ? null : Number(salaryChange.previous)
-        const current = salaryChange.current === null ? null : Number(salaryChange.current)
-
-        if (
-            (previous !== null && !Number.isFinite(previous)) ||
-            (current !== null && !Number.isFinite(current))
-        ) {
-            incomplete = true
-            continue
-        }
-
-        changes.push({ date: entry.eventDate, createdAt: entry.createdAt, previous, current })
+    if (item.type === 'salario') {
+        return sameMonth(obligation.referenceStart, item.referenceStart) ||
+            sameMonth(obligation.referenceEnd, item.referenceEnd)
     }
 
-    return {
-        changes: changes.sort((a, b) =>
-            a.date.getTime() - b.date.getTime() || a.createdAt.getTime() - b.createdAt.getTime()
-        ),
-        incomplete
+    if (item.type === 'decimo_terceiro') {
+        return obligation.referenceStart.getUTCFullYear() === item.referenceStart.getUTCFullYear() ||
+            obligation.referenceEnd.getUTCFullYear() === item.referenceEnd.getUTCFullYear()
     }
-}
 
-const createSalaryLookup = (engagement: BenefitEngagement) => {
-    const currentSalary = toNumber(engagement.currentSalary)
-    const { changes, incomplete } = readSalaryChanges(engagement.history)
-
-    return (date: Date) => {
-        let salary = currentSalary
-
-        for (let index = changes.length - 1; index >= 0; index -= 1) {
-            const change = changes[index]
-            if (change && toUtcDate(change.date) > toUtcDate(date)) salary = change.previous
-        }
-
-        if (salary === null) {
-            const firstChange = changes[0]
-            if (firstChange && toUtcDate(firstChange.date) > toUtcDate(date)) salary = firstChange.previous
-        }
-
-        return {
-            value: salary,
-            assumed: changes.length === 0 || incomplete
-        }
-    }
-}
-
-const findExistingObligation = (
-    obligations: ExistingObligation[],
-    type: 'ferias' | 'decimo_terceiro',
-    start: Date,
-    end: Date
-) => obligations.find(obligation =>
-    obligation.type === type &&
-    obligation.referenceStart?.getTime() === start.getTime() &&
-    obligation.referenceEnd?.getTime() === end.getTime()
-)
+    return sameDay(obligation.referenceStart, item.referenceStart) &&
+        sameDay(obligation.referenceEnd, item.referenceEnd)
+})
 
 const buildSuggestion = (
-    benefit: 'ferias' | 'decimo_terceiro',
-    title: string,
-    start: Date,
-    end: Date,
-    dueDate: Date | null,
-    estimatedValue: number | null,
-    calculation: string,
-    warnings: string[],
-    existing?: ExistingObligation,
-    extra?: { monthsWorked?: number; concessionDeadline?: Date }
-): Suggestion => {
+    item: CalculationItem,
+    existingObligations: ObligationRecord[]
+): ObligationSuggestion => {
+    const warnings = [...item.warnings]
+    const existing = existingObligations[0]
+    const hasDuplicates = existingObligations.length > 1
+
+    if (hasDuplicates) {
+        warnings.push('More than one obligation matches this reference period. Review the records before creating or changing anything.')
+    }
+
     const allocatedValue = existing
-        ? roundCurrency(existing.allocations.reduce((total, allocation) => total + (toNumber(allocation.value) ?? 0), 0))
+        ? roundCurrency(existing.allocations.reduce(
+            (total, allocation) => total + (toNumber(allocation.value) ?? 0),
+            0
+        ))
         : 0
-    const paidValue = existing?.status === 'pago'
-        ? Math.max(allocatedValue, toNumber(existing.finalValue) ?? 0)
-        : allocatedValue
     const recognizedValue = existing ? toNumber(existing.finalValue) : null
-    const balance = recognizedValue === null ? null : roundCurrency(Math.max(0, recognizedValue - paidValue))
+    const recognizedOriginalValue = existing ? toNumber(existing.originalValue) : null
+    const paidValue = existing?.status === 'pago'
+        ? Math.max(allocatedValue, recognizedValue ?? 0)
+        : allocatedValue
+    const balance = existing && recognizedValue !== null
+        ? roundCurrency(Math.max(0, recognizedValue - paidValue))
+        : null
+
+    if (existing && recognizedValue !== null && paidValue > recognizedValue) {
+        warnings.push('The allocated payment amount exceeds the recognized obligation value. Review the financial records.')
+    }
+
+    if (existing?.status === 'parcial' && allocatedValue === 0) {
+        warnings.push('The obligation is marked as partially paid but has no payment allocations to identify the paid amount.')
+    }
+
     const hasFinancialRecords = Boolean(existing && (
         existing.allocations.length > 0 || existing.movements.length > 0
     ))
-    const canUpdate = Boolean(existing && !hasFinancialRecords && !['parcial', 'pago', 'cancelado'].includes(existing.status))
-    const differs = existing && estimatedValue !== null && recognizedValue !== null &&
-        Math.abs(estimatedValue - recognizedValue) >= 0.01
+    const hasManualAdjustment = existing !== undefined &&
+        recognizedOriginalValue !== null &&
+        recognizedValue !== null &&
+        Math.abs(recognizedOriginalValue - recognizedValue) >= 0.01
+    const differs = existing !== undefined &&
+        item.estimatedValue !== null &&
+        recognizedOriginalValue !== null &&
+        Math.abs(item.estimatedValue - recognizedOriginalValue) >= 0.01
 
-    let action: Suggestion['action'] = estimatedValue === null ? 'manual_review' : 'create'
-    if (existing && estimatedValue !== null && differs && canUpdate) action = 'update'
-    else if (existing && estimatedValue !== null && !differs) action = 'none'
-    else if (existing && estimatedValue !== null && differs) action = 'manual_review'
-    if (existing?.status === 'cancelado') {
-        warnings.push('A obrigação existente está cancelada; revise o cancelamento antes de criar ou alterar outra competência.')
+    let action: SuggestionAction = 'none'
+
+    if (hasDuplicates || item.requiresReview) {
         action = 'manual_review'
-    }
-    if (existing?.status === 'parcial' && allocatedValue === 0) {
-        warnings.push('A obrigação está marcada como parcial, mas não possui alocações para identificar o valor já pago.')
+    } else if (!existing) {
+        action = item.estimatedValue !== null && item.estimatedValue > 0
+            ? 'create'
+            : 'manual_review'
+    } else if (existing.status === 'cancelado') {
+        warnings.push('The existing obligation is cancelled. Review the cancellation before creating or changing another competence.')
         action = 'manual_review'
-    }
-    if (existing && differs && hasFinancialRecords) {
-        warnings.push('A obrigação possui movimentações ou alocações; revise manualmente antes de alterar o valor.')
+    } else if (existing.status === 'parcial' && allocatedValue === 0) {
+        action = 'manual_review'
+    } else if (item.estimatedValue === null || recognizedOriginalValue === null) {
+        action = 'manual_review'
+    } else if (!differs) {
+        action = 'none'
+    } else if (
+        !hasFinancialRecords &&
+        !hasManualAdjustment &&
+        !['parcial', 'pago', 'cancelado'].includes(existing.status)
+    ) {
+        action = 'update'
+    } else {
+        warnings.push('The obligation has linked financial records or a manual value adjustment. Review it before changing the amount.')
         action = 'manual_review'
     }
 
-    const suggestion: Suggestion = {
-        benefit,
+    const suggestion: ObligationSuggestion = {
+        type: item.type,
         action,
-        title,
-        referenceStart: formatDate(start),
-        referenceEnd: formatDate(end),
+        title: item.title,
+        referenceStart: toISOString(item.referenceStart),
+        referenceEnd: toISOString(item.referenceEnd),
         dueDate: existing?.dueDate
-            ? formatDate(existing.dueDate)
-            : dueDate ? formatDate(dueDate) : null,
-        estimatedValue,
+            ? toISOString(existing.dueDate)
+            : item.dueDate ? toISOString(item.dueDate) : null,
+        estimatedValue: item.estimatedValue,
         recognizedValue,
         ...(existing ? { recognizedStatus: existing.status } : {}),
         paidValue,
         balance,
-        calculation,
-        warnings,
-        ...(extra?.monthsWorked !== undefined ? { monthsWorked: extra.monthsWorked } : {}),
-        ...(extra?.concessionDeadline ? { concessionDeadline: formatDate(extra.concessionDeadline) } : {}),
+        calculation: item.calculation,
+        warnings: [...new Set(warnings)],
+        isProjection: item.isProjection,
+        ...(item.monthsWorked !== undefined ? { monthsWorked: item.monthsWorked } : {}),
+        ...(item.concessionDeadline ? { concessionDeadline: toISOString(item.concessionDeadline) } : {}),
         ...(existing ? { obligationId: existing.id } : {})
     }
 
-    if (!existing && action === 'create' && estimatedValue !== null) {
+    if (!existing && action === 'create' && item.estimatedValue !== null) {
         suggestion.createPayload = {
-            type: benefit,
-            title,
-            referenceStart: formatDate(start),
-            referenceEnd: formatDate(end),
-            dueDate: dueDate ? formatDate(dueDate) : null,
-            originalValue: estimatedValue,
-            finalValue: estimatedValue,
+            type: item.type,
+            title: item.title,
+            referenceStart: toISOString(item.referenceStart),
+            referenceEnd: toISOString(item.referenceEnd),
+            dueDate: item.dueDate ? toISOString(item.dueDate) : null,
+            originalValue: item.estimatedValue,
+            finalValue: item.estimatedValue,
             status: 'pendente',
-            observations: calculation
+            observations: item.calculation
         }
     }
 
-    if (existing && action === 'update' && estimatedValue !== null) {
+    if (existing && action === 'update' && item.estimatedValue !== null) {
         suggestion.updatePayload = {
-            originalValue: estimatedValue,
-            finalValue: estimatedValue
+            originalValue: item.estimatedValue,
+            finalValue: item.estimatedValue
         }
     }
 
     return suggestion
 }
 
-const getMonthsWorked = (entryDate: Date, endDate: Date, year: number) => {
-    const months: number[] = []
-    const yearStart = new Date(Date.UTC(year, 0, 1))
-    const yearEnd = new Date(Date.UTC(year, 11, 31))
-    const start = toUtcDate(entryDate) > yearStart ? toUtcDate(entryDate) : yearStart
-    const end = toUtcDate(endDate) < yearEnd ? toUtcDate(endDate) : yearEnd
-
-    if (end < start) return months
-
-    for (let month = 0; month < 12; month += 1) {
-        const monthStart = new Date(Date.UTC(year, month, 1))
-        const monthEnd = new Date(Date.UTC(year, month + 1, 0))
-        const workedStart = start > monthStart ? start : monthStart
-        const workedEnd = end < monthEnd ? end : monthEnd
-        if (workedEnd < workedStart) continue
-
-        const daysWorked = Math.floor((workedEnd.getTime() - workedStart.getTime()) / DAY_IN_MS) + 1
-        if (daysWorked >= 15) months.push(month)
-    }
-
-    return months
-}
-
 export const suggestBenefitObligations = (
-    engagement: BenefitEngagement,
-    fromYear: number,
-    toYear: number,
+    context: EngagementCalculationContext,
+    period: CalculationPeriod,
+    options: AnalysisOptions,
     today = new Date()
 ) => {
-    const suggestions: Suggestion[] = []
-    const warnings: string[] = []
-    const salaryAt = createSalaryLookup(engagement)
-    const currentDate = toUtcDate(today)
+    const calculationResults = []
 
-    if (!engagement.entryDate) {
-        return {
-            suggestions,
-            warnings: ['A data de entrada do vínculo não foi informada. Não é possível determinar competências de férias ou décimo terceiro com segurança.']
-        }
+    if (options.calculateSalary) {
+        calculationResults.push(calculateSalaryCompetencies(context, period, today))
     }
 
-    if (fromYear > toYear || toYear - fromYear > 80) {
-        return {
-            suggestions,
-            warnings: ['O intervalo solicitado é inválido ou excede 40 anos.']
-        }
+    if (options.calculateVacation) {
+        calculationResults.push(calculateVacationCompetencies(context, period, today))
     }
 
-    if (engagement.currentSalary === null && engagement.history.length === 0) {
-        warnings.push('O salário bruto não está informado e não há histórico salarial.')
+    if (options.calculateThirteenthSalary) {
+        calculationResults.push(calculateThirteenthSalaryCompetencies(context, period, today))
     }
 
-    for (let year = fromYear; year <= toYear && year <= currentDate.getUTCFullYear(); year += 1) {
-        const yearStart = new Date(Date.UTC(year, 0, 1))
-        const yearEnd = new Date(Date.UTC(year, 11, 31))
-        const activeEnd = engagement.exitDate
-            ? toUtcDate(engagement.exitDate)
-            : currentDate
-        const months = getMonthsWorked(engagement.entryDate, activeEnd, year)
-
-        if (months.length === 0) continue
-
-        const terminationYear = Boolean(engagement.exitDate && engagement.exitDate.getUTCFullYear() === year)
-        const salaryReferenceDate = terminationYear && engagement.exitDate
-            ? toUtcDate(engagement.exitDate)
-            : yearEnd
-        const salary = salaryAt(salaryReferenceDate)
-        const estimatedValue = salary.value === null
-            ? null
-            : roundCurrency(salary.value / 12 * months.length)
-        const assumedSalary = salary.assumed
-
-        const yearWarnings: string[] = []
-        if (estimatedValue === null) yearWarnings.push('Não há salário bruto identificável para estimar o décimo terceiro.')
-        if (assumedSalary) yearWarnings.push('Parte do cálculo utiliza o salário atual como referência porque o histórico salarial está incompleto ou ausente.')
-        if (year === currentDate.getUTCFullYear() && currentDate < yearEnd) {
-            yearWarnings.push('O ano ainda não terminou; o salário atual é usado como estimativa para a remuneração de dezembro.')
-        }
-        if (engagement.status === 'afastado') {
-            yearWarnings.push('O vínculo está afastado. O helper não avalia os efeitos específicos do afastamento sobre o décimo terceiro.')
-        }
-
-        if (terminationYear) {
-            yearWarnings.push('O vínculo terminou neste ano. O valor proporcional exige conferência no contexto da rescisão e não deve ser criado automaticamente.')
-        } else if (['demitiu-se', 'demitido'].includes(engagement.status)) {
-            yearWarnings.push('O vínculo consta como encerrado, mas não possui data de saída; confirme o período antes de reconhecer a obrigação.')
-        }
-
-        const existing = findExistingObligation(
-            engagement.obligations,
-            'decimo_terceiro',
-            yearStart,
-            yearEnd
+    const items = calculationResults.flatMap(result => result.items)
+    const warnings = calculationResults.flatMap(result => result.warnings)
+    const suggestions = items
+        .sort((left, right) =>
+            left.referenceStart.getTime() - right.referenceStart.getTime() ||
+            left.type.localeCompare(right.type)
         )
-        const dueDate = new Date(Date.UTC(year, 11, 20))
-        const calculation = `Estimativa: salário bruto de dezembro / 12 × ${months.length} mês(es) elegível(is). O salário de dezembro é reconstruído pelo histórico salarial quando disponível. O pagamento pode ocorrer em parcela única até 30/11 ou em duas parcelas, com a segunda até 20/12.`
+        .map(item => buildSuggestion(
+            item,
+            findMatchingObligations(context.obligations, item)
+        ))
 
-        const suggestion = buildSuggestion(
-            'decimo_terceiro',
-            `Décimo terceiro ${year}`,
-            yearStart,
-            yearEnd,
-            dueDate,
-            estimatedValue,
-            calculation,
-            yearWarnings,
-            existing,
-            { monthsWorked: months.length }
-        )
-
-        if (
-            terminationYear ||
-            ['demitiu-se', 'demitido', 'afastado'].includes(engagement.status)
-        ) {
-            suggestion.action = 'manual_review'
-            delete suggestion.createPayload
-            delete suggestion.updatePayload
-        }
-
-        suggestions.push(suggestion)
+    return {
+        period,
+        suggestions,
+        warnings: [...new Set(warnings)]
     }
-
-    if (['demitiu-se', 'demitido'].includes(engagement.status) && !engagement.exitDate) {
-        warnings.push('O vínculo consta como encerrado, mas não possui data de saída. Os períodos de férias não serão projetados.')
-        return { suggestions, warnings }
-    }
-
-    let periodStart = toUtcDate(engagement.entryDate)
-    let periodIndex = 0
-    const vacationEndLimit = engagement.exitDate
-        ? toUtcDate(engagement.exitDate)
-        : currentDate
-
-    while (periodIndex < 80) {
-        const nextPeriodStart = addYears(periodStart, 1)
-        const periodEnd = new Date(nextPeriodStart.getTime() - DAY_IN_MS)
-        if (periodEnd > vacationEndLimit) break
-        if (periodEnd.getUTCFullYear() < fromYear) {
-            periodStart = nextPeriodStart
-            periodIndex += 1
-            continue
-        }
-        if (periodEnd.getUTCFullYear() > toYear) break
-
-        const existing = findExistingObligation(
-            engagement.obligations,
-            'ferias',
-            periodStart,
-            periodEnd
-        )
-        const salaryReferenceDate = existing?.dueDate
-            ? toUtcDate(existing.dueDate)
-            : engagement.exitDate
-                ? toUtcDate(engagement.exitDate)
-                : currentDate
-        const salary = salaryAt(salaryReferenceDate)
-        const estimatedValue = salary.value === null
-            ? null
-            : roundCurrency(salary.value + salary.value / 3)
-        const periodWarnings: string[] = []
-        if (salary.value === null) periodWarnings.push('Não há salário bruto identificável para estimar as férias.')
-        if (salary.assumed && (existing?.dueDate || engagement.exitDate)) {
-            periodWarnings.push('Não há histórico salarial suficiente para reconstruir a remuneração na data de referência das férias.')
-        }
-        if (engagement.status === 'afastado') {
-            periodWarnings.push('O vínculo está afastado. O helper não avalia os efeitos específicos do afastamento sobre o período aquisitivo.')
-        }
-
-        const concessionDeadline = new Date(addYears(nextPeriodStart, 1).getTime() - DAY_IN_MS)
-        const terminationPeriod = Boolean(engagement.exitDate)
-        if (concessionDeadline < currentDate && !engagement.exitDate) {
-            periodWarnings.push('O prazo concessivo já terminou. Confirme se as férias foram concedidas; se houve concessão fora do prazo, pode existir obrigação de pagamento em dobro. Sem data de concessão, a estimativa usa o salário atual.')
-        }
-        if (terminationPeriod) {
-            periodWarnings.push('O vínculo foi encerrado. A situação das férias deve ser conferida junto à rescisão; o helper não calcula verbas rescisórias.')
-        }
-
-        const concessionPeriodExpired = concessionDeadline < currentDate && !engagement.exitDate
-        const calculation = 'Estimativa para período aquisitivo completo: remuneração vigente na data da concessão + 1/3, sem retenções ou impostos. Quando não há data de concessão, usa o salário atual; se a obrigação já possui vencimento, usa essa data como referência. Não considera abono pecuniário, faltas que alterem os dias, adicionais variáveis ou hipóteses de suspensão/perda do período.'
-
-        const suggestion = buildSuggestion(
-            'ferias',
-            `Férias ${periodStart.getUTCFullYear()}–${periodEnd.getUTCFullYear()}`,
-            periodStart,
-            periodEnd,
-            null,
-            estimatedValue,
-            calculation,
-            periodWarnings,
-            existing,
-            { concessionDeadline }
-        )
-
-        if (terminationPeriod || concessionPeriodExpired || engagement.status === 'afastado') {
-            suggestion.action = 'manual_review'
-            delete suggestion.createPayload
-            delete suggestion.updatePayload
-        }
-
-        suggestions.push(suggestion)
-        periodStart = nextPeriodStart
-        periodIndex += 1
-    }
-
-    return { suggestions, warnings }
 }
