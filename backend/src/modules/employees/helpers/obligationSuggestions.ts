@@ -305,6 +305,7 @@ export const suggestBenefitObligations = (
 
     for (let year = fromYear; year <= toYear && year <= currentDate.getUTCFullYear(); year += 1) {
         const yearStart = new Date(Date.UTC(year, 0, 1))
+        const yearEnd = new Date(Date.UTC(year, 11, 31))
         const activeEnd = engagement.exitDate
             ? toUtcDate(engagement.exitDate)
             : currentDate
@@ -323,7 +324,7 @@ export const suggestBenefitObligations = (
         const assumedSalary = salary.assumed
 
         const yearWarnings: string[] = []
-        if (missingSalary) yearWarnings.push('Não há salário bruto identificável para todos os meses considerados.')
+        if (estimatedValue === null) yearWarnings.push('Não há salário bruto identificável para estimar o décimo terceiro.')
         if (assumedSalary) yearWarnings.push('Parte do cálculo utiliza o salário atual como referência porque o histórico salarial está incompleto ou ausente.')
         if (engagement.status === 'afastado') {
             yearWarnings.push('O vínculo está afastado. O helper não avalia os efeitos específicos do afastamento sobre o décimo terceiro.')
