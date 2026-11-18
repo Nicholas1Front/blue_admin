@@ -344,8 +344,28 @@ export const suggestBenefitObligations = (
             hasUnreliableReferenceForItem(context.obligations, item)
         ))
 
+    const summary = {
+        recognizedOutstanding: roundCurrency(suggestions.reduce(
+            (total, suggestion) => total + (suggestion.balance ?? 0),
+            0
+        )),
+        suggestedToCreate: roundCurrency(suggestions.reduce(
+            (total, suggestion) => total + (
+                suggestion.action === 'create' ? suggestion.estimatedValue ?? 0 : 0
+            ),
+            0
+        )),
+        manualReviewEstimate: roundCurrency(suggestions.reduce(
+            (total, suggestion) => total + (
+                suggestion.action === 'manual_review' ? suggestion.estimatedValue ?? 0 : 0
+            ),
+            0
+        ))
+    }
+
     return {
         period,
+        summary,
         suggestions,
         warnings: [...new Set(warnings)]
     }
