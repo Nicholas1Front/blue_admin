@@ -364,13 +364,21 @@ export const suggestBenefitObligations = (
             { monthsWorked: months.length }
         )
 
-        if (terminationYear || ['demitiu-se', 'demitido'].includes(engagement.status)) {
+        if (
+            terminationYear ||
+            ['demitiu-se', 'demitido', 'afastado'].includes(engagement.status)
+        ) {
             suggestion.action = 'manual_review'
             delete suggestion.createPayload
             delete suggestion.updatePayload
         }
 
         suggestions.push(suggestion)
+    }
+
+    if (['demitiu-se', 'demitido'].includes(engagement.status) && !engagement.exitDate) {
+        warnings.push('O vínculo consta como encerrado, mas não possui data de saída. Os períodos de férias não serão projetados.')
+        return { suggestions, warnings }
     }
 
     let periodStart = toUtcDate(engagement.entryDate)
@@ -432,7 +440,7 @@ export const suggestBenefitObligations = (
             { concessionDeadline }
         )
 
-        if (terminationPeriod || concessionPeriodExpired) {
+        if (terminationPeriod || concessionPeriodExpired || engagement.status === 'afastado') {
             suggestion.action = 'manual_review'
             delete suggestion.createPayload
             delete suggestion.updatePayload
