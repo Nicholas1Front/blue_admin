@@ -84,8 +84,13 @@ const findMatchingObligations = (
     }
 
     if (item.type === 'ferias') {
-        return sameDay(obligation.referenceStart, item.referenceStart) ||
+        return (
+            sameDay(obligation.referenceStart, item.referenceStart) &&
             sameDay(obligation.referenceEnd, item.referenceEnd)
+        ) || (
+            obligation.referenceStart <= item.referenceEnd &&
+            obligation.referenceEnd >= item.referenceStart
+        )
     }
 
     return false
