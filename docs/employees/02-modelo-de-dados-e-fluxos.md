@@ -216,14 +216,21 @@ Não criar uma transação adicional ao alocar o mesmo pagamento em outra obriga
 9. Registrar histórico.
 10. Retornar pagamento, destinações e saldos atualizados.
 
-### 6.6 Helpers de férias e décimo terceiro
-1. Receber vínculo e período de referência.
-2. Ler datas disponíveis, salário atual, EmployeeHistory e movimentações relevantes.
-3. Calcular uma estimativa conforme regras acordadas para cada helper.
-4. Consultar obrigações existentes para a referência.
-5. Se a obrigação já existir, apresentar valor reconhecido, total alocado e saldo; não sugerir duplicação.
-6. Se não existir, apresentar sugestão com memória de cálculo e limitações dos dados.
-7. Não criar obrigação nem pagamento automaticamente.
+### 6.6 Análise de férias e décimo terceiro
+1. A rota `GET /employees/analyze-obligations/:engagementId` consulta em uma única leitura o vínculo, o histórico de alterações salariais e as obrigações de férias/décimo terceiro com suas alocações e movimentações.
+2. Os parâmetros opcionais `fromYear` e `toYear` limitam o período analisado. Por padrão, a análise começa no ano de entrada do vínculo e vai até o ano atual.
+3. O helper puro calcula as competências de décimo terceiro por ano e as competências de férias por período aquisitivo completo.
+4. Para cada competência, a resposta informa ação sugerida (`create`, `update`, `none` ou `manual_review`), estimativa, valor reconhecido, total alocado, saldo, memória de cálculo e alertas.
+5. A edição só é sugerida quando o valor estimado diverge e a obrigação não possui movimentações/alocações nem está marcada como parcial, paga ou cancelada.
+6. Datas ou histórico insuficientes, vínculo encerrado, prazo concessivo de férias expirado e afastamento exigem conferência humana.
+7. A análise nunca cria nem altera obrigações.
+
+### 6.7 Criação de obrigações em lote
+1. A rota `POST /employees/create-obligations-batch/:engagementId` recebe uma lista de obrigações revisadas pelo usuário.
+2. O service valida duplicidades dentro do próprio lote e identifica os períodos não repetíveis.
+3. O repository bloqueia o vínculo durante a verificação de duplicidade e criação, evitando concorrência com a criação individual existente.
+4. Todas as obrigações e seus eventos de histórico são criados em uma única transação. Se houver duplicidade, nenhuma obrigação do lote é criada.
+5. O lote aceita até 100 obrigações por requisição. Não cria pagamentos nem transações financeiras.
 
 ## 7. Estrutura de backend proposta
 
