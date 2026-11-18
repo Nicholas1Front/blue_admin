@@ -295,7 +295,7 @@ Cada sugestão retorna uma das ações:
 - create: competência ausente e cálculo suficientemente confiável para revisão e criação pelo usuário;
 - update: valor estimado diferente, sem pagamentos, movimentações ou ajuste manual no valor reconhecido;
 - none: competência existente compatível com o cálculo;
-- manual_review: dados incompletos, duplicidade, referência inválida, histórico insuficiente, registro financeiro que impede alteração segura ou obrigação com status em revisão, parcial, pago ou cancelado.
+- manual_review: dados incompletos, duplicidade, referência inválida, histórico insuficiente, obrigação cancelada ou em revisão, obrigação parcial sem alocações ou divergência que exigiria alterar uma obrigação paga/parcial ou com registros financeiros.
 
 A resposta distingue valor estimado, valor reconhecido, total alocado como pago e saldo da obrigação. Uma sugestão não é uma dívida reconhecida e não entra no financeiro antes da criação explícita da competência. A criação individual e em lote aplica os mesmos critérios de referência para evitar duplicidade: mês/ano para salários, mês/ano de início e fim do período aquisitivo para férias e ano para décimo terceiro.
 
