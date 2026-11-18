@@ -196,6 +196,10 @@ const buildSuggestion = (
         warnings.push('The existing obligation is cancelled. Review the cancellation before creating or changing another competence.')
     }
 
+    if (existing?.status === 'em_revisao') {
+        warnings.push('The existing obligation is still under review and must be confirmed before the analysis can recommend another action.')
+    }
+
     if (existing?.status === 'parcial' && allocatedValue === 0) {
         warnings.push('The obligation is marked as partially paid but has no payment allocations to identify the paid amount.')
     }
@@ -220,7 +224,7 @@ const buildSuggestion = (
         action = item.estimatedValue !== null && item.estimatedValue > 0
             ? 'create'
             : 'manual_review'
-    } else if (existing.status === 'cancelado') {
+    } else if (existing.status === 'cancelado' || existing.status === 'em_revisao') {
         action = 'manual_review'
     } else if (existing.status === 'parcial' && allocatedValue === 0) {
         action = 'manual_review'
