@@ -1,6 +1,7 @@
 import {
     findLatestSalaryCompetence,
     getSalaryAtDate,
+    getSalaryReference,
     monthEnd,
     monthStart,
     roundCurrency,
@@ -82,20 +83,14 @@ export const calculateThirteenthSalaryCompetencies = (
         if (monthsWorked === 0) continue
 
         const latestSalaryCompetence = findLatestSalaryCompetence(context.obligations, calculationCutoff)
-        const salary = latestSalaryCompetence
-            ? {
-                value: toNumber(latestSalaryCompetence.originalValue),
-                assumed: false,
-                warning: undefined as string | undefined
-            }
-            : (() => {
-                const reference = getSalaryAtDate(context, calculationCutoff)
-                return {
-                    value: reference.value,
-                    assumed: true,
-                    ...(reference.warning ? { warning: reference.warning } : {})
-                }
-            })()
+        const salaryReference = latestSalaryCompetence
+            ? getSalaryReference(context, calculationCutoff)
+            : getSalaryAtDate(context, calculationCutoff)
+        const salary = {
+            value: salaryReference.value,
+            assumed: latestSalaryCompetence ? salaryReference.assumed : true,
+            ...(salaryReference.warning ? { warning: salaryReference.warning } : {})
+        }
 
         const itemWarnings: string[] = []
         let requiresReview = false
