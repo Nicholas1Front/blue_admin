@@ -239,6 +239,7 @@ const getMonthSalary = (
     boundaries.sort((left, right) => left.getTime() - right.getTime())
     let total = 0
     let assumed = false
+    let requiresReview = false
     const warnings: string[] = []
 
     for (let index = 0; index < boundaries.length; index += 1) {
@@ -253,7 +254,7 @@ const getMonthSalary = (
         if (days <= 0) continue
 
         let salary = getSalaryAtDate(context, segmentStart)
-        if (segmentEnd < utcDay(today) && salary.assumed) {
+        if ((segmentEnd < utcDay(today) && salary.assumed) || salary.value === null) {
             const latestCompetence = getSalaryReference(context, segmentStart)
             if (latestCompetence.source === 'salary_competence' && latestCompetence.value !== null) {
                 salary = {
@@ -266,17 +267,19 @@ const getMonthSalary = (
 
         if (salary.value === null) {
             warnings.push(salary.warning ?? 'Salary could not be identified for part of this month.')
-            return { value: null, assumed: true, warnings }
+            return { value: null, assumed: true, requiresReview: true, warnings }
         }
 
         total += salary.value * days / monthDays
         assumed ||= salary.assumed
+        requiresReview ||= salary.source === 'salary_competence' && salary.assumed
         if (salary.warning) warnings.push(salary.warning)
     }
 
     return {
         value: roundCurrency(total),
         assumed,
+        requiresReview,
         warnings: [...new Set(warnings)]
     }
 }
@@ -380,6 +383,7 @@ export const calculateSalaryCompetencies = (
             )
 
             estimatedValue = monthlySalary.value
+            requiresReview ||= monthlySalary.requiresReview
             itemWarnings.push(...monthlySalary.warnings)
 
             if (monthlySalary.assumed) {
@@ -395,7 +399,7 @@ export const calculateSalaryCompetencies = (
                 requiresReview = true
             }
 
-            if (existing.length === 1 && monthlySalary.assumed) {
+            if (existing.length === 1 && monthlySalary.assumed && !monthlySalary.requiresReview) {
                 const recordedValue = toNumber(existing[0]?.originalValue ?? null)
                 if (recordedValue !== null && recordedValue > 0) {
                     estimatedValue = recordedValue
