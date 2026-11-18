@@ -246,7 +246,7 @@ Fórmula administrativa acordada:
 
 `salário bruto / 12 * meses trabalhados`
 
-Para considerar alterações salariais, a estimativa soma a fração mensal de cada mês elegível (`salário bruto vigente no mês / 12`). O mês é elegível quando houver pelo menos 15 dias de vínculo dentro dele. O salário vigente é reconstruído pelo histórico de alterações salariais em `employee_history`; quando esse histórico não permite reconstrução, o helper pode usar o salário atual como aproximação e deve sinalizar isso.
+O mês é elegível quando houver pelo menos 15 dias de vínculo dentro dele. Para a estimativa anual, utiliza-se o salário bruto de dezembro dividido por 12 e multiplicado pela quantidade de meses elegíveis. O salário de dezembro é reconstruído pelo histórico de alterações salariais em `employee_history`; quando esse histórico não permite reconstrução, o helper pode usar o salário atual como aproximação e deve sinalizar isso.
 
 Regras de calendário usadas como referência:
 - pagamento em parcela única até 30 de novembro; ou
