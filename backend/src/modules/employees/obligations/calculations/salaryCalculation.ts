@@ -101,6 +101,18 @@ const readSalaryChanges = (context: EngagementCalculationContext) => {
         left.createdAt.getTime() - right.createdAt.getTime()
     )
 
+    for (let index = 1; index < changes.length; index += 1) {
+        const currentChange = changes[index]
+        const previousChange = changes[index - 1]
+        if (
+            currentChange &&
+            previousChange &&
+            sameDay(currentChange.effectiveDate, previousChange.effectiveDate)
+        ) {
+            incomplete = true
+        }
+    }
+
     return { changes, incomplete }
 }
 
