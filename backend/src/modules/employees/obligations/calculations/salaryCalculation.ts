@@ -429,7 +429,7 @@ export const calculateSalaryCompetencies = (
                     estimatedValue = recordedValue
                     calculation = 'Existing salary competence retained as the historical reference because the salary history is incomplete.'
                     itemWarnings.push('The existing salary competence is being used as the historical reference instead of replacing it with the current salary.')
-                    requiresReview = false
+                    requiresReview = Boolean(context.exitDate && sameMonth(context.exitDate, start))
                 }
             }
         }
