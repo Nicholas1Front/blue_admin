@@ -216,14 +216,18 @@ Não criar uma transação adicional ao alocar o mesmo pagamento em outra obriga
 9. Registrar histórico.
 10. Retornar pagamento, destinações e saldos atualizados.
 
-### 6.6 Análise de férias e décimo terceiro
-1. A rota `GET /employees/analyze-obligations/:engagementId` consulta em uma única leitura o vínculo, o histórico de alterações salariais e as obrigações de férias/décimo terceiro com suas alocações e movimentações.
-2. Os parâmetros opcionais `fromYear` e `toYear` limitam o período analisado. Por padrão, a análise começa no ano de entrada do vínculo e vai até o ano atual.
-3. O helper puro calcula as competências de décimo terceiro por ano e as competências de férias por período aquisitivo completo.
-4. Para cada competência, a resposta informa ação sugerida (`create`, `update`, `none` ou `manual_review`), estimativa, valor reconhecido, total alocado, saldo, memória de cálculo e alertas.
-5. A edição só é sugerida quando o valor estimado diverge e a obrigação não possui movimentações/alocações nem está marcada como parcial, paga ou cancelada.
-6. Datas ou histórico insuficientes, vínculo encerrado, prazo concessivo de férias expirado e afastamento exigem conferência humana.
-7. A análise nunca cria nem altera obrigações.
+### 6.6 Análise e sugestão de competências
+1. A rota GET /employees/analyze-obligations/:engagementId consulta em uma única leitura o vínculo, o histórico de alterações salariais e as obrigações de salário, férias e décimo terceiro, incluindo alocações e movimentações.
+2. A consulta exige startMonth, startYear, endMonth e endYear. O intervalo é inclusivo, limitado a 40 anos, e usa somente mês/ano na entrada.
+3. Os parâmetros calculateSalary, calculateVacation e calculateThirteenthSalary permitem selecionar os cálculos. Quando omitidos, os três são executados.
+4. O helper puro, localizado em employees/helpers/obligationSuggestions.ts, coordena três calculadoras independentes dentro de obligations/calculations/: salários, férias e décimo terceiro.
+5. Salários são calculados mês a mês, proporcionalmente aos dias corridos de vínculo ativo e às alterações salariais efetivas no mês. Competências anteriores podem ser usadas como referência quando o histórico salarial não é suficiente, sempre sinalizando a estimativa.
+6. Férias são identificadas pelos períodos aquisitivos de 12 meses a partir da entrada do vínculo. As obrigações existentes são comparadas por referenceStart e referenceEnd; períodos históricos sem registro exigem revisão, pois ausência de obrigação não prova ausência de concessão ou pagamento.
+7. O décimo terceiro é calculado por ano até o mês final da análise: última competência salarial disponível dividida por 12 e multiplicada pelos meses com pelo menos 15 dias de vínculo ativo. Sem competência salarial, usa currentSalary como estimativa e sinaliza a limitação.
+8. Para cada competência, a resposta informa ação sugerida (create, update, none ou manual_review), estimativa, valor reconhecido, total alocado, saldo, memória de cálculo, projeção e alertas.
+9. A edição só é sugerida quando o valor estimado diverge e a obrigação não possui movimentações/alocações nem ajuste manual no valor reconhecido.
+10. Datas ou histórico insuficientes, duplicidades, vínculo encerrado/afastado, prazo concessivo vencido e referências salariais ambíguas exigem conferência humana.
+11. A análise nunca cria nem altera obrigações. A criação confirmada pode continuar usando a rota de criação em lote.
 
 ### 6.7 Criação de obrigações em lote
 1. A rota `POST /employees/create-obligations-batch/:engagementId` recebe uma lista de obrigações revisadas pelo usuário.
@@ -250,6 +254,11 @@ backend/src/modules/employees/
 │   ├── engagements.controller.ts
 │   └── engagements.routes.ts
 ├── obligations/
+│   ├── calculations/
+│   │   ├── types.ts
+│   │   ├── salaryCalculation.ts
+│   │   ├── vacationCalculation.ts
+│   │   └── thirteenthSalaryCalculation.ts
 │   ├── obligations.schema.ts
 │   ├── obligations.repository.ts
 │   ├── obligations.service.ts
@@ -270,6 +279,7 @@ backend/src/modules/employees/
 ├── history/
 │   └── history.repository.ts
 ├── helpers/
+│   └── obligationSuggestions.ts
 └── shared/
 ```
 
