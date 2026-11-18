@@ -404,6 +404,7 @@ export const suggestBenefitObligations = (
             periodWarnings.push('O vínculo foi encerrado. A situação das férias deve ser conferida junto à rescisão; o helper não calcula verbas rescisórias.')
         }
 
+        const concessionPeriodExpired = concessionDeadline < currentDate && !engagement.exitDate
         const existing = findExistingObligation(
             engagement.obligations,
             'ferias',
@@ -425,7 +426,7 @@ export const suggestBenefitObligations = (
             { concessionDeadline }
         )
 
-        if (terminationPeriod) {
+        if (terminationPeriod || concessionPeriodExpired) {
             suggestion.action = 'manual_review'
             delete suggestion.createPayload
             delete suggestion.updatePayload
