@@ -1,7 +1,13 @@
 import { AppError } from '../../../shared/errors/AppError.js'
 import { repeatableObligationTypes } from '../shareds/repeatableObligationTypes.js'
 import obligationsRepository from './obligations.repository.js'
-import type { createObligationDTO, updateObligationDTO } from './obligations.schema.js'
+import type {
+    analyzeObligationsQueryDTO,
+    createObligationDTO,
+    createObligationsBatchDTO,
+    updateObligationDTO
+} from './obligations.schema.js'
+import { suggestBenefitObligations } from '../helpers/obligationSuggestions.js'
 
 const historyValue = (value: Date | { toString(): string } | string | number | null) => {
     if (value instanceof Date) return value.toISOString()
@@ -14,6 +20,68 @@ const preventsDuplicate = (type: string) => !repeatableObligationTypes.some(
 )
 
 class ObligationsService {
+    async analyzeObligations(engagementId: string, query: analyzeObligationsQueryDTO) {
+        const context = await obligationsRepository.findBenefitContext(engagementId)
+        if (!context) {
+            throw new AppError('Engagement not found', 404, 'ENGAGEMENT_NOT_FOUND')
+        }
+
+        const currentYear = new Date().getUTCFullYear()
+        const fromYear = query.fromYear ?? context.entryDate?.getUTCFullYear() ?? currentYear
+        const toYear = query.toYear ?? currentYear
+
+        return suggestBenefitObligations(context, fromYear, toYear)
+    }
+
+    async createObligationsBatch(engagementId: string, data: createObligationsBatchDTO) {
+        const engagement = await obligationsRepository.findEngagementEmployeeId(engagementId)
+        if (!engagement) {
+            throw new AppError('Engagement not found', 404, 'ENGAGEMENT_NOT_FOUND')
+        }
+
+        const duplicateCandidates = data.obligations
+            .filter(item =>
+                !repeatableObligationTypes.some(type => type === item.type) &&
+                item.referenceStart !== undefined && item.referenceStart !== null &&
+                item.referenceEnd !== undefined && item.referenceEnd !== null
+            )
+            .map(item => ({
+                type: item.type,
+                referenceStart: item.referenceStart as Date,
+                referenceEnd: item.referenceEnd as Date
+            }))
+
+        const seenPeriods = new Set<string>()
+        for (const candidate of duplicateCandidates) {
+            const key = `${candidate.type}:${candidate.referenceStart.getTime()}:${candidate.referenceEnd.getTime()}`
+            if (seenPeriods.has(key)) {
+                throw new AppError(
+                    'The batch contains duplicate obligations for the same reference period',
+                    409,
+                    'DUPLICATE_OBLIGATION'
+                )
+            }
+            seenPeriods.add(key)
+        }
+
+        const result = await obligationsRepository.createObligationsBatch(
+            engagementId,
+            engagement.employeeId,
+            data.obligations,
+            duplicateCandidates
+        )
+
+        if (result.duplicate) {
+            throw new AppError(
+                'One or more obligations already exist for the selected reference periods',
+                409,
+                'DUPLICATE_OBLIGATION'
+            )
+        }
+
+        return result.obligations
+    }
+
     async createObligation(engagementId: string, data: createObligationDTO) {
         const engagement = await obligationsRepository.findEngagementEmployeeId(engagementId)
         if (!engagement) {
