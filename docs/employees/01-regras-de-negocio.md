@@ -258,7 +258,7 @@ Não são calculados descontos automáticos por falta, atraso ou saída antecipa
 
 ### 11.2 Férias
 
-O helper parte da data de entrada do vínculo e identifica períodos aquisitivos consecutivos de 12 meses.
+O helper parte da data de entrada do vínculo e identifica períodos aquisitivos consecutivos de 12 meses. Se a data de entrada for desconhecida, mas existir uma competência válida de férias, pode projetar o próximo período a partir do dia seguinte ao referenceEnd da última competência registrada. Essa projeção exige revisão manual e não reconstrói os períodos anteriores.
 
 - Cada período é representado por referenceStart e referenceEnd na obrigação do tipo férias.
 - A identificação de uma competência de férias considera mês e ano de referenceStart e referenceEnd. Diferenças de dia não devem fazer o sistema tratar o mesmo período aquisitivo como uma competência diferente.
