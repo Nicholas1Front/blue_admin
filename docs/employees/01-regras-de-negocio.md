@@ -242,35 +242,46 @@ Os helpers serão auxiliares de consulta e estimativa. Não criam obrigações n
 
 ### 11.1 Décimo terceiro
 
-Fórmula de referência acordada:
+Fórmula administrativa acordada:
 
 `salário bruto / 12 * meses trabalhados`
 
-O cálculo deve considerar os dados disponíveis do vínculo, o histórico salarial e movimentações relevantes para determinar corretamente os meses considerados.
+Para considerar alterações salariais, a estimativa soma a fração mensal de cada mês elegível (`salário bruto vigente no mês / 12`). O mês é elegível quando houver pelo menos 15 dias de vínculo dentro dele. O salário vigente é reconstruído pelo histórico de alterações salariais em `employee_history`; quando esse histórico não permite reconstrução, o helper pode usar o salário atual como aproximação e deve sinalizar isso.
 
-O helper também deve consultar as obrigações de décimo terceiro já registradas para o vínculo e ano:
-- se não existir obrigação, pode sugerir a criação e apresentar a estimativa;
-- se já existir, não deve sugerir outra obrigação duplicada;
-- se existir parcialmente paga, deve apresentar valor reconhecido, total já alocado e saldo;
-- se os dados históricos forem insuficientes, deve informar a limitação em vez de inventar períodos ou valores.
+Regras de calendário usadas como referência:
+- pagamento em parcela única até 30 de novembro; ou
+- primeira parcela até 30 de novembro e segunda até 20 de dezembro;
+- para a competência anual única, o vencimento de referência será 20 de dezembro.
 
-A regra exata para meses trabalhados, mudanças salariais durante o ano e eventos que influenciam a contagem deve ser especificada antes da implementação do helper. O cálculo inicial não pretende cobrir todas as particularidades legais nem remuneração variável.
+O helper consulta as obrigações de décimo terceiro já registradas para o vínculo e ano:
+- sem obrigação: sugere criação com memória de cálculo;
+- obrigação existente: apresenta valor reconhecido, valor alocado como pago e saldo;
+- valor estimado diferente e obrigação sem movimentações/alocações: pode sugerir edição;
+- obrigação com pagamentos/movimentações ou marcada como parcial/paga/cancelada: exige revisão manual;
+- histórico ou datas insuficientes: informa a limitação, sem inventar valores.
+
+O ano de desligamento fica para revisão manual, pois o pagamento proporcional e seu vencimento dependem do contexto da rescisão. O helper não calcula rescisão, remuneração variável, adicionais, descontos ou encargos.
 
 ### 11.2 Férias
 
-O helper deve acompanhar períodos aquisitivos a partir das datas do vínculo e dos dados disponíveis. Não haverá tabela exclusiva para períodos de férias: o período será identificado pelo cálculo e as obrigações/pagamentos serão registrados em `employee_obligations` e `employee_payment_allocations`.
+O helper acompanha períodos aquisitivos de 12 meses a partir da data de entrada do vínculo. Cada período completo é identificado pelas datas de início e fim e pode gerar uma competência de férias. Não haverá tabela exclusiva para períodos de férias: o histórico permanece nas obrigações e alocações.
 
-A referência de cálculo será a forma utilizada pela legislação trabalhista brasileira, incluindo o adicional de um terço e sem calcular retenções/impostos nesta etapa. O cálculo deverá considerar o histórico salarial e as faltas relevantes quando houver dados suficientes.
+Estimativa acordada:
+- salário bruto de referência ao final do período aquisitivo;
+- acréscimo de um terço;
+- sem retenções ou impostos nesta etapa.
 
-O helper deve:
-- identificar períodos que precisam ser acompanhados;
-- indicar se já existe obrigação registrada para o período;
-- não sugerir uma segunda obrigação para um período já registrado;
-- apresentar o valor reconhecido, o que já foi pago e o saldo;
-- diferenciar estimativa ainda não registrada de obrigação efetivamente reconhecida;
-- indicar quando faltarem dados para estimativa confiável.
+O helper também informa o prazo concessivo: os 12 meses seguintes ao fim do período aquisitivo. A data exata do pagamento não pode ser determinada sem a data de início das férias; quando houver agendamento, o pagamento deve ocorrer até dois dias antes do início. O helper não inventa essa data e deixa `dueDate` vazio.
 
-A regra de cálculo e os dados mínimos necessários serão revisados antes da implementação. O helper não será apresentado como cálculo oficial de folha.
+O helper consulta obrigações existentes para o período:
+- sem obrigação: sugere criação, quando os dados forem suficientes;
+- obrigação existente: apresenta valor reconhecido, valor alocado como pago e saldo;
+- valor estimado diferente e obrigação sem movimentações/alocações: pode sugerir edição;
+- obrigação com pagamentos/movimentações ou marcada como parcial/paga/cancelada: exige revisão manual;
+- prazo concessivo encerrado: exige confirmação manual sobre concessão das férias e eventual pagamento em dobro;
+- vínculo encerrado: exige revisão no contexto da rescisão.
+
+O cálculo inicial não considera abono pecuniário, faltas que alterem a quantidade de dias, adicionais variáveis, hipóteses de suspensão/perda do período aquisitivo ou particularidades de afastamentos. Esses casos devem ser sinalizados para conferência. O helper não é cálculo oficial de folha.
 
 ## 12. Funcionários e vínculos antigos
 
