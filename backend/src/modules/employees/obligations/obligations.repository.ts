@@ -196,6 +196,123 @@ class ObligationsRepository {
             })
         })
     }
+    async findBenefitContext(engagementId: string) {
+        return prisma.employeeEngagement.findUnique({
+            where: { id: engagementId },
+            select: {
+                id: true,
+                entryDate: true,
+                exitDate: true,
+                status: true,
+                currentSalary: true,
+                history: {
+                    where: { eventType: 'salario_vinculo_atualizado' },
+                    select: {
+                        eventType: true,
+                        eventDate: true,
+                        metadata: true
+                    },
+                    orderBy: { eventDate: 'asc' }
+                },
+                obligations: {
+                    where: { type: { in: ['ferias', 'decimo_terceiro'] } },
+                    select: {
+                        id: true,
+                        type: true,
+                        title: true,
+                        referenceStart: true,
+                        referenceEnd: true,
+                        dueDate: true,
+                        originalValue: true,
+                        finalValue: true,
+                        status: true,
+                        allocations: { select: { value: true } },
+                        movements: { select: { id: true } }
+                    }
+                }
+            }
+        })
+    }
+
+    async createObligationsBatch(
+        engagementId: string,
+        employeeId: string,
+        data: createObligationDTO[],
+        duplicateCandidates: { type: string; referenceStart: Date; referenceEnd: Date }[]
+    ) {
+        return prisma.$transaction(async tx => {
+            if (duplicateCandidates.length > 0) {
+                await tx.$queryRaw`SELECT id FROM employee_engagements WHERE id = ${engagementId} FOR UPDATE`
+
+                const duplicates = await tx.employeeObligation.findMany({
+                    where: {
+                        engagementId,
+                        OR: duplicateCandidates.map(candidate => ({
+                            type: candidate.type,
+                            referenceStart: candidate.referenceStart,
+                            referenceEnd: candidate.referenceEnd
+                        }))
+                    },
+                    select: {
+                        type: true,
+                        referenceStart: true,
+                        referenceEnd: true
+                    }
+                })
+
+                if (duplicates.length > 0) {
+                    return { duplicate: true as const, obligations: [] }
+                }
+            }
+
+            const obligations = []
+            for (const item of data) {
+                const obligation = await tx.employeeObligation.create({
+                    data: {
+                        engagementId,
+                        type: item.type,
+                        title: item.title,
+                        description: item.description ?? null,
+                        referenceStart: item.referenceStart ?? null,
+                        referenceEnd: item.referenceEnd ?? null,
+                        dueDate: item.dueDate ?? null,
+                        originalValue: item.originalValue,
+                        finalValue: item.finalValue,
+                        status: item.status,
+                        observations: item.observations ?? null
+                    }
+                })
+
+                await tx.employeeHistory.create({
+                    data: {
+                        employeeId,
+                        engagementId,
+                        eventType: 'obrigacao_criada',
+                        description: 'Obrigação do vínculo cadastrada em lote.',
+                        metadata: {
+                            obligationId: obligation.id,
+                            type: obligation.type,
+                            title: obligation.title,
+                            referenceStart: obligation.referenceStart?.toISOString() ?? null,
+                            referenceEnd: obligation.referenceEnd?.toISOString() ?? null,
+                            originalValue: obligation.originalValue.toString(),
+                            finalValue: obligation.finalValue.toString()
+                        },
+                        eventDate: new Date()
+                    }
+                })
+
+                obligations.push({
+                    ...obligation,
+                    originalValue: Number(obligation.originalValue),
+                    finalValue: Number(obligation.finalValue)
+                })
+            }
+
+            return { duplicate: false as const, obligations }
+        })
+    }
+
 }
 
 export default new ObligationsRepository()
