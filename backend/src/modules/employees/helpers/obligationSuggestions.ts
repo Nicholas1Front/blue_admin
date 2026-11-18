@@ -331,6 +331,9 @@ export const suggestBenefitObligations = (
         const yearWarnings: string[] = []
         if (missingSalary) yearWarnings.push('Não há salário bruto identificável para todos os meses considerados.')
         if (assumedSalary) yearWarnings.push('Parte do cálculo utiliza o salário atual como referência porque o histórico salarial está incompleto ou ausente.')
+        if (engagement.status === 'afastado') {
+            yearWarnings.push('O vínculo está afastado. O helper não avalia os efeitos específicos do afastamento sobre o décimo terceiro.')
+        }
 
         const terminationYear = Boolean(engagement.exitDate && engagement.exitDate.getUTCFullYear() === year)
         if (terminationYear) {
@@ -394,6 +397,9 @@ export const suggestBenefitObligations = (
         const periodWarnings: string[] = []
         if (salary.value === null) periodWarnings.push('Não há salário bruto identificável para estimar as férias.')
         if (salary.assumed) periodWarnings.push('O cálculo utiliza o salário atual como referência porque o histórico salarial está incompleto ou ausente.')
+        if (engagement.status === 'afastado') {
+            periodWarnings.push('O vínculo está afastado. O helper não avalia os efeitos específicos do afastamento sobre o período aquisitivo.')
+        }
 
         const concessionDeadline = new Date(addYears(nextPeriodStart, 1).getTime() - DAY_IN_MS)
         const terminationPeriod = Boolean(engagement.exitDate)
