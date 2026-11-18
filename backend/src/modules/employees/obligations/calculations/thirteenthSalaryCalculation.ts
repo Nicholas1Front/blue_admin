@@ -1,6 +1,5 @@
 import {
     findLatestSalaryCompetence,
-    getSalaryAtDate,
     getSalaryReference,
     monthEnd,
     monthStart,
@@ -83,14 +82,16 @@ export const calculateThirteenthSalaryCompetencies = (
         if (monthsWorked === 0) continue
 
         const latestSalaryCompetence = findLatestSalaryCompetence(context.obligations, calculationCutoff)
-        const salaryReference = latestSalaryCompetence
+        const salary = latestSalaryCompetence
             ? getSalaryReference(context, calculationCutoff)
-            : getSalaryAtDate(context, calculationCutoff)
-        const salary = {
-            value: salaryReference.value,
-            assumed: latestSalaryCompetence ? salaryReference.assumed : true,
-            ...(salaryReference.warning ? { warning: salaryReference.warning } : {})
-        }
+            : {
+                value: toNumber(context.currentSalary),
+                source: 'current_salary' as const,
+                assumed: true,
+                warning: context.currentSalary === null
+                    ? 'No salary competence or current salary is available for the thirteenth salary estimate.'
+                    : 'No salary competence was found; the current engagement salary is being used as an estimate.'
+            }
 
         const itemWarnings: string[] = []
         let requiresReview = false
@@ -123,6 +124,7 @@ export const calculateThirteenthSalaryCompetencies = (
             const salaryDate = latestSalaryCompetence.referenceEnd ?? latestSalaryCompetence.referenceStart
             if (salaryDate && salaryDate.getUTCFullYear() < year) {
                 itemWarnings.push(`The latest recorded salary competence is from ${String(salaryDate.getUTCMonth() + 1).padStart(2, '0')}/${salaryDate.getUTCFullYear()} and is being used as the reference.`)
+                requiresReview = true
             }
         }
 
