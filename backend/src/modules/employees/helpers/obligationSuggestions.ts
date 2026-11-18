@@ -170,6 +170,11 @@ const buildSuggestion = (
         warnings.push('One or more obligations of this type have incomplete or inconsistent reference dates. Review the existing records before creating or changing this competence.')
     }
 
+    const projectedAnnualObligation = item.type === 'decimo_terceiro' && item.isProjection && existing !== undefined
+    if (projectedAnnualObligation) {
+        warnings.push('This annual thirteenth salary is still a projection. Do not update an existing annual obligation using a partial-year estimate without manual review.')
+    }
+
     if (existing?.status === 'cancelado') {
         warnings.push('The existing obligation is cancelled. Review the cancellation before creating or changing another competence.')
     }
@@ -192,7 +197,7 @@ const buildSuggestion = (
 
     let action: SuggestionAction = 'none'
 
-    if (hasDuplicates || hasInvalidReference || item.requiresReview) {
+    if (hasDuplicates || hasInvalidReference || item.requiresReview || projectedAnnualObligation) {
         action = 'manual_review'
     } else if (!existing) {
         action = item.estimatedValue !== null && item.estimatedValue > 0
