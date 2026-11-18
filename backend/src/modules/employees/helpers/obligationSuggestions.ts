@@ -2,6 +2,7 @@ type NumericValue = number | { toString(): string } | null
 
 type SalaryChange = {
     date: Date
+    createdAt: Date
     previous: number | null
     current: number | null
 }
@@ -130,11 +131,13 @@ const readSalaryChanges = (history: HistoryEntry[]) => {
             continue
         }
 
-        changes.push({ date: entry.eventDate, previous, current })
+        changes.push({ date: entry.eventDate, createdAt: entry.createdAt, previous, current })
     }
 
     return {
-        changes: changes.sort((a, b) => a.date.getTime() - b.date.getTime()),
+        changes: changes.sort((a, b) =>
+            a.date.getTime() - b.date.getTime() || a.createdAt.getTime() - b.createdAt.getTime()
+        ),
         incomplete
     }
 }
