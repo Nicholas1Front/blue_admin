@@ -102,9 +102,8 @@ export const calculateThirteenthSalaryCompetencies = (
             requiresReview = true
         }
 
-        if (salary.assumed) {
-            itemWarnings.push('No salary competence was found up to the calculation month; the engagement current salary or salary history is being used as an estimate.')
-            if (year < currentDate.getUTCFullYear()) requiresReview = true
+        if (salary.assumed && !latestSalaryCompetence && year < currentDate.getUTCFullYear()) {
+            requiresReview = true
         }
 
         if (latestSalaryCompetence) {
