@@ -187,7 +187,10 @@ export const getSalaryReference = (
         const sameMonthCompetences = competenceDate
             ? context.obligations.filter(obligation => {
                 const date = getSalaryCompetenceDate(obligation)
-                return obligation.type === 'salario' && date !== null && sameMonth(date, competenceDate)
+                return obligation.type === 'salario' &&
+                    obligation.status !== 'cancelado' &&
+                    date !== null &&
+                    sameMonth(date, competenceDate)
             })
             : []
 
@@ -209,14 +212,16 @@ export const getSalaryReference = (
         )
         if (value !== null && value > 0) {
             const needsReview = !hasCompleteMonthlyReference || competence.status === 'em_revisao'
-            const outdatedCompetence = Boolean(
-                competenceDate && competenceDate.getUTCFullYear() < referenceDate.getUTCFullYear()
-            )
+            const competenceAgeInMonths = competenceDate
+                ? (referenceDate.getUTCFullYear() - competenceDate.getUTCFullYear()) * 12 +
+                    referenceDate.getUTCMonth() - competenceDate.getUTCMonth()
+                : 0
+            const outdatedCompetence = competenceAgeInMonths > 1
             return {
                 value,
                 source: 'salary_competence',
                 assumed: needsReview || outdatedCompetence,
-                requiresReview: needsReview,
+                requiresReview: needsReview || outdatedCompetence,
                 ...(needsReview || outdatedCompetence
                     ? { warning: competence.status === 'em_revisao'
                         ? 'The latest salary competence is still under review.'
