@@ -252,7 +252,7 @@ const buildSuggestion = (
 }
 
 const getMonthsWorked = (entryDate: Date, endDate: Date, year: number) => {
-    const months: { month: number; salaryDate: Date }[] = []
+    const months: number[] = []
     const yearStart = new Date(Date.UTC(year, 0, 1))
     const yearEnd = new Date(Date.UTC(year, 11, 31))
     const start = toUtcDate(entryDate) > yearStart ? toUtcDate(entryDate) : yearStart
@@ -268,7 +268,7 @@ const getMonthsWorked = (entryDate: Date, endDate: Date, year: number) => {
         if (workedEnd < workedStart) continue
 
         const daysWorked = Math.floor((workedEnd.getTime() - workedStart.getTime()) / DAY_IN_MS) + 1
-        if (daysWorked >= 15) months.push({ month, salaryDate: workedEnd })
+        if (daysWorked >= 15) months.push(month)
     }
 
     return months
