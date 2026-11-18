@@ -156,7 +156,7 @@ const createSalaryLookup = (engagement: BenefitEngagement) => {
 
         if (salary === null) {
             const firstChange = changes[0]
-            if (firstChange && firstChange.date > date) salary = firstChange.previous
+            if (firstChange && toUtcDate(firstChange.date) > toUtcDate(date)) salary = firstChange.previous
         }
 
         return {
@@ -208,6 +208,10 @@ const buildSuggestion = (
     if (existing && estimatedValue !== null && differs && canUpdate) action = 'update'
     else if (existing && estimatedValue !== null && !differs) action = 'none'
     else if (existing && estimatedValue !== null && differs) action = 'manual_review'
+    if (existing?.status === 'cancelado') {
+        warnings.push('A obrigação existente está cancelada; revise o cancelamento antes de criar ou alterar outra competência.')
+        action = 'manual_review'
+    }
     if (existing && differs && hasFinancialRecords) {
         warnings.push('A obrigação possui movimentações ou alocações; revise manualmente antes de alterar o valor.')
         action = 'manual_review'
@@ -298,7 +302,7 @@ export const suggestBenefitObligations = (
         }
     }
 
-    if (fromYear > toYear || toYear - fromYear > 40) {
+    if (fromYear > toYear || toYear - fromYear > 80) {
         return {
             suggestions,
             warnings: ['O intervalo solicitado é inválido ou excede 40 anos.']
