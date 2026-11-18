@@ -285,6 +285,14 @@ O helper consulta obrigações existentes para o período:
 
 O cálculo inicial não considera abono pecuniário, faltas que alterem a quantidade de dias, adicionais variáveis, hipóteses de suspensão/perda do período aquisitivo ou particularidades de afastamentos. Esses casos devem ser sinalizados para conferência. O helper não é cálculo oficial de folha.
 
+### 11.3 Referências consultadas
+
+- [Ministério do Trabalho e Emprego — perguntas frequentes sobre 13º salário e férias](https://www.gov.br/trabalho-e-emprego/pt-br/acesso-a-informacao/acoes-e-programas/programas-projetos-acoes-obras-e-atividades/proteja/duvidas-frequentes/perguntas-frequentes)
+- [eSocial — pagamento do décimo terceiro salário](https://www.gov.br/esocial/pt-br/empregador-domestico/perguntas-frequentes/perguntas-frequentes)
+- [Senado Federal — CLT, art. 142 (remuneração das férias na data da concessão)](https://legis.senado.gov.br/norma/530547/publicacao/37353698)
+
+As regras servem como referência para estimativas administrativas do Blue Admin. Não substituem conferência contábil, orientação trabalhista ou convenção coletiva aplicável.
+
 ## 12. Funcionários e vínculos antigos
 
 O módulo deve permitir reconstruir o histórico administrativo sem exigir que todos os dados antigos estejam disponíveis.
