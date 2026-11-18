@@ -88,13 +88,14 @@ export const calculateThirteenthSalaryCompetencies = (
                 value: toNumber(context.currentSalary),
                 source: 'current_salary' as const,
                 assumed: true,
+                requiresReview: context.currentSalary === null,
                 warning: context.currentSalary === null
                     ? 'No salary competence or current salary is available for the thirteenth salary estimate.'
                     : 'No salary competence was found; the current engagement salary is being used as an estimate.'
             }
 
         const itemWarnings: string[] = []
-        let requiresReview = false
+        let requiresReview = salary.requiresReview
         if (salary.warning) itemWarnings.push(salary.warning)
         if (salary.value === null || salary.value <= 0) {
             itemWarnings.push('No positive salary reference is available for the thirteenth salary estimate.')
@@ -124,7 +125,9 @@ export const calculateThirteenthSalaryCompetencies = (
             const salaryDate = latestSalaryCompetence.referenceEnd ?? latestSalaryCompetence.referenceStart
             if (salaryDate && salaryDate.getUTCFullYear() < year) {
                 itemWarnings.push(`The latest recorded salary competence is from ${String(salaryDate.getUTCMonth() + 1).padStart(2, '0')}/${salaryDate.getUTCFullYear()} and is being used as the reference.`)
-                requiresReview = true
+                if (year < currentDate.getUTCFullYear() || year - salaryDate.getUTCFullYear() > 1) {
+                    requiresReview = true
+                }
             }
         }
 
