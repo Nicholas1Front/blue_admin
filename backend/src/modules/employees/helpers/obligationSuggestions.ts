@@ -1,5 +1,9 @@
 import {
-    calculateSalaryCompetencies
+    calculateSalaryCompetencies,
+    roundCurrency,
+    sameDay,
+    sameMonth,
+    toNumber
 } from '../obligations/calculations/salaryCalculation.js'
 import {
     calculateVacationCompetencies
@@ -7,12 +11,6 @@ import {
 import {
     calculateThirteenthSalaryCompetencies
 } from '../obligations/calculations/thirteenthSalaryCalculation.js'
-import {
-    roundCurrency,
-    sameDay,
-    sameMonth,
-    toNumber
-} from '../obligations/calculations/salaryCalculation.js'
 import type {
     CalculationItem,
     CalculationPeriod,
