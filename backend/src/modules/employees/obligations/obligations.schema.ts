@@ -72,7 +72,7 @@ export const analyzeObligationsQuerySchema = z.object({
 
     if (start > end) {
         context.addIssue({
-            code: z.ZodIssueCode.custom,
+            code: 'custom',
             message: 'Start month cannot be after end month',
             path: ['endMonth']
         })
