@@ -44,20 +44,6 @@ class ObligationsService {
             throw new AppError('Obligation not found for this engagement', 404, 'OBLIGATION_NOT_FOUND')
         }
 
-        if (existing.allocations.length > 0 || existing.movements.length > 0) {
-            const protectedFields = [
-                'type', 'referenceStart', 'referenceEnd',
-                'originalValue', 'finalValue', 'status'
-            ]
-            if (protectedFields.some(field => Object.hasOwn(data, field))) {
-                throw new AppError(
-                    'Cannot change financial or reference fields while the obligation has linked movements or allocations',
-                    409,
-                    'OBLIGATION_HAS_FINANCIAL_RECORDS'
-                )
-            }
-        }
-
         const changes: Record<string, { previous: string | number | null; current: string | number | null }> = {}
         for (const field of [
             'type', 'title', 'description', 'referenceStart', 'referenceEnd',
@@ -78,6 +64,20 @@ class ObligationsService {
             changes[field] = {
                 previous: historyValue(previousValue),
                 current: historyValue(nextValue)
+            }
+        }
+
+        if (existing.allocations.length > 0 || existing.movements.length > 0) {
+            const protectedFields = [
+                'type', 'referenceStart', 'referenceEnd',
+                'originalValue', 'finalValue', 'status'
+            ]
+            if (protectedFields.some(field => changes[field] !== undefined)) {
+                throw new AppError(
+                    'Cannot change financial or reference fields while the obligation has linked movements or allocations',
+                    409,
+                    'OBLIGATION_HAS_FINANCIAL_RECORDS'
+                )
             }
         }
 
@@ -106,7 +106,10 @@ class ObligationsService {
             obligationId,
             data,
             changes,
-            preventsDuplicate(nextType)
+            preventsDuplicate(nextType),
+            nextType,
+            nextStart,
+            nextEnd
         )
 
         if (result.duplicate) {

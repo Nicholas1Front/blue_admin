@@ -1,3 +1,4 @@
+import { Prisma } from '@prisma/client'
 import { prisma } from '../../../shared/database/prisma.js'
 import type { createObligationDTO, updateObligationDTO } from './obligations.schema.js'
 
@@ -111,19 +112,19 @@ class ObligationsRepository {
         obligationId: string,
         data: updateObligationDTO,
         changes: Record<string, { previous: string | number | null; current: string | number | null }>,
-        preventDuplicate: boolean
+        preventDuplicate: boolean,
+        nextType: string,
+        nextStart: Date | null,
+        nextEnd: Date | null
     ) {
         return prisma.$transaction(async tx => {
-            if (preventDuplicate) {
-                const nextStart = data.referenceStart
-                const nextEnd = data.referenceEnd
-                if (nextStart && nextEnd) {
+            if (preventDuplicate && nextStart && nextEnd) {
                     await tx.$queryRaw`SELECT id FROM employee_engagements WHERE id = ${engagementId} FOR UPDATE`
 
                     const duplicate = await tx.employeeObligation.findFirst({
                         where: {
                             engagementId,
-                            type: data.type,
+                            type: nextType,
                             referenceStart: nextStart,
                             referenceEnd: nextEnd,
                             id: { not: obligationId }
@@ -177,7 +178,7 @@ class ObligationsRepository {
         engagementId: string,
         employeeId: string,
         obligationId: string,
-        snapshot: Record<string, unknown>
+        snapshot: Prisma.InputJsonObject
     ) {
         return prisma.$transaction(async tx => {
             await tx.employeeHistory.create({
