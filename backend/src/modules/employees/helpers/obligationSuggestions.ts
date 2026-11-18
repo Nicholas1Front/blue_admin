@@ -47,6 +47,7 @@ type Suggestion = {
     dueDate: string | null
     estimatedValue: number | null
     recognizedValue: number | null
+    recognizedStatus?: string
     paidValue: number
     balance: number | null
     monthsWorked?: number
@@ -212,6 +213,10 @@ const buildSuggestion = (
         warnings.push('A obrigação existente está cancelada; revise o cancelamento antes de criar ou alterar outra competência.')
         action = 'manual_review'
     }
+    if (existing?.status === 'parcial' && allocatedValue === 0) {
+        warnings.push('A obrigação está marcada como parcial, mas não possui alocações para identificar o valor já pago.')
+        action = 'manual_review'
+    }
     if (existing && differs && hasFinancialRecords) {
         warnings.push('A obrigação possui movimentações ou alocações; revise manualmente antes de alterar o valor.')
         action = 'manual_review'
@@ -228,6 +233,7 @@ const buildSuggestion = (
             : dueDate ? formatDate(dueDate) : null,
         estimatedValue,
         recognizedValue,
+        ...(existing ? { recognizedStatus: existing.status } : {}),
         paidValue,
         balance,
         calculation,
