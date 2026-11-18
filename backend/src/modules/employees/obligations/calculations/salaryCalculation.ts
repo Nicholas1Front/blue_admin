@@ -209,11 +209,15 @@ export const getSalaryReference = (
         )
         if (value !== null && value > 0) {
             const needsReview = !hasCompleteMonthlyReference || competence.status === 'em_revisao'
+            const outdatedCompetence = Boolean(
+                competenceDate && competenceDate.getUTCFullYear() < referenceDate.getUTCFullYear()
+            )
             return {
                 value,
                 source: 'salary_competence',
-                assumed: needsReview,
-                ...(needsReview
+                assumed: needsReview || outdatedCompetence,
+                requiresReview: needsReview,
+                ...(needsReview || outdatedCompetence
                     ? { warning: competence.status === 'em_revisao'
                         ? 'The latest salary competence is still under review.'
                         : !hasCompleteMonthlyReference
