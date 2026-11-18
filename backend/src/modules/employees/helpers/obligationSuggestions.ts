@@ -305,7 +305,6 @@ export const suggestBenefitObligations = (
 
     for (let year = fromYear; year <= toYear && year <= currentDate.getUTCFullYear(); year += 1) {
         const yearStart = new Date(Date.UTC(year, 0, 1))
-        const yearEnd = new Date(Date.UTC(year, 11, 31))
         const activeEnd = engagement.exitDate
             ? toUtcDate(engagement.exitDate)
             : currentDate
