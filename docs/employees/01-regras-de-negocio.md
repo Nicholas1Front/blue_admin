@@ -297,7 +297,7 @@ Cada sugestão retorna uma das ações:
 - none: competência existente compatível com o cálculo;
 - manual_review: dados incompletos, duplicidade, referência inválida, histórico insuficiente ou registro financeiro que impede alteração segura.
 
-A resposta distingue valor estimado, valor reconhecido, total alocado como pago e saldo da obrigação. Uma sugestão não é uma dívida reconhecida e não entra no financeiro antes da criação explícita da competência.
+A resposta distingue valor estimado, valor reconhecido, total alocado como pago e saldo da obrigação. Uma sugestão não é uma dívida reconhecida e não entra no financeiro antes da criação explícita da competência. A criação individual e em lote aplica os mesmos critérios de referência para evitar duplicidade: mês/ano para salários, mês/ano de início e fim do período aquisitivo para férias e ano para décimo terceiro.
 
 Os três benefícios são analisados para todas as modalidades de vínculo (CLT, PJ, Informal e outros), conforme decisão atual do projeto. A regra poderá ser revista futuramente.
 
