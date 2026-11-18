@@ -69,11 +69,11 @@ const findMatchingObligations = (
     item: CalculationItem
 ) => obligations.filter(obligation => {
     if (obligation.type !== item.type) return false
+    if (!obligation.referenceStart || !obligation.referenceEnd) return true
+
     if (item.type === 'salario') {
-        return Boolean(
-            (obligation.referenceStart && sameMonth(obligation.referenceStart, item.referenceStart)) ||
-            (obligation.referenceEnd && sameMonth(obligation.referenceEnd, item.referenceEnd))
-        )
+        if (!sameMonth(obligation.referenceStart, obligation.referenceEnd)) return true
+        return sameMonth(obligation.referenceStart, item.referenceStart)
     }
 
     if (item.type === 'decimo_terceiro') {
@@ -84,10 +84,8 @@ const findMatchingObligations = (
     }
 
     if (item.type === 'ferias') {
-        return Boolean(
-            (obligation.referenceStart && sameDay(obligation.referenceStart, item.referenceStart)) ||
-            (obligation.referenceEnd && sameDay(obligation.referenceEnd, item.referenceEnd))
-        )
+        return sameDay(obligation.referenceStart, item.referenceStart) ||
+            sameDay(obligation.referenceEnd, item.referenceEnd)
     }
 
     return false
