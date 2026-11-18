@@ -265,7 +265,7 @@ class ObligationsRepository {
                 }
             }
 
-            const obligations = []
+            const obligations: Awaited<ReturnType<typeof tx.employeeObligation.create>>[] = []
             for (const item of data) {
                 const obligation = await tx.employeeObligation.create({
                     data: {
@@ -302,14 +302,17 @@ class ObligationsRepository {
                     }
                 })
 
-                obligations.push({
+                obligations.push(obligation)
+            }
+
+            return {
+                duplicate: false as const,
+                obligations: obligations.map(obligation => ({
                     ...obligation,
                     originalValue: Number(obligation.originalValue),
                     finalValue: Number(obligation.finalValue)
-                })
+                }))
             }
-
-            return { duplicate: false as const, obligations }
         })
     }
 
