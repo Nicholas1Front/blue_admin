@@ -2,6 +2,40 @@ import { Prisma, type EmployeeObligation } from '../../../generated/prisma/clien
 import { prisma } from '../../../shared/database/prisma.js'
 import type { createObligationDTO, updateObligationDTO } from './obligations.schema.js'
 
+const getMonthRange = (date: Date) => ({
+    gte: new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), 1)),
+    lt: new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + 1, 1))
+})
+
+const getYearRange = (date: Date) => ({
+    gte: new Date(Date.UTC(date.getUTCFullYear(), 0, 1)),
+    lt: new Date(Date.UTC(date.getUTCFullYear() + 1, 0, 1))
+})
+
+const getDuplicateReferenceWhere = (
+    type: string,
+    referenceStart: Date,
+    referenceEnd: Date
+): Prisma.EmployeeObligationWhereInput => {
+    if (type === 'salario' || type === 'ferias') {
+        return {
+            type,
+            referenceStart: getMonthRange(referenceStart),
+            referenceEnd: getMonthRange(referenceEnd)
+        }
+    }
+
+    if (type === 'decimo_terceiro') {
+        return {
+            type,
+            referenceStart: getYearRange(referenceStart),
+            referenceEnd: getYearRange(referenceEnd)
+        }
+    }
+
+    return { type, referenceStart, referenceEnd }
+}
+
 class ObligationsRepository {
     async findEngagementEmployeeId(engagementId: string) {
         return prisma.employeeEngagement.findUnique({
@@ -50,9 +84,7 @@ class ObligationsRepository {
                 const duplicate = await tx.employeeObligation.findFirst({
                     where: {
                         engagementId,
-                        type: data.type,
-                        referenceStart: data.referenceStart,
-                        referenceEnd: data.referenceEnd
+                        ...getDuplicateReferenceWhere(data.type, data.referenceStart, data.referenceEnd)
                     },
                     select: { id: true }
                 })
@@ -124,9 +156,7 @@ class ObligationsRepository {
                 const duplicate = await tx.employeeObligation.findFirst({
                     where: {
                         engagementId,
-                        type: nextType,
-                        referenceStart: nextStart,
-                        referenceEnd: nextEnd,
+                        ...getDuplicateReferenceWhere(nextType, nextStart, nextEnd),
                         id: { not: obligationId }
                     },
                     select: { id: true }
@@ -252,11 +282,13 @@ class ObligationsRepository {
                 const duplicates = await tx.employeeObligation.findMany({
                     where: {
                         engagementId,
-                        OR: duplicateCandidates.map(candidate => ({
-                            type: candidate.type,
-                            referenceStart: candidate.referenceStart,
-                            referenceEnd: candidate.referenceEnd
-                        }))
+                        OR: duplicateCandidates.map(candidate =>
+                            getDuplicateReferenceWhere(
+                                candidate.type,
+                                candidate.referenceStart,
+                                candidate.referenceEnd
+                            )
+                        )
                     },
                     select: {
                         type: true,
