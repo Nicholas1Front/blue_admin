@@ -168,6 +168,23 @@ export const getSalaryReference = (
     const competence = findLatestSalaryCompetence(context.obligations, referenceDate)
 
     if (competence) {
+        const competenceDate = getSalaryCompetenceDate(competence)
+        const sameMonthCompetences = competenceDate
+            ? context.obligations.filter(obligation => {
+                const date = getSalaryCompetenceDate(obligation)
+                return obligation.type === 'salario' && date !== null && sameMonth(date, competenceDate)
+            })
+            : []
+
+        if (sameMonthCompetences.length > 1) {
+            return {
+                value: null,
+                source: 'unavailable',
+                assumed: true,
+                warning: 'More than one salary competence exists for the latest month; confirm which value should be used.'
+            }
+        }
+
         const value = toNumber(competence.originalValue)
         const hasCompleteMonthlyReference = Boolean(
             competence.referenceStart &&
