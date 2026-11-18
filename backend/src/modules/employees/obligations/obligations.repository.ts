@@ -119,20 +119,20 @@ class ObligationsRepository {
     ) {
         return prisma.$transaction(async tx => {
             if (preventDuplicate && nextStart && nextEnd) {
-                    await tx.$queryRaw`SELECT id FROM employee_engagements WHERE id = ${engagementId} FOR UPDATE`
+                await tx.$queryRaw`SELECT id FROM employee_engagements WHERE id = ${engagementId} FOR UPDATE`
 
-                    const duplicate = await tx.employeeObligation.findFirst({
-                        where: {
-                            engagementId,
-                            type: nextType,
-                            referenceStart: nextStart,
-                            referenceEnd: nextEnd,
-                            id: { not: obligationId }
-                        },
-                        select: { id: true }
-                    })
+                const duplicate = await tx.employeeObligation.findFirst({
+                    where: {
+                        engagementId,
+                        type: nextType,
+                        referenceStart: nextStart,
+                        referenceEnd: nextEnd,
+                        id: { not: obligationId }
+                    },
+                    select: { id: true }
+                })
 
-                    if (duplicate) return { duplicate: true as const, obligation: null }
+                if (duplicate) return { duplicate: true as const, obligation: null }
             }
 
             const obligation = await tx.employeeObligation.update({
