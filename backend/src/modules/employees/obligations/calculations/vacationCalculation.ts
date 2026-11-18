@@ -5,6 +5,7 @@ import {
     monthStart,
     roundCurrency,
     sameDay,
+    toNumber,
     utcDay
 } from './salaryCalculation.js'
 import type {
@@ -52,17 +53,39 @@ export const calculateVacationCompetencies = (
         if (periodEnd >= rangeStart) {
             const itemWarnings: string[] = []
             let requiresReview = false
+            const matchingObligations = context.obligations.filter(obligation =>
+                obligation.type === 'ferias' &&
+                obligation.referenceStart !== null &&
+                obligation.referenceEnd !== null &&
+                sameDay(obligation.referenceStart, periodStart) &&
+                sameDay(obligation.referenceEnd, periodEnd)
+            )
             const salary = getSalaryReference(context, periodEnd)
-            const estimatedValue = salary.value === null
+            let estimatedValue = salary.value === null
                 ? null
                 : roundCurrency(salary.value + salary.value / 3)
+            let calculation = 'Estimated full vacation amount: salary reference for the acquisition period end plus one third. No taxes, variable additions, absences affecting vacation days, or suspension/loss of the acquisition period are calculated.'
 
-            if (salary.warning) itemWarnings.push(salary.warning)
+            if (
+                salary.assumed &&
+                periodEnd < currentDate &&
+                matchingObligations.length === 1
+            ) {
+                const recordedValue = toNumber(matchingObligations[0]?.originalValue ?? null)
+                if (recordedValue !== null && recordedValue > 0) {
+                    estimatedValue = recordedValue
+                    calculation = 'Existing vacation obligation retained as the historical reference because the salary history is incomplete.'
+                    itemWarnings.push('The existing vacation competence is being used as the historical value instead of replacing it with the current salary.')
+                }
+            } else if (salary.warning) {
+                itemWarnings.push(salary.warning)
+            }
+
             if (salary.value === null || estimatedValue === null || estimatedValue <= 0) {
                 itemWarnings.push('A reliable salary reference is not available for the vacation estimate.')
                 requiresReview = true
             }
-            if (salary.assumed && periodEnd < currentDate) {
+            if (salary.assumed && periodEnd < currentDate && matchingObligations.length === 0) {
                 itemWarnings.push('The salary reference for this historical vacation period is estimated from the current salary; confirm the amount.')
                 requiresReview = true
             }
@@ -83,14 +106,6 @@ export const calculateVacationCompetencies = (
                 requiresReview = true
             }
 
-            const matchingObligations = context.obligations.filter(obligation =>
-                obligation.type === 'ferias' &&
-                obligation.referenceStart !== null &&
-                obligation.referenceEnd !== null &&
-                sameDay(obligation.referenceStart, periodStart) &&
-                sameDay(obligation.referenceEnd, periodEnd)
-            )
-
             if (matchingObligations.length > 1) {
                 itemWarnings.push('More than one vacation obligation exists for this acquisition period.')
                 requiresReview = true
@@ -109,7 +124,7 @@ export const calculateVacationCompetencies = (
                 referenceEnd: periodEnd,
                 dueDate: null,
                 estimatedValue,
-                calculation: 'Estimated full vacation amount: salary reference for the acquisition period end plus one third. No taxes, variable additions, absences affecting vacation days, or suspension/loss of the acquisition period are calculated.',
+                calculation,
                 warnings: [...new Set(itemWarnings)],
                 requiresReview,
                 isProjection,
