@@ -169,8 +169,20 @@ export const getSalaryReference = (
 
     if (competence) {
         const value = toNumber(competence.originalValue)
+        const hasCompleteMonthlyReference = Boolean(
+            competence.referenceStart &&
+            competence.referenceEnd &&
+            sameMonth(competence.referenceStart, competence.referenceEnd)
+        )
         if (value !== null && value > 0) {
-            return { value, source: 'salary_competence', assumed: false }
+            return {
+                value,
+                source: 'salary_competence',
+                assumed: !hasCompleteMonthlyReference,
+                ...(!hasCompleteMonthlyReference
+                    ? { warning: 'The latest salary competence has incomplete or non-monthly reference dates.' }
+                    : {})
+            }
         }
 
         return {
@@ -254,11 +266,10 @@ const findMonthlySalaryObligations = (
     start: Date,
     end: Date
 ) => obligations.filter(obligation =>
-    obligation.type === 'salario' &&
-    obligation.referenceStart !== null &&
-    obligation.referenceEnd !== null &&
-    sameMonth(obligation.referenceStart, start) &&
-    sameMonth(obligation.referenceEnd, end)
+    obligation.type === 'salario' && (
+        (obligation.referenceStart !== null && sameMonth(obligation.referenceStart, start)) ||
+        (obligation.referenceEnd !== null && sameMonth(obligation.referenceEnd, end))
+    )
 )
 
 export const calculateSalaryCompetencies = (
@@ -312,6 +323,16 @@ export const calculateSalaryCompetencies = (
             requiresReview = true
         }
 
+        if (existing.length === 1 && (
+            !existing[0]?.referenceStart ||
+            !existing[0]?.referenceEnd ||
+            !sameMonth(existing[0].referenceStart, start) ||
+            !sameMonth(existing[0].referenceEnd, end)
+        )) {
+            itemWarnings.push('The existing salary obligation has incomplete or inconsistent reference dates.')
+            requiresReview = true
+        }
+
         if (context.status === 'afastado') {
             itemWarnings.push('The engagement is marked as away; the effects of this absence on salary are not calculated automatically.')
             requiresReview = true
@@ -346,7 +367,9 @@ export const calculateSalaryCompetencies = (
                     estimatedValue = recordedValue
                     calculation = 'Existing salary competence retained as the historical reference because the salary history is incomplete.'
                     itemWarnings.push('The existing salary competence is being used as the historical reference instead of replacing it with the current salary.')
-                    requiresReview = false
+                    requiresReview = existing[0]?.referenceStart === null || existing[0]?.referenceEnd === null
+                        ? true
+                        : requiresReview
                 }
             }
         }
