@@ -183,7 +183,8 @@ class ObligationsRepository {
             })
 
             const reconciliation = await reconcileObligation(tx, obligationId, {
-                releaseExcess: data.finalValue !== undefined
+                releaseExcess: data.finalValue !== undefined,
+                releaseAllAllocations: data.status === 'cancelado'
             })
 
             await tx.employeeHistory.create({
