@@ -460,7 +460,9 @@ class MovementsRepository {
                 obligations
             )
 
-            let financialTransactionId = existing.financialTransaction?.id ?? null
+            let financialTransactionId = shouldCreateFinancialTransaction
+                ? existing.financialTransaction?.id ?? null
+                : null
 
             if (shouldCreateFinancialTransaction && category) {
                 if (financialTransactionId) {
