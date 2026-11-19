@@ -1,5 +1,4 @@
 export const allowedMovementTypes = [
-    'pagamento',
     'falta',
     'atraso',
     'saida_antecipada',
