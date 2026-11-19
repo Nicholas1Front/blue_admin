@@ -658,14 +658,20 @@ class MovementsRepository {
     }
 
     async findMovementsByEngagement(engagementId: string, filters: findMovementsQueryDTO) {
+        const startDate = filters.startDate ? new Date(filters.startDate) : undefined
+        const endDate = filters.endDate ? new Date(filters.endDate) : undefined
+
+        startDate?.setUTCHours(0, 0, 0, 0)
+        endDate?.setUTCHours(23, 59, 59, 999)
+
         const movements = await prisma.employeeMovement.findMany({
             where: {
                 engagementId,
                 ...(filters.type !== undefined ? { type: filters.type } : {}),
-                ...(filters.startDate || filters.endDate ? {
+                ...(startDate || endDate ? {
                     eventDate: {
-                        ...(filters.startDate ? { gte: filters.startDate } : {}),
-                        ...(filters.endDate ? { lte: filters.endDate } : {})
+                        ...(startDate ? { gte: startDate } : {}),
+                        ...(endDate ? { lte: endDate } : {})
                     }
                 } : {})
             },
