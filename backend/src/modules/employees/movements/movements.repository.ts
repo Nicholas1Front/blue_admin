@@ -450,7 +450,7 @@ class MovementsRepository {
                     description: data.description,
                     eventDate: paymentDate,
                     value: paymentValue,
-                    observations: data.observations ?? existing.observations
+                    observations: data.observations !== undefined ? data.observations : existing.observations
                 }
             })
 
@@ -709,7 +709,18 @@ class MovementsRepository {
                 allocatedValue: Number(allocatedValue),
                 outstandingValue: Number(outstandingValue)
             }
-        }).filter(obligation => obligation.outstandingValue > 0)
+        }).filter(obligation => obligation.outstandingValue > 0).sort((first, second) => {
+            const firstDate = first.referenceStart ?? first.dueDate
+            const secondDate = second.referenceStart ?? second.dueDate
+
+            if (firstDate === null && secondDate !== null) return 1
+            if (firstDate !== null && secondDate === null) return -1
+            if (firstDate && secondDate && firstDate.getTime() !== secondDate.getTime()) {
+                return firstDate.getTime() - secondDate.getTime()
+            }
+
+            return first.id.localeCompare(second.id)
+        })
     }
 
     async findMovementById(engagementId: string, movementId: string) {
