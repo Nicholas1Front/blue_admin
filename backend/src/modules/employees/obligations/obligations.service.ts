@@ -154,20 +154,6 @@ class ObligationsService {
             }
         }
 
-        if (existing.allocations.length > 0 || existing.movements.length > 0) {
-            const protectedFields = [
-                'type', 'referenceStart', 'referenceEnd',
-                'originalValue', 'finalValue', 'status'
-            ]
-            if (protectedFields.some(field => changes[field] !== undefined)) {
-                throw new AppError(
-                    'Cannot change financial or reference fields while the obligation has linked movements or allocations',
-                    409,
-                    'OBLIGATION_HAS_FINANCIAL_RECORDS'
-                )
-            }
-        }
-
         if (Object.keys(changes).length === 0) {
             const { allocations, movements, ...obligation } = existing
             return {
@@ -226,14 +212,6 @@ class ObligationsService {
         const existing = await obligationsRepository.findObligationById(engagementId, obligationId)
         if (!existing) {
             throw new AppError('Obligation not found for this engagement', 404, 'OBLIGATION_NOT_FOUND')
-        }
-
-        if (existing.allocations.length > 0 || existing.movements.length > 0) {
-            throw new AppError(
-                'Cannot delete an obligation with linked movements or payment allocations',
-                409,
-                'OBLIGATION_HAS_FINANCIAL_RECORDS'
-            )
         }
 
         const engagement = await obligationsRepository.findEngagementEmployeeId(engagementId)
