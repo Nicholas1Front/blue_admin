@@ -93,14 +93,14 @@ export const validateManualAllocations = (
         const obligation = availableObligations.get(request.obligationId)
 
         if (!obligation) {
-            throw new Error('INVALID_ALLOCATION_OBLIGATION')
+            throw new PaymentAllocationError('INVALID_ALLOCATION_OBLIGATION')
         }
 
         const requestedValue = new Prisma.Decimal(request.value)
         const outstandingValue = getOutstandingValue(obligation)
 
         if (requestedValue.gt(outstandingValue)) {
-            throw new Error('ALLOCATION_EXCEEDS_OUTSTANDING_VALUE')
+            throw new PaymentAllocationError('ALLOCATION_EXCEEDS_OUTSTANDING_VALUE')
         }
 
         return {
