@@ -410,7 +410,7 @@ class MovementsRepository {
                 where: { id: movementId, engagementId, type: 'pagamento' },
                 include: {
                     allocations: { select: { obligationId: true, value: true, type: true } },
-                    financialTransaction: { select: { id: true, categoryId: true } }
+                    financialTransaction: { select: { id: true, categoryId: true, referenceDate: true } }
                 }
             })
 
@@ -445,7 +445,9 @@ class MovementsRepository {
                 await reconcileObligation(tx, obligationId, { forceStatus: true })
             }
 
-            const requestedDate = data.eventDate !== undefined ? data.eventDate : existing.eventDate
+            const requestedDate = data.eventDate !== undefined
+                ? data.eventDate
+                : existing.eventDate ?? existing.financialTransaction?.referenceDate ?? null
             const paymentDate = requestedDate ?? (shouldCreateFinancialTransaction ? new Date() : null)
             const paymentValue = new Prisma.Decimal(data.value)
             const obligations = await this.findAllocatableObligations(tx, engagementId)
