@@ -36,6 +36,14 @@ class MovementsService {
                 )
             }
 
+            if (error.code === 'DUPLICATE_ALLOCATION_OBLIGATION') {
+                throw new AppError(
+                    'An obligation can only be selected once per payment',
+                    400,
+                    error.code
+                )
+            }
+
             throw new AppError(
                 'Total allocations cannot exceed the payment value',
                 400,
