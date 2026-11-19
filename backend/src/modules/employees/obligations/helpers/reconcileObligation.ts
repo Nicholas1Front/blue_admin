@@ -17,6 +17,7 @@ type ReconciliationResult = {
 type ReconciliationOptions = {
     releaseExcess?: boolean
     forceStatus?: boolean
+    releaseAllAllocations?: boolean
 }
 
 export const reconcileObligation = async (
@@ -47,7 +48,21 @@ export const reconcileObligation = async (
 
     const allocationAdjustments: AllocationAdjustment[] = []
 
-    if (options.releaseExcess) {
+    if (options.releaseAllAllocations) {
+        for (const allocation of allocations) {
+            await tx.employeePaymentAllocation.delete({
+                where: { id: allocation.id }
+            })
+
+            allocationAdjustments.push({
+                allocationId: allocation.id,
+                movementId: allocation.movementId,
+                previousValue: allocation.value.toString(),
+                currentValue: '0',
+                releasedValue: allocation.value.toString()
+            })
+        }
+    } else if (options.releaseExcess) {
         let remainingValue = new Prisma.Decimal(obligation.finalValue)
 
         for (const allocation of allocations) {
