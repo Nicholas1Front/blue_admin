@@ -32,10 +32,8 @@ export const getOutstandingValue = (obligation: AllocatableObligation) => {
         new Prisma.Decimal(0)
     )
 
-    return Prisma.Decimal.max(
-        obligation.finalValue.minus(allocatedValue),
-        0
-    )
+    const outstandingValue = obligation.finalValue.minus(allocatedValue)
+    return outstandingValue.gt(0) ? outstandingValue : new Prisma.Decimal(0)
 }
 
 const compareDates = (first: Date | null, second: Date | null) => {
@@ -65,7 +63,7 @@ export const allocatePaymentFIFO = (
         const outstandingValue = getOutstandingValue(obligation)
         if (outstandingValue.lte(0)) continue
 
-        const allocatedValue = Prisma.Decimal.min(remainingValue, outstandingValue)
+        const allocatedValue = remainingValue.lt(outstandingValue) ? remainingValue : outstandingValue
 
         allocations.push({
             obligationId: obligation.id,
