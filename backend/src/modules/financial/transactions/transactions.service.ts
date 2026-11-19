@@ -55,6 +55,14 @@ class TransactionsService{
             throw new AppError('Transaction not found', 404, 'TRANSACTION_NOT_FOUND')
         }
 
+        if(transactionExists.employeeMovement !== null){
+            throw new AppError(
+                'Employee payment transactions must be changed through the employees module',
+                409,
+                'TRANSACTION_LINKED_TO_EMPLOYEE_PAYMENT'
+            )
+        }
+
         if(cleanedData.categoryId !== undefined){
             const categoryExists = await categoryRepository.findCategoryById(cleanedData.categoryId)
 
@@ -128,10 +136,11 @@ class TransactionsService{
         if (
             transactionExists.originId !== null ||
             transactionExists.originType !== null ||
-            transactionExists.titheForService !== null
+            transactionExists.titheForService !== null ||
+            transactionExists.employeeMovement !== null
         ) {
             throw new AppError(
-                'Cannot delete a transaction while it is linked to a service or another origin',
+                'Cannot delete a transaction while it is linked to a service, employee payment, or another origin',
                 409,
                 'TRANSACTION_LINKED_TO_ORIGIN'
             )
