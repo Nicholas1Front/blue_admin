@@ -471,7 +471,7 @@ class MovementsRepository {
                             description: data.description,
                             value: paymentValue,
                             type: 'expense',
-                            referenceDate: paymentDate,
+                            referenceDate: paymentDate ?? new Date(),
                             originId: null,
                             originType: null
                         },
