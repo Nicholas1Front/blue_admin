@@ -80,9 +80,7 @@ export const updatePaymentSchema = paymentObjectSchema.superRefine(validatePayme
 
 
 const movementObjectSchema = z.object({
-    type: movementTypeSchema.refine(type => type !== 'pagamento', {
-        message: 'Use the payment endpoint to register a payment'
-    }),
+    type: movementTypeSchema,
     description: z.string().trim().min(1),
     eventDate: optionalDate,
     referenceStart: optionalDate,
@@ -92,10 +90,10 @@ const movementObjectSchema = z.object({
     observations: z.string().trim().min(1).nullable().optional()
 })
 
-const validateMovementPeriod = <T extends {
-    referenceStart?: Date | null
-    referenceEnd?: Date | null
-}>(data: T) => !data.referenceStart || !data.referenceEnd || data.referenceEnd >= data.referenceStart
+const validateMovementPeriod = (data: {
+    referenceStart?: Date | null | undefined
+    referenceEnd?: Date | null | undefined
+}) => !data.referenceStart || !data.referenceEnd || data.referenceEnd >= data.referenceStart
 
 export const createMovementSchema = movementObjectSchema.refine(validateMovementPeriod, {
     message: 'Reference end cannot be before reference start',
@@ -105,10 +103,7 @@ export const createMovementSchema = movementObjectSchema.refine(validateMovement
 export const updateMovementSchema = movementObjectSchema.partial().refine(
     data => Object.keys(data).length > 0,
     { message: 'At least one field must be provided to update movement' }
-).refine(data => data.type === undefined || data.type !== 'pagamento', {
-    message: 'Payment movements must be updated through the payment endpoint',
-    path: ['type']
-}).refine(validateMovementPeriod, {
+).refine(validateMovementPeriod, {
     message: 'Reference end cannot be before reference start',
     path: ['referenceEnd']
 })
