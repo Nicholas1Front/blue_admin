@@ -79,9 +79,9 @@ class ObligationsRepository {
         preventDuplicate: boolean
     ) {
         return prisma.$transaction(async tx => {
-            if (preventDuplicate && data.referenceStart && data.referenceEnd) {
-                await tx.$queryRaw`SELECT id FROM employee_engagements WHERE id = ${engagementId} FOR UPDATE`
+            await tx.$queryRaw`SELECT id FROM employee_engagements WHERE id = ${engagementId} FOR UPDATE`
 
+            if (preventDuplicate && data.referenceStart && data.referenceEnd) {
                 const duplicate = await tx.employeeObligation.findFirst({
                     where: {
                         engagementId,
@@ -347,9 +347,9 @@ class ObligationsRepository {
         duplicateCandidates: { type: string; referenceStart: Date; referenceEnd: Date }[]
     ) {
         return prisma.$transaction(async tx => {
-            if (duplicateCandidates.length > 0) {
-                await tx.$queryRaw`SELECT id FROM employee_engagements WHERE id = ${engagementId} FOR UPDATE`
+            await tx.$queryRaw`SELECT id FROM employee_engagements WHERE id = ${engagementId} FOR UPDATE`
 
+            if (duplicateCandidates.length > 0) {
                 const duplicates = await tx.employeeObligation.findMany({
                     where: {
                         engagementId,
