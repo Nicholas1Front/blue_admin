@@ -405,7 +405,7 @@ class MovementsRepository {
                 where: { id: movementId, engagementId, type: 'pagamento' },
                 include: {
                     allocations: { select: { obligationId: true, value: true, type: true } },
-                    financialTransaction: { select: { id: true } }
+                    financialTransaction: { select: { id: true, categoryId: true } }
                 }
             })
 
@@ -417,10 +417,11 @@ class MovementsRepository {
             let category: { id: string; type: string; active: boolean } | null = null
 
             if (shouldCreateFinancialTransaction) {
-                if (!data.categoryId) return { categoryNotFound: true as const }
+                const categoryId = data.categoryId ?? existing.financialTransaction?.categoryId
+                if (!categoryId) return { categoryNotFound: true as const }
 
                 category = await tx.financialCategory.findUnique({
-                    where: { id: data.categoryId },
+                    where: { id: categoryId },
                     select: { id: true, type: true, active: true }
                 })
 
