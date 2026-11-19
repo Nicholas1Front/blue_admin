@@ -226,6 +226,14 @@ Rotas implementadas sob `/employees`:
 
 A exclusão de pagamento remove as alocações e a transação financeira opcional vinculada, mantendo snapshot em EmployeeHistory. A edição substitui as alocações e reconcilia as competências afetadas.
 
+Exemplos do corpo de criação:
+
+- FIFO: `{ "description": "Pagamento de pendências", "value": 4000, "allocationMode": "oldest", "categoryId": "<categoria-de-despesa>" }`.
+- Manual: `{ "description": "Pagamento de competências", "value": 4000, "allocationMode": "selected", "categoryId": "<categoria-de-despesa>", "allocations": [{ "obligationId": "<id>", "value": 2500 }, { "obligationId": "<id>", "value": 1000 }] }`.
+- Histórico sem lançamento financeiro: incluir `"createFinancialTransaction": false`; nesse caso `categoryId` pode ser omitido e `eventDate` pode permanecer nulo quando desconhecida.
+
+A alocação manual pode usar apenas parte do pagamento; o restante é retornado como `unallocatedValue`. O pagamento pode ser editado posteriormente para refazer a distribuição. Não existe endpoint para gravar alocações isoladamente.
+
 ### 6.6 Análise e sugestão de competências
 1. A rota GET /employees/analyze-obligations/:engagementId consulta em uma única leitura o vínculo, o histórico de alterações salariais e as obrigações de salário, férias e décimo terceiro, incluindo alocações e movimentações.
 2. A consulta exige startMonth, startYear, endMonth e endYear. O intervalo é inclusivo, limitado a 40 anos, e usa somente mês/ano na entrada.
