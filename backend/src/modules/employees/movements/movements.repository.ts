@@ -431,7 +431,9 @@ class MovementsRepository {
                 })
 
                 if (!category) return { categoryNotFound: true as const }
-                if (!category.active) return { categoryInactive: true as const }
+                if (!category.active && category.id !== existing.financialTransaction?.categoryId) {
+                    return { categoryInactive: true as const }
+                }
                 if (category.type !== 'expense') return { invalidCategoryType: true as const }
             }
 
