@@ -780,6 +780,12 @@ class MovementsRepository {
                 return firstDate.getTime() - secondDate.getTime()
             }
 
+            if (first.dueDate && second.dueDate && first.dueDate.getTime() !== second.dueDate.getTime()) {
+                return first.dueDate.getTime() - second.dueDate.getTime()
+            }
+            if (first.dueDate === null && second.dueDate !== null) return 1
+            if (first.dueDate !== null && second.dueDate === null) return -1
+
             return first.id.localeCompare(second.id)
         })
     }
