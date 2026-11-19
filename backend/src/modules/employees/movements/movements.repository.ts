@@ -211,15 +211,6 @@ class MovementsRepository {
             const engagement = await this.lockEngagement(tx, engagementId)
             if (!engagement) return null
 
-            const category = await tx.financialCategory.findUnique({
-                where: { id: data.categoryId },
-                select: { id: true, type: true, active: true }
-            })
-
-            if (!category) return { categoryNotFound: true as const }
-            if (!category.active) return { categoryInactive: true as const }
-            if (category.type !== 'expense') return { invalidCategoryType: true as const }
-
             const paymentDate = data.eventDate ?? new Date()
             const paymentValue = new Prisma.Decimal(data.value)
             const obligations = await this.findAllocatableObligations(tx, engagementId)
@@ -230,17 +221,33 @@ class MovementsRepository {
                 obligations
             )
 
-            const transaction = await tx.financialTransaction.create({
-                data: {
-                    categoryId: category.id,
-                    description: data.description,
-                    value: paymentValue,
-                    type: 'expense',
-                    referenceDate: paymentDate,
-                    originId: null,
-                    originType: null
-                }
-            })
+            let transaction: { id: string } | null = null
+
+            if (data.createFinancialTransaction !== false) {
+                if (!data.categoryId) return { categoryNotFound: true as const }
+
+                const category = await tx.financialCategory.findUnique({
+                    where: { id: data.categoryId },
+                    select: { id: true, type: true, active: true }
+                })
+
+                if (!category) return { categoryNotFound: true as const }
+                if (!category.active) return { categoryInactive: true as const }
+                if (category.type !== 'expense') return { invalidCategoryType: true as const }
+
+                transaction = await tx.financialTransaction.create({
+                    data: {
+                        categoryId: category.id,
+                        description: data.description,
+                        value: paymentValue,
+                        type: 'expense',
+                        referenceDate: paymentDate,
+                        originId: null,
+                        originType: null
+                    },
+                    select: { id: true }
+                })
+            }
 
             const movement = await tx.employeeMovement.create({
                 data: {
@@ -249,7 +256,7 @@ class MovementsRepository {
                     description: data.description,
                     eventDate: paymentDate,
                     value: paymentValue,
-                    financialTransactionId: transaction.id,
+                    financialTransactionId: transaction?.id ?? null,
                     observations: data.observations ?? null
                 }
             })
@@ -268,7 +275,7 @@ class MovementsRepository {
                     description: 'Pagamento do funcionário registrado e alocado.',
                     metadata: {
                         movementId: movement.id,
-                        financialTransactionId: transaction.id,
+                        financialTransactionId: transaction?.id ?? null,
                         value: paymentValue.toString(),
                         allocationMode: data.allocationMode,
                         allocatedValue: allocationResult.allocatedValue.toString(),
@@ -402,16 +409,24 @@ class MovementsRepository {
             })
 
             if (!existing) return null
-            if (!existing.financialTransaction) return { missingFinancialTransaction: true as const }
 
-            const category = await tx.financialCategory.findUnique({
-                where: { id: data.categoryId },
-                select: { id: true, type: true, active: true }
-            })
+            const shouldCreateFinancialTransaction = data.createFinancialTransaction ??
+                Boolean(existing.financialTransaction)
 
-            if (!category) return { categoryNotFound: true as const }
-            if (!category.active) return { categoryInactive: true as const }
-            if (category.type !== 'expense') return { invalidCategoryType: true as const }
+            let category: { id: string; type: string; active: boolean } | null = null
+
+            if (shouldCreateFinancialTransaction) {
+                if (!data.categoryId) return { categoryNotFound: true as const }
+
+                category = await tx.financialCategory.findUnique({
+                    where: { id: data.categoryId },
+                    select: { id: true, type: true, active: true }
+                })
+
+                if (!category) return { categoryNotFound: true as const }
+                if (!category.active) return { categoryInactive: true as const }
+                if (category.type !== 'expense') return { invalidCategoryType: true as const }
+            }
 
             const previousObligationIds = [...new Set(existing.allocations.map(item => item.obligationId))]
 
@@ -433,16 +448,36 @@ class MovementsRepository {
                 obligations
             )
 
-            await tx.financialTransaction.update({
-                where: { id: existing.financialTransaction.id },
-                data: {
-                    categoryId: category.id,
-                    description: data.description,
-                    value: paymentValue,
-                    type: 'expense',
-                    referenceDate: paymentDate
+            let financialTransactionId = existing.financialTransaction?.id ?? null
+
+            if (shouldCreateFinancialTransaction && category) {
+                if (financialTransactionId) {
+                    await tx.financialTransaction.update({
+                        where: { id: financialTransactionId },
+                        data: {
+                            categoryId: category.id,
+                            description: data.description,
+                            value: paymentValue,
+                            type: 'expense',
+                            referenceDate: paymentDate
+                        }
+                    })
+                } else {
+                    const transaction = await tx.financialTransaction.create({
+                        data: {
+                            categoryId: category.id,
+                            description: data.description,
+                            value: paymentValue,
+                            type: 'expense',
+                            referenceDate: paymentDate,
+                            originId: null,
+                            originType: null
+                        },
+                        select: { id: true }
+                    })
+                    financialTransactionId = transaction.id
                 }
-            })
+            }
 
             await tx.employeeMovement.update({
                 where: { id: movementId },
@@ -450,9 +485,17 @@ class MovementsRepository {
                     description: data.description,
                     eventDate: paymentDate,
                     value: paymentValue,
+                    financialTransactionId,
                     observations: data.observations !== undefined ? data.observations : existing.observations
                 }
             })
+
+            if (!shouldCreateFinancialTransaction && existing.financialTransaction) {
+                await tx.financialTransaction.delete({
+                    where: { id: existing.financialTransaction.id }
+                })
+                financialTransactionId = null
+            }
 
             const affectedObligationIds = await this.createAllocations(
                 tx,
@@ -468,7 +511,8 @@ class MovementsRepository {
                     description: 'Pagamento do funcionário atualizado e realocado.',
                     metadata: {
                         movementId,
-                        financialTransactionId: existing.financialTransaction.id,
+                        previousFinancialTransactionId: existing.financialTransaction?.id ?? null,
+                        financialTransactionId,
                         previousValue: existing.value?.toString() ?? null,
                         value: paymentValue.toString(),
                         allocationMode: data.allocationMode,
@@ -525,10 +569,6 @@ class MovementsRepository {
             if (!movement) return null
 
             if (movement.type === 'pagamento') {
-                if (!movement.financialTransaction) {
-                    return { missingFinancialTransaction: true as const }
-                }
-
                 const affectedObligationIds = [...new Set(movement.allocations.map(item => item.obligationId))]
 
                 await tx.employeeHistory.create({
@@ -543,11 +583,11 @@ class MovementsRepository {
                                 value: movement.value?.toString() ?? null,
                                 description: movement.description,
                                 eventDate: movement.eventDate?.toISOString() ?? null,
-                                financialTransactionId: movement.financialTransaction.id,
-                                financialDescription: movement.financialTransaction.description,
-                                financialValue: movement.financialTransaction.value.toString(),
-                                categoryId: movement.financialTransaction.categoryId,
-                                referenceDate: movement.financialTransaction.referenceDate.toISOString()
+                                financialTransactionId: movement.financialTransaction?.id ?? null,
+                                financialDescription: movement.financialTransaction?.description ?? null,
+                                financialValue: movement.financialTransaction?.value.toString() ?? null,
+                                categoryId: movement.financialTransaction?.categoryId ?? null,
+                                referenceDate: movement.financialTransaction?.referenceDate.toISOString() ?? null
                             },
                             allocations: movement.allocations.map(item => ({
                                 obligationId: item.obligationId,
@@ -562,7 +602,11 @@ class MovementsRepository {
 
                 await tx.employeePaymentAllocation.deleteMany({ where: { movementId } })
                 await tx.employeeMovement.delete({ where: { id: movementId } })
-                await tx.financialTransaction.delete({ where: { id: movement.financialTransaction.id } })
+                if (movement.financialTransaction) {
+                    await tx.financialTransaction.delete({
+                        where: { id: movement.financialTransaction.id }
+                    })
+                }
 
                 for (const obligationId of affectedObligationIds) {
                     await reconcileObligation(tx, obligationId, { forceStatus: true })
