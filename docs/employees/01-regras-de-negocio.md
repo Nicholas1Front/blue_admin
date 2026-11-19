@@ -180,10 +180,12 @@ Regras:
 - Quando houver desconto, o responsável escolhe a obrigação/competência em que ele será aplicado. A data do evento e a competência afetada podem ser diferentes.
 - O desconto deve alterar o valor reconhecido da obrigação por um fluxo explícito e rastreável, sem apagar o valor original.
 - Pagamentos são movimentações.
-- `financialTransactionId` é opcional: pagamentos antigos ou registros administrativos podem não ter transação no módulo financeiro.
-- Quando informado, o identificador aponta para a transação financeira correspondente. O vínculo deverá ser validado no backend e a integração deve respeitar o padrão de origem já existente no financeiro (`originType`/`originId`).
-- Não criar uma transação financeira fictícia para registros históricos.
-- Pagamentos e outras operações financeiras confirmadas não devem ser apagados ou editados silenciosamente; correções precisam preservar o histórico.
+- `financialTransactionId` é opcional: pagamentos antigos podem ser registrados sem transação financeira.
+- Para pagamentos atuais integrados ao financeiro, o backend cria uma única transação do tipo despesa e vincula pelo `financialTransactionId`.
+- A categoria financeira deve estar ativa e ser do tipo `expense`.
+- Não criar transação financeira fictícia para registros históricos.
+- Transações vinculadas a pagamentos de funcionários não podem ser editadas ou excluídas diretamente pelo módulo financeiro; a correção deve passar pelo módulo de funcionários.
+- A edição de um pagamento atualiza sua transação vinculada e refaz suas alocações na mesma transação do banco. A exclusão remove a transação vinculada, quando existir, e preserva um snapshot no histórico.
 
 ## 9. Alocações — `employee_payment_allocations`
 
@@ -204,17 +206,17 @@ Campos candidatos:
 - timestamps
 
 Regras:
-- O usuário escolhe como distribuir o pagamento. O sistema pode ajudar a sugerir, mas não deve impor uma única forma de pagar.
-- Exemplo: um pagamento pode quitar salários atrasados, parte de férias e parte de rescisão em uma única operação, desde que cada parcela tenha sua própria alocação.
-- O inverso também é permitido: uma obrigação pode receber pagamentos em várias datas.
-- O total alocado deve fechar com o valor da movimentação de pagamento. Todo excedente precisa receber uma destinação escolhida pelo usuário.
-- O excedente pode ser direcionado a outra obrigação pendente do mesmo vínculo.
-- Alternativamente, o usuário pode escolher transformar o excedente em bonificação. Nesse caso, o sistema cria uma obrigação de bonificação, e o usuário escolhe a competência/período em que ela será registrada; a alocação identifica essa destinação.
+- O usuário pode escolher entre alocação manual (selecionar obrigações e valores) ou quitação automática das pendências mais antigas (FIFO).
+- A alocação FIFO considera obrigações `pendente` e `parcial`, exclui `cancelado` e `em_revisao` e ordena por início da competência (ou vencimento quando não houver referência), vencimento, criação e identificador.
+- Um pagamento pode quitar várias obrigações; uma obrigação pode receber vários pagamentos.
+- A soma alocada pode ser menor que o pagamento. O excedente permanece sem alocação, visível no próprio pagamento. O sistema não cria obrigação nem bonificação automaticamente para absorver excedentes.
+- Não permitir alocar mais do que o saldo reconhecido de uma obrigação nem alocar obrigações de outro vínculo.
+- O backend calcula saldos com Decimal e valida/cria alocações dentro de uma transação, bloqueando o vínculo para evitar concorrência sobre o mesmo saldo.
+- `EmployeePaymentAllocation.type` identifica a origem da distribuição (`manual` ou `fifo`).
+- A edição do pagamento refaz suas alocações e reconcilia os status das obrigações afetadas. A exclusão remove as alocações e libera os saldos; a transação financeira vinculada também é removida quando existir.
+- Excluir uma obrigação remove suas alocações, mas preserva pagamentos e transações financeiras; o valor correspondente volta a aparecer como não alocado. Movimentações não financeiras vinculadas diretamente à obrigação são preservadas e desvinculadas.
+- Cancelar uma obrigação libera suas alocações e preserva o pagamento de origem. Obrigações em revisão mantêm as alocações existentes, mas não recebem novas distribuições.
 - Não registrar o mesmo valor como nova saída financeira ao distribuir um pagamento já realizado.
-- Não permitir alocar mais do que o saldo reconhecido de uma obrigação.
-- Todas as obrigações alocadas devem pertencer ao mesmo vínculo da movimentação.
-- A validação de saldo e distribuição deve ocorrer no backend, dentro de transação, protegendo contra operações concorrentes.
-- Estornos/correções devem preservar as alocações originais e reverter seus efeitos de forma rastreável.
 
 ## 10. Histórico — `employee_history`
 
