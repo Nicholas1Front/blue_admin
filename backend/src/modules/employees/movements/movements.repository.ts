@@ -458,7 +458,7 @@ class MovementsRepository {
                     metadata: {
                         movementId,
                         financialTransactionId: existing.financialTransaction.id,
-                        previousValue: existing.value.toString(),
+                        previousValue: existing.value?.toString() ?? null,
                         value: paymentValue.toString(),
                         allocationMode: data.allocationMode,
                         allocatedValue: allocationResult.allocatedValue.toString(),
@@ -595,63 +595,54 @@ class MovementsRepository {
                 { createdAt: 'desc' },
                 { id: 'asc' }
             ],
-            select: { id: true }
-        })
-
-        const results = await Promise.all(
-            movements.map(movement =>
-                prisma.employeeMovement.findUniqueOrThrow({
-                    where: { id: movement.id },
+            include: {
+                allocations: {
                     include: {
-                        allocations: {
-                            include: {
-                                obligation: {
-                                    select: {
-                                        id: true,
-                                        type: true,
-                                        title: true,
-                                        referenceStart: true,
-                                        referenceEnd: true,
-                                        finalValue: true,
-                                        status: true
-                                    }
-                                }
-                            },
-                            orderBy: { createdAt: 'asc' }
-                        },
-                        financialTransaction: {
+                        obligation: {
                             select: {
                                 id: true,
-                                categoryId: true,
-                                description: true,
-                                value: true,
                                 type: true,
-                                referenceDate: true
+                                title: true,
+                                referenceStart: true,
+                                referenceEnd: true,
+                                finalValue: true,
+                                status: true
                             }
                         }
+                    },
+                    orderBy: { createdAt: 'asc' }
+                },
+                financialTransaction: {
+                    select: {
+                        id: true,
+                        categoryId: true,
+                        description: true,
+                        value: true,
+                        type: true,
+                        referenceDate: true
                     }
-                }).then(movement => ({
-                    ...movement,
-                    value: movement.value === null ? null : Number(movement.value),
-                    allocations: movement.allocations.map(allocation => ({
-                        ...allocation,
-                        value: Number(allocation.value),
-                        obligation: {
-                            ...allocation.obligation,
-                            finalValue: Number(allocation.obligation.finalValue)
-                        }
-                    })),
-                    financialTransaction: movement.financialTransaction
-                        ? {
-                            ...movement.financialTransaction,
-                            value: Number(movement.financialTransaction.value)
-                        }
-                        : null
-                }))
-            )
-        )
+                }
+            }
+        })
 
-        return results
+        return movements.map(movement => ({
+            ...movement,
+            value: movement.value === null ? null : Number(movement.value),
+            allocations: movement.allocations.map(allocation => ({
+                ...allocation,
+                value: Number(allocation.value),
+                obligation: {
+                    ...allocation.obligation,
+                    finalValue: Number(allocation.obligation.finalValue)
+                }
+            })),
+            financialTransaction: movement.financialTransaction
+                ? {
+                    ...movement.financialTransaction,
+                    value: Number(movement.financialTransaction.value)
+                }
+                : null
+        }))
     }
 
     async findOpenObligations(engagementId: string) {
