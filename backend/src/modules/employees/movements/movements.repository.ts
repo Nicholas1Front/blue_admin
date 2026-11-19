@@ -219,7 +219,7 @@ class MovementsRepository {
             if (!category.active) return { categoryInactive: true as const }
             if (category.type !== 'expense') return { invalidCategoryType: true as const }
 
-            const paymentDate = data.eventDate ?? existing.eventDate ?? new Date()
+            const paymentDate = data.eventDate ?? new Date()
             const paymentValue = new Prisma.Decimal(data.value)
             const obligations = await this.findAllocatableObligations(tx, engagementId)
             const allocationResult = this.resolveAllocations(
@@ -422,7 +422,7 @@ class MovementsRepository {
                 await reconcileObligation(tx, obligationId, { forceStatus: true })
             }
 
-            const paymentDate = data.eventDate ?? new Date()
+            const paymentDate = data.eventDate ?? existing.eventDate ?? new Date()
             const paymentValue = new Prisma.Decimal(data.value)
             const obligations = await this.findAllocatableObligations(tx, engagementId)
             const allocationResult = this.resolveAllocations(
