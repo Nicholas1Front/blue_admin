@@ -5,7 +5,8 @@ import {
     allocatePaymentFIFO,
     getOutstandingValue,
     PaymentAllocationError,
-    validateManualAllocations
+    validateManualAllocations,
+    type AllocatableObligation
 } from '../allocations/paymentAllocation.js'
 import type {
     createMovementDTO,
@@ -73,7 +74,7 @@ class MovementsRepository {
         paymentValue: Prisma.Decimal,
         mode: PaymentData['allocationMode'],
         requestedAllocations: PaymentData['allocations'],
-        obligations: Awaited<ReturnType<MovementsRepository['findAllocatableObligations']>>
+        obligations: AllocatableObligation[]
     ) {
         if (mode === 'oldest') {
             return allocatePaymentFIFO(paymentValue, obligations)
@@ -280,8 +281,8 @@ class MovementsRepository {
 
             return {
                 ...(await this.findMovementResult(tx, movement.id)),
-                allocatedValue: allocationResult.allocatedValue.toString(),
-                unallocatedValue: allocationResult.unallocatedValue.toString()
+                allocatedValue: Number(allocationResult.allocatedValue),
+                unallocatedValue: Number(allocationResult.unallocatedValue)
             }
         })
     }
@@ -449,7 +450,7 @@ class MovementsRepository {
                     description: data.description,
                     eventDate: paymentDate,
                     value: paymentValue,
-                    observations: data.observations ?? null
+                    observations: data.observations ?? existing.observations
                 }
             })
 
@@ -487,8 +488,8 @@ class MovementsRepository {
 
             return {
                 ...(await this.findMovementResult(tx, movementId)),
-                allocatedValue: allocationResult.allocatedValue.toString(),
-                unallocatedValue: allocationResult.unallocatedValue.toString()
+                allocatedValue: Number(allocationResult.allocatedValue),
+                unallocatedValue: Number(allocationResult.unallocatedValue)
             }
         })
     }
