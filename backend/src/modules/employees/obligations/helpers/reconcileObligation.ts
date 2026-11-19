@@ -16,6 +16,7 @@ type ReconciliationResult = {
 
 type ReconciliationOptions = {
     releaseExcess?: boolean
+    forceStatus?: boolean
 }
 
 export const reconcileObligation = async (
@@ -93,7 +94,8 @@ export const reconcileObligation = async (
 
     let status = obligation.status
 
-    if (!['cancelado', 'em_revisao'].includes(obligation.status) && currentAllocations.length > 0) {
+    if (!['cancelado', 'em_revisao'].includes(obligation.status) &&
+        (options.forceStatus || currentAllocations.length > 0)) {
         if (totalAllocated.gte(obligation.finalValue)) {
             status = 'pago'
         } else if (totalAllocated.gt(0)) {
