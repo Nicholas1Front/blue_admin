@@ -57,7 +57,7 @@ const paymentSchema = z.object({
     }
 })
 
-export const createMovementSchema = z.object({
+const movementObjectSchema = z.object({
     type: movementTypeSchema.refine(type => type !== 'pagamento', {
         message: 'Use the payment endpoint to register a payment'
     }),
@@ -68,20 +68,27 @@ export const createMovementSchema = z.object({
     value: optionalValue,
     obligationId: z.string().min(1).nullable().optional(),
     observations: z.string().trim().min(1).nullable().optional()
-}).refine(data => {
-    if (!data.referenceStart || !data.referenceEnd) return true
-    return data.referenceEnd >= data.referenceStart
-}, {
+})
+
+const validateMovementPeriod = <T extends {
+    referenceStart?: Date | null
+    referenceEnd?: Date | null
+}>(data: T) => !data.referenceStart || !data.referenceEnd || data.referenceEnd >= data.referenceStart
+
+export const createMovementSchema = movementObjectSchema.refine(validateMovementPeriod, {
     message: 'Reference end cannot be before reference start',
     path: ['referenceEnd']
 })
 
-export const updateMovementSchema = createMovementSchema.partial().refine(
+export const updateMovementSchema = movementObjectSchema.partial().refine(
     data => Object.keys(data).length > 0,
     { message: 'At least one field must be provided to update movement' }
 ).refine(data => data.type === undefined || data.type !== 'pagamento', {
     message: 'Payment movements must be updated through the payment endpoint',
     path: ['type']
+}).refine(validateMovementPeriod, {
+    message: 'Reference end cannot be before reference start',
+    path: ['referenceEnd']
 })
 
 export const createPaymentSchema = paymentSchema
