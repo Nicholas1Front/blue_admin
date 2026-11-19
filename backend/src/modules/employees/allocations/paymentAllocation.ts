@@ -13,6 +13,13 @@ export type AllocatableObligation = {
     allocations: AllocationRecord[]
 }
 
+export class PaymentAllocationError extends Error {
+    constructor(public readonly code: 'INVALID_ALLOCATION_OBLIGATION' | 'ALLOCATION_EXCEEDS_OUTSTANDING_VALUE') {
+        super(code)
+        this.name = 'PaymentAllocationError'
+    }
+}
+
 export type PaymentAllocation = {
     obligationId: string
     value: Prisma.Decimal
