@@ -211,7 +211,8 @@ class MovementsRepository {
             const engagement = await this.lockEngagement(tx, engagementId)
             if (!engagement) return null
 
-            const paymentDate = data.eventDate ?? new Date()
+            const shouldCreateFinancialTransaction = data.createFinancialTransaction !== false
+            const paymentDate = data.eventDate ?? (shouldCreateFinancialTransaction ? new Date() : null)
             const paymentValue = new Prisma.Decimal(data.value)
             const obligations = await this.findAllocatableObligations(tx, engagementId)
             const allocationResult = this.resolveAllocations(
@@ -223,7 +224,7 @@ class MovementsRepository {
 
             let transaction: { id: string } | null = null
 
-            if (data.createFinancialTransaction !== false) {
+            if (shouldCreateFinancialTransaction) {
                 if (!data.categoryId) return { categoryNotFound: true as const }
 
                 const category = await tx.financialCategory.findUnique({
@@ -241,7 +242,7 @@ class MovementsRepository {
                         description: data.description,
                         value: paymentValue,
                         type: 'expense',
-                        referenceDate: paymentDate,
+                        referenceDate: paymentDate ?? new Date(),
                         originId: null,
                         originType: null
                     },
@@ -438,7 +439,8 @@ class MovementsRepository {
                 await reconcileObligation(tx, obligationId, { forceStatus: true })
             }
 
-            const paymentDate = data.eventDate ?? existing.eventDate ?? new Date()
+            const requestedDate = data.eventDate !== undefined ? data.eventDate : existing.eventDate
+            const paymentDate = requestedDate ?? (shouldCreateFinancialTransaction ? new Date() : null)
             const paymentValue = new Prisma.Decimal(data.value)
             const obligations = await this.findAllocatableObligations(tx, engagementId)
             const allocationResult = this.resolveAllocations(
@@ -459,7 +461,7 @@ class MovementsRepository {
                             description: data.description,
                             value: paymentValue,
                             type: 'expense',
-                            referenceDate: paymentDate
+                            referenceDate: paymentDate ?? new Date()
                         }
                     })
                 } else {
