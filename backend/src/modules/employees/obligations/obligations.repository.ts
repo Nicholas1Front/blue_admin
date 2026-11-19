@@ -1,6 +1,7 @@
 import { Prisma, type EmployeeObligation } from '../../../generated/prisma/client.js'
 import { prisma } from '../../../shared/database/prisma.js'
 import type { createObligationDTO, updateObligationDTO } from './obligations.schema.js'
+import { reconcileObligation } from './helpers/reconcileObligation.js'
 
 const getMonthRange = (date: Date) => ({
     gte: new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), 1)),
@@ -150,9 +151,9 @@ class ObligationsRepository {
         nextEnd: Date | null
     ) {
         return prisma.$transaction(async tx => {
-            if (preventDuplicate && nextStart && nextEnd) {
-                await tx.$queryRaw`SELECT id FROM employee_engagements WHERE id = ${engagementId} FOR UPDATE`
+            await tx.$queryRaw`SELECT id FROM employee_engagements WHERE id = ${engagementId} FOR UPDATE`
 
+            if (preventDuplicate && nextStart && nextEnd) {
                 const duplicate = await tx.employeeObligation.findFirst({
                     where: {
                         engagementId,
@@ -181,23 +182,37 @@ class ObligationsRepository {
                 }
             })
 
+            const reconciliation = await reconcileObligation(tx, obligationId, {
+                releaseExcess: data.finalValue !== undefined
+            })
+
             await tx.employeeHistory.create({
                 data: {
                     employeeId,
                     engagementId,
                     eventType: 'obrigacao_atualizada',
                     description: 'Obrigação do vínculo atualizada.',
-                    metadata: { obligationId, changes },
+                    metadata: {
+                        obligationId,
+                        changes,
+                        ...(reconciliation.allocationAdjustments.length > 0
+                            ? { allocationAdjustments: reconciliation.allocationAdjustments }
+                            : {})
+                    },
                     eventDate: new Date()
                 }
+            })
+
+            const updatedObligation = await tx.employeeObligation.findUniqueOrThrow({
+                where: { id: obligation.id }
             })
 
             return {
                 duplicate: false as const,
                 obligation: {
-                    ...obligation,
-                    originalValue: Number(obligation.originalValue),
-                    finalValue: Number(obligation.finalValue)
+                    ...updatedObligation,
+                    originalValue: Number(updatedObligation.originalValue),
+                    finalValue: Number(updatedObligation.finalValue)
                 }
             }
         })
@@ -210,15 +225,71 @@ class ObligationsRepository {
         snapshot: Prisma.InputJsonObject
     ) {
         return prisma.$transaction(async tx => {
+            await tx.$queryRaw`SELECT id FROM employee_engagements WHERE id = ${engagementId} FOR UPDATE`
+
+            const obligation = await tx.employeeObligation.findFirstOrThrow({
+                where: { id: obligationId, engagementId },
+                include: {
+                    allocations: {
+                        select: {
+                            id: true,
+                            movementId: true,
+                            type: true,
+                            value: true,
+                            createdAt: true
+                        }
+                    },
+                    movements: {
+                        select: {
+                            id: true,
+                            type: true,
+                            description: true,
+                            eventDate: true,
+                            value: true
+                        }
+                    }
+                }
+            })
+
+            const linkedRecords = {
+                allocations: obligation.allocations.map(allocation => ({
+                    id: allocation.id,
+                    movementId: allocation.movementId,
+                    type: allocation.type,
+                    value: allocation.value.toString(),
+                    createdAt: allocation.createdAt.toISOString()
+                })),
+                movements: obligation.movements.map(movement => ({
+                    id: movement.id,
+                    type: movement.type,
+                    description: movement.description,
+                    eventDate: movement.eventDate?.toISOString() ?? null,
+                    value: movement.value?.toString() ?? null
+                }))
+            }
+
             await tx.employeeHistory.create({
                 data: {
                     employeeId,
                     engagementId,
                     eventType: 'obrigacao_excluida',
-                    description: 'Obrigação do vínculo excluída.',
-                    metadata: { obligationId, snapshot },
+                    description: 'Obrigação do vínculo excluída. Registros financeiros vinculados foram preservados.',
+                    metadata: {
+                        obligationId,
+                        snapshot,
+                        linkedRecords
+                    },
                     eventDate: new Date()
                 }
+            })
+
+            await tx.employeePaymentAllocation.deleteMany({
+                where: { obligationId }
+            })
+
+            await tx.employeeMovement.updateMany({
+                where: { obligationId },
+                data: { obligationId: null }
             })
 
             return tx.employeeObligation.delete({
