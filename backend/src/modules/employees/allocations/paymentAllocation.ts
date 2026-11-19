@@ -14,7 +14,7 @@ export type AllocatableObligation = {
 }
 
 export class PaymentAllocationError extends Error {
-    constructor(public readonly code: 'INVALID_ALLOCATION_OBLIGATION' | 'ALLOCATION_EXCEEDS_OUTSTANDING_VALUE' | 'PAYMENT_ALLOCATIONS_EXCEED_VALUE') {
+    constructor(public readonly code: 'INVALID_ALLOCATION_OBLIGATION' | 'ALLOCATION_EXCEEDS_OUTSTANDING_VALUE' | 'PAYMENT_ALLOCATIONS_EXCEED_VALUE' | 'DUPLICATE_ALLOCATION_OBLIGATION') {
         super(code)
         this.name = 'PaymentAllocationError'
     }
@@ -85,6 +85,11 @@ export const validateManualAllocations = (
     requestedAllocations: { obligationId: string; value: number }[],
     obligations: AllocatableObligation[]
 ) => {
+    const obligationIds = requestedAllocations.map(request => request.obligationId)
+    if (new Set(obligationIds).size !== obligationIds.length) {
+        throw new PaymentAllocationError('DUPLICATE_ALLOCATION_OBLIGATION')
+    }
+
     const availableObligations = new Map(
         obligations.map(obligation => [obligation.id, obligation])
     )
