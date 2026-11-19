@@ -213,6 +213,7 @@ Regras:
 - Não permitir alocar mais do que o saldo reconhecido de uma obrigação nem alocar obrigações de outro vínculo.
 - O backend calcula saldos com Decimal e valida/cria alocações dentro de uma transação, bloqueando o vínculo para evitar concorrência sobre o mesmo saldo.
 - `EmployeePaymentAllocation.type` identifica a origem da distribuição (`manual` ou `fifo`).
+- Não existe CRUD independente de alocações: elas são criadas, refeitas e removidas somente pelo fluxo do pagamento, na mesma transação.
 - A edição do pagamento refaz suas alocações e reconcilia os status das obrigações afetadas. A exclusão remove as alocações e libera os saldos; a transação financeira vinculada também é removida quando existir.
 - Excluir uma obrigação remove suas alocações, mas preserva pagamentos e transações financeiras; o valor correspondente volta a aparecer como não alocado. Movimentações não financeiras vinculadas diretamente à obrigação são preservadas e desvinculadas.
 - Cancelar uma obrigação libera suas alocações e preserva o pagamento de origem. Obrigações em revisão mantêm as alocações existentes, mas não recebem novas distribuições.
