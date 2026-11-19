@@ -121,9 +121,6 @@ class MovementsService {
             if (!result) {
                 throw new AppError('Payment not found for this engagement', 404, 'PAYMENT_NOT_FOUND')
             }
-            if ('missingFinancialTransaction' in result) {
-                throw new AppError('Payment is missing its financial transaction', 409, 'PAYMENT_TRANSACTION_NOT_FOUND')
-            }
             if ('categoryNotFound' in result) {
                 throw new AppError('Financial category not found', 404, 'CATEGORY_NOT_FOUND')
             }
@@ -146,9 +143,6 @@ class MovementsService {
 
         if (!result) {
             throw new AppError('Movement not found for this engagement', 404, 'MOVEMENT_NOT_FOUND')
-        }
-        if (typeof result === 'object' && 'missingFinancialTransaction' in result) {
-            throw new AppError('Payment is missing its financial transaction', 409, 'PAYMENT_TRANSACTION_NOT_FOUND')
         }
 
         return true
