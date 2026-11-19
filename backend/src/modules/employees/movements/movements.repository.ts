@@ -127,9 +127,19 @@ class MovementsRepository {
             }
         })
 
+        const allocatedValue = movement.allocations.reduce(
+            (total, allocation) => total.plus(allocation.value),
+            new Prisma.Decimal(0)
+        )
+        const paymentValue = movement.value ?? new Prisma.Decimal(0)
+
         return {
             ...movement,
             value: movement.value === null ? null : Number(movement.value),
+            allocatedValue: movement.type === 'pagamento' ? Number(allocatedValue) : null,
+            unallocatedValue: movement.type === 'pagamento'
+                ? Number(paymentValue.minus(allocatedValue))
+                : null,
             allocations: movement.allocations.map(allocation => ({
                 ...allocation,
                 value: Number(allocation.value),
@@ -209,7 +219,7 @@ class MovementsRepository {
             if (!category.active) return { categoryInactive: true as const }
             if (category.type !== 'expense') return { invalidCategoryType: true as const }
 
-            const paymentDate = data.eventDate ?? new Date()
+            const paymentDate = data.eventDate ?? existing.eventDate ?? new Date()
             const paymentValue = new Prisma.Decimal(data.value)
             const obligations = await this.findAllocatableObligations(tx, engagementId)
             const allocationResult = this.resolveAllocations(
@@ -385,7 +395,7 @@ class MovementsRepository {
             const existing = await tx.employeeMovement.findFirst({
                 where: { id: movementId, engagementId, type: 'pagamento' },
                 include: {
-                    allocations: { select: { obligationId: true } },
+                    allocations: { select: { obligationId: true, value: true, type: true } },
                     financialTransaction: { select: { id: true } }
                 }
             })
@@ -463,6 +473,11 @@ class MovementsRepository {
                         allocationMode: data.allocationMode,
                         allocatedValue: allocationResult.allocatedValue.toString(),
                         unallocatedValue: allocationResult.unallocatedValue.toString(),
+                        previousAllocations: existing.allocations.map(allocation => ({
+                            obligationId: allocation.obligationId,
+                            value: allocation.value.toString(),
+                            type: allocation.type
+                        })),
                         previousObligationIds,
                         affectedObligationIds
                     },
@@ -625,24 +640,36 @@ class MovementsRepository {
             }
         })
 
-        return movements.map(movement => ({
-            ...movement,
-            value: movement.value === null ? null : Number(movement.value),
-            allocations: movement.allocations.map(allocation => ({
-                ...allocation,
-                value: Number(allocation.value),
-                obligation: {
-                    ...allocation.obligation,
-                    finalValue: Number(allocation.obligation.finalValue)
-                }
-            })),
-            financialTransaction: movement.financialTransaction
-                ? {
-                    ...movement.financialTransaction,
-                    value: Number(movement.financialTransaction.value)
-                }
-                : null
-        }))
+        return movements.map(movement => {
+            const allocatedValue = movement.allocations.reduce(
+                (total, allocation) => total.plus(allocation.value),
+                new Prisma.Decimal(0)
+            )
+            const paymentValue = movement.value ?? new Prisma.Decimal(0)
+
+            return {
+                ...movement,
+                value: movement.value === null ? null : Number(movement.value),
+                allocatedValue: movement.type === 'pagamento' ? Number(allocatedValue) : null,
+                unallocatedValue: movement.type === 'pagamento'
+                    ? Number(paymentValue.minus(allocatedValue))
+                    : null,
+                allocations: movement.allocations.map(allocation => ({
+                    ...allocation,
+                    value: Number(allocation.value),
+                    obligation: {
+                        ...allocation.obligation,
+                        finalValue: Number(allocation.obligation.finalValue)
+                    }
+                })),
+                financialTransaction: movement.financialTransaction
+                    ? {
+                        ...movement.financialTransaction,
+                        value: Number(movement.financialTransaction.value)
+                    }
+                    : null
+            }
+        })
     }
 
     async findOpenObligations(engagementId: string) {
@@ -664,7 +691,10 @@ class MovementsRepository {
 
         return obligations.map(obligation => {
             const outstandingValue = getOutstandingValue(obligation)
-            const allocatedValue = obligation.finalValue.minus(outstandingValue)
+            const allocatedValue = obligation.allocations.reduce(
+                (total, allocation) => total.plus(allocation.value),
+                new Prisma.Decimal(0)
+            )
 
             return {
                 id: obligation.id,
