@@ -91,6 +91,9 @@ class TransactionsRepository{
             include : {
                 titheForService : {
                     select : { id : true }
+                },
+                employeeMovement : {
+                    select : { id : true }
                 }
             }
         })
