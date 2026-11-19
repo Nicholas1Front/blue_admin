@@ -14,7 +14,7 @@ export type AllocatableObligation = {
 }
 
 export class PaymentAllocationError extends Error {
-    constructor(public readonly code: 'INVALID_ALLOCATION_OBLIGATION' | 'ALLOCATION_EXCEEDS_OUTSTANDING_VALUE') {
+    constructor(public readonly code: 'INVALID_ALLOCATION_OBLIGATION' | 'ALLOCATION_EXCEEDS_OUTSTANDING_VALUE' | 'PAYMENT_ALLOCATIONS_EXCEED_VALUE') {
         super(code)
         this.name = 'PaymentAllocationError'
     }
@@ -53,7 +53,7 @@ export const allocatePaymentFIFO = (
     const allocations: PaymentAllocation[] = []
 
     const orderedObligations = [...obligations].sort((first, second) =>
-        compareDates(first.referenceStart, second.referenceStart) ||
+        compareDates(first.referenceStart ?? first.dueDate, second.referenceStart ?? second.dueDate) ||
         compareDates(first.dueDate, second.dueDate) ||
         first.createdAt.getTime() - second.createdAt.getTime() ||
         first.id.localeCompare(second.id)
