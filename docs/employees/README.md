@@ -1,6 +1,6 @@
 # Módulo de funcionários — Blue Admin
 
-Documentação de planejamento do módulo de funcionários. Este material consolida as decisões funcionais e técnicas discutidas antes da implementação.
+Documentação funcional e técnica do módulo de funcionários. Este material consolida as decisões acordadas e os fluxos já implementados.
 
 ## Documentos
 
@@ -15,7 +15,8 @@ O sistema não será, nesta etapa, um sistema completo de folha de pagamento nem
 
 ## Estado
 
-- Planejamento funcional e técnico; nenhuma implementação do módulo está autorizada por este documento.
-- O schema Prisma será desenhado e revisado em uma etapa separada.
-- Backend, testes, frontend e refinamentos serão desenvolvidos incrementalmente, com revisão entre as etapas.
-- As decisões explicitamente marcadas como pendentes deverão ser fechadas antes de implementar o respectivo fluxo.
+- Cadastro de funcionários, vínculos, obrigações, sugestões de competências, movimentações, pagamentos e alocações foram implementados no backend.
+- O schema Prisma já contém as relações necessárias; esta etapa não exigiu migration.
+- A integração financeira cria uma única despesa por pagamento quando habilitada e permite pagamentos históricos sem transação financeira.
+- Build e testes de integração ainda precisam ser executados no ambiente local antes de considerar o módulo validado.
+- Frontend e cenários de integração devem ser desenvolvidos/revisados incrementalmente.
