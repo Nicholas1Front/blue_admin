@@ -3,12 +3,12 @@ import { allowedMovementTypes } from '../shareds/allowedMovementTypes.js'
 
 const movementTypeSchema = z.enum(allowedMovementTypes)
 const optionalDate = z.coerce.date().nullable().optional()
-const optionalValue = z.coerce.number().finite().positive().nullable().optional()
+const optionalValue = z.coerce.number().finite().positive().multipleOf(0.01).nullable().optional()
 const allocationModeSchema = z.enum(['oldest', 'selected'])
 
 const selectedAllocationsSchema = z.array(z.object({
     obligationId: z.string().min(1),
-    value: z.coerce.number().finite().positive()
+    value: z.coerce.number().finite().positive().multipleOf(0.01)
 })).min(1).max(100).superRefine((allocations, context) => {
     const obligationIds = allocations.map(allocation => allocation.obligationId)
     if (new Set(obligationIds).size !== obligationIds.length) {
@@ -23,7 +23,7 @@ const selectedAllocationsSchema = z.array(z.object({
 const paymentSchema = z.object({
     categoryId: z.string().min(1),
     description: z.string().trim().min(1),
-    value: z.coerce.number().finite().positive(),
+    value: z.coerce.number().finite().positive().multipleOf(0.01),
     eventDate: z.coerce.date().optional(),
     observations: z.string().trim().min(1).nullable().optional(),
     allocationMode: allocationModeSchema,
@@ -46,8 +46,9 @@ const paymentSchema = z.object({
     }
 
     if (data.allocations) {
-        const allocatedValue = data.allocations.reduce((total, item) => total + item.value, 0)
-        if (allocatedValue > data.value) {
+        const allocatedCents = data.allocations.reduce((total, item) => total + Math.round(item.value * 100), 0)
+        const paymentCents = Math.round(data.value * 100)
+        if (allocatedCents > paymentCents) {
             context.addIssue({
                 code: 'custom',
                 message: 'Allocated value cannot exceed payment value',
