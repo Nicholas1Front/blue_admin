@@ -20,7 +20,7 @@ const selectedAllocationsSchema = z.array(z.object({
     }
 })
 
-const paymentSchema = z.object({
+const paymentObjectSchema = z.object({
     categoryId: z.string().min(1).optional(),
     createFinancialTransaction: z.boolean().optional(),
     description: z.string().trim().min(1),
@@ -29,15 +29,12 @@ const paymentSchema = z.object({
     observations: z.string().trim().min(1).nullable().optional(),
     allocationMode: allocationModeSchema,
     allocations: selectedAllocationsSchema.optional()
-}).superRefine((data, context) => {
-    if (data.createFinancialTransaction !== false && !data.categoryId) {
-        context.addIssue({
-            code: 'custom',
-            message: 'A financial category is required when creating a financial transaction',
-            path: ['categoryId']
-        })
-    }
+})
 
+const validatePaymentAllocations = (
+    data: z.infer<typeof paymentObjectSchema>,
+    context: z.RefinementCtx
+) => {
     if (data.allocationMode === 'selected' && !data.allocations) {
         context.addIssue({
             code: 'custom',
@@ -65,7 +62,22 @@ const paymentSchema = z.object({
             })
         }
     }
+}
+
+export const createPaymentSchema = paymentObjectSchema.superRefine((data, context) => {
+    if (data.createFinancialTransaction !== false && !data.categoryId) {
+        context.addIssue({
+            code: 'custom',
+            message: 'A financial category is required when creating a financial transaction',
+            path: ['categoryId']
+        })
+    }
+
+    validatePaymentAllocations(data, context)
 })
+
+export const updatePaymentSchema = paymentObjectSchema.superRefine(validatePaymentAllocations)
+
 
 const movementObjectSchema = z.object({
     type: movementTypeSchema.refine(type => type !== 'pagamento', {
@@ -100,9 +112,6 @@ export const updateMovementSchema = movementObjectSchema.partial().refine(
     message: 'Reference end cannot be before reference start',
     path: ['referenceEnd']
 })
-
-export const createPaymentSchema = paymentSchema
-export const updatePaymentSchema = paymentSchema
 
 export const findMovementsQuerySchema = z.object({
     type: movementTypeSchema.optional(),
