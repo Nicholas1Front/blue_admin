@@ -21,7 +21,8 @@ const selectedAllocationsSchema = z.array(z.object({
 })
 
 const paymentSchema = z.object({
-    categoryId: z.string().min(1),
+    categoryId: z.string().min(1).optional(),
+    createFinancialTransaction: z.boolean().optional(),
     description: z.string().trim().min(1),
     value: z.coerce.number().finite().positive().multipleOf(0.01),
     eventDate: z.coerce.date().optional(),
@@ -29,6 +30,14 @@ const paymentSchema = z.object({
     allocationMode: allocationModeSchema,
     allocations: selectedAllocationsSchema.optional()
 }).superRefine((data, context) => {
+    if (data.createFinancialTransaction !== false && !data.categoryId) {
+        context.addIssue({
+            code: 'custom',
+            message: 'A financial category is required when creating a financial transaction',
+            path: ['categoryId']
+        })
+    }
+
     if (data.allocationMode === 'selected' && !data.allocations) {
         context.addIssue({
             code: 'custom',
