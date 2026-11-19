@@ -25,7 +25,7 @@ const paymentSchema = z.object({
     createFinancialTransaction: z.boolean().optional(),
     description: z.string().trim().min(1),
     value: z.coerce.number().finite().positive().multipleOf(0.01),
-    eventDate: z.coerce.date().optional(),
+    eventDate: z.coerce.date().nullable().optional(),
     observations: z.string().trim().min(1).nullable().optional(),
     allocationMode: allocationModeSchema,
     allocations: selectedAllocationsSchema.optional()
