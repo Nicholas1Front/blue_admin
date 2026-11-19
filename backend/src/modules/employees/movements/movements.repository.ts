@@ -198,7 +198,7 @@ class MovementsRepository {
                         eventDate: movement.eventDate?.toISOString() ?? null,
                         obligationId: movement.obligationId
                     },
-                    eventDate: new Date()
+                    eventDate: movement.eventDate
                 }
             })
 
@@ -281,9 +281,14 @@ class MovementsRepository {
                         allocationMode: data.allocationMode,
                         allocatedValue: allocationResult.allocatedValue.toString(),
                         unallocatedValue: allocationResult.unallocatedValue.toString(),
+                        allocations: allocationResult.allocations.map(allocation => ({
+                            obligationId: allocation.obligationId,
+                            value: allocation.value.toString(),
+                            type: allocation.type
+                        })),
                         affectedObligationIds
                     },
-                    eventDate: new Date()
+                    eventDate: paymentDate
                 }
             })
 
@@ -526,10 +531,15 @@ class MovementsRepository {
                             value: allocation.value.toString(),
                             type: allocation.type
                         })),
+                        allocations: allocationResult.allocations.map(allocation => ({
+                            obligationId: allocation.obligationId,
+                            value: allocation.value.toString(),
+                            type: allocation.type
+                        })),
                         previousObligationIds,
                         affectedObligationIds
                     },
-                    eventDate: new Date()
+                    eventDate: paymentDate
                 }
             })
 
