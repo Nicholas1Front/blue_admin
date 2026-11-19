@@ -576,7 +576,7 @@ class MovementsRepository {
                         employeeId: engagement.employeeId,
                         engagementId,
                         eventType: 'pagamento_funcionario_excluido',
-                        description: 'Pagamento do funcionário excluído. A transação financeira e as alocações foram removidas.',
+                        description: 'Pagamento do funcionário excluído. As alocações e eventual transação financeira vinculada foram removidas.',
                         metadata: {
                             movementId,
                             payment: {
