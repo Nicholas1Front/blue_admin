@@ -287,6 +287,9 @@ class MovementsRepository {
                 include: { financialTransaction: { select: { id: true, referenceDate: true } } }
             })
             if (!existing) return null
+            if (existing.financialTransaction && data.categoryId !== undefined) {
+                return { transactionManagedSeparately: true as const }
+            }
 
             const obligationId = data.obligationId !== undefined ? data.obligationId : existing.obligationId
             if (obligationId) {

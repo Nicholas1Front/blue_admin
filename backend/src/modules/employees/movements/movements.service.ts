@@ -14,6 +14,7 @@ class MovementsService {
     private handlePaymentError(result: Record<string, unknown>) {
         if ('categoryNotFound' in result) throw new AppError('Financial category not found', 404, 'CATEGORY_NOT_FOUND')
         if ('financialTransactionNotFound' in result) throw new AppError('Financial transaction not found', 404, 'TRANSACTION_NOT_FOUND')
+        if ('transactionManagedSeparately' in result) throw new AppError('Update the shared financial transaction through the financial module', 409, 'TRANSACTION_MANAGED_SEPARATELY')
         if ('categoryInactive' in result) throw new AppError('Cannot register a payment with an inactive category', 400, 'CATEGORY_INACTIVE')
         if ('invalidCategoryType' in result) throw new AppError('Employee payments require an expense transaction', 400, 'INVALID_CATEGORY_TYPE')
         if ('financialTransactionExceeded' in result) throw new AppError('Linked employee movements cannot exceed the financial transaction value', 409, 'FINANCIAL_TRANSACTION_VALUE_EXCEEDED')
