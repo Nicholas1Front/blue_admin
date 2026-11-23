@@ -1,13 +1,5 @@
 import { Prisma } from '../../../generated/prisma/client.js'
 import { prisma } from '../../../shared/database/prisma.js'
-import { reconcileObligation } from '../obligations/helpers/reconcileObligation.js'
-import {
-    allocatePaymentFIFO,
-    getOutstandingValue,
-    PaymentAllocationError,
-    validateManualAllocations,
-    type AllocatableObligation
-} from '../allocations/paymentAllocation.js'
 import type {
     createMovementDTO,
     createPaymentDTO,
@@ -27,133 +19,48 @@ class MovementsRepository {
         })
     }
 
-    private async findAllocatableObligations(tx: Prisma.TransactionClient, engagementId: string) {
-        return tx.employeeObligation.findMany({
-            where: {
-                engagementId,
-                status: { in: ['pendente', 'parcial'] }
-            },
-            select: {
-                id: true,
-                finalValue: true,
-                referenceStart: true,
-                dueDate: true,
-                createdAt: true,
-                allocations: { select: { value: true } }
-            }
-        })
-    }
-
-    private async createAllocations(
+    private async validateFinancialTransaction(
         tx: Prisma.TransactionClient,
-        movementId: string,
-        allocations: { obligationId: string; value: Prisma.Decimal; type: 'fifo' | 'manual' }[]
+        financialTransactionId: string,
+        value: Prisma.Decimal,
+        movementId?: string
     ) {
-        const affectedObligationIds = new Set<string>()
+        await tx.$queryRaw`SELECT id FROM financial_transactions WHERE id = ${financialTransactionId} FOR UPDATE`
+        const transaction = await tx.financialTransaction.findUnique({
+            where: { id: financialTransactionId },
+            select: { value: true, type: true }
+        })
+        if (!transaction) return 'notFound' as const
+        if (transaction.type !== 'expense') return 'invalidType' as const
 
-        for (const allocation of allocations) {
-            await tx.employeePaymentAllocation.create({
-                data: {
-                    movementId,
-                    obligationId: allocation.obligationId,
-                    type: allocation.type,
-                    value: allocation.value
-                }
-            })
-            affectedObligationIds.add(allocation.obligationId)
-        }
-
-        for (const obligationId of affectedObligationIds) {
-            await reconcileObligation(tx, obligationId, { forceStatus: true })
-        }
-
-        return [...affectedObligationIds]
-    }
-
-    private resolveAllocations(
-        paymentValue: Prisma.Decimal,
-        mode: PaymentData['allocationMode'],
-        requestedAllocations: PaymentData['allocations'],
-        obligations: AllocatableObligation[]
-    ) {
-        if (mode === 'oldest') {
-            return allocatePaymentFIFO(paymentValue, obligations)
-        }
-
-        const result = validateManualAllocations(
-            requestedAllocations ?? [],
-            obligations
-        )
-
-        if (result.allocatedValue.gt(paymentValue)) {
-            throw new PaymentAllocationError('PAYMENT_ALLOCATIONS_EXCEED_VALUE')
-        }
-
-        return {
-            ...result,
-            unallocatedValue: paymentValue.minus(result.allocatedValue)
-        }
+        const aggregate = await tx.employeeMovement.aggregate({
+            where: { financialTransactionId, ...(movementId ? { id: { not: movementId } } : {}) },
+            _sum: { value: true }
+        })
+        const total = (aggregate._sum.value ?? new Prisma.Decimal(0)).plus(value)
+        return total.lte(transaction.value) ? 'valid' as const : 'exceeded' as const
     }
 
     private async findMovementResult(tx: Prisma.TransactionClient, movementId: string) {
         const movement = await tx.employeeMovement.findUniqueOrThrow({
             where: { id: movementId },
             include: {
-                allocations: {
-                    include: {
-                        obligation: {
-                            select: {
-                                id: true,
-                                type: true,
-                                title: true,
-                                referenceStart: true,
-                                referenceEnd: true,
-                                finalValue: true,
-                                status: true
-                            }
-                        }
-                    },
-                    orderBy: { createdAt: 'asc' }
+                obligation: {
+                    select: { id: true, type: true, title: true, referenceStart: true, referenceEnd: true, finalValue: true, status: true }
                 },
                 financialTransaction: {
-                    select: {
-                        id: true,
-                        categoryId: true,
-                        description: true,
-                        value: true,
-                        type: true,
-                        referenceDate: true
-                    }
+                    select: { id: true, categoryId: true, description: true, value: true, type: true, referenceDate: true }
                 }
             }
         })
-
-        const allocatedValue = movement.allocations.reduce(
-            (total, allocation) => total.plus(allocation.value),
-            new Prisma.Decimal(0)
-        )
-        const paymentValue = movement.value ?? new Prisma.Decimal(0)
-
         return {
             ...movement,
             value: movement.value === null ? null : Number(movement.value),
-            allocatedValue: movement.type === 'pagamento' ? Number(allocatedValue) : null,
-            unallocatedValue: movement.type === 'pagamento'
-                ? Number(paymentValue.minus(allocatedValue))
+            obligation: movement.obligation
+                ? { ...movement.obligation, finalValue: Number(movement.obligation.finalValue) }
                 : null,
-            allocations: movement.allocations.map(allocation => ({
-                ...allocation,
-                value: Number(allocation.value),
-                obligation: {
-                    ...allocation.obligation,
-                    finalValue: Number(allocation.obligation.finalValue)
-                }
-            })),
             financialTransaction: movement.financialTransaction
-                ? {
-                    ...movement.financialTransaction,
-                    value: Number(movement.financialTransaction.value)
-                }
+                ? { ...movement.financialTransaction, value: Number(movement.financialTransaction.value) }
                 : null
         }
     }
@@ -211,92 +118,64 @@ class MovementsRepository {
             const engagement = await this.lockEngagement(tx, engagementId)
             if (!engagement) return null
 
-            const shouldCreateFinancialTransaction = data.createFinancialTransaction !== false
-            const paymentDate = data.eventDate ?? (shouldCreateFinancialTransaction ? new Date() : null)
-            const paymentValue = new Prisma.Decimal(data.value)
-            const obligations = await this.findAllocatableObligations(tx, engagementId)
-            const allocationResult = this.resolveAllocations(
-                paymentValue,
-                data.allocationMode,
-                data.allocations,
-                obligations
-            )
-
-            let transaction: { id: string } | null = null
-
-            if (shouldCreateFinancialTransaction) {
-                if (!data.categoryId) return { categoryNotFound: true as const }
-
-                const category = await tx.financialCategory.findUnique({
-                    where: { id: data.categoryId },
-                    select: { id: true, type: true, active: true }
+            if (data.obligationId) {
+                const obligation = await tx.employeeObligation.findFirst({
+                    where: { id: data.obligationId, engagementId }, select: { id: true }
                 })
+                if (!obligation) return { invalidObligation: true as const }
+            }
 
+            let financialTransactionId = data.financialTransactionId ?? null
+            const value = new Prisma.Decimal(data.value)
+            const shouldCreateTransaction = !financialTransactionId && data.createFinancialTransaction !== false
+            const eventDate = data.eventDate ?? (shouldCreateTransaction ? new Date() : null)
+
+            if (financialTransactionId) {
+                const validation = await this.validateFinancialTransaction(tx, financialTransactionId, value)
+                if (validation === 'notFound') return { financialTransactionNotFound: true as const }
+                if (validation === 'invalidType') return { invalidCategoryType: true as const }
+                if (validation === 'exceeded') return { financialTransactionExceeded: true as const }
+            } else if (shouldCreateTransaction) {
+                if (!data.categoryId) return { categoryNotFound: true as const }
+                const category = await tx.financialCategory.findUnique({
+                    where: { id: data.categoryId }, select: { id: true, type: true, active: true }
+                })
                 if (!category) return { categoryNotFound: true as const }
                 if (!category.active) return { categoryInactive: true as const }
                 if (category.type !== 'expense') return { invalidCategoryType: true as const }
 
-                transaction = await tx.financialTransaction.create({
+                const transaction = await tx.financialTransaction.create({
                     data: {
-                        categoryId: category.id,
-                        description: data.description,
-                        value: paymentValue,
-                        type: 'expense',
-                        referenceDate: paymentDate ?? new Date(),
-                        originId: null,
-                        originType: null
+                        categoryId: category.id, description: data.description, value,
+                        type: 'expense', referenceDate: eventDate ?? new Date(),
+                        originId: null, originType: null
                     },
                     select: { id: true }
                 })
+                financialTransactionId = transaction.id
             }
 
             const movement = await tx.employeeMovement.create({
                 data: {
-                    engagementId,
-                    type: 'pagamento',
-                    description: data.description,
-                    eventDate: paymentDate,
-                    value: paymentValue,
-                    financialTransactionId: transaction?.id ?? null,
-                    observations: data.observations ?? null
+                    engagementId, type: 'pagamento', description: data.description,
+                    eventDate, value, obligationId: data.obligationId ?? null,
+                    financialTransactionId, observations: data.observations ?? null
                 }
             })
-
-            const affectedObligationIds = await this.createAllocations(
-                tx,
-                movement.id,
-                allocationResult.allocations
-            )
 
             await tx.employeeHistory.create({
                 data: {
-                    employeeId: engagement.employeeId,
-                    engagementId,
+                    employeeId: engagement.employeeId, engagementId,
                     eventType: 'pagamento_funcionario_registrado',
-                    description: 'Pagamento do funcionário registrado e alocado.',
+                    description: 'Pagamento do funcionário registrado.',
                     metadata: {
-                        movementId: movement.id,
-                        financialTransactionId: transaction?.id ?? null,
-                        value: paymentValue.toString(),
-                        allocationMode: data.allocationMode,
-                        allocatedValue: allocationResult.allocatedValue.toString(),
-                        unallocatedValue: allocationResult.unallocatedValue.toString(),
-                        allocations: allocationResult.allocations.map(allocation => ({
-                            obligationId: allocation.obligationId,
-                            value: allocation.value.toString(),
-                            type: allocation.type
-                        })),
-                        affectedObligationIds
+                        movementId: movement.id, financialTransactionId,
+                        obligationId: movement.obligationId, value: value.toString()
                     },
-                    eventDate: paymentDate
+                    eventDate
                 }
             })
-
-            return {
-                ...(await this.findMovementResult(tx, movement.id)),
-                allocatedValue: Number(allocationResult.allocatedValue),
-                unallocatedValue: Number(allocationResult.unallocatedValue)
-            }
+            return this.findMovementResult(tx, movement.id)
         })
     }
 
@@ -405,155 +284,78 @@ class MovementsRepository {
         return prisma.$transaction(async tx => {
             const engagement = await this.lockEngagement(tx, engagementId)
             if (!engagement) return null
-
             const existing = await tx.employeeMovement.findFirst({
                 where: { id: movementId, engagementId, type: 'pagamento' },
-                include: {
-                    allocations: { select: { obligationId: true, value: true, type: true } },
-                    financialTransaction: { select: { id: true, categoryId: true, referenceDate: true } }
-                }
+                include: { financialTransaction: { select: { id: true, referenceDate: true } } }
             })
-
             if (!existing) return null
 
-            const shouldCreateFinancialTransaction = data.createFinancialTransaction ??
-                Boolean(existing.financialTransaction)
-
-            let category: { id: string; type: string; active: boolean } | null = null
-
-            if (shouldCreateFinancialTransaction) {
-                const categoryId = data.categoryId ?? existing.financialTransaction?.categoryId
-                if (!categoryId) return { categoryNotFound: true as const }
-
-                category = await tx.financialCategory.findUnique({
-                    where: { id: categoryId },
-                    select: { id: true, type: true, active: true }
+            const obligationId = data.obligationId !== undefined ? data.obligationId : existing.obligationId
+            if (obligationId) {
+                const obligation = await tx.employeeObligation.findFirst({
+                    where: { id: obligationId, engagementId }, select: { id: true }
                 })
+                if (!obligation) return { invalidObligation: true as const }
+            }
 
+            const value = new Prisma.Decimal(data.value)
+            const shouldKeepTransaction = data.createFinancialTransaction ?? Boolean(existing.financialTransaction)
+            let financialTransactionId = shouldKeepTransaction ? existing.financialTransaction?.id ?? null : null
+
+            if (existing.financialTransaction && shouldKeepTransaction) {
+                const validation = await this.validateFinancialTransaction(
+                    tx, existing.financialTransaction.id, value, movementId
+                )
+                if (validation === 'notFound') return { financialTransactionNotFound: true as const }
+                if (validation === 'invalidType') return { invalidCategoryType: true as const }
+                if (validation === 'exceeded') return { financialTransactionExceeded: true as const }
+            } else if (!existing.financialTransaction && shouldKeepTransaction) {
+                if (!data.categoryId) return { categoryNotFound: true as const }
+                const category = await tx.financialCategory.findUnique({
+                    where: { id: data.categoryId }, select: { id: true, type: true, active: true }
+                })
                 if (!category) return { categoryNotFound: true as const }
-                if (!category.active && category.id !== existing.financialTransaction?.categoryId) {
-                    return { categoryInactive: true as const }
-                }
+                if (!category.active) return { categoryInactive: true as const }
                 if (category.type !== 'expense') return { invalidCategoryType: true as const }
+
+                const transaction = await tx.financialTransaction.create({
+                    data: {
+                        categoryId: category.id, description: data.description, value,
+                        type: 'expense',
+                        referenceDate: data.eventDate ?? existing.eventDate ?? new Date(),
+                        originId: null, originType: null
+                    },
+                    select: { id: true }
+                })
+                financialTransactionId = transaction.id
             }
 
-            const previousObligationIds = [...new Set(existing.allocations.map(item => item.obligationId))]
-
-            await tx.employeePaymentAllocation.deleteMany({
-                where: { movementId }
-            })
-
-            for (const obligationId of previousObligationIds) {
-                await reconcileObligation(tx, obligationId, { forceStatus: true })
-            }
-
-            const requestedDate = data.eventDate !== undefined
+            const eventDate = data.eventDate !== undefined
                 ? data.eventDate
                 : existing.eventDate ?? existing.financialTransaction?.referenceDate ?? null
-            const paymentDate = requestedDate ?? (shouldCreateFinancialTransaction ? new Date() : null)
-            const paymentValue = new Prisma.Decimal(data.value)
-            const obligations = await this.findAllocatableObligations(tx, engagementId)
-            const allocationResult = this.resolveAllocations(
-                paymentValue,
-                data.allocationMode,
-                data.allocations,
-                obligations
-            )
-
-            let financialTransactionId = shouldCreateFinancialTransaction
-                ? existing.financialTransaction?.id ?? null
-                : null
-
-            if (shouldCreateFinancialTransaction && category) {
-                if (financialTransactionId) {
-                    await tx.financialTransaction.update({
-                        where: { id: financialTransactionId },
-                        data: {
-                            categoryId: category.id,
-                            description: data.description,
-                            value: paymentValue,
-                            type: 'expense',
-                            referenceDate: paymentDate ?? new Date()
-                        }
-                    })
-                } else {
-                    const transaction = await tx.financialTransaction.create({
-                        data: {
-                            categoryId: category.id,
-                            description: data.description,
-                            value: paymentValue,
-                            type: 'expense',
-                            referenceDate: paymentDate ?? new Date(),
-                            originId: null,
-                            originType: null
-                        },
-                        select: { id: true }
-                    })
-                    financialTransactionId = transaction.id
-                }
-            }
-
             await tx.employeeMovement.update({
                 where: { id: movementId },
                 data: {
-                    description: data.description,
-                    eventDate: paymentDate,
-                    value: paymentValue,
+                    description: data.description, eventDate, value, obligationId,
                     financialTransactionId,
                     observations: data.observations !== undefined ? data.observations : existing.observations
                 }
             })
-
-            if (!shouldCreateFinancialTransaction && existing.financialTransaction) {
-                await tx.financialTransaction.delete({
-                    where: { id: existing.financialTransaction.id }
-                })
-                financialTransactionId = null
-            }
-
-            const affectedObligationIds = await this.createAllocations(
-                tx,
-                movementId,
-                allocationResult.allocations
-            )
-
             await tx.employeeHistory.create({
                 data: {
-                    employeeId: engagement.employeeId,
-                    engagementId,
+                    employeeId: engagement.employeeId, engagementId,
                     eventType: 'pagamento_funcionario_atualizado',
-                    description: 'Pagamento do funcionário atualizado e realocado.',
+                    description: 'Pagamento do funcionário atualizado.',
                     metadata: {
-                        movementId,
-                        previousFinancialTransactionId: existing.financialTransaction?.id ?? null,
-                        financialTransactionId,
-                        previousValue: existing.value?.toString() ?? null,
-                        value: paymentValue.toString(),
-                        allocationMode: data.allocationMode,
-                        allocatedValue: allocationResult.allocatedValue.toString(),
-                        unallocatedValue: allocationResult.unallocatedValue.toString(),
-                        previousAllocations: existing.allocations.map(allocation => ({
-                            obligationId: allocation.obligationId,
-                            value: allocation.value.toString(),
-                            type: allocation.type
-                        })),
-                        allocations: allocationResult.allocations.map(allocation => ({
-                            obligationId: allocation.obligationId,
-                            value: allocation.value.toString(),
-                            type: allocation.type
-                        })),
-                        previousObligationIds,
-                        affectedObligationIds
+                        movementId, previousValue: existing.value?.toString() ?? null,
+                        value: value.toString(), previousObligationId: existing.obligationId,
+                        obligationId, previousFinancialTransactionId: existing.financialTransaction?.id ?? null,
+                        financialTransactionId
                     },
-                    eventDate: paymentDate
+                    eventDate
                 }
             })
-
-            return {
-                ...(await this.findMovementResult(tx, movementId)),
-                allocatedValue: Number(allocationResult.allocatedValue),
-                unallocatedValue: Number(allocationResult.unallocatedValue)
-            }
+            return this.findMovementResult(tx, movementId)
         })
     }
 
@@ -561,97 +363,27 @@ class MovementsRepository {
         return prisma.$transaction(async tx => {
             const engagement = await this.lockEngagement(tx, engagementId)
             if (!engagement) return null
-
             const movement = await tx.employeeMovement.findFirst({
-                where: { id: movementId, engagementId },
-                include: {
-                    allocations: {
-                        select: {
-                            id: true,
-                            obligationId: true,
-                            value: true,
-                            type: true
-                        }
-                    },
-                    financialTransaction: {
-                        select: {
-                            id: true,
-                            description: true,
-                            value: true,
-                            categoryId: true,
-                            referenceDate: true
-                        }
-                    }
-                }
+                where: { id: movementId, engagementId }
             })
-
             if (!movement) return null
-
-            if (movement.type === 'pagamento') {
-                const affectedObligationIds = [...new Set(movement.allocations.map(item => item.obligationId))]
-
-                await tx.employeeHistory.create({
-                    data: {
-                        employeeId: engagement.employeeId,
-                        engagementId,
-                        eventType: 'pagamento_funcionario_excluido',
-                        description: 'Pagamento do funcionário excluído. As alocações e eventual transação financeira vinculada foram removidas.',
-                        metadata: {
-                            movementId,
-                            payment: {
-                                value: movement.value?.toString() ?? null,
-                                description: movement.description,
-                                eventDate: movement.eventDate?.toISOString() ?? null,
-                                financialTransactionId: movement.financialTransaction?.id ?? null,
-                                financialDescription: movement.financialTransaction?.description ?? null,
-                                financialValue: movement.financialTransaction?.value.toString() ?? null,
-                                categoryId: movement.financialTransaction?.categoryId ?? null,
-                                referenceDate: movement.financialTransaction?.referenceDate.toISOString() ?? null
-                            },
-                            allocations: movement.allocations.map(item => ({
-                                obligationId: item.obligationId,
-                                value: item.value.toString(),
-                                type: item.type
-                            })),
-                            affectedObligationIds
-                        },
-                        eventDate: new Date()
-                    }
-                })
-
-                await tx.employeePaymentAllocation.deleteMany({ where: { movementId } })
-                await tx.employeeMovement.delete({ where: { id: movementId } })
-                if (movement.financialTransaction) {
-                    await tx.financialTransaction.delete({
-                        where: { id: movement.financialTransaction.id }
-                    })
-                }
-
-                for (const obligationId of affectedObligationIds) {
-                    await reconcileObligation(tx, obligationId, { forceStatus: true })
-                }
-
-                return true
-            }
 
             await tx.employeeHistory.create({
                 data: {
-                    employeeId: engagement.employeeId,
-                    engagementId,
-                    eventType: 'movimento_funcionario_excluido',
-                    description: 'Movimentação do funcionário excluída.',
+                    employeeId: engagement.employeeId, engagementId,
+                    eventType: movement.type === 'pagamento' ? 'pagamento_funcionario_excluido' : 'movimento_funcionario_excluido',
+                    description: movement.type === 'pagamento'
+                        ? 'Pagamento do funcionário excluído. A transação financeira vinculada foi preservada.'
+                        : 'Movimentação do funcionário excluída.',
                     metadata: {
-                        movementId,
-                        type: movement.type,
-                        description: movement.description,
+                        movementId, type: movement.type, description: movement.description,
                         eventDate: movement.eventDate?.toISOString() ?? null,
-                        obligationId: movement.obligationId,
-                        value: movement.value?.toString() ?? null
+                        obligationId: movement.obligationId, value: movement.value?.toString() ?? null,
+                        financialTransactionId: movement.financialTransactionId
                     },
                     eventDate: new Date()
                 }
             })
-
             await tx.employeeMovement.delete({ where: { id: movementId } })
             return true
         })
@@ -660,7 +392,6 @@ class MovementsRepository {
     async findMovementsByEngagement(engagementId: string, filters: findMovementsQueryDTO) {
         const startDate = filters.startDate ? new Date(filters.startDate) : undefined
         const endDate = filters.endDate ? new Date(filters.endDate) : undefined
-
         startDate?.setUTCHours(0, 0, 0, 0)
         endDate?.setUTCHours(23, 59, 59, 999)
 
@@ -675,127 +406,37 @@ class MovementsRepository {
                     }
                 } : {})
             },
-            orderBy: [
-                { eventDate: 'desc' },
-                { createdAt: 'desc' },
-                { id: 'asc' }
-            ],
-            include: {
-                allocations: {
-                    include: {
-                        obligation: {
-                            select: {
-                                id: true,
-                                type: true,
-                                title: true,
-                                referenceStart: true,
-                                referenceEnd: true,
-                                finalValue: true,
-                                status: true
-                            }
-                        }
-                    },
-                    orderBy: { createdAt: 'asc' }
-                },
-                financialTransaction: {
-                    select: {
-                        id: true,
-                        categoryId: true,
-                        description: true,
-                        value: true,
-                        type: true,
-                        referenceDate: true
-                    }
-                }
-            }
+            orderBy: [{ eventDate: 'desc' }, { createdAt: 'desc' }, { id: 'asc' }],
+            select: { id: true }
         })
-
-        return movements.map(movement => {
-            const allocatedValue = movement.allocations.reduce(
-                (total, allocation) => total.plus(allocation.value),
-                new Prisma.Decimal(0)
-            )
-            const paymentValue = movement.value ?? new Prisma.Decimal(0)
-
-            return {
-                ...movement,
-                value: movement.value === null ? null : Number(movement.value),
-                allocatedValue: movement.type === 'pagamento' ? Number(allocatedValue) : null,
-                unallocatedValue: movement.type === 'pagamento'
-                    ? Number(paymentValue.minus(allocatedValue))
-                    : null,
-                allocations: movement.allocations.map(allocation => ({
-                    ...allocation,
-                    value: Number(allocation.value),
-                    obligation: {
-                        ...allocation.obligation,
-                        finalValue: Number(allocation.obligation.finalValue)
-                    }
-                })),
-                financialTransaction: movement.financialTransaction
-                    ? {
-                        ...movement.financialTransaction,
-                        value: Number(movement.financialTransaction.value)
-                    }
-                    : null
-            }
-        })
+        return Promise.all(movements.map(({ id }) =>
+            prisma.$transaction(tx => this.findMovementResult(tx, id))
+        ))
     }
 
     async findOpenObligations(engagementId: string) {
         const obligations = await prisma.employeeObligation.findMany({
-            where: {
-                engagementId,
-                status: { in: ['pendente', 'parcial'] }
-            },
+            where: { engagementId, status: { in: ['pendente', 'parcial'] } },
             include: {
-                allocations: { select: { value: true } }
+                movements: { where: { type: 'pagamento' }, select: { value: true } }
             },
-            orderBy: [
-                { referenceStart: 'asc' },
-                { dueDate: 'asc' },
-                { createdAt: 'asc' },
-                { id: 'asc' }
-            ]
+            orderBy: [{ referenceStart: 'asc' }, { dueDate: 'asc' }, { createdAt: 'asc' }, { id: 'asc' }]
         })
-
         return obligations.map(obligation => {
-            const outstandingValue = getOutstandingValue(obligation)
-            const allocatedValue = obligation.allocations.reduce(
-                (total, allocation) => total.plus(allocation.value),
-                new Prisma.Decimal(0)
+            const paidValue = obligation.movements.reduce(
+                (total, movement) => total.plus(movement.value ?? 0), new Prisma.Decimal(0)
             )
-
+            const outstandingValue = Prisma.Decimal.max(
+                new Prisma.Decimal(0), obligation.finalValue.minus(paidValue)
+            )
             return {
-                id: obligation.id,
-                type: obligation.type,
-                title: obligation.title,
-                referenceStart: obligation.referenceStart,
-                referenceEnd: obligation.referenceEnd,
-                dueDate: obligation.dueDate,
-                status: obligation.status,
-                finalValue: Number(obligation.finalValue),
-                allocatedValue: Number(allocatedValue),
+                id: obligation.id, type: obligation.type, title: obligation.title,
+                referenceStart: obligation.referenceStart, referenceEnd: obligation.referenceEnd,
+                dueDate: obligation.dueDate, status: obligation.status,
+                finalValue: Number(obligation.finalValue), paidValue: Number(paidValue),
                 outstandingValue: Number(outstandingValue)
             }
-        }).filter(obligation => obligation.outstandingValue > 0).sort((first, second) => {
-            const firstDate = first.referenceStart ?? first.dueDate
-            const secondDate = second.referenceStart ?? second.dueDate
-
-            if (firstDate === null && secondDate !== null) return 1
-            if (firstDate !== null && secondDate === null) return -1
-            if (firstDate && secondDate && firstDate.getTime() !== secondDate.getTime()) {
-                return firstDate.getTime() - secondDate.getTime()
-            }
-
-            if (first.dueDate && second.dueDate && first.dueDate.getTime() !== second.dueDate.getTime()) {
-                return first.dueDate.getTime() - second.dueDate.getTime()
-            }
-            if (first.dueDate === null && second.dueDate !== null) return 1
-            if (first.dueDate !== null && second.dueDate === null) return -1
-
-            return first.id.localeCompare(second.id)
-        })
+        }).filter(obligation => obligation.outstandingValue > 0)
     }
 
     async findMovementById(engagementId: string, movementId: string) {
