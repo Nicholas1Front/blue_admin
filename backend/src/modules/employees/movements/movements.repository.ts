@@ -26,11 +26,16 @@ class MovementsRepository {
         await tx.$queryRaw`SELECT id FROM financial_transactions WHERE id = ${financialTransactionId} FOR UPDATE`
         const transaction = await tx.financialTransaction.findUnique({
             where: { id: financialTransactionId },
-            select: { value: true, type: true, originId: true, originType: true }
+            select: {
+                value: true, type: true, originId: true, originType: true,
+                titheForService: { select: { id: true } }
+            }
         })
         if (!transaction) return 'notFound' as const
         if (transaction.type !== 'expense') return 'invalidType' as const
-        if (transaction.originId !== null || transaction.originType !== null) return 'invalidOrigin' as const
+        if (transaction.originId !== null || transaction.originType !== null || transaction.titheForService !== null) {
+            return 'invalidOrigin' as const
+        }
 
         const aggregate = await tx.employeeMovement.aggregate({
             where: { financialTransactionId, ...(movementId ? { id: { not: movementId } } : {}) },
