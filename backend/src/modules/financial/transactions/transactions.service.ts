@@ -55,14 +55,6 @@ class TransactionsService{
             throw new AppError('Transaction not found', 404, 'TRANSACTION_NOT_FOUND')
         }
 
-        if(transactionExists.employeeMovement !== null){
-            throw new AppError(
-                'Employee payment transactions must be changed through the employees module',
-                409,
-                'TRANSACTION_LINKED_TO_EMPLOYEE_PAYMENT'
-            )
-        }
-
         if(cleanedData.categoryId !== undefined){
             const categoryExists = await categoryRepository.findCategoryById(cleanedData.categoryId)
 
@@ -78,6 +70,13 @@ class TransactionsService{
         }
 
         const transaction = await transactionsRepository.updateTransaction(id, cleanedData)
+
+        if (transaction && 'invalidEmployeeTransactionType' in transaction) {
+            throw new AppError('Employee payment transactions must remain expenses', 409, 'INVALID_EMPLOYEE_TRANSACTION_TYPE')
+        }
+        if (transaction && 'valueBelowEmployeeMovements' in transaction) {
+            throw new AppError('Transaction value cannot be lower than the sum of linked employee movements', 409, 'TRANSACTION_VALUE_BELOW_EMPLOYEE_MOVEMENTS')
+        }
 
         if(!transaction){
             throw new AppError('Internal server error', 500, 'INTERNAL_SERVER_ERROR')
@@ -137,7 +136,7 @@ class TransactionsService{
             transactionExists.originId !== null ||
             transactionExists.originType !== null ||
             transactionExists.titheForService !== null ||
-            transactionExists.employeeMovement !== null
+            transactionExists.employeeMovements.length > 0
         ) {
             throw new AppError(
                 'Cannot delete a transaction while it is linked to a service, employee payment, or another origin',
@@ -147,6 +146,10 @@ class TransactionsService{
         }
 
         const result = await transactionsRepository.deleteTransaction(id)
+
+        if (result && 'linkedToEmployeeMovements' in result) {
+            throw new AppError('Cannot delete a transaction linked to employee movements', 409, 'TRANSACTION_LINKED_TO_EMPLOYEE_MOVEMENTS')
+        }
 
         if(!result){
             throw new AppError('Internal server error', 500, 'INTERNAL_SERVER_ERROR')

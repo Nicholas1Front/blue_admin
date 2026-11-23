@@ -1,3 +1,4 @@
+import { Prisma } from '../../../generated/prisma/client.js';
 import {prisma} from '../../../shared/database/prisma.js';
 
 class TransactionsRepository{
@@ -21,55 +22,48 @@ class TransactionsRepository{
         })
     }
 
-    async updateTransaction(
-        id : string,
-        data : any
-    ){
+    async updateTransaction(id: string, data: any) {
         return prisma.$transaction(async tx => {
-            const existing = await tx.financialTransaction.findUnique({
-                where: {id}
-            })
+            await tx.$queryRaw`SELECT id FROM financial_transactions WHERE id = ${id} FOR UPDATE`
+            const existing = await tx.financialTransaction.findUnique({ where: { id } })
+            if (!existing) return null
 
-            if(!existing){
-                return null
+            const linkedMovements = await tx.employeeMovement.count({ where: { financialTransactionId: id } })
+            const nextType = data.type ?? existing.type
+            if (linkedMovements > 0 && nextType !== 'expense') {
+                return { invalidEmployeeTransactionType: true as const }
             }
 
+            const linkedValue = await tx.employeeMovement.aggregate({
+                where: { financialTransactionId: id }, _sum: { value: true }
+            })
+            const movementsTotal = linkedValue._sum.value ?? new Prisma.Decimal(0)
+            const nextValue = data.value !== undefined ? new Prisma.Decimal(data.value) : existing.value
+            if (nextValue.lt(movementsTotal)) return { valueBelowEmployeeMovements: true as const }
+
             const updated = await tx.financialTransaction.update({
-                where : { id },
-                data : {
-                    categoryId : data.categoryId,
-                    description : data.description,
-                    value : data.value,
-                    type : data.type,
-                    referenceDate : data.referenceDate
+                where: { id },
+                data: {
+                    ...(data.categoryId !== undefined ? { categoryId: data.categoryId } : {}),
+                    ...(data.description !== undefined ? { description: data.description } : {}),
+                    ...(data.value !== undefined ? { value: data.value } : {}),
+                    ...(data.type !== undefined ? { type: data.type } : {}),
+                    ...(data.referenceDate !== undefined ? { referenceDate: data.referenceDate } : {})
                 }
             })
 
-            if(
-                existing.originId !== null &&
-                (existing.originType === 'services' || existing.originType === 'service_tithe')
-            ){
+            if (existing.originId !== null && (existing.originType === 'services' || existing.originType === 'service_tithe')) {
                 const changes: string[] = []
-
-                if(data.description !== undefined && data.description !== existing.description){
-                    changes.push(`descrição: "${existing.description}" → "${updated.description}"`)
-                }
-                if(data.value !== undefined && Number(data.value) !== Number(existing.value)){
-                    changes.push(`valor: R$ ${Number(existing.value).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})} → R$ ${Number(updated.value).toLocaleString('pt-BR', {minimumFractionDigits: 2, maximumFractionDigits: 2})}`)
-                }
-                if(data.type !== undefined && data.type !== existing.type){
-                    changes.push(`tipo: ${existing.type === 'income' ? 'entrada' : 'despesa'} → ${updated.type === 'income' ? 'entrada' : 'despesa'}`)
-                }
-                if(data.categoryId !== undefined && data.categoryId !== existing.categoryId){
-                    changes.push('categoria alterada')
-                }
-                if(data.referenceDate !== undefined && data.referenceDate.getTime() !== existing.referenceDate.getTime()){
-                    const previousDate = existing.referenceDate.toLocaleDateString('pt-BR', {timeZone: 'UTC'})
-                    const nextDate = updated.referenceDate.toLocaleDateString('pt-BR', {timeZone: 'UTC'})
+                if (data.description !== undefined && data.description !== existing.description) changes.push(`descrição: "${existing.description}" → "${updated.description}"`)
+                if (data.value !== undefined && Number(data.value) !== Number(existing.value)) changes.push(`valor: R$ ${Number(existing.value).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })} → R$ ${Number(updated.value).toLocaleString('pt-BR', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`)
+                if (data.type !== undefined && data.type !== existing.type) changes.push(`tipo: ${existing.type === 'income' ? 'entrada' : 'despesa'} → ${updated.type === 'income' ? 'entrada' : 'despesa'}`)
+                if (data.categoryId !== undefined && data.categoryId !== existing.categoryId) changes.push('categoria alterada')
+                if (data.referenceDate !== undefined && data.referenceDate.getTime() !== existing.referenceDate.getTime()) {
+                    const previousDate = existing.referenceDate.toLocaleDateString('pt-BR', { timeZone: 'UTC' })
+                    const nextDate = updated.referenceDate.toLocaleDateString('pt-BR', { timeZone: 'UTC' })
                     changes.push(`data de referência: ${previousDate} → ${nextDate}`)
                 }
-
-                if(changes.length > 0){
+                if (changes.length > 0) {
                     const isTithe = existing.originType === 'service_tithe'
                     await tx.serviceHistory.create({
                         data: {
@@ -80,7 +74,6 @@ class TransactionsRepository{
                     })
                 }
             }
-
             return updated
         })
     }
@@ -92,7 +85,7 @@ class TransactionsRepository{
                 titheForService : {
                     select : { id : true }
                 },
-                employeeMovement : {
+                employeeMovements : {
                     select : { id : true }
                 }
             }
@@ -243,9 +236,12 @@ class TransactionsRepository{
         };
     }
 
-    async deleteTransaction(id : string){
-        return prisma.financialTransaction.delete({
-            where : { id }
+    async deleteTransaction(id: string) {
+        return prisma.$transaction(async tx => {
+            await tx.$queryRaw`SELECT id FROM financial_transactions WHERE id = ${id} FOR UPDATE`
+            const linkedMovements = await tx.employeeMovement.count({ where: { financialTransactionId: id } })
+            if (linkedMovements > 0) return { linkedToEmployeeMovements: true as const }
+            return tx.financialTransaction.delete({ where: { id } })
         })
     }
 }
