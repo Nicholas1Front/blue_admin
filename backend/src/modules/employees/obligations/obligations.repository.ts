@@ -307,7 +307,7 @@ class ObligationsRepository {
     }
 
     async findBenefitContext(engagementId: string) {
-        return prisma.employeeEngagement.findUnique({
+        const context = await prisma.employeeEngagement.findUnique({
             where: { id: engagementId },
             select: {
                 id: true,
@@ -329,7 +329,6 @@ class ObligationsRepository {
                     ]
                 },
                 obligations: {
-                    where: { type: { in: ['salario', 'ferias', 'decimo_terceiro'] } },
                     select: {
                         id: true,
                         type: true,
@@ -337,14 +336,24 @@ class ObligationsRepository {
                         referenceStart: true,
                         referenceEnd: true,
                         dueDate: true,
+                        createdAt: true,
                         originalValue: true,
                         finalValue: true,
                         status: true,
                         movements: { select: { id: true, type: true, value: true } }
                     }
+                },
+                movements: {
+                    where: { type: 'pagamento', obligationId: null },
+                    select: { id: true, value: true }
                 }
             }
         })
+
+        if (!context) return null
+
+        const { movements, ...engagement } = context
+        return { ...engagement, genericPayments: movements }
     }
 
     async createObligationsBatch(
