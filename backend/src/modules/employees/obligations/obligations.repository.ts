@@ -340,7 +340,11 @@ class ObligationsRepository {
                         originalValue: true,
                         finalValue: true,
                         status: true,
-                        movements: { select: { id: true, type: true, value: true } }
+                        _count: { select: { movements: true } },
+                        movements: {
+                            where: { type: 'pagamento' },
+                            select: { id: true, type: true, value: true }
+                        }
                     }
                 },
                 movements: {
