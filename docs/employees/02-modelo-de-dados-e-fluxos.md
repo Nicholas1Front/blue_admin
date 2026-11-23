@@ -155,9 +155,9 @@ O schema atual contém `FinancialTransaction` com:
 
 O módulo de funcionários deverá manter `financialTransactionId` opcional em EmployeeMovement. A transação financeira representa a saída de dinheiro; cada movimentação do funcionário registra a parte do pagamento destinada a uma obrigação, quando houver.
 
-Ao criar um pagamento integrado, a movimentação, a transação financeira e as alocações precisam ser persistidas de maneira consistente. Para pagamento histórico sem transação, `financialTransactionId` permanece nulo. Pagamentos atuais integrados criam uma única transação de despesa com categoria ativa do tipo `expense`. A API financeira bloqueia edição e exclusão direta de transações vinculadas a EmployeeMovement; as correções devem passar pelo módulo de funcionários.
+Ao criar um pagamento integrado, a movimentação e a transação financeira devem ser persistidas de maneira consistente. Para pagamento histórico sem transação, `financialTransactionId` permanece nulo. Pagamentos atuais integrados criam uma transação de despesa com categoria ativa do tipo `expense`. Uma mesma transação pode ser compartilhada por vários EmployeeMovements.
 
-Não criar uma transação adicional ao distribuir um pagamento entre obrigações. Excedentes permanecem sem alocação, sem criação automática de obrigação.
+A soma dos valores dos movimentos vinculados não pode superar o valor da transação. A API financeira pode editar descrição, data e categoria mantendo o tipo despesa, mas não pode reduzir o valor abaixo da soma vinculada, converter a transação em entrada ou excluí-la enquanto houver movimentos relacionados. Excluir um movimento não exclui a transação.
 
 ## 6. Fluxos principais de backend
 
@@ -347,15 +347,15 @@ A prioridade inicial é banco de dados e backend.
 9. Aplicar desconto à competência escolhida, diferente da data do evento.
 10. Registrar pagamento histórico sem FinancialTransaction.
 11. Registrar pagamento integrado ao financeiro.
-12. Quitar várias obrigações com uma movimentação.
+12. Registrar vários movimentos para destinar uma transferência a obrigações diferentes.
 13. Quitar uma obrigação com pagamentos em datas diferentes.
-14. Impedir alocação acima do saldo.
-15. Destinar excedente a outra obrigação.
-16. Criar obrigação de bonificação com competência escolhida e alocar o excedente.
+14. Impedir que a soma dos movimentos vinculados ultrapasse o valor da transação financeira.
+15. Registrar valores não destinados em movimentos sem obrigação vinculada.
+16. Criar uma obrigação de bonificação manualmente quando o responsável decidir reconhecer esse valor.
 17. Consultar férias/13º já registrados e não sugerir duplicação.
 18. Apresentar saldo de obrigação parcialmente paga.
 19. Informar insuficiência de dados históricos para cálculo.
-20. Garantir que a alocação não crie uma segunda saída financeira.
+20. Garantir que movimentos que compartilham uma transação não criem saídas financeiras duplicadas.
 
 ## 10. Regra de trabalho desta implementação
 

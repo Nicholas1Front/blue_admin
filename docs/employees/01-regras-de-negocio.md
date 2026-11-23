@@ -313,7 +313,7 @@ O módulo financeiro já possui `FinancialTransaction`, com `originType` e `orig
 Regras de integração:
 - Uma movimentação de pagamento pode ter `financialTransactionId` nulo ou apontar para uma transação financeira existente/criada no mesmo fluxo.
 - Uma saída financeira representa o dinheiro efetivamente pago.
-- As alocações apenas distribuem essa saída entre obrigações; não criam novas despesas.
+- Os movimentos vinculados identificam as partes dessa transferência destinadas às obrigações; não criam novas despesas.
 - A aplicação futura de um valor já pago não pode gerar uma segunda transação financeira.
 - Uma transação pode ser referenciada por vários movimentos. A soma dos movimentos vinculados deve permanecer menor ou igual ao valor da transação.
 
