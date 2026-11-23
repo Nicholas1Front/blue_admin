@@ -192,7 +192,7 @@ const buildSuggestion = (
     }
 
     if (paymentStatusMismatch) {
-        warnings.push('The obligation status is inconsistent with its linked payment movements. Review the financial records before changing it.')
+        warnings.push('The obligation status is inconsistent with the recorded payment amounts. Review the financial records before changing it.')
     }
 
     if (existing?.status === 'pago' && paidValueFromMovements === 0) {
@@ -221,7 +221,7 @@ const buildSuggestion = (
     }
 
     const hasFinancialRecords = Boolean(existing && (
-        existing.movements.length > 0 || genericPaidValue > 0
+        (existing._count?.movements ?? existing.movements.length) > 0 || genericPaidValue > 0
     ))
     const hasManualAdjustment = existing !== undefined &&
         recognizedOriginalValue !== null &&
