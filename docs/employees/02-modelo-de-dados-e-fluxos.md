@@ -191,7 +191,7 @@ A soma dos valores dos movimentos vinculados não pode superar o valor da transa
 ### 6.5 Pagamento e vínculo com obrigação
 1. Receber vínculo, data (quando conhecida), valor, descrição e obrigação opcional.
 2. Validar que a obrigação pertence ao vínculo informado.
-3. Um movimento pode apontar para apenas uma obrigação. Para destinar uma transferência a várias obrigações, registrar vários movimentos com o mesmo `financialTransactionId`, cada um com seu valor.
+3. Um movimento pode apontar para apenas uma obrigação. Para destinar uma transferência a várias obrigações, cadastrar primeiro a FinancialTransaction pelo valor total da transferência e registrar vários movimentos com o mesmo `financialTransactionId`, cada um com seu valor correspondente.
 4. Se houver transação financeira nova, criar uma única FinancialTransaction de despesa com categoria ativa do tipo `expense`. Para pagamentos históricos, permitir `createFinancialTransaction: false`.
 5. Se houver uma transação existente, validar que ela existe, é uma despesa e que a soma dos movimentos vinculados, incluindo o novo movimento, não supera seu valor.
 6. Registrar histórico com a obrigação e a transação vinculadas.

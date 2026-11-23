@@ -315,7 +315,7 @@ Regras de integração:
 - Uma saída financeira representa o dinheiro efetivamente pago.
 - Os movimentos vinculados identificam as partes dessa transferência destinadas às obrigações; não criam novas despesas.
 - A aplicação futura de um valor já pago não pode gerar uma segunda transação financeira.
-- Uma transação pode ser referenciada por vários movimentos. A soma dos movimentos vinculados deve permanecer menor ou igual ao valor da transação.
+- Uma transação pode ser referenciada por vários movimentos. Quando uma transferência for dividida, cadastrar primeiro a transação financeira pelo valor total e depois vincular cada movimento com sua parte. A soma dos movimentos vinculados deve permanecer menor ou igual ao valor da transação.
 
 ## 14. Decisões ainda pendentes
 
