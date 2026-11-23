@@ -68,11 +68,6 @@ class MovementsService {
         return movementsRepository.findMovementsByEngagement(engagementId, filters)
     }
 
-    async findOpenObligations(engagementId: string) {
-        await this.ensureEngagement(engagementId)
-        return movementsRepository.findOpenObligations(engagementId)
-    }
-
     async findMovementById(engagementId: string, movementId: string) {
         await this.ensureEngagement(engagementId)
         const movement = await movementsRepository.findMovementById(engagementId, movementId)
