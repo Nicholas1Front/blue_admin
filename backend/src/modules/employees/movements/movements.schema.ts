@@ -5,7 +5,7 @@ const movementTypeSchema = z.enum(allowedMovementTypes)
 const optionalDate = z.coerce.date().nullable().optional()
 const optionalValue = z.coerce.number().finite().positive().multipleOf(0.01).nullable().optional()
 
-const paymentObjectSchema = z.object({
+const paymentBaseSchema = z.object({
     categoryId: z.string().min(1).optional(),
     createFinancialTransaction: z.boolean().optional(),
     financialTransactionId: z.string().min(1).optional(),
@@ -14,12 +14,15 @@ const paymentObjectSchema = z.object({
     value: z.coerce.number().finite().positive().multipleOf(0.01),
     eventDate: z.coerce.date().nullable().optional(),
     observations: z.string().trim().min(1).nullable().optional()
-}).refine(data => !(data.financialTransactionId && data.createFinancialTransaction === true), {
-    message: 'An existing financial transaction cannot be combined with transaction creation',
-    path: ['financialTransactionId']
 })
 
-export const createPaymentSchema = paymentObjectSchema.superRefine((data, context) => {
+export const createPaymentSchema = paymentBaseSchema.refine(
+    data => !(data.financialTransactionId && data.createFinancialTransaction === true),
+    {
+        message: 'An existing financial transaction cannot be combined with transaction creation',
+        path: ['financialTransactionId']
+    }
+).superRefine((data, context) => {
     if (!data.financialTransactionId && data.createFinancialTransaction !== false && !data.categoryId) {
         context.addIssue({
             code: 'custom',
@@ -29,7 +32,7 @@ export const createPaymentSchema = paymentObjectSchema.superRefine((data, contex
     }
 })
 
-export const updatePaymentSchema = paymentObjectSchema.omit({
+export const updatePaymentSchema = paymentBaseSchema.omit({
     financialTransactionId: true
 }).partial().extend({
     description: z.string().trim().min(1),
