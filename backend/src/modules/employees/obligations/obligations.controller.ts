@@ -67,6 +67,19 @@ class ObligationsController {
         })
     }
 
+    async findOpenObligations(req: Request, res: Response) {
+        if (!req.user) throw new AppError('User not authenticated', 401, 'USER_NOT_AUTHENTICATED')
+
+        const obligations = await obligationsService.findOpenObligations(
+            req.params.engagementId as string
+        )
+
+        return res.status(200).json({
+            message: 'Open employee obligations found successfully',
+            data: obligations
+        })
+    }
+
     async findObligationsByEngagement(req: Request, res: Response) {
         if (!req.user) throw new AppError('User not authenticated', 401, 'USER_NOT_AUTHENTICATED')
 
