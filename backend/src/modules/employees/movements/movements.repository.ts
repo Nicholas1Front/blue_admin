@@ -127,7 +127,9 @@ class MovementsRepository {
             let financialTransactionId = data.financialTransactionId ?? null
             const value = new Prisma.Decimal(data.value)
             const shouldCreateTransaction = !financialTransactionId && data.createFinancialTransaction !== false
-            const eventDate = data.eventDate ?? (shouldCreateTransaction ? new Date() : null)
+            let eventDate = data.eventDate !== undefined
+                ? data.eventDate
+                : shouldCreateTransaction ? new Date() : null
 
             if (financialTransactionId) {
                 const validation = await this.validateFinancialTransaction(tx, financialTransactionId, value)
@@ -135,6 +137,12 @@ class MovementsRepository {
                 if (validation === 'invalidType') return { invalidCategoryType: true as const }
                 if (validation === 'invalidOrigin') return { transactionLinkedToOtherOrigin: true as const }
                 if (validation === 'exceeded') return { financialTransactionExceeded: true as const }
+                if (data.eventDate === undefined) {
+                    const transaction = await tx.financialTransaction.findUnique({
+                        where: { id: financialTransactionId }, select: { referenceDate: true }
+                    })
+                    eventDate = transaction?.referenceDate ?? null
+                }
             } else if (shouldCreateTransaction) {
                 if (!data.categoryId) return { categoryNotFound: true as const }
                 const category = await tx.financialCategory.findUnique({
