@@ -446,31 +446,6 @@ class MovementsRepository {
         }))
     }
 
-    async findOpenObligations(engagementId: string) {
-        const obligations = await prisma.employeeObligation.findMany({
-            where: { engagementId, status: { in: ['pendente', 'parcial'] } },
-            include: {
-                movements: { where: { type: 'pagamento' }, select: { value: true } }
-            },
-            orderBy: [{ referenceStart: 'asc' }, { dueDate: 'asc' }, { createdAt: 'asc' }, { id: 'asc' }]
-        })
-        return obligations.map(obligation => {
-            const paidValue = obligation.movements.reduce(
-                (total, movement) => total.plus(movement.value ?? 0), new Prisma.Decimal(0)
-            )
-            const outstandingValue = obligation.finalValue.gt(paidValue)
-                ? obligation.finalValue.minus(paidValue)
-                : new Prisma.Decimal(0)
-            return {
-                id: obligation.id, type: obligation.type, title: obligation.title,
-                referenceStart: obligation.referenceStart, referenceEnd: obligation.referenceEnd,
-                dueDate: obligation.dueDate, status: obligation.status,
-                finalValue: Number(obligation.finalValue), paidValue: Number(paidValue),
-                outstandingValue: Number(outstandingValue)
-            }
-        }).filter(obligation => obligation.outstandingValue > 0)
-    }
-
     async findMovementById(engagementId: string, movementId: string) {
         const movement = await prisma.employeeMovement.findFirst({
             where: { id: movementId, engagementId },
