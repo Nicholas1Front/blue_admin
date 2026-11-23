@@ -200,6 +200,14 @@ class ObligationsService {
         return result.obligation
     }
 
+    async findOpenObligations(engagementId: string) {
+        const engagement = await obligationsRepository.findEngagementEmployeeId(engagementId)
+        if (!engagement) {
+            throw new AppError('Engagement not found', 404, 'ENGAGEMENT_NOT_FOUND')
+        }
+        return obligationsRepository.findOpenObligations(engagementId)
+    }
+
     async findObligationsByEngagement(engagementId: string) {
         const engagement = await obligationsRepository.findEngagementEmployeeId(engagementId)
         if (!engagement) {
