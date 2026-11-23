@@ -1,6 +1,6 @@
 import { Prisma, type EmployeeObligation } from '../../../generated/prisma/client.js'
 import { prisma } from '../../../shared/database/prisma.js'
-import { calculateObligationBalances } from './helpers/calculateObligationBalances.js'
+import { calculateObligationBalances, compareObligationsByCompetence } from './helpers/calculateObligationBalances.js'
 import type { createObligationDTO, updateObligationDTO } from './obligations.schema.js'
 
 const getMonthRange = (date: Date) => ({
@@ -69,7 +69,7 @@ class ObligationsRepository {
 
             const balances = calculateObligationBalances(obligations, genericPayments)
 
-            return obligations.map(obligation => {
+            return [...obligations].sort(compareObligationsByCompetence).map(obligation => {
                 const balance = balances.get(obligation.id)
                 return {
                     id: obligation.id,
