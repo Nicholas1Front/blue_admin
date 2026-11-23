@@ -267,6 +267,8 @@ backend/src/modules/employees/
 │   │   ├── salaryCalculation.ts
 │   │   ├── vacationCalculation.ts
 │   │   └── thirteenthSalaryCalculation.ts
+│   ├── helpers/
+│   │   └── calculateObligationBalances.ts
 │   ├── obligations.schema.ts
 │   ├── obligations.repository.ts
 │   ├── obligations.service.ts
@@ -280,6 +282,8 @@ backend/src/modules/employees/
 │   └── movements.routes.ts
 ├── history/
 │   └── history.repository.ts
+├── queries/
+│   └── README.md
 ├── helpers/
 │   └── obligationSuggestions.ts
 └── shared/
