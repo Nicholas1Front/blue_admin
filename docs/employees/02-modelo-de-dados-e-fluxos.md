@@ -195,7 +195,7 @@ A soma dos valores dos movimentos vinculados não pode superar o valor da transa
 4. Se houver transação financeira nova, criar uma única FinancialTransaction de despesa com categoria ativa do tipo `expense`. Para pagamentos históricos, permitir `createFinancialTransaction: false`.
 5. Se houver uma transação existente, validar que ela existe, é uma despesa e que a soma dos movimentos vinculados, incluindo o novo movimento, não supera seu valor.
 6. Registrar histórico com a obrigação e a transação vinculadas.
-7. O status da obrigação permanece manual. O total pago e o saldo são derivados dos movimentos vinculados.
+7. O status da obrigação permanece manual. O saldo é derivado dos pagamentos direcionados e da distribuição virtual dos pagamentos genéricos. Pagamentos direcionados abatem somente sua obrigação; pagamentos genéricos são distribuídos por competência mais antiga entre obrigações pendentes/parciais, respeitando o saldo de cada uma.
 
 Rotas implementadas sob `/employees`:
 - `POST /create-movement/:engagementId`
@@ -205,7 +205,7 @@ Rotas implementadas sob `/employees`:
 - `DELETE /delete-movement/:engagementId/:movementId`
 - `POST /create-payment/:engagementId`
 - `PUT /update-payment/:engagementId/:movementId`
-- `GET /find-open-obligations/:engagementId`
+- `GET /find-open-obligations/:engagementId` (rota pertencente ao módulo obligations; retorna apenas obrigações `pendente`/`parcial` com saldo positivo após pagamentos direcionados e genéricos)
 
 A exclusão de um movimento preserva a transação financeira compartilhada. A exclusão de uma obrigação desvincula seus movimentos e preserva os registros financeiros.
 
@@ -225,14 +225,14 @@ Para associar outra parte da mesma transferência a uma segunda obrigação, env
 Para pagamento histórico sem lançamento financeiro, incluir `"createFinancialTransaction": false`; nesse caso, `categoryId` pode ser omitido e `eventDate` pode permanecer nulo quando desconhecida.
 
 ### 6.6 Análise e sugestão de competências
-1. A rota GET /employees/analyze-obligations/:engagementId consulta em uma única leitura o vínculo, o histórico de alterações salariais e as obrigações de salário, férias e décimo terceiro, incluindo movimentações.
+1. A rota GET /employees/analyze-obligations/:engagementId consulta o vínculo, o histórico de alterações salariais, todas as obrigações do vínculo e os pagamentos genéricos. Todas as obrigações são necessárias para distribuir pagamentos genéricos corretamente, inclusive quando uma obrigação de outro tipo for mais antiga que salário, férias ou décimo terceiro.
 2. A consulta exige startMonth, startYear, endMonth e endYear. O intervalo é inclusivo, limitado a 40 anos, e usa somente mês/ano na entrada.
 3. Os parâmetros calculateSalary, calculateVacation e calculateThirteenthSalary permitem selecionar os cálculos. Quando omitidos, os três são executados.
 4. O helper puro, localizado em employees/helpers/obligationSuggestions.ts, coordena três calculadoras independentes dentro de obligations/calculations/: salários, férias e décimo terceiro.
 5. Salários são calculados mês a mês, proporcionalmente aos dias corridos de vínculo ativo e às alterações salariais efetivas no mês. Competências anteriores podem ser usadas como referência quando o histórico salarial não é suficiente, sempre sinalizando a estimativa.
 6. Férias são identificadas pelos períodos aquisitivos de 12 meses a partir da entrada do vínculo. As obrigações existentes são comparadas pelo mês/ano de referenceStart e referenceEnd. Se entryDate for desconhecida, uma competência válida não cancelada permite projetar o próximo período a partir do dia seguinte ao referenceEnd; essa projeção exige revisão e não reconstrói períodos anteriores. Períodos históricos sem registro exigem revisão, pois ausência de obrigação não prova ausência de concessão ou pagamento.
 7. O décimo terceiro é calculado por ano até o mês final da análise: última competência salarial disponível dividida por 12 e multiplicada pelos meses com pelo menos 15 dias de vínculo ativo. Sem competência salarial, usa currentSalary como estimativa e sinaliza a limitação.
-8. Para cada competência, a resposta informa ação sugerida (create, update, none ou manual_review), estimativa, valor reconhecido, total pago pelos movimentos vinculados, saldo, memória de cálculo, projeção e alertas. O resumo separa saldo reconhecido em aberto, estimativas sugeridas para criação e estimativas que ainda exigem revisão manual.
+8. Para cada competência, a resposta informa ação sugerida (create, update, none ou manual_review), estimativa, valor reconhecido, total pago diretamente ou alocado virtualmente por pagamento genérico, saldo, memória de cálculo, projeção e alertas. O resumo separa saldo reconhecido em aberto, estimativas sugeridas para criação e estimativas que ainda exigem revisão manual.
 9. A edição só é sugerida quando o valor estimado diverge, a obrigação não possui movimentações de pagamento nem ajuste manual e o status permite revisão automática. Obrigações canceladas ou em revisão exigem conferência; obrigações pagas/parciais só exigem revisão quando houver divergência, e o status parcial sem movimentos de pagamento também exige conferência.
 10. Datas ou histórico insuficientes, duplicidades, vínculo encerrado/afastado, prazo concessivo vencido e referências salariais ambíguas exigem conferência humana.
 11. A análise nunca cria nem altera obrigações. A criação confirmada pode continuar usando a rota de criação em lote.
