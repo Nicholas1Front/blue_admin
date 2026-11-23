@@ -21,7 +21,7 @@ O Blue Admin será um **assistente administrativo**, não um motor de folha de p
 1. Simplicidade: cada entidade deve ter responsabilidade clara; não criar tabelas auxiliares sem necessidade demonstrada.
 2. Histórico: preservar alterações importantes e acontecimentos financeiros/administrativos.
 3. Flexibilidade: aceitar registros retroativos, dados incompletos e datas desconhecidas.
-4. Separação: pessoa, vínculo, obrigação, movimentação e alocação são conceitos distintos.
+4. Separação: pessoa, vínculo, obrigação, movimentação e transação financeira têm responsabilidades próprias.
 5. Revisão humana: sugestões não criam obrigações automaticamente.
 6. Integridade financeira: valores pagos devem ser distribuídos e rastreáveis; não contar uma mesma saída financeira duas vezes.
 7. Precisão: preservar competência, data do acontecimento, vencimento e data efetiva de pagamento como informações distintas.
@@ -32,7 +32,7 @@ O Blue Admin será um **assistente administrativo**, não um motor de folha de p
 - **EmployeeEngagement:** cada vínculo/contrato que a pessoa teve com a empresa.
 - **EmployeeObligation:** valor que a empresa reconheceu que deve ao funcionário.
 - **EmployeeMovement:** acontecimento ou operação registrada durante um vínculo.
-- **EmployeePaymentAllocation:** distribuição de um pagamento entre obrigações ou destinação de excedente.
+- **Vínculo direto:** cada movimentação pode apontar para, no máximo, uma obrigação; uma obrigação pode receber várias movimentações.
 - **EmployeeHistory:** histórico de alterações cadastrais, contratuais e movimentações importantes.
 - **Competência/referência:** período ao qual a obrigação ou movimentação diz respeito.
 - **Vencimento:** data em que a obrigação deve ser paga.
@@ -120,10 +120,10 @@ Regras:
 - Uma obrigação criada e confirmada não deve ser duplicada para a mesma referência por acidente.
 - Para salário e décimo terceiro, deve existir uma referência identificável que permita detectar a obrigação já criada. A estratégia exata de unicidade será definida no schema.
 - Uma obrigação pode ser paga em várias parcelas.
-- Uma obrigação pode ser quitada por uma única alocação ou por várias alocações originadas de pagamentos distintos.
+- Uma obrigação pode receber vários movimentos de pagamento, inclusive pagamentos parciais.
 - Alterar competência, vencimento ou valor de uma obrigação deve gerar evento em `employee_history`, preservando os valores anteriores e novos no metadata.
 - Não haverá tabela auxiliar exclusiva para histórico de obrigações.
-- A regra de cancelamento quando já existem alocações deverá preservar a trilha financeira; não apagar pagamentos anteriores.
+- Excluir uma obrigação preserva os movimentos e transações financeiras, desvinculando os movimentos da obrigação. O status da obrigação é sempre administrado manualmente.
 
 Status conceituais:
 - em revisão: ainda não reconhecida definitivamente;
@@ -184,40 +184,23 @@ Regras:
 - Para pagamentos atuais integrados ao financeiro, o backend cria uma única transação do tipo despesa e vincula pelo `financialTransactionId`.
 - A categoria financeira deve estar ativa e ser do tipo `expense`.
 - Não criar transação financeira fictícia para registros históricos.
-- Transações vinculadas a pagamentos de funcionários não podem ser editadas ou excluídas diretamente pelo módulo financeiro; a correção deve passar pelo módulo de funcionários.
-- A edição de um pagamento atualiza sua transação vinculada e refaz suas alocações na mesma transação do banco. A exclusão remove a transação vinculada, quando existir, e preserva um snapshot no histórico.
+- Uma transação financeira pode ser compartilhada por várias movimentações de pagamento.
+- A soma dos valores das movimentações vinculadas não pode superar o valor da transação. A validação deve ser transacional e protegida contra concorrência.
+- O módulo financeiro pode editar dados da transação, mas não pode reduzir seu valor abaixo da soma das movimentações vinculadas, convertê-la em entrada ou excluí-la enquanto houver vínculos.
+- A edição de uma movimentação não altera automaticamente o valor da transação compartilhada. A exclusão do movimento preserva a transação.
 
-## 9. Alocações — `employee_payment_allocations`
-
-A alocação é o mecanismo que explica como o valor de uma movimentação de pagamento foi destinado.
-
-Cardinalidade:
-- Uma movimentação de pagamento pode possuir várias alocações.
-- Uma obrigação pode receber alocações de vários pagamentos.
-- Uma obrigação pode ser quitada em parcelas.
-- Uma movimentação pode quitar várias obrigações de uma só vez.
-
-Campos candidatos:
-- `id`
-- `movementId` (movimentação de pagamento ou operação de aplicação, conforme o tipo)
-- `obligationId` (obrigação destinatária; obrigatório para cada alocação)
-- `type`
-- `value`
-- timestamps
+Cada movimentação de pagamento pode apontar para, no máximo, uma obrigação por meio de `obligationId`. Uma obrigação pode receber várias movimentações de pagamento, permitindo pagamentos parciais ao longo do tempo.
 
 Regras:
-- O usuário pode escolher entre alocação manual (selecionar obrigações e valores) ou quitação automática das pendências mais antigas (FIFO).
-- A alocação FIFO considera obrigações `pendente` e `parcial`, exclui `cancelado` e `em_revisao` e ordena por início da competência (ou vencimento quando não houver referência), vencimento, criação e identificador.
-- Um pagamento pode quitar várias obrigações; uma obrigação pode receber vários pagamentos.
-- A soma alocada pode ser menor que o pagamento. O excedente permanece sem alocação, visível no próprio pagamento. O sistema não cria obrigação nem bonificação automaticamente para absorver excedentes.
-- Não permitir alocar mais do que o saldo reconhecido de uma obrigação nem alocar obrigações de outro vínculo.
-- O backend calcula saldos com Decimal e valida/cria alocações dentro de uma transação, bloqueando o vínculo para evitar concorrência sobre o mesmo saldo.
-- `EmployeePaymentAllocation.type` identifica a origem da distribuição (`manual` ou `fifo`).
-- Não existe CRUD independente de alocações: elas são criadas, refeitas e removidas somente pelo fluxo do pagamento, na mesma transação.
-- A edição do pagamento refaz suas alocações e reconcilia os status das obrigações afetadas. A exclusão remove as alocações e libera os saldos; a transação financeira vinculada também é removida quando existir.
-- Excluir uma obrigação remove suas alocações, mas preserva pagamentos e transações financeiras; o valor correspondente volta a aparecer como não alocado. Movimentações não financeiras vinculadas diretamente à obrigação são preservadas e desvinculadas.
-- Cancelar uma obrigação libera suas alocações e preserva o pagamento de origem. Obrigações em revisão mantêm as alocações existentes, mas não recebem novas distribuições.
-- Não registrar o mesmo valor como nova saída financeira ao distribuir um pagamento já realizado.
+- O vínculo direto é opcional: pagamentos históricos ou valores ainda não destinados podem permanecer sem `obligationId`.
+- Para quitar mais de uma obrigação com uma mesma transferência, registrar uma movimentação para cada obrigação, informando em cada uma o valor correspondente.
+- O valor excedente ou não destinado permanece como uma movimentação sem `obligationId`; não criar obrigação ou bonificação automaticamente.
+- Cada movimentação pertence ao mesmo vínculo da obrigação referenciada. O backend valida esse pertencimento.
+- O status da obrigação (`pendente`, `parcial`, `pago`, `cancelado` ou `em_revisao`) é alterado manualmente. Registrar, editar ou excluir pagamentos não altera o status automaticamente.
+- O valor pago e o saldo são derivados dos movimentos de pagamento vinculados. Não armazenar um saldo duplicado na obrigação.
+- Excluir uma obrigação preserva pagamentos e transações financeiras: os movimentos são desvinculados antes da exclusão.
+- Excluir um movimento não exclui a transação financeira compartilhada.
+- Não registrar o mesmo valor como uma nova saída financeira ao vincular outro movimento à transferência já registrada.
 
 ## 10. Histórico — `employee_history`
 
@@ -235,7 +218,7 @@ Eventos esperados:
 - alteração salarial, com valor anterior, valor novo e data efetiva;
 - criação, revisão, alteração e cancelamento de obrigação;
 - faltas, atrasos e movimentações importantes;
-- pagamentos, alocações relevantes e correções.
+- pagamentos e correções relevantes.
 
 O campo metadata pode armazenar detalhes estruturados, como valores anterior/novo, competência, obrigação afetada e motivo. O histórico não será fonte de saldo financeiro; sua finalidade é auditoria e contexto.
 
@@ -296,11 +279,11 @@ O ano de desligamento, vínculos afastados, salário de referência antigo, regi
 Cada sugestão retorna uma das ações:
 
 - create: competência ausente e cálculo suficientemente confiável para revisão e criação pelo usuário;
-- update: valor estimado diferente, obrigação pendente, sem pagamentos, movimentações ou ajuste manual no valor reconhecido;
+- update: valor estimado diferente, obrigação pendente, sem movimentos de pagamento, outras movimentações ou ajuste manual no valor reconhecido;
 - none: competência existente compatível com o cálculo;
-- manual_review: dados incompletos, duplicidade, referência inválida, histórico insuficiente, obrigação cancelada ou em revisão, obrigação parcial sem alocações, divergência entre status e alocações ou alteração que afetaria obrigação paga/parcial ou com registros financeiros.
+- manual_review: dados incompletos, duplicidade, referência inválida, histórico insuficiente, obrigação cancelada ou em revisão, obrigação parcial sem movimentos de pagamento, divergência entre status e movimentos ou alteração que afetaria obrigação paga/parcial ou com registros financeiros.
 
-A resposta distingue valor estimado, valor reconhecido, total alocado como pago e saldo da obrigação. O resumo agrega saldo reconhecido em aberto (`recognizedOutstanding`), estimativas prontas para criação após confirmação (`suggestedToCreate`) e estimativas que exigem conferência (`manualReviewEstimate`); as duas últimas não são dívidas reconhecidas. Obrigações canceladas ou em revisão não apresentam saldo em aberto como dívida reconhecida. Quando uma obrigação está marcada como paga, mas não possui alocações, o valor reconhecido é considerado pago e a resposta sinaliza essa inferência. Uma sugestão não é uma dívida reconhecida e não entra no financeiro antes da criação explícita da competência. A criação individual e em lote aplica os mesmos critérios de referência para evitar duplicidade: mês/ano para salários, mês/ano de início e fim do período aquisitivo para férias e ano para décimo terceiro.
+A resposta distingue valor estimado, valor reconhecido, total registrado em movimentos de pagamento e saldo da obrigação. O resumo agrega saldo reconhecido em aberto (`recognizedOutstanding`), estimativas prontas para criação após confirmação (`suggestedToCreate`) e estimativas que exigem conferência (`manualReviewEstimate`); as duas últimas não são dívidas reconhecidas. Obrigações canceladas ou em revisão não apresentam saldo em aberto como dívida reconhecida. Quando uma obrigação está marcada como paga, mas não possui movimentos de pagamento, o valor reconhecido é considerado pago e a resposta sinaliza essa inferência. Uma sugestão não é uma dívida reconhecida e não entra no financeiro antes da criação explícita da competência. A criação individual e em lote aplica os mesmos critérios de referência para evitar duplicidade: mês/ano para salários, mês/ano de início e fim do período aquisitivo para férias e ano para décimo terceiro.
 
 Os três benefícios são analisados para todas as modalidades de vínculo (CLT, PJ, Informal e outros), conforme decisão atual do projeto. A regra poderá ser revista futuramente.
 
@@ -332,7 +315,7 @@ Regras de integração:
 - Uma saída financeira representa o dinheiro efetivamente pago.
 - As alocações apenas distribuem essa saída entre obrigações; não criam novas despesas.
 - A aplicação futura de um valor já pago não pode gerar uma segunda transação financeira.
-- A relação e as regras de exclusão/edição devem ser definidas no schema e backend sem quebrar os fluxos existentes do financeiro.
+- Uma transação pode ser referenciada por vários movimentos. A soma dos movimentos vinculados deve permanecer menor ou igual ao valor da transação.
 
 ## 14. Decisões ainda pendentes
 

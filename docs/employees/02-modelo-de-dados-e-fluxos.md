@@ -57,7 +57,7 @@ Responsabilidades:
 
 Relações:
 - pertence a EmployeeEngagement;
-- recebe várias alocações;
+- recebe vários movimentos de pagamento diretamente vinculados;
 - pode ser referenciada por movimentação que altere diretamente aquela obrigação.
 
 Não criar tabela auxiliar de períodos de férias nem tabela específica de histórico de obrigações. O período de férias será identificado pelos dados do vínculo e pelo helper; as obrigações e pagamentos ficam nas entidades comuns.
@@ -76,28 +76,17 @@ Responsabilidades:
 Relações:
 - pertence a EmployeeEngagement;
 - pode apontar para uma FinancialTransaction;
-- pode originar várias EmployeePaymentAllocations;
+- pode apontar para uma obrigação por meio de `obligationId`;
 - pode ser referenciada por outra movimentação em fluxos de correção, se o desenho final precisar disso.
 
-### 2.5 `EmployeePaymentAllocation` — `employee_payment_allocations`
-Tabela associativa que destina partes de uma movimentação de pagamento.
+### 2.5 Relação entre EmployeeMovement e EmployeeObligation
 
-Responsabilidades:
-- movimentação de origem;
-- obrigação de destino (obrigatória em cada alocação; o excedente destinado a bonificação recebe uma nova obrigação de bonificação);
-- tipo de destinação;
-- valor.
-
-Relações:
-- pertence à movimentação;
-- aponta para uma obrigação de destino.
-
-A modelagem deve permitir:
-- um pagamento para várias obrigações;
-- vários pagamentos para uma obrigação;
-- pagamento parcial;
-- destinação do excedente para outra obrigação pendente;
-- criação de obrigação de bonificação com competência escolhida pelo usuário e alocação do valor correspondente.
+Não existe tabela associativa de pagamentos. Cada EmployeeMovement possui um `obligationId` opcional:
+- um movimento aponta para, no máximo, uma obrigação;
+- uma obrigação pode receber vários movimentos de pagamento;
+- pagamentos parciais são registrados como movimentos separados;
+- uma transferência pode ser compartilhada por vários movimentos através de `financialTransactionId`;
+- valores não destinados a uma obrigação permanecem em movimentos sem `obligationId`.
 
 ### 2.6 `EmployeeHistory` — `employee_history`
 Trilha única de auditoria.
@@ -120,37 +109,33 @@ Employee
   +---- EmployeeEngagement
            | 1:N
            +---- EmployeeObligation
-           |        | 1:N
-           |        +---- EmployeePaymentAllocation
+           |        ^
+           |        | 0..N movimentos de pagamento
            |
            +---- EmployeeMovement
-           |        | 1:N
-           |        +---- EmployeePaymentAllocation
-           |        |
-           |        +---- FinancialTransaction (opcional)
+           |        | 0..1 EmployeeObligation
+           |        | 0..1 FinancialTransaction
            |
            +---- EmployeeHistory
 
 Employee
   +---- EmployeeHistory
+
+FinancialTransaction
+  | 1:N
+  +---- EmployeeMovement
 ```
 
-A relação EmployeeMovement ↔ EmployeeObligation é mediada por EmployeePaymentAllocation nos pagamentos. Uma movimentação de desconto pode apontar diretamente para a obrigação que afeta; não deve ser confundida com alocação de pagamento.
+Cada EmployeeMovement pode referenciar uma obrigação e uma transação financeira, ambas opcionais. Uma obrigação recebe movimentos de pagamento independentes; a transação financeira representa a transferência real e pode ser compartilhada por vários movimentos.
 
 ## 4. Integridade do banco e do backend
 
 Regras que devem ser garantidas:
 - obrigações e movimentações pertencem ao vínculo correto;
-- alocações não cruzam funcionários/vínculos;
 - valores monetários usam Decimal no banco;
-- valores de alocação são positivos;
-- a soma das alocações de um pagamento nunca excede o valor pago; excedentes permanecem sem alocação;
-- a soma destinada a uma obrigação não excede o saldo reconhecido;
 - uma mesma referência de obrigação recorrente não é criada duas vezes;
-- `financialTransactionId`, quando informado, não é vinculado indevidamente a vários pagamentos;
-- distribuir um pagamento já realizado não cria nova saída financeira;
-- alterações financeiras e alocações relacionadas são atômicas;
-- operações concorrentes não podem consumir o mesmo saldo duas vezes;
+- a soma dos valores dos movimentos vinculados a uma transação não pode superar o valor dessa transação, inclusive sob requisições concorrentes;
+- o status das obrigações não é alterado automaticamente pelo registro de pagamentos;
 - exclusões não podem apagar histórico ou registros financeiros importantes.
 
 O banco deve proteger relações, unicidade e índices possíveis. Regras que dependem de somas entre várias linhas, estado de estorno ou pertencimento ao mesmo vínculo precisam ser validadas no service dentro de transação. Constraints SQL adicionais só devem ser consideradas depois de revisar o schema e a migration gerada.
@@ -168,7 +153,7 @@ O schema atual contém `FinancialTransaction` com:
 - `originId`;
 - timestamps.
 
-O módulo de funcionários deverá manter `financialTransactionId` opcional em EmployeeMovement. A transação financeira é a representação da saída de dinheiro; a movimentação do funcionário contextualiza o pagamento e as alocações explicam suas destinações.
+O módulo de funcionários deverá manter `financialTransactionId` opcional em EmployeeMovement. A transação financeira representa a saída de dinheiro; cada movimentação do funcionário registra a parte do pagamento destinada a uma obrigação, quando houver.
 
 Ao criar um pagamento integrado, a movimentação, a transação financeira e as alocações precisam ser persistidas de maneira consistente. Para pagamento histórico sem transação, `financialTransactionId` permanece nulo. Pagamentos atuais integrados criam uma única transação de despesa com categoria ativa do tipo `expense`. A API financeira bloqueia edição e exclusão direta de transações vinculadas a EmployeeMovement; as correções devem passar pelo módulo de funcionários.
 
@@ -203,16 +188,14 @@ Não criar uma transação adicional ao distribuir um pagamento entre obrigaçõ
 3. Movimentações não financeiras não criam obrigações nem descontos automaticamente.
 4. Registrar histórico com snapshot dos dados relevantes.
 
-### 6.5 Pagamento e alocação
-1. Receber vínculo, data (quando conhecida), valor, descrição e modo de alocação.
-2. O modo `selected` recebe as obrigações e valores escolhidos pelo usuário; o modo `oldest` distribui automaticamente em FIFO.
-3. Validar que todas as obrigações pertencem ao vínculo e estão pendentes/parciais, com saldo disponível.
-4. A soma das alocações não pode superar o pagamento nem o saldo de cada obrigação. O excedente permanece não alocado.
-5. Criar EmployeeMovement do tipo pagamento e as alocações dentro da mesma transação.
-6. Se a integração financeira estiver habilitada, criar uma única FinancialTransaction de despesa; para pagamentos históricos, permitir `createFinancialTransaction: false` e manter o vínculo financeiro nulo.
-7. Reconciliar status das obrigações afetadas (`pendente`, `parcial`, `pago`), preservando `cancelado` e `em_revisao`.
-8. Registrar histórico com valores e alocações anteriores/novas.
-9. Retornar pagamento, transação opcional, alocações e valores alocado/não alocado.
+### 6.5 Pagamento e vínculo com obrigação
+1. Receber vínculo, data (quando conhecida), valor, descrição e obrigação opcional.
+2. Validar que a obrigação pertence ao vínculo informado.
+3. Um movimento pode apontar para apenas uma obrigação. Para destinar uma transferência a várias obrigações, registrar vários movimentos com o mesmo `financialTransactionId`, cada um com seu valor.
+4. Se houver transação financeira nova, criar uma única FinancialTransaction de despesa com categoria ativa do tipo `expense`. Para pagamentos históricos, permitir `createFinancialTransaction: false`.
+5. Se houver uma transação existente, validar que ela existe, é uma despesa e que a soma dos movimentos vinculados, incluindo o novo movimento, não supera seu valor.
+6. Registrar histórico com a obrigação e a transação vinculadas.
+7. O status da obrigação permanece manual. O total pago e o saldo são derivados dos movimentos vinculados.
 
 Rotas implementadas sob `/employees`:
 - `POST /create-movement/:engagementId`
@@ -222,28 +205,35 @@ Rotas implementadas sob `/employees`:
 - `DELETE /delete-movement/:engagementId/:movementId`
 - `POST /create-payment/:engagementId`
 - `PUT /update-payment/:engagementId/:movementId`
-- `GET /find-open-obligations/:engagementId` (consulta saldos para seleção manual)
+- `GET /find-open-obligations/:engagementId`
 
-A exclusão de pagamento remove as alocações e a transação financeira opcional vinculada, mantendo snapshot em EmployeeHistory. A edição substitui as alocações e reconcilia as competências afetadas.
+A exclusão de um movimento preserva a transação financeira compartilhada. A exclusão de uma obrigação desvincula seus movimentos e preserva os registros financeiros.
 
-Exemplos do corpo de criação:
+Exemplo de pagamento vinculado a uma obrigação:
 
-- FIFO: `{ "description": "Pagamento de pendências", "value": 4000, "allocationMode": "oldest", "categoryId": "<categoria-de-despesa>" }`.
-- Manual: `{ "description": "Pagamento de competências", "value": 4000, "allocationMode": "selected", "categoryId": "<categoria-de-despesa>", "allocations": [{ "obligationId": "<id>", "value": 2500 }, { "obligationId": "<id>", "value": 1000 }] }`.
-- Histórico sem lançamento financeiro: incluir `"createFinancialTransaction": false`; nesse caso `categoryId` pode ser omitido e `eventDate` pode permanecer nulo quando desconhecida.
+```json
+{
+  "description": "Pagamento parcial do salário",
+  "value": 1500,
+  "obligationId": "<obligation-id>",
+  "categoryId": "<expense-category-id>"
+}
+```
 
-A alocação manual pode usar apenas parte do pagamento; o restante é retornado como `unallocatedValue`. O pagamento pode ser editado posteriormente para refazer a distribuição. Não existe endpoint para gravar alocações isoladamente.
+Para associar outra parte da mesma transferência a uma segunda obrigação, enviar outro pagamento com o mesmo `financialTransactionId` e o valor correspondente. O valor excedente pode permanecer em um movimento sem `obligationId`.
+
+Para pagamento histórico sem lançamento financeiro, incluir `"createFinancialTransaction": false`; nesse caso, `categoryId` pode ser omitido e `eventDate` pode permanecer nulo quando desconhecida.
 
 ### 6.6 Análise e sugestão de competências
-1. A rota GET /employees/analyze-obligations/:engagementId consulta em uma única leitura o vínculo, o histórico de alterações salariais e as obrigações de salário, férias e décimo terceiro, incluindo alocações e movimentações.
+1. A rota GET /employees/analyze-obligations/:engagementId consulta em uma única leitura o vínculo, o histórico de alterações salariais e as obrigações de salário, férias e décimo terceiro, incluindo movimentações.
 2. A consulta exige startMonth, startYear, endMonth e endYear. O intervalo é inclusivo, limitado a 40 anos, e usa somente mês/ano na entrada.
 3. Os parâmetros calculateSalary, calculateVacation e calculateThirteenthSalary permitem selecionar os cálculos. Quando omitidos, os três são executados.
 4. O helper puro, localizado em employees/helpers/obligationSuggestions.ts, coordena três calculadoras independentes dentro de obligations/calculations/: salários, férias e décimo terceiro.
 5. Salários são calculados mês a mês, proporcionalmente aos dias corridos de vínculo ativo e às alterações salariais efetivas no mês. Competências anteriores podem ser usadas como referência quando o histórico salarial não é suficiente, sempre sinalizando a estimativa.
 6. Férias são identificadas pelos períodos aquisitivos de 12 meses a partir da entrada do vínculo. As obrigações existentes são comparadas pelo mês/ano de referenceStart e referenceEnd. Se entryDate for desconhecida, uma competência válida não cancelada permite projetar o próximo período a partir do dia seguinte ao referenceEnd; essa projeção exige revisão e não reconstrói períodos anteriores. Períodos históricos sem registro exigem revisão, pois ausência de obrigação não prova ausência de concessão ou pagamento.
 7. O décimo terceiro é calculado por ano até o mês final da análise: última competência salarial disponível dividida por 12 e multiplicada pelos meses com pelo menos 15 dias de vínculo ativo. Sem competência salarial, usa currentSalary como estimativa e sinaliza a limitação.
-8. Para cada competência, a resposta informa ação sugerida (create, update, none ou manual_review), estimativa, valor reconhecido, total alocado, saldo, memória de cálculo, projeção e alertas. O resumo separa saldo reconhecido em aberto, estimativas sugeridas para criação e estimativas que ainda exigem revisão manual.
-9. A edição só é sugerida quando o valor estimado diverge, a obrigação não possui movimentações/alocações nem ajuste manual e o status permite revisão automática. Obrigações canceladas ou em revisão exigem conferência; obrigações pagas/parciais só exigem revisão quando houver divergência, e o status parcial sem alocações também exige conferência.
+8. Para cada competência, a resposta informa ação sugerida (create, update, none ou manual_review), estimativa, valor reconhecido, total pago pelos movimentos vinculados, saldo, memória de cálculo, projeção e alertas. O resumo separa saldo reconhecido em aberto, estimativas sugeridas para criação e estimativas que ainda exigem revisão manual.
+9. A edição só é sugerida quando o valor estimado diverge, a obrigação não possui movimentações de pagamento nem ajuste manual e o status permite revisão automática. Obrigações canceladas ou em revisão exigem conferência; obrigações pagas/parciais só exigem revisão quando houver divergência, e o status parcial sem movimentos de pagamento também exige conferência.
 10. Datas ou histórico insuficientes, duplicidades, vínculo encerrado/afastado, prazo concessivo vencido e referências salariais ambíguas exigem conferência humana.
 11. A análise nunca cria nem altera obrigações. A criação confirmada pode continuar usando a rota de criação em lote.
 
@@ -288,8 +278,6 @@ backend/src/modules/employees/
 │   ├── movements.service.ts
 │   ├── movements.controller.ts
 │   └── movements.routes.ts
-├── allocations/
-│   └── paymentAllocation.ts
 ├── history/
 │   └── history.repository.ts
 ├── helpers/
@@ -326,9 +314,9 @@ A prioridade inicial é banco de dados e backend.
 ### Etapa 4 — Movimentações e pagamentos
 - [x] Registro e edição de movimentações não financeiras.
 - [x] Pagamentos manuais ou integrados ao financeiro.
-- [x] Alocação manual e FIFO por competência mais antiga.
-- [x] Pagamentos parciais, excedentes não alocados e reconciliação de status.
-- [x] Proteção contra edição/exclusão direta da transação financeira vinculada.
+- [x] Vínculo direto opcional entre pagamento e obrigação.
+- [x] Vários movimentos podem compartilhar uma transação financeira.
+- [x] Proteção do valor total vinculado e preservação da transação ao excluir um movimento.
 - [ ] Executar build e validar cenários de integração no ambiente do projeto.
 
 ### Etapa 6 — Helpers
