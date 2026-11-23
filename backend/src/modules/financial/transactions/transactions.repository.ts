@@ -78,18 +78,21 @@ class TransactionsRepository{
         })
     }
 
-    async findTransactionById(id : string){
-        return prisma.financialTransaction.findUnique({
-            where : { id },
-            include : {
-                titheForService : {
-                    select : { id : true }
-                },
-                employeeMovements : {
-                    select : { id : true }
-                }
+    async findTransactionById(id: string) {
+        const transaction = await prisma.financialTransaction.findUnique({
+            where: { id },
+            include: {
+                titheForService: { select: { id: true } }
             }
         })
+        if (!transaction) return null
+
+        const employeeMovements = await prisma.employeeMovement.findMany({
+            where: { financialTransactionId: id },
+            select: { id: true }
+        })
+
+        return { ...transaction, employeeMovements }
     }
 
     async findTransactionsByFilters(
