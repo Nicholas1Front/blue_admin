@@ -11,7 +11,6 @@ router.put('/update-payment/:engagementId/:movementId', movementsController.upda
 
 router.get('/find-movements-by-engagement/:engagementId', movementsController.findMovementsByEngagement)
 router.get('/find-movement-by-id/:engagementId/:movementId', movementsController.findMovementById)
-router.get('/find-open-obligations/:engagementId', movementsController.findOpenObligations)
 
 router.delete('/delete-movement/:engagementId/:movementId', movementsController.deleteMovement)
 
