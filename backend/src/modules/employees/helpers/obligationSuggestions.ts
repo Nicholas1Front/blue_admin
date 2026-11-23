@@ -187,7 +187,7 @@ const buildSuggestion = (
     ))
 
     if (existing && recognizedValue !== null && paidValue > recognizedValue) {
-        warnings.push('The allocated payment amount exceeds the recognized obligation value. Review the financial records.')
+        warnings.push('The linked payment amount exceeds the recognized obligation value. Review the financial records.')
     }
 
     if (paymentStatusMismatch) {
@@ -220,7 +220,7 @@ const buildSuggestion = (
     }
 
     const hasFinancialRecords = Boolean(existing && (
-        existing.allocations.length > 0 || existing.movements.length > 0
+        existing.movements.length > 0
     ))
     const hasManualAdjustment = existing !== undefined &&
         recognizedOriginalValue !== null &&
