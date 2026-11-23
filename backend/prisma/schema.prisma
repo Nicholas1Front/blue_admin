@@ -85,7 +85,7 @@ model FinancialTransaction {
 
   category       FinancialCategory @relation(fields: [categoryId], references: [id])
   titheForService Service?         @relation("ServiceTitheTransaction")
-  employeeMovement EmployeeMovement?
+  employeeMovements EmployeeMovement[]
 
   @@index([categoryId])
   @@index([referenceDate])
@@ -349,7 +349,6 @@ model EmployeeObligation {
   updatedAt     DateTime  @updatedAt @map("updated_at")
 
   engagement    EmployeeEngagement          @relation(fields: [engagementId], references: [id], onDelete: Restrict)
-  allocations   EmployeePaymentAllocation[]
   movements     EmployeeMovement[]
 
   @@index([engagementId])
@@ -369,7 +368,7 @@ model EmployeeMovement {
   referenceEnd         DateTime? @map("reference_end")
   value                Decimal?
   obligationId         String?   @map("obligation_id")
-  financialTransactionId String? @unique @map("financial_transaction_id")
+  financialTransactionId String?   @map("financial_transaction_id")
   observations         String?
   createdAt            DateTime  @default(now()) @map("created_at")
   updatedAt            DateTime  @updatedAt @map("updated_at")
@@ -377,27 +376,11 @@ model EmployeeMovement {
   engagement           EmployeeEngagement          @relation(fields: [engagementId], references: [id], onDelete: Restrict)
   obligation           EmployeeObligation?         @relation(fields: [obligationId], references: [id], onDelete: Restrict)
   financialTransaction FinancialTransaction?      @relation(fields: [financialTransactionId], references: [id], onDelete: Restrict)
-  allocations          EmployeePaymentAllocation[]
 
   @@index([engagementId, eventDate])
   @@index([obligationId])
+  @@index([financialTransactionId])
   @@map("employee_movements")
-}
-
-model EmployeePaymentAllocation {
-  id          String   @id @default(uuid())
-  movementId  String   @map("movement_id")
-  obligationId String  @map("obligation_id")
-  type        String
-  value       Decimal
-  createdAt   DateTime @default(now()) @map("created_at")
-
-  movement    EmployeeMovement   @relation(fields: [movementId], references: [id], onDelete: Restrict)
-  obligation  EmployeeObligation @relation(fields: [obligationId], references: [id], onDelete: Restrict)
-
-  @@index([movementId])
-  @@index([obligationId])
-  @@map("employee_payment_allocations")
 }
 
 model EmployeeHistory {
