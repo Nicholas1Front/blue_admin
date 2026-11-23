@@ -193,11 +193,15 @@ Cada movimentação de pagamento pode apontar para, no máximo, uma obrigação 
 
 Regras:
 - O vínculo direto é opcional: pagamentos históricos ou valores ainda não destinados podem permanecer sem `obligationId`.
-- Para quitar mais de uma obrigação com uma mesma transferência, registrar uma movimentação para cada obrigação, informando em cada uma o valor correspondente.
-- O valor excedente ou não destinado permanece como uma movimentação sem `obligationId`; não criar obrigação ou bonificação automaticamente.
+- Pagamento com `obligationId` é direcionado e só abate aquela obrigação.
+- Pagamento sem `obligationId` é genérico. Seu valor forma um saldo disponível para abater obrigações abertas do mesmo vínculo, sem criar associações persistidas.
+- A distribuição genérica é virtual e cronológica: primeiro considera os pagamentos direcionados de cada obrigação; depois aplica o saldo genérico às obrigações elegíveis mais antigas, até zerar o saldo de cada uma antes de avançar para a próxima.
+- A ordem é `referenceStart` crescente (competência mais antiga primeiro; referências nulas por último), `dueDate` crescente, `createdAt` crescente e `id` como desempate determinístico.
+- Somente obrigações com status `pendente` ou `parcial` recebem pagamentos genéricos. Obrigações `pago`, `cancelado` ou `em_revisao` não participam da distribuição.
+- A distribuição nunca atribui a uma obrigação mais do que seu valor reconhecido. Qualquer saldo genérico que exceda todas as obrigações abertas permanece sem destinação.
 - Cada movimentação pertence ao mesmo vínculo da obrigação referenciada. O backend valida esse pertencimento.
 - O status da obrigação (`pendente`, `parcial`, `pago`, `cancelado` ou `em_revisao`) é alterado manualmente. Registrar, editar ou excluir pagamentos não altera o status automaticamente.
-- O valor pago e o saldo são derivados dos movimentos de pagamento vinculados. Não armazenar um saldo duplicado na obrigação.
+- O valor pago e o saldo são derivados dos movimentos de pagamento e da distribuição genérica em consultas. Não armazenar saldo nem alocação virtual na obrigação.
 - Excluir uma obrigação preserva pagamentos e transações financeiras: os movimentos são desvinculados antes da exclusão.
 - Excluir um movimento não exclui a transação financeira compartilhada.
 - Não registrar o mesmo valor como uma nova saída financeira ao vincular outro movimento à transferência já registrada.
