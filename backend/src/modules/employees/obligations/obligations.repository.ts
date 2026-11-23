@@ -1,5 +1,6 @@
 import { Prisma, type EmployeeObligation } from '../../../generated/prisma/client.js'
 import { prisma } from '../../../shared/database/prisma.js'
+import { calculateObligationBalances } from './helpers/calculateObligationBalances.js'
 import type { createObligationDTO, updateObligationDTO } from './obligations.schema.js'
 
 const getMonthRange = (date: Date) => ({
@@ -41,6 +42,50 @@ class ObligationsRepository {
         return prisma.employeeEngagement.findUnique({
             where: { id: engagementId },
             select: { employeeId: true }
+        })
+    }
+
+    async findOpenObligations(engagementId: string) {
+        return prisma.$transaction(async tx => {
+            const obligations = await tx.employeeObligation.findMany({
+                where: { engagementId, status: { in: ['pendente', 'parcial'] } },
+                include: {
+                    movements: {
+                        where: { type: 'pagamento' },
+                        select: { type: true, value: true }
+                    }
+                },
+                orderBy: [
+                    { referenceStart: 'asc' },
+                    { dueDate: 'asc' },
+                    { createdAt: 'asc' },
+                    { id: 'asc' }
+                ]
+            })
+            const genericPayments = await tx.employeeMovement.findMany({
+                where: { engagementId, type: 'pagamento', obligationId: null },
+                select: { value: true }
+            })
+
+            const balances = calculateObligationBalances(obligations, genericPayments)
+
+            return obligations.map(obligation => {
+                const balance = balances.get(obligation.id)
+                return {
+                    id: obligation.id,
+                    type: obligation.type,
+                    title: obligation.title,
+                    referenceStart: obligation.referenceStart,
+                    referenceEnd: obligation.referenceEnd,
+                    dueDate: obligation.dueDate,
+                    status: obligation.status,
+                    finalValue: Number(obligation.finalValue),
+                    paidValue: balance?.paidValue ?? 0,
+                    outstandingValue: balance?.outstandingValue ?? 0
+                }
+            }).filter(obligation => obligation.outstandingValue > 0)
+        }, {
+            isolationLevel: Prisma.TransactionIsolationLevel.RepeatableRead
         })
     }
 
