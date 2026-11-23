@@ -26,10 +26,11 @@ class MovementsRepository {
         await tx.$queryRaw`SELECT id FROM financial_transactions WHERE id = ${financialTransactionId} FOR UPDATE`
         const transaction = await tx.financialTransaction.findUnique({
             where: { id: financialTransactionId },
-            select: { value: true, type: true }
+            select: { value: true, type: true, originId: true, originType: true }
         })
         if (!transaction) return 'notFound' as const
         if (transaction.type !== 'expense') return 'invalidType' as const
+        if (transaction.originId !== null || transaction.originType !== null) return 'invalidOrigin' as const
 
         const aggregate = await tx.employeeMovement.aggregate({
             where: { financialTransactionId, ...(movementId ? { id: { not: movementId } } : {}) },
@@ -132,6 +133,7 @@ class MovementsRepository {
                 const validation = await this.validateFinancialTransaction(tx, financialTransactionId, value)
                 if (validation === 'notFound') return { financialTransactionNotFound: true as const }
                 if (validation === 'invalidType') return { invalidCategoryType: true as const }
+                if (validation === 'invalidOrigin') return { transactionLinkedToOtherOrigin: true as const }
                 if (validation === 'exceeded') return { financialTransactionExceeded: true as const }
             } else if (shouldCreateTransaction) {
                 if (!data.categoryId) return { categoryNotFound: true as const }
@@ -309,6 +311,7 @@ class MovementsRepository {
                 )
                 if (validation === 'notFound') return { financialTransactionNotFound: true as const }
                 if (validation === 'invalidType') return { invalidCategoryType: true as const }
+                if (validation === 'invalidOrigin') return { transactionLinkedToOtherOrigin: true as const }
                 if (validation === 'exceeded') return { financialTransactionExceeded: true as const }
             } else if (!existing.financialTransaction && shouldKeepTransaction) {
                 if (!data.categoryId) return { categoryNotFound: true as const }

@@ -17,6 +17,7 @@ class MovementsService {
         if ('transactionManagedSeparately' in result) throw new AppError('Update the shared financial transaction through the financial module', 409, 'TRANSACTION_MANAGED_SEPARATELY')
         if ('categoryInactive' in result) throw new AppError('Cannot register a payment with an inactive category', 400, 'CATEGORY_INACTIVE')
         if ('invalidCategoryType' in result) throw new AppError('Employee payments require an expense transaction', 400, 'INVALID_CATEGORY_TYPE')
+        if ('transactionLinkedToOtherOrigin' in result) throw new AppError('Financial transaction is already linked to another origin', 409, 'TRANSACTION_LINKED_TO_OTHER_ORIGIN')
         if ('financialTransactionExceeded' in result) throw new AppError('Linked employee movements cannot exceed the financial transaction value', 409, 'FINANCIAL_TRANSACTION_VALUE_EXCEEDED')
         if ('invalidObligation' in result) throw new AppError('Obligation not found for this engagement', 404, 'OBLIGATION_NOT_FOUND')
     }
