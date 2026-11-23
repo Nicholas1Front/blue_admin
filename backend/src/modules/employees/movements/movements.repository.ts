@@ -8,8 +8,6 @@ import type {
     updatePaymentDTO
 } from './movements.schema.js'
 
-type PaymentData = createPaymentDTO | updatePaymentDTO
-
 class MovementsRepository {
     private async lockEngagement(tx: Prisma.TransactionClient, engagementId: string) {
         await tx.$queryRaw`SELECT id FROM employee_engagements WHERE id = ${engagementId} FOR UPDATE`
@@ -407,11 +405,26 @@ class MovementsRepository {
                 } : {})
             },
             orderBy: [{ eventDate: 'desc' }, { createdAt: 'desc' }, { id: 'asc' }],
-            select: { id: true }
+            include: {
+                obligation: {
+                    select: { id: true, type: true, title: true, referenceStart: true, referenceEnd: true, finalValue: true, status: true }
+                },
+                financialTransaction: {
+                    select: { id: true, categoryId: true, description: true, value: true, type: true, referenceDate: true }
+                }
+            }
         })
-        return Promise.all(movements.map(({ id }) =>
-            prisma.$transaction(tx => this.findMovementResult(tx, id))
-        ))
+
+        return movements.map(movement => ({
+            ...movement,
+            value: movement.value === null ? null : Number(movement.value),
+            obligation: movement.obligation
+                ? { ...movement.obligation, finalValue: Number(movement.obligation.finalValue) }
+                : null,
+            financialTransaction: movement.financialTransaction
+                ? { ...movement.financialTransaction, value: Number(movement.financialTransaction.value) }
+                : null
+        }))
     }
 
     async findOpenObligations(engagementId: string) {
@@ -426,9 +439,9 @@ class MovementsRepository {
             const paidValue = obligation.movements.reduce(
                 (total, movement) => total.plus(movement.value ?? 0), new Prisma.Decimal(0)
             )
-            const outstandingValue = Prisma.Decimal.max(
-                new Prisma.Decimal(0), obligation.finalValue.minus(paidValue)
-            )
+            const outstandingValue = obligation.finalValue.gt(paidValue)
+                ? obligation.finalValue.minus(paidValue)
+                : new Prisma.Decimal(0)
             return {
                 id: obligation.id, type: obligation.type, title: obligation.title,
                 referenceStart: obligation.referenceStart, referenceEnd: obligation.referenceEnd,
