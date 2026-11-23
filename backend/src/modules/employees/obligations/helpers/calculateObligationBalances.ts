@@ -5,7 +5,7 @@ type PaymentMovement = {
     value: NumericValue
 }
 
-type ObligationBalanceInput = {
+export type ObligationBalanceInput = {
     id: string
     status: string
     finalValue: NumericValue
@@ -40,6 +40,15 @@ const compareNullableDates = (left: Date | null, right: Date | null) => {
     return left.getTime() - right.getTime()
 }
 
+export const compareObligationsByCompetence = (
+    left: ObligationBalanceInput,
+    right: ObligationBalanceInput
+) =>
+    compareNullableDates(left.referenceStart, right.referenceStart) ||
+    compareNullableDates(left.dueDate, right.dueDate) ||
+    left.createdAt.getTime() - right.createdAt.getTime() ||
+    left.id.localeCompare(right.id)
+
 export const calculateObligationBalances = (
     obligations: ObligationBalanceInput[],
     genericPayments: GenericPayment[]
@@ -47,12 +56,7 @@ export const calculateObligationBalances = (
     const balances = new Map<string, ObligationBalance>()
     const eligible = obligations
         .filter(obligation => ['pendente', 'parcial'].includes(obligation.status))
-        .sort((left, right) =>
-            compareNullableDates(left.referenceStart, right.referenceStart) ||
-            compareNullableDates(left.dueDate, right.dueDate) ||
-            left.createdAt.getTime() - right.createdAt.getTime() ||
-            left.id.localeCompare(right.id)
-        )
+        .sort(compareObligationsByCompetence)
 
     let genericBalance = genericPayments.reduce(
         (total, payment) => total + toCents(payment.value),
