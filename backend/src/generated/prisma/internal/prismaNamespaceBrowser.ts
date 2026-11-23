@@ -72,7 +72,6 @@ export const ModelName = {
   EmployeeEngagement: 'EmployeeEngagement',
   EmployeeObligation: 'EmployeeObligation',
   EmployeeMovement: 'EmployeeMovement',
-  EmployeePaymentAllocation: 'EmployeePaymentAllocation',
   EmployeeHistory: 'EmployeeHistory'
 } as const
 
@@ -399,18 +398,6 @@ export const EmployeeMovementScalarFieldEnum = {
 } as const
 
 export type EmployeeMovementScalarFieldEnum = (typeof EmployeeMovementScalarFieldEnum)[keyof typeof EmployeeMovementScalarFieldEnum]
-
-
-export const EmployeePaymentAllocationScalarFieldEnum = {
-  id: 'id',
-  movementId: 'movementId',
-  obligationId: 'obligationId',
-  type: 'type',
-  value: 'value',
-  createdAt: 'createdAt'
-} as const
-
-export type EmployeePaymentAllocationScalarFieldEnum = (typeof EmployeePaymentAllocationScalarFieldEnum)[keyof typeof EmployeePaymentAllocationScalarFieldEnum]
 
 
 export const EmployeeHistoryScalarFieldEnum = {

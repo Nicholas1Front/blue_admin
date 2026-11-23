@@ -293,7 +293,6 @@ export type EmployeeObligationWhereInput = {
   createdAt?: Prisma.DateTimeFilter<"EmployeeObligation"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"EmployeeObligation"> | Date | string
   engagement?: Prisma.XOR<Prisma.EmployeeEngagementScalarRelationFilter, Prisma.EmployeeEngagementWhereInput>
-  allocations?: Prisma.EmployeePaymentAllocationListRelationFilter
   movements?: Prisma.EmployeeMovementListRelationFilter
 }
 
@@ -313,7 +312,6 @@ export type EmployeeObligationOrderByWithRelationInput = {
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
   engagement?: Prisma.EmployeeEngagementOrderByWithRelationInput
-  allocations?: Prisma.EmployeePaymentAllocationOrderByRelationAggregateInput
   movements?: Prisma.EmployeeMovementOrderByRelationAggregateInput
 }
 
@@ -336,7 +334,6 @@ export type EmployeeObligationWhereUniqueInput = Prisma.AtLeast<{
   createdAt?: Prisma.DateTimeFilter<"EmployeeObligation"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"EmployeeObligation"> | Date | string
   engagement?: Prisma.XOR<Prisma.EmployeeEngagementScalarRelationFilter, Prisma.EmployeeEngagementWhereInput>
-  allocations?: Prisma.EmployeePaymentAllocationListRelationFilter
   movements?: Prisma.EmployeeMovementListRelationFilter
 }, "id">
 
@@ -397,7 +394,6 @@ export type EmployeeObligationCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   engagement: Prisma.EmployeeEngagementCreateNestedOneWithoutObligationsInput
-  allocations?: Prisma.EmployeePaymentAllocationCreateNestedManyWithoutObligationInput
   movements?: Prisma.EmployeeMovementCreateNestedManyWithoutObligationInput
 }
 
@@ -416,7 +412,6 @@ export type EmployeeObligationUncheckedCreateInput = {
   observations?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  allocations?: Prisma.EmployeePaymentAllocationUncheckedCreateNestedManyWithoutObligationInput
   movements?: Prisma.EmployeeMovementUncheckedCreateNestedManyWithoutObligationInput
 }
 
@@ -435,7 +430,6 @@ export type EmployeeObligationUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   engagement?: Prisma.EmployeeEngagementUpdateOneRequiredWithoutObligationsNestedInput
-  allocations?: Prisma.EmployeePaymentAllocationUpdateManyWithoutObligationNestedInput
   movements?: Prisma.EmployeeMovementUpdateManyWithoutObligationNestedInput
 }
 
@@ -454,7 +448,6 @@ export type EmployeeObligationUncheckedUpdateInput = {
   observations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  allocations?: Prisma.EmployeePaymentAllocationUncheckedUpdateManyWithoutObligationNestedInput
   movements?: Prisma.EmployeeMovementUncheckedUpdateManyWithoutObligationNestedInput
 }
 
@@ -584,11 +577,6 @@ export type EmployeeObligationNullableScalarRelationFilter = {
   isNot?: Prisma.EmployeeObligationWhereInput | null
 }
 
-export type EmployeeObligationScalarRelationFilter = {
-  is?: Prisma.EmployeeObligationWhereInput
-  isNot?: Prisma.EmployeeObligationWhereInput
-}
-
 export type EmployeeObligationCreateNestedManyWithoutEngagementInput = {
   create?: Prisma.XOR<Prisma.EmployeeObligationCreateWithoutEngagementInput, Prisma.EmployeeObligationUncheckedCreateWithoutEngagementInput> | Prisma.EmployeeObligationCreateWithoutEngagementInput[] | Prisma.EmployeeObligationUncheckedCreateWithoutEngagementInput[]
   connectOrCreate?: Prisma.EmployeeObligationCreateOrConnectWithoutEngagementInput | Prisma.EmployeeObligationCreateOrConnectWithoutEngagementInput[]
@@ -647,20 +635,6 @@ export type EmployeeObligationUpdateOneWithoutMovementsNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.EmployeeObligationUpdateToOneWithWhereWithoutMovementsInput, Prisma.EmployeeObligationUpdateWithoutMovementsInput>, Prisma.EmployeeObligationUncheckedUpdateWithoutMovementsInput>
 }
 
-export type EmployeeObligationCreateNestedOneWithoutAllocationsInput = {
-  create?: Prisma.XOR<Prisma.EmployeeObligationCreateWithoutAllocationsInput, Prisma.EmployeeObligationUncheckedCreateWithoutAllocationsInput>
-  connectOrCreate?: Prisma.EmployeeObligationCreateOrConnectWithoutAllocationsInput
-  connect?: Prisma.EmployeeObligationWhereUniqueInput
-}
-
-export type EmployeeObligationUpdateOneRequiredWithoutAllocationsNestedInput = {
-  create?: Prisma.XOR<Prisma.EmployeeObligationCreateWithoutAllocationsInput, Prisma.EmployeeObligationUncheckedCreateWithoutAllocationsInput>
-  connectOrCreate?: Prisma.EmployeeObligationCreateOrConnectWithoutAllocationsInput
-  upsert?: Prisma.EmployeeObligationUpsertWithoutAllocationsInput
-  connect?: Prisma.EmployeeObligationWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.EmployeeObligationUpdateToOneWithWhereWithoutAllocationsInput, Prisma.EmployeeObligationUpdateWithoutAllocationsInput>, Prisma.EmployeeObligationUncheckedUpdateWithoutAllocationsInput>
-}
-
 export type EmployeeObligationCreateWithoutEngagementInput = {
   id?: string
   type: string
@@ -675,7 +649,6 @@ export type EmployeeObligationCreateWithoutEngagementInput = {
   observations?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  allocations?: Prisma.EmployeePaymentAllocationCreateNestedManyWithoutObligationInput
   movements?: Prisma.EmployeeMovementCreateNestedManyWithoutObligationInput
 }
 
@@ -693,7 +666,6 @@ export type EmployeeObligationUncheckedCreateWithoutEngagementInput = {
   observations?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  allocations?: Prisma.EmployeePaymentAllocationUncheckedCreateNestedManyWithoutObligationInput
   movements?: Prisma.EmployeeMovementUncheckedCreateNestedManyWithoutObligationInput
 }
 
@@ -758,7 +730,6 @@ export type EmployeeObligationCreateWithoutMovementsInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   engagement: Prisma.EmployeeEngagementCreateNestedOneWithoutObligationsInput
-  allocations?: Prisma.EmployeePaymentAllocationCreateNestedManyWithoutObligationInput
 }
 
 export type EmployeeObligationUncheckedCreateWithoutMovementsInput = {
@@ -776,7 +747,6 @@ export type EmployeeObligationUncheckedCreateWithoutMovementsInput = {
   observations?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  allocations?: Prisma.EmployeePaymentAllocationUncheckedCreateNestedManyWithoutObligationInput
 }
 
 export type EmployeeObligationCreateOrConnectWithoutMovementsInput = {
@@ -810,7 +780,6 @@ export type EmployeeObligationUpdateWithoutMovementsInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   engagement?: Prisma.EmployeeEngagementUpdateOneRequiredWithoutObligationsNestedInput
-  allocations?: Prisma.EmployeePaymentAllocationUpdateManyWithoutObligationNestedInput
 }
 
 export type EmployeeObligationUncheckedUpdateWithoutMovementsInput = {
@@ -828,95 +797,6 @@ export type EmployeeObligationUncheckedUpdateWithoutMovementsInput = {
   observations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  allocations?: Prisma.EmployeePaymentAllocationUncheckedUpdateManyWithoutObligationNestedInput
-}
-
-export type EmployeeObligationCreateWithoutAllocationsInput = {
-  id?: string
-  type: string
-  title: string
-  description?: string | null
-  referenceStart?: Date | string | null
-  referenceEnd?: Date | string | null
-  dueDate?: Date | string | null
-  originalValue: runtime.Decimal | runtime.DecimalJsLike | number | string
-  finalValue: runtime.Decimal | runtime.DecimalJsLike | number | string
-  status: string
-  observations?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  engagement: Prisma.EmployeeEngagementCreateNestedOneWithoutObligationsInput
-  movements?: Prisma.EmployeeMovementCreateNestedManyWithoutObligationInput
-}
-
-export type EmployeeObligationUncheckedCreateWithoutAllocationsInput = {
-  id?: string
-  engagementId: string
-  type: string
-  title: string
-  description?: string | null
-  referenceStart?: Date | string | null
-  referenceEnd?: Date | string | null
-  dueDate?: Date | string | null
-  originalValue: runtime.Decimal | runtime.DecimalJsLike | number | string
-  finalValue: runtime.Decimal | runtime.DecimalJsLike | number | string
-  status: string
-  observations?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  movements?: Prisma.EmployeeMovementUncheckedCreateNestedManyWithoutObligationInput
-}
-
-export type EmployeeObligationCreateOrConnectWithoutAllocationsInput = {
-  where: Prisma.EmployeeObligationWhereUniqueInput
-  create: Prisma.XOR<Prisma.EmployeeObligationCreateWithoutAllocationsInput, Prisma.EmployeeObligationUncheckedCreateWithoutAllocationsInput>
-}
-
-export type EmployeeObligationUpsertWithoutAllocationsInput = {
-  update: Prisma.XOR<Prisma.EmployeeObligationUpdateWithoutAllocationsInput, Prisma.EmployeeObligationUncheckedUpdateWithoutAllocationsInput>
-  create: Prisma.XOR<Prisma.EmployeeObligationCreateWithoutAllocationsInput, Prisma.EmployeeObligationUncheckedCreateWithoutAllocationsInput>
-  where?: Prisma.EmployeeObligationWhereInput
-}
-
-export type EmployeeObligationUpdateToOneWithWhereWithoutAllocationsInput = {
-  where?: Prisma.EmployeeObligationWhereInput
-  data: Prisma.XOR<Prisma.EmployeeObligationUpdateWithoutAllocationsInput, Prisma.EmployeeObligationUncheckedUpdateWithoutAllocationsInput>
-}
-
-export type EmployeeObligationUpdateWithoutAllocationsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.StringFieldUpdateOperationsInput | string
-  title?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  referenceStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  referenceEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  originalValue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  finalValue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  observations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  engagement?: Prisma.EmployeeEngagementUpdateOneRequiredWithoutObligationsNestedInput
-  movements?: Prisma.EmployeeMovementUpdateManyWithoutObligationNestedInput
-}
-
-export type EmployeeObligationUncheckedUpdateWithoutAllocationsInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  engagementId?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.StringFieldUpdateOperationsInput | string
-  title?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  referenceStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  referenceEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  dueDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  originalValue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  finalValue?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
-  status?: Prisma.StringFieldUpdateOperationsInput | string
-  observations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  movements?: Prisma.EmployeeMovementUncheckedUpdateManyWithoutObligationNestedInput
 }
 
 export type EmployeeObligationCreateManyEngagementInput = {
@@ -949,7 +829,6 @@ export type EmployeeObligationUpdateWithoutEngagementInput = {
   observations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  allocations?: Prisma.EmployeePaymentAllocationUpdateManyWithoutObligationNestedInput
   movements?: Prisma.EmployeeMovementUpdateManyWithoutObligationNestedInput
 }
 
@@ -967,7 +846,6 @@ export type EmployeeObligationUncheckedUpdateWithoutEngagementInput = {
   observations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  allocations?: Prisma.EmployeePaymentAllocationUncheckedUpdateManyWithoutObligationNestedInput
   movements?: Prisma.EmployeeMovementUncheckedUpdateManyWithoutObligationNestedInput
 }
 
@@ -993,12 +871,10 @@ export type EmployeeObligationUncheckedUpdateManyWithoutEngagementInput = {
  */
 
 export type EmployeeObligationCountOutputType = {
-  allocations: number
   movements: number
 }
 
 export type EmployeeObligationCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  allocations?: boolean | EmployeeObligationCountOutputTypeCountAllocationsArgs
   movements?: boolean | EmployeeObligationCountOutputTypeCountMovementsArgs
 }
 
@@ -1010,13 +886,6 @@ export type EmployeeObligationCountOutputTypeDefaultArgs<ExtArgs extends runtime
    * Select specific fields to fetch from the EmployeeObligationCountOutputType
    */
   select?: Prisma.EmployeeObligationCountOutputTypeSelect<ExtArgs> | null
-}
-
-/**
- * EmployeeObligationCountOutputType without action
- */
-export type EmployeeObligationCountOutputTypeCountAllocationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.EmployeePaymentAllocationWhereInput
 }
 
 /**
@@ -1043,7 +912,6 @@ export type EmployeeObligationSelect<ExtArgs extends runtime.Types.Extensions.In
   createdAt?: boolean
   updatedAt?: boolean
   engagement?: boolean | Prisma.EmployeeEngagementDefaultArgs<ExtArgs>
-  allocations?: boolean | Prisma.EmployeeObligation$allocationsArgs<ExtArgs>
   movements?: boolean | Prisma.EmployeeObligation$movementsArgs<ExtArgs>
   _count?: boolean | Prisma.EmployeeObligationCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["employeeObligation"]>
@@ -1104,7 +972,6 @@ export type EmployeeObligationSelectScalar = {
 export type EmployeeObligationOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "engagementId" | "type" | "title" | "description" | "referenceStart" | "referenceEnd" | "dueDate" | "originalValue" | "finalValue" | "status" | "observations" | "createdAt" | "updatedAt", ExtArgs["result"]["employeeObligation"]>
 export type EmployeeObligationInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   engagement?: boolean | Prisma.EmployeeEngagementDefaultArgs<ExtArgs>
-  allocations?: boolean | Prisma.EmployeeObligation$allocationsArgs<ExtArgs>
   movements?: boolean | Prisma.EmployeeObligation$movementsArgs<ExtArgs>
   _count?: boolean | Prisma.EmployeeObligationCountOutputTypeDefaultArgs<ExtArgs>
 }
@@ -1119,7 +986,6 @@ export type $EmployeeObligationPayload<ExtArgs extends runtime.Types.Extensions.
   name: "EmployeeObligation"
   objects: {
     engagement: Prisma.$EmployeeEngagementPayload<ExtArgs>
-    allocations: Prisma.$EmployeePaymentAllocationPayload<ExtArgs>[]
     movements: Prisma.$EmployeeMovementPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
@@ -1532,7 +1398,6 @@ readonly fields: EmployeeObligationFieldRefs;
 export interface Prisma__EmployeeObligationClient<T, Null = never, ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs, GlobalOmitOptions = {}> extends Prisma.PrismaPromise<T> {
   readonly [Symbol.toStringTag]: "PrismaPromise"
   engagement<T extends Prisma.EmployeeEngagementDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EmployeeEngagementDefaultArgs<ExtArgs>>): Prisma.Prisma__EmployeeEngagementClient<runtime.Types.Result.GetResult<Prisma.$EmployeeEngagementPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
-  allocations<T extends Prisma.EmployeeObligation$allocationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EmployeeObligation$allocationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EmployeePaymentAllocationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   movements<T extends Prisma.EmployeeObligation$movementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EmployeeObligation$movementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EmployeeMovementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
@@ -1975,30 +1840,6 @@ export type EmployeeObligationDeleteManyArgs<ExtArgs extends runtime.Types.Exten
    * Limit how many EmployeeObligations to delete.
    */
   limit?: number
-}
-
-/**
- * EmployeeObligation.allocations
- */
-export type EmployeeObligation$allocationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the EmployeePaymentAllocation
-   */
-  select?: Prisma.EmployeePaymentAllocationSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the EmployeePaymentAllocation
-   */
-  omit?: Prisma.EmployeePaymentAllocationOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.EmployeePaymentAllocationInclude<ExtArgs> | null
-  where?: Prisma.EmployeePaymentAllocationWhereInput
-  orderBy?: Prisma.EmployeePaymentAllocationOrderByWithRelationInput | Prisma.EmployeePaymentAllocationOrderByWithRelationInput[]
-  cursor?: Prisma.EmployeePaymentAllocationWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.EmployeePaymentAllocationScalarFieldEnum | Prisma.EmployeePaymentAllocationScalarFieldEnum[]
 }
 
 /**

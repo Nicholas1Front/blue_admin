@@ -147,11 +147,6 @@ export type EmployeeObligation = Prisma.EmployeeObligationModel
  */
 export type EmployeeMovement = Prisma.EmployeeMovementModel
 /**
- * Model EmployeePaymentAllocation
- * 
- */
-export type EmployeePaymentAllocation = Prisma.EmployeePaymentAllocationModel
-/**
  * Model EmployeeHistory
  * 
  */

@@ -283,7 +283,6 @@ export type EmployeeMovementWhereInput = {
   engagement?: Prisma.XOR<Prisma.EmployeeEngagementScalarRelationFilter, Prisma.EmployeeEngagementWhereInput>
   obligation?: Prisma.XOR<Prisma.EmployeeObligationNullableScalarRelationFilter, Prisma.EmployeeObligationWhereInput> | null
   financialTransaction?: Prisma.XOR<Prisma.FinancialTransactionNullableScalarRelationFilter, Prisma.FinancialTransactionWhereInput> | null
-  allocations?: Prisma.EmployeePaymentAllocationListRelationFilter
 }
 
 export type EmployeeMovementOrderByWithRelationInput = {
@@ -303,12 +302,10 @@ export type EmployeeMovementOrderByWithRelationInput = {
   engagement?: Prisma.EmployeeEngagementOrderByWithRelationInput
   obligation?: Prisma.EmployeeObligationOrderByWithRelationInput
   financialTransaction?: Prisma.FinancialTransactionOrderByWithRelationInput
-  allocations?: Prisma.EmployeePaymentAllocationOrderByRelationAggregateInput
 }
 
 export type EmployeeMovementWhereUniqueInput = Prisma.AtLeast<{
   id?: string
-  financialTransactionId?: string
   AND?: Prisma.EmployeeMovementWhereInput | Prisma.EmployeeMovementWhereInput[]
   OR?: Prisma.EmployeeMovementWhereInput[]
   NOT?: Prisma.EmployeeMovementWhereInput | Prisma.EmployeeMovementWhereInput[]
@@ -320,14 +317,14 @@ export type EmployeeMovementWhereUniqueInput = Prisma.AtLeast<{
   referenceEnd?: Prisma.DateTimeNullableFilter<"EmployeeMovement"> | Date | string | null
   value?: Prisma.DecimalNullableFilter<"EmployeeMovement"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   obligationId?: Prisma.StringNullableFilter<"EmployeeMovement"> | string | null
+  financialTransactionId?: Prisma.StringNullableFilter<"EmployeeMovement"> | string | null
   observations?: Prisma.StringNullableFilter<"EmployeeMovement"> | string | null
   createdAt?: Prisma.DateTimeFilter<"EmployeeMovement"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"EmployeeMovement"> | Date | string
   engagement?: Prisma.XOR<Prisma.EmployeeEngagementScalarRelationFilter, Prisma.EmployeeEngagementWhereInput>
   obligation?: Prisma.XOR<Prisma.EmployeeObligationNullableScalarRelationFilter, Prisma.EmployeeObligationWhereInput> | null
   financialTransaction?: Prisma.XOR<Prisma.FinancialTransactionNullableScalarRelationFilter, Prisma.FinancialTransactionWhereInput> | null
-  allocations?: Prisma.EmployeePaymentAllocationListRelationFilter
-}, "id" | "financialTransactionId">
+}, "id">
 
 export type EmployeeMovementOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
@@ -382,8 +379,7 @@ export type EmployeeMovementCreateInput = {
   updatedAt?: Date | string
   engagement: Prisma.EmployeeEngagementCreateNestedOneWithoutMovementsInput
   obligation?: Prisma.EmployeeObligationCreateNestedOneWithoutMovementsInput
-  financialTransaction?: Prisma.FinancialTransactionCreateNestedOneWithoutEmployeeMovementInput
-  allocations?: Prisma.EmployeePaymentAllocationCreateNestedManyWithoutMovementInput
+  financialTransaction?: Prisma.FinancialTransactionCreateNestedOneWithoutEmployeeMovementsInput
 }
 
 export type EmployeeMovementUncheckedCreateInput = {
@@ -400,7 +396,6 @@ export type EmployeeMovementUncheckedCreateInput = {
   observations?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  allocations?: Prisma.EmployeePaymentAllocationUncheckedCreateNestedManyWithoutMovementInput
 }
 
 export type EmployeeMovementUpdateInput = {
@@ -416,8 +411,7 @@ export type EmployeeMovementUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   engagement?: Prisma.EmployeeEngagementUpdateOneRequiredWithoutMovementsNestedInput
   obligation?: Prisma.EmployeeObligationUpdateOneWithoutMovementsNestedInput
-  financialTransaction?: Prisma.FinancialTransactionUpdateOneWithoutEmployeeMovementNestedInput
-  allocations?: Prisma.EmployeePaymentAllocationUpdateManyWithoutMovementNestedInput
+  financialTransaction?: Prisma.FinancialTransactionUpdateOneWithoutEmployeeMovementsNestedInput
 }
 
 export type EmployeeMovementUncheckedUpdateInput = {
@@ -434,7 +428,6 @@ export type EmployeeMovementUncheckedUpdateInput = {
   observations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  allocations?: Prisma.EmployeePaymentAllocationUncheckedUpdateManyWithoutMovementNestedInput
 }
 
 export type EmployeeMovementCreateManyInput = {
@@ -480,11 +473,6 @@ export type EmployeeMovementUncheckedUpdateManyInput = {
   observations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-}
-
-export type EmployeeMovementNullableScalarRelationFilter = {
-  is?: Prisma.EmployeeMovementWhereInput | null
-  isNot?: Prisma.EmployeeMovementWhereInput | null
 }
 
 export type EmployeeMovementListRelationFilter = {
@@ -553,41 +541,46 @@ export type EmployeeMovementSumOrderByAggregateInput = {
   value?: Prisma.SortOrder
 }
 
-export type EmployeeMovementScalarRelationFilter = {
-  is?: Prisma.EmployeeMovementWhereInput
-  isNot?: Prisma.EmployeeMovementWhereInput
+export type EmployeeMovementCreateNestedManyWithoutFinancialTransactionInput = {
+  create?: Prisma.XOR<Prisma.EmployeeMovementCreateWithoutFinancialTransactionInput, Prisma.EmployeeMovementUncheckedCreateWithoutFinancialTransactionInput> | Prisma.EmployeeMovementCreateWithoutFinancialTransactionInput[] | Prisma.EmployeeMovementUncheckedCreateWithoutFinancialTransactionInput[]
+  connectOrCreate?: Prisma.EmployeeMovementCreateOrConnectWithoutFinancialTransactionInput | Prisma.EmployeeMovementCreateOrConnectWithoutFinancialTransactionInput[]
+  createMany?: Prisma.EmployeeMovementCreateManyFinancialTransactionInputEnvelope
+  connect?: Prisma.EmployeeMovementWhereUniqueInput | Prisma.EmployeeMovementWhereUniqueInput[]
 }
 
-export type EmployeeMovementCreateNestedOneWithoutFinancialTransactionInput = {
-  create?: Prisma.XOR<Prisma.EmployeeMovementCreateWithoutFinancialTransactionInput, Prisma.EmployeeMovementUncheckedCreateWithoutFinancialTransactionInput>
-  connectOrCreate?: Prisma.EmployeeMovementCreateOrConnectWithoutFinancialTransactionInput
-  connect?: Prisma.EmployeeMovementWhereUniqueInput
+export type EmployeeMovementUncheckedCreateNestedManyWithoutFinancialTransactionInput = {
+  create?: Prisma.XOR<Prisma.EmployeeMovementCreateWithoutFinancialTransactionInput, Prisma.EmployeeMovementUncheckedCreateWithoutFinancialTransactionInput> | Prisma.EmployeeMovementCreateWithoutFinancialTransactionInput[] | Prisma.EmployeeMovementUncheckedCreateWithoutFinancialTransactionInput[]
+  connectOrCreate?: Prisma.EmployeeMovementCreateOrConnectWithoutFinancialTransactionInput | Prisma.EmployeeMovementCreateOrConnectWithoutFinancialTransactionInput[]
+  createMany?: Prisma.EmployeeMovementCreateManyFinancialTransactionInputEnvelope
+  connect?: Prisma.EmployeeMovementWhereUniqueInput | Prisma.EmployeeMovementWhereUniqueInput[]
 }
 
-export type EmployeeMovementUncheckedCreateNestedOneWithoutFinancialTransactionInput = {
-  create?: Prisma.XOR<Prisma.EmployeeMovementCreateWithoutFinancialTransactionInput, Prisma.EmployeeMovementUncheckedCreateWithoutFinancialTransactionInput>
-  connectOrCreate?: Prisma.EmployeeMovementCreateOrConnectWithoutFinancialTransactionInput
-  connect?: Prisma.EmployeeMovementWhereUniqueInput
+export type EmployeeMovementUpdateManyWithoutFinancialTransactionNestedInput = {
+  create?: Prisma.XOR<Prisma.EmployeeMovementCreateWithoutFinancialTransactionInput, Prisma.EmployeeMovementUncheckedCreateWithoutFinancialTransactionInput> | Prisma.EmployeeMovementCreateWithoutFinancialTransactionInput[] | Prisma.EmployeeMovementUncheckedCreateWithoutFinancialTransactionInput[]
+  connectOrCreate?: Prisma.EmployeeMovementCreateOrConnectWithoutFinancialTransactionInput | Prisma.EmployeeMovementCreateOrConnectWithoutFinancialTransactionInput[]
+  upsert?: Prisma.EmployeeMovementUpsertWithWhereUniqueWithoutFinancialTransactionInput | Prisma.EmployeeMovementUpsertWithWhereUniqueWithoutFinancialTransactionInput[]
+  createMany?: Prisma.EmployeeMovementCreateManyFinancialTransactionInputEnvelope
+  set?: Prisma.EmployeeMovementWhereUniqueInput | Prisma.EmployeeMovementWhereUniqueInput[]
+  disconnect?: Prisma.EmployeeMovementWhereUniqueInput | Prisma.EmployeeMovementWhereUniqueInput[]
+  delete?: Prisma.EmployeeMovementWhereUniqueInput | Prisma.EmployeeMovementWhereUniqueInput[]
+  connect?: Prisma.EmployeeMovementWhereUniqueInput | Prisma.EmployeeMovementWhereUniqueInput[]
+  update?: Prisma.EmployeeMovementUpdateWithWhereUniqueWithoutFinancialTransactionInput | Prisma.EmployeeMovementUpdateWithWhereUniqueWithoutFinancialTransactionInput[]
+  updateMany?: Prisma.EmployeeMovementUpdateManyWithWhereWithoutFinancialTransactionInput | Prisma.EmployeeMovementUpdateManyWithWhereWithoutFinancialTransactionInput[]
+  deleteMany?: Prisma.EmployeeMovementScalarWhereInput | Prisma.EmployeeMovementScalarWhereInput[]
 }
 
-export type EmployeeMovementUpdateOneWithoutFinancialTransactionNestedInput = {
-  create?: Prisma.XOR<Prisma.EmployeeMovementCreateWithoutFinancialTransactionInput, Prisma.EmployeeMovementUncheckedCreateWithoutFinancialTransactionInput>
-  connectOrCreate?: Prisma.EmployeeMovementCreateOrConnectWithoutFinancialTransactionInput
-  upsert?: Prisma.EmployeeMovementUpsertWithoutFinancialTransactionInput
-  disconnect?: Prisma.EmployeeMovementWhereInput | boolean
-  delete?: Prisma.EmployeeMovementWhereInput | boolean
-  connect?: Prisma.EmployeeMovementWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.EmployeeMovementUpdateToOneWithWhereWithoutFinancialTransactionInput, Prisma.EmployeeMovementUpdateWithoutFinancialTransactionInput>, Prisma.EmployeeMovementUncheckedUpdateWithoutFinancialTransactionInput>
-}
-
-export type EmployeeMovementUncheckedUpdateOneWithoutFinancialTransactionNestedInput = {
-  create?: Prisma.XOR<Prisma.EmployeeMovementCreateWithoutFinancialTransactionInput, Prisma.EmployeeMovementUncheckedCreateWithoutFinancialTransactionInput>
-  connectOrCreate?: Prisma.EmployeeMovementCreateOrConnectWithoutFinancialTransactionInput
-  upsert?: Prisma.EmployeeMovementUpsertWithoutFinancialTransactionInput
-  disconnect?: Prisma.EmployeeMovementWhereInput | boolean
-  delete?: Prisma.EmployeeMovementWhereInput | boolean
-  connect?: Prisma.EmployeeMovementWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.EmployeeMovementUpdateToOneWithWhereWithoutFinancialTransactionInput, Prisma.EmployeeMovementUpdateWithoutFinancialTransactionInput>, Prisma.EmployeeMovementUncheckedUpdateWithoutFinancialTransactionInput>
+export type EmployeeMovementUncheckedUpdateManyWithoutFinancialTransactionNestedInput = {
+  create?: Prisma.XOR<Prisma.EmployeeMovementCreateWithoutFinancialTransactionInput, Prisma.EmployeeMovementUncheckedCreateWithoutFinancialTransactionInput> | Prisma.EmployeeMovementCreateWithoutFinancialTransactionInput[] | Prisma.EmployeeMovementUncheckedCreateWithoutFinancialTransactionInput[]
+  connectOrCreate?: Prisma.EmployeeMovementCreateOrConnectWithoutFinancialTransactionInput | Prisma.EmployeeMovementCreateOrConnectWithoutFinancialTransactionInput[]
+  upsert?: Prisma.EmployeeMovementUpsertWithWhereUniqueWithoutFinancialTransactionInput | Prisma.EmployeeMovementUpsertWithWhereUniqueWithoutFinancialTransactionInput[]
+  createMany?: Prisma.EmployeeMovementCreateManyFinancialTransactionInputEnvelope
+  set?: Prisma.EmployeeMovementWhereUniqueInput | Prisma.EmployeeMovementWhereUniqueInput[]
+  disconnect?: Prisma.EmployeeMovementWhereUniqueInput | Prisma.EmployeeMovementWhereUniqueInput[]
+  delete?: Prisma.EmployeeMovementWhereUniqueInput | Prisma.EmployeeMovementWhereUniqueInput[]
+  connect?: Prisma.EmployeeMovementWhereUniqueInput | Prisma.EmployeeMovementWhereUniqueInput[]
+  update?: Prisma.EmployeeMovementUpdateWithWhereUniqueWithoutFinancialTransactionInput | Prisma.EmployeeMovementUpdateWithWhereUniqueWithoutFinancialTransactionInput[]
+  updateMany?: Prisma.EmployeeMovementUpdateManyWithWhereWithoutFinancialTransactionInput | Prisma.EmployeeMovementUpdateManyWithWhereWithoutFinancialTransactionInput[]
+  deleteMany?: Prisma.EmployeeMovementScalarWhereInput | Prisma.EmployeeMovementScalarWhereInput[]
 }
 
 export type EmployeeMovementCreateNestedManyWithoutEngagementInput = {
@@ -674,20 +667,6 @@ export type EmployeeMovementUncheckedUpdateManyWithoutObligationNestedInput = {
   deleteMany?: Prisma.EmployeeMovementScalarWhereInput | Prisma.EmployeeMovementScalarWhereInput[]
 }
 
-export type EmployeeMovementCreateNestedOneWithoutAllocationsInput = {
-  create?: Prisma.XOR<Prisma.EmployeeMovementCreateWithoutAllocationsInput, Prisma.EmployeeMovementUncheckedCreateWithoutAllocationsInput>
-  connectOrCreate?: Prisma.EmployeeMovementCreateOrConnectWithoutAllocationsInput
-  connect?: Prisma.EmployeeMovementWhereUniqueInput
-}
-
-export type EmployeeMovementUpdateOneRequiredWithoutAllocationsNestedInput = {
-  create?: Prisma.XOR<Prisma.EmployeeMovementCreateWithoutAllocationsInput, Prisma.EmployeeMovementUncheckedCreateWithoutAllocationsInput>
-  connectOrCreate?: Prisma.EmployeeMovementCreateOrConnectWithoutAllocationsInput
-  upsert?: Prisma.EmployeeMovementUpsertWithoutAllocationsInput
-  connect?: Prisma.EmployeeMovementWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.EmployeeMovementUpdateToOneWithWhereWithoutAllocationsInput, Prisma.EmployeeMovementUpdateWithoutAllocationsInput>, Prisma.EmployeeMovementUncheckedUpdateWithoutAllocationsInput>
-}
-
 export type EmployeeMovementCreateWithoutFinancialTransactionInput = {
   id?: string
   type: string
@@ -701,7 +680,6 @@ export type EmployeeMovementCreateWithoutFinancialTransactionInput = {
   updatedAt?: Date | string
   engagement: Prisma.EmployeeEngagementCreateNestedOneWithoutMovementsInput
   obligation?: Prisma.EmployeeObligationCreateNestedOneWithoutMovementsInput
-  allocations?: Prisma.EmployeePaymentAllocationCreateNestedManyWithoutMovementInput
 }
 
 export type EmployeeMovementUncheckedCreateWithoutFinancialTransactionInput = {
@@ -717,7 +695,6 @@ export type EmployeeMovementUncheckedCreateWithoutFinancialTransactionInput = {
   observations?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  allocations?: Prisma.EmployeePaymentAllocationUncheckedCreateNestedManyWithoutMovementInput
 }
 
 export type EmployeeMovementCreateOrConnectWithoutFinancialTransactionInput = {
@@ -725,47 +702,44 @@ export type EmployeeMovementCreateOrConnectWithoutFinancialTransactionInput = {
   create: Prisma.XOR<Prisma.EmployeeMovementCreateWithoutFinancialTransactionInput, Prisma.EmployeeMovementUncheckedCreateWithoutFinancialTransactionInput>
 }
 
-export type EmployeeMovementUpsertWithoutFinancialTransactionInput = {
-  update: Prisma.XOR<Prisma.EmployeeMovementUpdateWithoutFinancialTransactionInput, Prisma.EmployeeMovementUncheckedUpdateWithoutFinancialTransactionInput>
-  create: Prisma.XOR<Prisma.EmployeeMovementCreateWithoutFinancialTransactionInput, Prisma.EmployeeMovementUncheckedCreateWithoutFinancialTransactionInput>
-  where?: Prisma.EmployeeMovementWhereInput
+export type EmployeeMovementCreateManyFinancialTransactionInputEnvelope = {
+  data: Prisma.EmployeeMovementCreateManyFinancialTransactionInput | Prisma.EmployeeMovementCreateManyFinancialTransactionInput[]
+  skipDuplicates?: boolean
 }
 
-export type EmployeeMovementUpdateToOneWithWhereWithoutFinancialTransactionInput = {
-  where?: Prisma.EmployeeMovementWhereInput
+export type EmployeeMovementUpsertWithWhereUniqueWithoutFinancialTransactionInput = {
+  where: Prisma.EmployeeMovementWhereUniqueInput
+  update: Prisma.XOR<Prisma.EmployeeMovementUpdateWithoutFinancialTransactionInput, Prisma.EmployeeMovementUncheckedUpdateWithoutFinancialTransactionInput>
+  create: Prisma.XOR<Prisma.EmployeeMovementCreateWithoutFinancialTransactionInput, Prisma.EmployeeMovementUncheckedCreateWithoutFinancialTransactionInput>
+}
+
+export type EmployeeMovementUpdateWithWhereUniqueWithoutFinancialTransactionInput = {
+  where: Prisma.EmployeeMovementWhereUniqueInput
   data: Prisma.XOR<Prisma.EmployeeMovementUpdateWithoutFinancialTransactionInput, Prisma.EmployeeMovementUncheckedUpdateWithoutFinancialTransactionInput>
 }
 
-export type EmployeeMovementUpdateWithoutFinancialTransactionInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.StringFieldUpdateOperationsInput | string
-  eventDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  referenceStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  referenceEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  value?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  observations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  engagement?: Prisma.EmployeeEngagementUpdateOneRequiredWithoutMovementsNestedInput
-  obligation?: Prisma.EmployeeObligationUpdateOneWithoutMovementsNestedInput
-  allocations?: Prisma.EmployeePaymentAllocationUpdateManyWithoutMovementNestedInput
+export type EmployeeMovementUpdateManyWithWhereWithoutFinancialTransactionInput = {
+  where: Prisma.EmployeeMovementScalarWhereInput
+  data: Prisma.XOR<Prisma.EmployeeMovementUpdateManyMutationInput, Prisma.EmployeeMovementUncheckedUpdateManyWithoutFinancialTransactionInput>
 }
 
-export type EmployeeMovementUncheckedUpdateWithoutFinancialTransactionInput = {
-  id?: Prisma.StringFieldUpdateOperationsInput | string
-  engagementId?: Prisma.StringFieldUpdateOperationsInput | string
-  type?: Prisma.StringFieldUpdateOperationsInput | string
-  description?: Prisma.StringFieldUpdateOperationsInput | string
-  eventDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  referenceStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  referenceEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
-  value?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  obligationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  observations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  allocations?: Prisma.EmployeePaymentAllocationUncheckedUpdateManyWithoutMovementNestedInput
+export type EmployeeMovementScalarWhereInput = {
+  AND?: Prisma.EmployeeMovementScalarWhereInput | Prisma.EmployeeMovementScalarWhereInput[]
+  OR?: Prisma.EmployeeMovementScalarWhereInput[]
+  NOT?: Prisma.EmployeeMovementScalarWhereInput | Prisma.EmployeeMovementScalarWhereInput[]
+  id?: Prisma.StringFilter<"EmployeeMovement"> | string
+  engagementId?: Prisma.StringFilter<"EmployeeMovement"> | string
+  type?: Prisma.StringFilter<"EmployeeMovement"> | string
+  description?: Prisma.StringFilter<"EmployeeMovement"> | string
+  eventDate?: Prisma.DateTimeNullableFilter<"EmployeeMovement"> | Date | string | null
+  referenceStart?: Prisma.DateTimeNullableFilter<"EmployeeMovement"> | Date | string | null
+  referenceEnd?: Prisma.DateTimeNullableFilter<"EmployeeMovement"> | Date | string | null
+  value?: Prisma.DecimalNullableFilter<"EmployeeMovement"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  obligationId?: Prisma.StringNullableFilter<"EmployeeMovement"> | string | null
+  financialTransactionId?: Prisma.StringNullableFilter<"EmployeeMovement"> | string | null
+  observations?: Prisma.StringNullableFilter<"EmployeeMovement"> | string | null
+  createdAt?: Prisma.DateTimeFilter<"EmployeeMovement"> | Date | string
+  updatedAt?: Prisma.DateTimeFilter<"EmployeeMovement"> | Date | string
 }
 
 export type EmployeeMovementCreateWithoutEngagementInput = {
@@ -780,8 +754,7 @@ export type EmployeeMovementCreateWithoutEngagementInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   obligation?: Prisma.EmployeeObligationCreateNestedOneWithoutMovementsInput
-  financialTransaction?: Prisma.FinancialTransactionCreateNestedOneWithoutEmployeeMovementInput
-  allocations?: Prisma.EmployeePaymentAllocationCreateNestedManyWithoutMovementInput
+  financialTransaction?: Prisma.FinancialTransactionCreateNestedOneWithoutEmployeeMovementsInput
 }
 
 export type EmployeeMovementUncheckedCreateWithoutEngagementInput = {
@@ -797,7 +770,6 @@ export type EmployeeMovementUncheckedCreateWithoutEngagementInput = {
   observations?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  allocations?: Prisma.EmployeePaymentAllocationUncheckedCreateNestedManyWithoutMovementInput
 }
 
 export type EmployeeMovementCreateOrConnectWithoutEngagementInput = {
@@ -826,25 +798,6 @@ export type EmployeeMovementUpdateManyWithWhereWithoutEngagementInput = {
   data: Prisma.XOR<Prisma.EmployeeMovementUpdateManyMutationInput, Prisma.EmployeeMovementUncheckedUpdateManyWithoutEngagementInput>
 }
 
-export type EmployeeMovementScalarWhereInput = {
-  AND?: Prisma.EmployeeMovementScalarWhereInput | Prisma.EmployeeMovementScalarWhereInput[]
-  OR?: Prisma.EmployeeMovementScalarWhereInput[]
-  NOT?: Prisma.EmployeeMovementScalarWhereInput | Prisma.EmployeeMovementScalarWhereInput[]
-  id?: Prisma.StringFilter<"EmployeeMovement"> | string
-  engagementId?: Prisma.StringFilter<"EmployeeMovement"> | string
-  type?: Prisma.StringFilter<"EmployeeMovement"> | string
-  description?: Prisma.StringFilter<"EmployeeMovement"> | string
-  eventDate?: Prisma.DateTimeNullableFilter<"EmployeeMovement"> | Date | string | null
-  referenceStart?: Prisma.DateTimeNullableFilter<"EmployeeMovement"> | Date | string | null
-  referenceEnd?: Prisma.DateTimeNullableFilter<"EmployeeMovement"> | Date | string | null
-  value?: Prisma.DecimalNullableFilter<"EmployeeMovement"> | runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  obligationId?: Prisma.StringNullableFilter<"EmployeeMovement"> | string | null
-  financialTransactionId?: Prisma.StringNullableFilter<"EmployeeMovement"> | string | null
-  observations?: Prisma.StringNullableFilter<"EmployeeMovement"> | string | null
-  createdAt?: Prisma.DateTimeFilter<"EmployeeMovement"> | Date | string
-  updatedAt?: Prisma.DateTimeFilter<"EmployeeMovement"> | Date | string
-}
-
 export type EmployeeMovementCreateWithoutObligationInput = {
   id?: string
   type: string
@@ -857,8 +810,7 @@ export type EmployeeMovementCreateWithoutObligationInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   engagement: Prisma.EmployeeEngagementCreateNestedOneWithoutMovementsInput
-  financialTransaction?: Prisma.FinancialTransactionCreateNestedOneWithoutEmployeeMovementInput
-  allocations?: Prisma.EmployeePaymentAllocationCreateNestedManyWithoutMovementInput
+  financialTransaction?: Prisma.FinancialTransactionCreateNestedOneWithoutEmployeeMovementsInput
 }
 
 export type EmployeeMovementUncheckedCreateWithoutObligationInput = {
@@ -874,7 +826,6 @@ export type EmployeeMovementUncheckedCreateWithoutObligationInput = {
   observations?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  allocations?: Prisma.EmployeePaymentAllocationUncheckedCreateNestedManyWithoutMovementInput
 }
 
 export type EmployeeMovementCreateOrConnectWithoutObligationInput = {
@@ -903,23 +854,7 @@ export type EmployeeMovementUpdateManyWithWhereWithoutObligationInput = {
   data: Prisma.XOR<Prisma.EmployeeMovementUpdateManyMutationInput, Prisma.EmployeeMovementUncheckedUpdateManyWithoutObligationInput>
 }
 
-export type EmployeeMovementCreateWithoutAllocationsInput = {
-  id?: string
-  type: string
-  description: string
-  eventDate?: Date | string | null
-  referenceStart?: Date | string | null
-  referenceEnd?: Date | string | null
-  value?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
-  observations?: string | null
-  createdAt?: Date | string
-  updatedAt?: Date | string
-  engagement: Prisma.EmployeeEngagementCreateNestedOneWithoutMovementsInput
-  obligation?: Prisma.EmployeeObligationCreateNestedOneWithoutMovementsInput
-  financialTransaction?: Prisma.FinancialTransactionCreateNestedOneWithoutEmployeeMovementInput
-}
-
-export type EmployeeMovementUncheckedCreateWithoutAllocationsInput = {
+export type EmployeeMovementCreateManyFinancialTransactionInput = {
   id?: string
   engagementId: string
   type: string
@@ -929,29 +864,12 @@ export type EmployeeMovementUncheckedCreateWithoutAllocationsInput = {
   referenceEnd?: Date | string | null
   value?: runtime.Decimal | runtime.DecimalJsLike | number | string | null
   obligationId?: string | null
-  financialTransactionId?: string | null
   observations?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
 }
 
-export type EmployeeMovementCreateOrConnectWithoutAllocationsInput = {
-  where: Prisma.EmployeeMovementWhereUniqueInput
-  create: Prisma.XOR<Prisma.EmployeeMovementCreateWithoutAllocationsInput, Prisma.EmployeeMovementUncheckedCreateWithoutAllocationsInput>
-}
-
-export type EmployeeMovementUpsertWithoutAllocationsInput = {
-  update: Prisma.XOR<Prisma.EmployeeMovementUpdateWithoutAllocationsInput, Prisma.EmployeeMovementUncheckedUpdateWithoutAllocationsInput>
-  create: Prisma.XOR<Prisma.EmployeeMovementCreateWithoutAllocationsInput, Prisma.EmployeeMovementUncheckedCreateWithoutAllocationsInput>
-  where?: Prisma.EmployeeMovementWhereInput
-}
-
-export type EmployeeMovementUpdateToOneWithWhereWithoutAllocationsInput = {
-  where?: Prisma.EmployeeMovementWhereInput
-  data: Prisma.XOR<Prisma.EmployeeMovementUpdateWithoutAllocationsInput, Prisma.EmployeeMovementUncheckedUpdateWithoutAllocationsInput>
-}
-
-export type EmployeeMovementUpdateWithoutAllocationsInput = {
+export type EmployeeMovementUpdateWithoutFinancialTransactionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
@@ -964,10 +882,9 @@ export type EmployeeMovementUpdateWithoutAllocationsInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   engagement?: Prisma.EmployeeEngagementUpdateOneRequiredWithoutMovementsNestedInput
   obligation?: Prisma.EmployeeObligationUpdateOneWithoutMovementsNestedInput
-  financialTransaction?: Prisma.FinancialTransactionUpdateOneWithoutEmployeeMovementNestedInput
 }
 
-export type EmployeeMovementUncheckedUpdateWithoutAllocationsInput = {
+export type EmployeeMovementUncheckedUpdateWithoutFinancialTransactionInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   engagementId?: Prisma.StringFieldUpdateOperationsInput | string
   type?: Prisma.StringFieldUpdateOperationsInput | string
@@ -977,7 +894,21 @@ export type EmployeeMovementUncheckedUpdateWithoutAllocationsInput = {
   referenceEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   value?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
   obligationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
-  financialTransactionId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  observations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+  updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
+}
+
+export type EmployeeMovementUncheckedUpdateManyWithoutFinancialTransactionInput = {
+  id?: Prisma.StringFieldUpdateOperationsInput | string
+  engagementId?: Prisma.StringFieldUpdateOperationsInput | string
+  type?: Prisma.StringFieldUpdateOperationsInput | string
+  description?: Prisma.StringFieldUpdateOperationsInput | string
+  eventDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  referenceStart?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  referenceEnd?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
+  value?: Prisma.NullableDecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string | null
+  obligationId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   observations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -1010,8 +941,7 @@ export type EmployeeMovementUpdateWithoutEngagementInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   obligation?: Prisma.EmployeeObligationUpdateOneWithoutMovementsNestedInput
-  financialTransaction?: Prisma.FinancialTransactionUpdateOneWithoutEmployeeMovementNestedInput
-  allocations?: Prisma.EmployeePaymentAllocationUpdateManyWithoutMovementNestedInput
+  financialTransaction?: Prisma.FinancialTransactionUpdateOneWithoutEmployeeMovementsNestedInput
 }
 
 export type EmployeeMovementUncheckedUpdateWithoutEngagementInput = {
@@ -1027,7 +957,6 @@ export type EmployeeMovementUncheckedUpdateWithoutEngagementInput = {
   observations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  allocations?: Prisma.EmployeePaymentAllocationUncheckedUpdateManyWithoutMovementNestedInput
 }
 
 export type EmployeeMovementUncheckedUpdateManyWithoutEngagementInput = {
@@ -1072,8 +1001,7 @@ export type EmployeeMovementUpdateWithoutObligationInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   engagement?: Prisma.EmployeeEngagementUpdateOneRequiredWithoutMovementsNestedInput
-  financialTransaction?: Prisma.FinancialTransactionUpdateOneWithoutEmployeeMovementNestedInput
-  allocations?: Prisma.EmployeePaymentAllocationUpdateManyWithoutMovementNestedInput
+  financialTransaction?: Prisma.FinancialTransactionUpdateOneWithoutEmployeeMovementsNestedInput
 }
 
 export type EmployeeMovementUncheckedUpdateWithoutObligationInput = {
@@ -1089,7 +1017,6 @@ export type EmployeeMovementUncheckedUpdateWithoutObligationInput = {
   observations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  allocations?: Prisma.EmployeePaymentAllocationUncheckedUpdateManyWithoutMovementNestedInput
 }
 
 export type EmployeeMovementUncheckedUpdateManyWithoutObligationInput = {
@@ -1107,35 +1034,6 @@ export type EmployeeMovementUncheckedUpdateManyWithoutObligationInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
 }
 
-
-/**
- * Count Type EmployeeMovementCountOutputType
- */
-
-export type EmployeeMovementCountOutputType = {
-  allocations: number
-}
-
-export type EmployeeMovementCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  allocations?: boolean | EmployeeMovementCountOutputTypeCountAllocationsArgs
-}
-
-/**
- * EmployeeMovementCountOutputType without action
- */
-export type EmployeeMovementCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the EmployeeMovementCountOutputType
-   */
-  select?: Prisma.EmployeeMovementCountOutputTypeSelect<ExtArgs> | null
-}
-
-/**
- * EmployeeMovementCountOutputType without action
- */
-export type EmployeeMovementCountOutputTypeCountAllocationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  where?: Prisma.EmployeePaymentAllocationWhereInput
-}
 
 
 export type EmployeeMovementSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1155,8 +1053,6 @@ export type EmployeeMovementSelect<ExtArgs extends runtime.Types.Extensions.Inte
   engagement?: boolean | Prisma.EmployeeEngagementDefaultArgs<ExtArgs>
   obligation?: boolean | Prisma.EmployeeMovement$obligationArgs<ExtArgs>
   financialTransaction?: boolean | Prisma.EmployeeMovement$financialTransactionArgs<ExtArgs>
-  allocations?: boolean | Prisma.EmployeeMovement$allocationsArgs<ExtArgs>
-  _count?: boolean | Prisma.EmployeeMovementCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["employeeMovement"]>
 
 export type EmployeeMovementSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -1218,8 +1114,6 @@ export type EmployeeMovementInclude<ExtArgs extends runtime.Types.Extensions.Int
   engagement?: boolean | Prisma.EmployeeEngagementDefaultArgs<ExtArgs>
   obligation?: boolean | Prisma.EmployeeMovement$obligationArgs<ExtArgs>
   financialTransaction?: boolean | Prisma.EmployeeMovement$financialTransactionArgs<ExtArgs>
-  allocations?: boolean | Prisma.EmployeeMovement$allocationsArgs<ExtArgs>
-  _count?: boolean | Prisma.EmployeeMovementCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type EmployeeMovementIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   engagement?: boolean | Prisma.EmployeeEngagementDefaultArgs<ExtArgs>
@@ -1238,7 +1132,6 @@ export type $EmployeeMovementPayload<ExtArgs extends runtime.Types.Extensions.In
     engagement: Prisma.$EmployeeEngagementPayload<ExtArgs>
     obligation: Prisma.$EmployeeObligationPayload<ExtArgs> | null
     financialTransaction: Prisma.$FinancialTransactionPayload<ExtArgs> | null
-    allocations: Prisma.$EmployeePaymentAllocationPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1651,7 +1544,6 @@ export interface Prisma__EmployeeMovementClient<T, Null = never, ExtArgs extends
   engagement<T extends Prisma.EmployeeEngagementDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EmployeeEngagementDefaultArgs<ExtArgs>>): Prisma.Prisma__EmployeeEngagementClient<runtime.Types.Result.GetResult<Prisma.$EmployeeEngagementPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   obligation<T extends Prisma.EmployeeMovement$obligationArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EmployeeMovement$obligationArgs<ExtArgs>>): Prisma.Prisma__EmployeeObligationClient<runtime.Types.Result.GetResult<Prisma.$EmployeeObligationPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
   financialTransaction<T extends Prisma.EmployeeMovement$financialTransactionArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EmployeeMovement$financialTransactionArgs<ExtArgs>>): Prisma.Prisma__FinancialTransactionClient<runtime.Types.Result.GetResult<Prisma.$FinancialTransactionPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  allocations<T extends Prisma.EmployeeMovement$allocationsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.EmployeeMovement$allocationsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EmployeePaymentAllocationPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -2130,30 +2022,6 @@ export type EmployeeMovement$financialTransactionArgs<ExtArgs extends runtime.Ty
    */
   include?: Prisma.FinancialTransactionInclude<ExtArgs> | null
   where?: Prisma.FinancialTransactionWhereInput
-}
-
-/**
- * EmployeeMovement.allocations
- */
-export type EmployeeMovement$allocationsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
-  /**
-   * Select specific fields to fetch from the EmployeePaymentAllocation
-   */
-  select?: Prisma.EmployeePaymentAllocationSelect<ExtArgs> | null
-  /**
-   * Omit specific fields from the EmployeePaymentAllocation
-   */
-  omit?: Prisma.EmployeePaymentAllocationOmit<ExtArgs> | null
-  /**
-   * Choose, which related nodes to fetch as well
-   */
-  include?: Prisma.EmployeePaymentAllocationInclude<ExtArgs> | null
-  where?: Prisma.EmployeePaymentAllocationWhereInput
-  orderBy?: Prisma.EmployeePaymentAllocationOrderByWithRelationInput | Prisma.EmployeePaymentAllocationOrderByWithRelationInput[]
-  cursor?: Prisma.EmployeePaymentAllocationWhereUniqueInput
-  take?: number
-  skip?: number
-  distinct?: Prisma.EmployeePaymentAllocationScalarFieldEnum | Prisma.EmployeePaymentAllocationScalarFieldEnum[]
 }
 
 /**

@@ -418,7 +418,6 @@ export const ModelName = {
   EmployeeEngagement: 'EmployeeEngagement',
   EmployeeObligation: 'EmployeeObligation',
   EmployeeMovement: 'EmployeeMovement',
-  EmployeePaymentAllocation: 'EmployeePaymentAllocation',
   EmployeeHistory: 'EmployeeHistory'
 } as const
 
@@ -435,7 +434,7 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
     omit: GlobalOmitOptions
   }
   meta: {
-    modelProps: "user" | "client" | "clientContact" | "equipament" | "financialCategory" | "financialTransaction" | "monthlyExpense" | "service" | "serviceHistory" | "serviceActivity" | "budget" | "budgetItem" | "budgetCategory" | "budgetPrice" | "budgetHistory" | "vehicle" | "vehicleHistory" | "employee" | "employeeEngagement" | "employeeObligation" | "employeeMovement" | "employeePaymentAllocation" | "employeeHistory"
+    modelProps: "user" | "client" | "clientContact" | "equipament" | "financialCategory" | "financialTransaction" | "monthlyExpense" | "service" | "serviceHistory" | "serviceActivity" | "budget" | "budgetItem" | "budgetCategory" | "budgetPrice" | "budgetHistory" | "vehicle" | "vehicleHistory" | "employee" | "employeeEngagement" | "employeeObligation" | "employeeMovement" | "employeeHistory"
     txIsolationLevel: TransactionIsolationLevel
   }
   model: {
@@ -1993,80 +1992,6 @@ export type TypeMap<ExtArgs extends runtime.Types.Extensions.InternalArgs = runt
         }
       }
     }
-    EmployeePaymentAllocation: {
-      payload: Prisma.$EmployeePaymentAllocationPayload<ExtArgs>
-      fields: Prisma.EmployeePaymentAllocationFieldRefs
-      operations: {
-        findUnique: {
-          args: Prisma.EmployeePaymentAllocationFindUniqueArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePaymentAllocationPayload> | null
-        }
-        findUniqueOrThrow: {
-          args: Prisma.EmployeePaymentAllocationFindUniqueOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePaymentAllocationPayload>
-        }
-        findFirst: {
-          args: Prisma.EmployeePaymentAllocationFindFirstArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePaymentAllocationPayload> | null
-        }
-        findFirstOrThrow: {
-          args: Prisma.EmployeePaymentAllocationFindFirstOrThrowArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePaymentAllocationPayload>
-        }
-        findMany: {
-          args: Prisma.EmployeePaymentAllocationFindManyArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePaymentAllocationPayload>[]
-        }
-        create: {
-          args: Prisma.EmployeePaymentAllocationCreateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePaymentAllocationPayload>
-        }
-        createMany: {
-          args: Prisma.EmployeePaymentAllocationCreateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        createManyAndReturn: {
-          args: Prisma.EmployeePaymentAllocationCreateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePaymentAllocationPayload>[]
-        }
-        delete: {
-          args: Prisma.EmployeePaymentAllocationDeleteArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePaymentAllocationPayload>
-        }
-        update: {
-          args: Prisma.EmployeePaymentAllocationUpdateArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePaymentAllocationPayload>
-        }
-        deleteMany: {
-          args: Prisma.EmployeePaymentAllocationDeleteManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateMany: {
-          args: Prisma.EmployeePaymentAllocationUpdateManyArgs<ExtArgs>
-          result: BatchPayload
-        }
-        updateManyAndReturn: {
-          args: Prisma.EmployeePaymentAllocationUpdateManyAndReturnArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePaymentAllocationPayload>[]
-        }
-        upsert: {
-          args: Prisma.EmployeePaymentAllocationUpsertArgs<ExtArgs>
-          result: runtime.Types.Utils.PayloadToResult<Prisma.$EmployeePaymentAllocationPayload>
-        }
-        aggregate: {
-          args: Prisma.EmployeePaymentAllocationAggregateArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.AggregateEmployeePaymentAllocation>
-        }
-        groupBy: {
-          args: Prisma.EmployeePaymentAllocationGroupByArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.EmployeePaymentAllocationGroupByOutputType>[]
-        }
-        count: {
-          args: Prisma.EmployeePaymentAllocationCountArgs<ExtArgs>
-          result: runtime.Types.Utils.Optional<Prisma.EmployeePaymentAllocationCountAggregateOutputType> | number
-        }
-      }
-    }
     EmployeeHistory: {
       payload: Prisma.$EmployeeHistoryPayload<ExtArgs>
       fields: Prisma.EmployeeHistoryFieldRefs
@@ -2489,18 +2414,6 @@ export const EmployeeMovementScalarFieldEnum = {
 export type EmployeeMovementScalarFieldEnum = (typeof EmployeeMovementScalarFieldEnum)[keyof typeof EmployeeMovementScalarFieldEnum]
 
 
-export const EmployeePaymentAllocationScalarFieldEnum = {
-  id: 'id',
-  movementId: 'movementId',
-  obligationId: 'obligationId',
-  type: 'type',
-  value: 'value',
-  createdAt: 'createdAt'
-} as const
-
-export type EmployeePaymentAllocationScalarFieldEnum = (typeof EmployeePaymentAllocationScalarFieldEnum)[keyof typeof EmployeePaymentAllocationScalarFieldEnum]
-
-
 export const EmployeeHistoryScalarFieldEnum = {
   id: 'id',
   employeeId: 'employeeId',
@@ -2824,7 +2737,6 @@ export type GlobalOmitConfig = {
   employeeEngagement?: Prisma.EmployeeEngagementOmit
   employeeObligation?: Prisma.EmployeeObligationOmit
   employeeMovement?: Prisma.EmployeeMovementOmit
-  employeePaymentAllocation?: Prisma.EmployeePaymentAllocationOmit
   employeeHistory?: Prisma.EmployeeHistoryOmit
 }
 

@@ -258,7 +258,7 @@ export type FinancialTransactionWhereInput = {
   updatedAt?: Prisma.DateTimeFilter<"FinancialTransaction"> | Date | string
   category?: Prisma.XOR<Prisma.FinancialCategoryScalarRelationFilter, Prisma.FinancialCategoryWhereInput>
   titheForService?: Prisma.XOR<Prisma.ServiceNullableScalarRelationFilter, Prisma.ServiceWhereInput> | null
-  employeeMovement?: Prisma.XOR<Prisma.EmployeeMovementNullableScalarRelationFilter, Prisma.EmployeeMovementWhereInput> | null
+  employeeMovements?: Prisma.EmployeeMovementListRelationFilter
 }
 
 export type FinancialTransactionOrderByWithRelationInput = {
@@ -274,7 +274,7 @@ export type FinancialTransactionOrderByWithRelationInput = {
   updatedAt?: Prisma.SortOrder
   category?: Prisma.FinancialCategoryOrderByWithRelationInput
   titheForService?: Prisma.ServiceOrderByWithRelationInput
-  employeeMovement?: Prisma.EmployeeMovementOrderByWithRelationInput
+  employeeMovements?: Prisma.EmployeeMovementOrderByRelationAggregateInput
 }
 
 export type FinancialTransactionWhereUniqueInput = Prisma.AtLeast<{
@@ -293,7 +293,7 @@ export type FinancialTransactionWhereUniqueInput = Prisma.AtLeast<{
   updatedAt?: Prisma.DateTimeFilter<"FinancialTransaction"> | Date | string
   category?: Prisma.XOR<Prisma.FinancialCategoryScalarRelationFilter, Prisma.FinancialCategoryWhereInput>
   titheForService?: Prisma.XOR<Prisma.ServiceNullableScalarRelationFilter, Prisma.ServiceWhereInput> | null
-  employeeMovement?: Prisma.XOR<Prisma.EmployeeMovementNullableScalarRelationFilter, Prisma.EmployeeMovementWhereInput> | null
+  employeeMovements?: Prisma.EmployeeMovementListRelationFilter
 }, "id">
 
 export type FinancialTransactionOrderByWithAggregationInput = {
@@ -342,7 +342,7 @@ export type FinancialTransactionCreateInput = {
   updatedAt?: Date | string
   category: Prisma.FinancialCategoryCreateNestedOneWithoutTransactionsInput
   titheForService?: Prisma.ServiceCreateNestedOneWithoutTitheTransactionInput
-  employeeMovement?: Prisma.EmployeeMovementCreateNestedOneWithoutFinancialTransactionInput
+  employeeMovements?: Prisma.EmployeeMovementCreateNestedManyWithoutFinancialTransactionInput
 }
 
 export type FinancialTransactionUncheckedCreateInput = {
@@ -357,7 +357,7 @@ export type FinancialTransactionUncheckedCreateInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   titheForService?: Prisma.ServiceUncheckedCreateNestedOneWithoutTitheTransactionInput
-  employeeMovement?: Prisma.EmployeeMovementUncheckedCreateNestedOneWithoutFinancialTransactionInput
+  employeeMovements?: Prisma.EmployeeMovementUncheckedCreateNestedManyWithoutFinancialTransactionInput
 }
 
 export type FinancialTransactionUpdateInput = {
@@ -372,7 +372,7 @@ export type FinancialTransactionUpdateInput = {
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.FinancialCategoryUpdateOneRequiredWithoutTransactionsNestedInput
   titheForService?: Prisma.ServiceUpdateOneWithoutTitheTransactionNestedInput
-  employeeMovement?: Prisma.EmployeeMovementUpdateOneWithoutFinancialTransactionNestedInput
+  employeeMovements?: Prisma.EmployeeMovementUpdateManyWithoutFinancialTransactionNestedInput
 }
 
 export type FinancialTransactionUncheckedUpdateInput = {
@@ -387,7 +387,7 @@ export type FinancialTransactionUncheckedUpdateInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   titheForService?: Prisma.ServiceUncheckedUpdateOneWithoutTitheTransactionNestedInput
-  employeeMovement?: Prisma.EmployeeMovementUncheckedUpdateOneWithoutFinancialTransactionNestedInput
+  employeeMovements?: Prisma.EmployeeMovementUncheckedUpdateManyWithoutFinancialTransactionNestedInput
 }
 
 export type FinancialTransactionCreateManyInput = {
@@ -556,20 +556,20 @@ export type FinancialTransactionUpdateOneWithoutTitheForServiceNestedInput = {
   update?: Prisma.XOR<Prisma.XOR<Prisma.FinancialTransactionUpdateToOneWithWhereWithoutTitheForServiceInput, Prisma.FinancialTransactionUpdateWithoutTitheForServiceInput>, Prisma.FinancialTransactionUncheckedUpdateWithoutTitheForServiceInput>
 }
 
-export type FinancialTransactionCreateNestedOneWithoutEmployeeMovementInput = {
-  create?: Prisma.XOR<Prisma.FinancialTransactionCreateWithoutEmployeeMovementInput, Prisma.FinancialTransactionUncheckedCreateWithoutEmployeeMovementInput>
-  connectOrCreate?: Prisma.FinancialTransactionCreateOrConnectWithoutEmployeeMovementInput
+export type FinancialTransactionCreateNestedOneWithoutEmployeeMovementsInput = {
+  create?: Prisma.XOR<Prisma.FinancialTransactionCreateWithoutEmployeeMovementsInput, Prisma.FinancialTransactionUncheckedCreateWithoutEmployeeMovementsInput>
+  connectOrCreate?: Prisma.FinancialTransactionCreateOrConnectWithoutEmployeeMovementsInput
   connect?: Prisma.FinancialTransactionWhereUniqueInput
 }
 
-export type FinancialTransactionUpdateOneWithoutEmployeeMovementNestedInput = {
-  create?: Prisma.XOR<Prisma.FinancialTransactionCreateWithoutEmployeeMovementInput, Prisma.FinancialTransactionUncheckedCreateWithoutEmployeeMovementInput>
-  connectOrCreate?: Prisma.FinancialTransactionCreateOrConnectWithoutEmployeeMovementInput
-  upsert?: Prisma.FinancialTransactionUpsertWithoutEmployeeMovementInput
+export type FinancialTransactionUpdateOneWithoutEmployeeMovementsNestedInput = {
+  create?: Prisma.XOR<Prisma.FinancialTransactionCreateWithoutEmployeeMovementsInput, Prisma.FinancialTransactionUncheckedCreateWithoutEmployeeMovementsInput>
+  connectOrCreate?: Prisma.FinancialTransactionCreateOrConnectWithoutEmployeeMovementsInput
+  upsert?: Prisma.FinancialTransactionUpsertWithoutEmployeeMovementsInput
   disconnect?: Prisma.FinancialTransactionWhereInput | boolean
   delete?: Prisma.FinancialTransactionWhereInput | boolean
   connect?: Prisma.FinancialTransactionWhereUniqueInput
-  update?: Prisma.XOR<Prisma.XOR<Prisma.FinancialTransactionUpdateToOneWithWhereWithoutEmployeeMovementInput, Prisma.FinancialTransactionUpdateWithoutEmployeeMovementInput>, Prisma.FinancialTransactionUncheckedUpdateWithoutEmployeeMovementInput>
+  update?: Prisma.XOR<Prisma.XOR<Prisma.FinancialTransactionUpdateToOneWithWhereWithoutEmployeeMovementsInput, Prisma.FinancialTransactionUpdateWithoutEmployeeMovementsInput>, Prisma.FinancialTransactionUncheckedUpdateWithoutEmployeeMovementsInput>
 }
 
 export type FinancialTransactionCreateWithoutCategoryInput = {
@@ -583,7 +583,7 @@ export type FinancialTransactionCreateWithoutCategoryInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   titheForService?: Prisma.ServiceCreateNestedOneWithoutTitheTransactionInput
-  employeeMovement?: Prisma.EmployeeMovementCreateNestedOneWithoutFinancialTransactionInput
+  employeeMovements?: Prisma.EmployeeMovementCreateNestedManyWithoutFinancialTransactionInput
 }
 
 export type FinancialTransactionUncheckedCreateWithoutCategoryInput = {
@@ -597,7 +597,7 @@ export type FinancialTransactionUncheckedCreateWithoutCategoryInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   titheForService?: Prisma.ServiceUncheckedCreateNestedOneWithoutTitheTransactionInput
-  employeeMovement?: Prisma.EmployeeMovementUncheckedCreateNestedOneWithoutFinancialTransactionInput
+  employeeMovements?: Prisma.EmployeeMovementUncheckedCreateNestedManyWithoutFinancialTransactionInput
 }
 
 export type FinancialTransactionCreateOrConnectWithoutCategoryInput = {
@@ -653,7 +653,7 @@ export type FinancialTransactionCreateWithoutTitheForServiceInput = {
   createdAt?: Date | string
   updatedAt?: Date | string
   category: Prisma.FinancialCategoryCreateNestedOneWithoutTransactionsInput
-  employeeMovement?: Prisma.EmployeeMovementCreateNestedOneWithoutFinancialTransactionInput
+  employeeMovements?: Prisma.EmployeeMovementCreateNestedManyWithoutFinancialTransactionInput
 }
 
 export type FinancialTransactionUncheckedCreateWithoutTitheForServiceInput = {
@@ -667,7 +667,7 @@ export type FinancialTransactionUncheckedCreateWithoutTitheForServiceInput = {
   originId?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
-  employeeMovement?: Prisma.EmployeeMovementUncheckedCreateNestedOneWithoutFinancialTransactionInput
+  employeeMovements?: Prisma.EmployeeMovementUncheckedCreateNestedManyWithoutFinancialTransactionInput
 }
 
 export type FinancialTransactionCreateOrConnectWithoutTitheForServiceInput = {
@@ -697,7 +697,7 @@ export type FinancialTransactionUpdateWithoutTitheForServiceInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   category?: Prisma.FinancialCategoryUpdateOneRequiredWithoutTransactionsNestedInput
-  employeeMovement?: Prisma.EmployeeMovementUpdateOneWithoutFinancialTransactionNestedInput
+  employeeMovements?: Prisma.EmployeeMovementUpdateManyWithoutFinancialTransactionNestedInput
 }
 
 export type FinancialTransactionUncheckedUpdateWithoutTitheForServiceInput = {
@@ -711,10 +711,10 @@ export type FinancialTransactionUncheckedUpdateWithoutTitheForServiceInput = {
   originId?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
-  employeeMovement?: Prisma.EmployeeMovementUncheckedUpdateOneWithoutFinancialTransactionNestedInput
+  employeeMovements?: Prisma.EmployeeMovementUncheckedUpdateManyWithoutFinancialTransactionNestedInput
 }
 
-export type FinancialTransactionCreateWithoutEmployeeMovementInput = {
+export type FinancialTransactionCreateWithoutEmployeeMovementsInput = {
   id?: string
   description: string
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -728,7 +728,7 @@ export type FinancialTransactionCreateWithoutEmployeeMovementInput = {
   titheForService?: Prisma.ServiceCreateNestedOneWithoutTitheTransactionInput
 }
 
-export type FinancialTransactionUncheckedCreateWithoutEmployeeMovementInput = {
+export type FinancialTransactionUncheckedCreateWithoutEmployeeMovementsInput = {
   id?: string
   description: string
   value: runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -742,23 +742,23 @@ export type FinancialTransactionUncheckedCreateWithoutEmployeeMovementInput = {
   titheForService?: Prisma.ServiceUncheckedCreateNestedOneWithoutTitheTransactionInput
 }
 
-export type FinancialTransactionCreateOrConnectWithoutEmployeeMovementInput = {
+export type FinancialTransactionCreateOrConnectWithoutEmployeeMovementsInput = {
   where: Prisma.FinancialTransactionWhereUniqueInput
-  create: Prisma.XOR<Prisma.FinancialTransactionCreateWithoutEmployeeMovementInput, Prisma.FinancialTransactionUncheckedCreateWithoutEmployeeMovementInput>
+  create: Prisma.XOR<Prisma.FinancialTransactionCreateWithoutEmployeeMovementsInput, Prisma.FinancialTransactionUncheckedCreateWithoutEmployeeMovementsInput>
 }
 
-export type FinancialTransactionUpsertWithoutEmployeeMovementInput = {
-  update: Prisma.XOR<Prisma.FinancialTransactionUpdateWithoutEmployeeMovementInput, Prisma.FinancialTransactionUncheckedUpdateWithoutEmployeeMovementInput>
-  create: Prisma.XOR<Prisma.FinancialTransactionCreateWithoutEmployeeMovementInput, Prisma.FinancialTransactionUncheckedCreateWithoutEmployeeMovementInput>
+export type FinancialTransactionUpsertWithoutEmployeeMovementsInput = {
+  update: Prisma.XOR<Prisma.FinancialTransactionUpdateWithoutEmployeeMovementsInput, Prisma.FinancialTransactionUncheckedUpdateWithoutEmployeeMovementsInput>
+  create: Prisma.XOR<Prisma.FinancialTransactionCreateWithoutEmployeeMovementsInput, Prisma.FinancialTransactionUncheckedCreateWithoutEmployeeMovementsInput>
   where?: Prisma.FinancialTransactionWhereInput
 }
 
-export type FinancialTransactionUpdateToOneWithWhereWithoutEmployeeMovementInput = {
+export type FinancialTransactionUpdateToOneWithWhereWithoutEmployeeMovementsInput = {
   where?: Prisma.FinancialTransactionWhereInput
-  data: Prisma.XOR<Prisma.FinancialTransactionUpdateWithoutEmployeeMovementInput, Prisma.FinancialTransactionUncheckedUpdateWithoutEmployeeMovementInput>
+  data: Prisma.XOR<Prisma.FinancialTransactionUpdateWithoutEmployeeMovementsInput, Prisma.FinancialTransactionUncheckedUpdateWithoutEmployeeMovementsInput>
 }
 
-export type FinancialTransactionUpdateWithoutEmployeeMovementInput = {
+export type FinancialTransactionUpdateWithoutEmployeeMovementsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -772,7 +772,7 @@ export type FinancialTransactionUpdateWithoutEmployeeMovementInput = {
   titheForService?: Prisma.ServiceUpdateOneWithoutTitheTransactionNestedInput
 }
 
-export type FinancialTransactionUncheckedUpdateWithoutEmployeeMovementInput = {
+export type FinancialTransactionUncheckedUpdateWithoutEmployeeMovementsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   description?: Prisma.StringFieldUpdateOperationsInput | string
   value?: Prisma.DecimalFieldUpdateOperationsInput | runtime.Decimal | runtime.DecimalJsLike | number | string
@@ -809,7 +809,7 @@ export type FinancialTransactionUpdateWithoutCategoryInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   titheForService?: Prisma.ServiceUpdateOneWithoutTitheTransactionNestedInput
-  employeeMovement?: Prisma.EmployeeMovementUpdateOneWithoutFinancialTransactionNestedInput
+  employeeMovements?: Prisma.EmployeeMovementUpdateManyWithoutFinancialTransactionNestedInput
 }
 
 export type FinancialTransactionUncheckedUpdateWithoutCategoryInput = {
@@ -823,7 +823,7 @@ export type FinancialTransactionUncheckedUpdateWithoutCategoryInput = {
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   titheForService?: Prisma.ServiceUncheckedUpdateOneWithoutTitheTransactionNestedInput
-  employeeMovement?: Prisma.EmployeeMovementUncheckedUpdateOneWithoutFinancialTransactionNestedInput
+  employeeMovements?: Prisma.EmployeeMovementUncheckedUpdateManyWithoutFinancialTransactionNestedInput
 }
 
 export type FinancialTransactionUncheckedUpdateManyWithoutCategoryInput = {
@@ -839,6 +839,35 @@ export type FinancialTransactionUncheckedUpdateManyWithoutCategoryInput = {
 }
 
 
+/**
+ * Count Type FinancialTransactionCountOutputType
+ */
+
+export type FinancialTransactionCountOutputType = {
+  employeeMovements: number
+}
+
+export type FinancialTransactionCountOutputTypeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  employeeMovements?: boolean | FinancialTransactionCountOutputTypeCountEmployeeMovementsArgs
+}
+
+/**
+ * FinancialTransactionCountOutputType without action
+ */
+export type FinancialTransactionCountOutputTypeDefaultArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  /**
+   * Select specific fields to fetch from the FinancialTransactionCountOutputType
+   */
+  select?: Prisma.FinancialTransactionCountOutputTypeSelect<ExtArgs> | null
+}
+
+/**
+ * FinancialTransactionCountOutputType without action
+ */
+export type FinancialTransactionCountOutputTypeCountEmployeeMovementsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+  where?: Prisma.EmployeeMovementWhereInput
+}
+
 
 export type FinancialTransactionSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
   id?: boolean
@@ -853,7 +882,8 @@ export type FinancialTransactionSelect<ExtArgs extends runtime.Types.Extensions.
   updatedAt?: boolean
   category?: boolean | Prisma.FinancialCategoryDefaultArgs<ExtArgs>
   titheForService?: boolean | Prisma.FinancialTransaction$titheForServiceArgs<ExtArgs>
-  employeeMovement?: boolean | Prisma.FinancialTransaction$employeeMovementArgs<ExtArgs>
+  employeeMovements?: boolean | Prisma.FinancialTransaction$employeeMovementsArgs<ExtArgs>
+  _count?: boolean | Prisma.FinancialTransactionCountOutputTypeDefaultArgs<ExtArgs>
 }, ExtArgs["result"]["financialTransaction"]>
 
 export type FinancialTransactionSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetSelect<{
@@ -901,7 +931,8 @@ export type FinancialTransactionOmit<ExtArgs extends runtime.Types.Extensions.In
 export type FinancialTransactionInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   category?: boolean | Prisma.FinancialCategoryDefaultArgs<ExtArgs>
   titheForService?: boolean | Prisma.FinancialTransaction$titheForServiceArgs<ExtArgs>
-  employeeMovement?: boolean | Prisma.FinancialTransaction$employeeMovementArgs<ExtArgs>
+  employeeMovements?: boolean | Prisma.FinancialTransaction$employeeMovementsArgs<ExtArgs>
+  _count?: boolean | Prisma.FinancialTransactionCountOutputTypeDefaultArgs<ExtArgs>
 }
 export type FinancialTransactionIncludeCreateManyAndReturn<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   category?: boolean | Prisma.FinancialCategoryDefaultArgs<ExtArgs>
@@ -915,7 +946,7 @@ export type $FinancialTransactionPayload<ExtArgs extends runtime.Types.Extension
   objects: {
     category: Prisma.$FinancialCategoryPayload<ExtArgs>
     titheForService: Prisma.$ServicePayload<ExtArgs> | null
-    employeeMovement: Prisma.$EmployeeMovementPayload<ExtArgs> | null
+    employeeMovements: Prisma.$EmployeeMovementPayload<ExtArgs>[]
   }
   scalars: runtime.Types.Extensions.GetPayloadResult<{
     id: string
@@ -1324,7 +1355,7 @@ export interface Prisma__FinancialTransactionClient<T, Null = never, ExtArgs ext
   readonly [Symbol.toStringTag]: "PrismaPromise"
   category<T extends Prisma.FinancialCategoryDefaultArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinancialCategoryDefaultArgs<ExtArgs>>): Prisma.Prisma__FinancialCategoryClient<runtime.Types.Result.GetResult<Prisma.$FinancialCategoryPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | Null, Null, ExtArgs, GlobalOmitOptions>
   titheForService<T extends Prisma.FinancialTransaction$titheForServiceArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinancialTransaction$titheForServiceArgs<ExtArgs>>): Prisma.Prisma__ServiceClient<runtime.Types.Result.GetResult<Prisma.$ServicePayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
-  employeeMovement<T extends Prisma.FinancialTransaction$employeeMovementArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinancialTransaction$employeeMovementArgs<ExtArgs>>): Prisma.Prisma__EmployeeMovementClient<runtime.Types.Result.GetResult<Prisma.$EmployeeMovementPayload<ExtArgs>, T, "findUniqueOrThrow", GlobalOmitOptions> | null, null, ExtArgs, GlobalOmitOptions>
+  employeeMovements<T extends Prisma.FinancialTransaction$employeeMovementsArgs<ExtArgs> = {}>(args?: Prisma.Subset<T, Prisma.FinancialTransaction$employeeMovementsArgs<ExtArgs>>): Prisma.PrismaPromise<runtime.Types.Result.GetResult<Prisma.$EmployeeMovementPayload<ExtArgs>, T, "findMany", GlobalOmitOptions> | Null>
   /**
    * Attaches callbacks for the resolution and/or rejection of the Promise.
    * @param onfulfilled The callback to execute when the Promise is resolved.
@@ -1784,9 +1815,9 @@ export type FinancialTransaction$titheForServiceArgs<ExtArgs extends runtime.Typ
 }
 
 /**
- * FinancialTransaction.employeeMovement
+ * FinancialTransaction.employeeMovements
  */
-export type FinancialTransaction$employeeMovementArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
+export type FinancialTransaction$employeeMovementsArgs<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   /**
    * Select specific fields to fetch from the EmployeeMovement
    */
@@ -1800,6 +1831,11 @@ export type FinancialTransaction$employeeMovementArgs<ExtArgs extends runtime.Ty
    */
   include?: Prisma.EmployeeMovementInclude<ExtArgs> | null
   where?: Prisma.EmployeeMovementWhereInput
+  orderBy?: Prisma.EmployeeMovementOrderByWithRelationInput | Prisma.EmployeeMovementOrderByWithRelationInput[]
+  cursor?: Prisma.EmployeeMovementWhereUniqueInput
+  take?: number
+  skip?: number
+  distinct?: Prisma.EmployeeMovementScalarFieldEnum | Prisma.EmployeeMovementScalarFieldEnum[]
 }
 
 /**
