@@ -10,6 +10,7 @@ import {
 import {
     calculateThirteenthSalaryCompetencies
 } from '../obligations/calculations/thirteenthSalaryCalculation.js'
+import { calculateObligationBalances, type ObligationBalance } from '../obligations/helpers/calculateObligationBalances.js'
 import type {
     CalculationItem,
     CalculationPeriod,
@@ -138,7 +139,8 @@ const hasUnreliableReferenceForItem = (
 const buildSuggestion = (
     item: CalculationItem,
     existingObligations: ObligationRecord[],
-    hasUnreliableExistingReference: boolean
+    hasUnreliableExistingReference: boolean,
+    obligationBalance?: ObligationBalance
 ): ObligationSuggestion => {
     const warnings = [...item.warnings]
     const existing = existingObligations[0]
@@ -164,29 +166,28 @@ const buildSuggestion = (
         warnings.push('More than one obligation matches this reference period. Review the records before creating or changing anything.')
     }
 
-    const paidValueFromMovements = existing
-        ? roundCurrency(existing.movements
-            .filter(movement => movement.type === 'pagamento')
-            .reduce((total, movement) => total + (toNumber(movement.value) ?? 0), 0))
-        : 0
+    const paidValueFromMovements = obligationBalance?.directPaidValue ?? 0
+    const genericPaidValue = obligationBalance?.genericPaidValue ?? 0
     const recognizedValue = existing ? toNumber(existing.finalValue) : null
     const recognizedOriginalValue = existing ? toNumber(existing.originalValue) : null
-    const paidValue = existing?.status === 'pago' && paidValueFromMovements === 0
+    const paidValue = existing?.status === 'pago' &&
+        paidValueFromMovements === 0 &&
+        genericPaidValue === 0
         ? recognizedValue ?? 0
-        : paidValueFromMovements
+        : obligationBalance?.paidValue ?? 0
     const balance = existing &&
         recognizedValue !== null &&
         !['cancelado', 'em_revisao'].includes(existing.status)
         ? roundCurrency(Math.max(0, recognizedValue - paidValue))
         : null
     const paymentStatusMismatch = Boolean(existing && (
-        (existing.status === 'pendente' && paidValueFromMovements > 0) ||
-        (existing.status === 'parcial' && recognizedValue !== null && paidValueFromMovements >= recognizedValue) ||
+        (existing.status === 'pendente' && paidValue > 0) ||
+        (existing.status === 'parcial' && recognizedValue !== null && paidValue >= recognizedValue) ||
         (existing.status === 'pago' && paidValueFromMovements > 0 && recognizedValue !== null &&
             Math.abs(paidValueFromMovements - recognizedValue) >= 0.01)
     ))
 
-    if (existing && recognizedValue !== null && paidValue > recognizedValue) {
+    if (existing && recognizedValue !== null && paidValueFromMovements > recognizedValue) {
         warnings.push('The linked payment amount exceeds the recognized obligation value. Review the financial records.')
     }
 
@@ -215,12 +216,12 @@ const buildSuggestion = (
         warnings.push('The existing obligation is still under review and must be confirmed before the analysis can recommend another action.')
     }
 
-    if (existing?.status === 'parcial' && paidValueFromMovements === 0) {
+    if (existing?.status === 'parcial' && paidValue === 0) {
         warnings.push('The obligation is marked as partially paid but has no linked payment movements to identify the paid amount.')
     }
 
     const hasFinancialRecords = Boolean(existing && (
-        existing.movements.length > 0
+        existing.movements.length > 0 || genericPaidValue > 0
     ))
     const hasManualAdjustment = existing !== undefined &&
         recognizedOriginalValue !== null &&
@@ -247,7 +248,7 @@ const buildSuggestion = (
             : 'manual_review'
     } else if (existing.status === 'cancelado' || existing.status === 'em_revisao') {
         action = 'manual_review'
-    } else if (existing.status === 'parcial' && paidValueFromMovements === 0) {
+    } else if (existing.status === 'parcial' && paidValue === 0) {
         action = 'manual_review'
     } else if (item.estimatedValue === null || recognizedOriginalValue === null) {
         action = 'manual_review'
@@ -332,16 +333,25 @@ export const suggestBenefitObligations = (
 
     const items = calculationResults.flatMap(result => result.items)
     const warnings = calculationResults.flatMap(result => result.warnings)
+    const obligationBalances = calculateObligationBalances(
+        context.obligations,
+        context.genericPayments ?? []
+    )
     const suggestions = items
         .sort((left, right) =>
             left.referenceStart.getTime() - right.referenceStart.getTime() ||
             left.type.localeCompare(right.type)
         )
-        .map(item => buildSuggestion(
-            item,
-            findMatchingObligations(context.obligations, item),
-            hasUnreliableReferenceForItem(context.obligations, item)
-        ))
+        .map(item => {
+            const matchingObligations = findMatchingObligations(context.obligations, item)
+            const existing = matchingObligations[0]
+            return buildSuggestion(
+                item,
+                matchingObligations,
+                hasUnreliableReferenceForItem(context.obligations, item),
+                existing ? obligationBalances.get(existing.id) : undefined
+            )
+        })
 
     const summary = {
         recognizedOutstanding: roundCurrency(suggestions.reduce(
