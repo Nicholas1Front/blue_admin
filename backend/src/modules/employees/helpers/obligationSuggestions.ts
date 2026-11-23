@@ -164,27 +164,26 @@ const buildSuggestion = (
         warnings.push('More than one obligation matches this reference period. Review the records before creating or changing anything.')
     }
 
-    const allocatedValue = existing
-        ? roundCurrency(existing.allocations.reduce(
-            (total, allocation) => total + (toNumber(allocation.value) ?? 0),
-            0
-        ))
+    const paidValueFromMovements = existing
+        ? roundCurrency(existing.movements
+            .filter(movement => movement.type === 'pagamento')
+            .reduce((total, movement) => total + (toNumber(movement.value) ?? 0), 0))
         : 0
     const recognizedValue = existing ? toNumber(existing.finalValue) : null
     const recognizedOriginalValue = existing ? toNumber(existing.originalValue) : null
-    const paidValue = existing?.status === 'pago' && allocatedValue === 0
+    const paidValue = existing?.status === 'pago' && paidValueFromMovements === 0
         ? recognizedValue ?? 0
-        : allocatedValue
+        : paidValueFromMovements
     const balance = existing &&
         recognizedValue !== null &&
         !['cancelado', 'em_revisao'].includes(existing.status)
         ? roundCurrency(Math.max(0, recognizedValue - paidValue))
         : null
     const paymentStatusMismatch = Boolean(existing && (
-        (existing.status === 'pendente' && allocatedValue > 0) ||
-        (existing.status === 'parcial' && recognizedValue !== null && allocatedValue >= recognizedValue) ||
-        (existing.status === 'pago' && allocatedValue > 0 && recognizedValue !== null &&
-            Math.abs(allocatedValue - recognizedValue) >= 0.01)
+        (existing.status === 'pendente' && paidValueFromMovements > 0) ||
+        (existing.status === 'parcial' && recognizedValue !== null && paidValueFromMovements >= recognizedValue) ||
+        (existing.status === 'pago' && paidValueFromMovements > 0 && recognizedValue !== null &&
+            Math.abs(paidValueFromMovements - recognizedValue) >= 0.01)
     ))
 
     if (existing && recognizedValue !== null && paidValue > recognizedValue) {
@@ -192,11 +191,11 @@ const buildSuggestion = (
     }
 
     if (paymentStatusMismatch) {
-        warnings.push('The obligation status is inconsistent with its payment allocations. Review the financial records before changing it.')
+        warnings.push('The obligation status is inconsistent with its linked payment movements. Review the financial records before changing it.')
     }
 
-    if (existing?.status === 'pago' && allocatedValue === 0) {
-        warnings.push('The obligation is marked as paid without payment allocations; its recognized value is being treated as paid for this analysis.')
+    if (existing?.status === 'pago' && paidValueFromMovements === 0) {
+        warnings.push('The obligation is marked as paid without linked payment movements; its recognized value is being treated as paid for this analysis.')
     }
 
     if (hasInvalidReference) {
@@ -216,8 +215,8 @@ const buildSuggestion = (
         warnings.push('The existing obligation is still under review and must be confirmed before the analysis can recommend another action.')
     }
 
-    if (existing?.status === 'parcial' && allocatedValue === 0) {
-        warnings.push('The obligation is marked as partially paid but has no payment allocations to identify the paid amount.')
+    if (existing?.status === 'parcial' && paidValueFromMovements === 0) {
+        warnings.push('The obligation is marked as partially paid but has no linked payment movements to identify the paid amount.')
     }
 
     const hasFinancialRecords = Boolean(existing && (
@@ -248,7 +247,7 @@ const buildSuggestion = (
             : 'manual_review'
     } else if (existing.status === 'cancelado' || existing.status === 'em_revisao') {
         action = 'manual_review'
-    } else if (existing.status === 'parcial' && allocatedValue === 0) {
+    } else if (existing.status === 'parcial' && paidValueFromMovements === 0) {
         action = 'manual_review'
     } else if (item.estimatedValue === null || recognizedOriginalValue === null) {
         action = 'manual_review'

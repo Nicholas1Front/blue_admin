@@ -155,7 +155,7 @@ class ObligationsService {
         }
 
         if (Object.keys(changes).length === 0) {
-            const { allocations, movements, ...obligation } = existing
+            const { movements, ...obligation } = existing
             return {
                 ...obligation,
                 originalValue: Number(obligation.originalValue),

@@ -10,8 +10,7 @@ export type ObligationRecord = {
     originalValue: NumericValue
     finalValue: NumericValue
     status: string
-    allocations: { value: NumericValue }[]
-    movements: { id: string }[]
+    movements: { id: string; type: string; value: NumericValue }[]
 }
 
 export type SalaryHistoryEntry = {

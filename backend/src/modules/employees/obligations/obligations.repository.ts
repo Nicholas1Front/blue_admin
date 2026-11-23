@@ -1,7 +1,6 @@
 import { Prisma, type EmployeeObligation } from '../../../generated/prisma/client.js'
 import { prisma } from '../../../shared/database/prisma.js'
 import type { createObligationDTO, updateObligationDTO } from './obligations.schema.js'
-import { reconcileObligation } from './helpers/reconcileObligation.js'
 
 const getMonthRange = (date: Date) => ({
     gte: new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), 1)),
@@ -66,7 +65,6 @@ class ObligationsRepository {
         return prisma.employeeObligation.findFirst({
             where: { id: obligationId, engagementId },
             include: {
-                allocations: { select: { id: true } },
                 movements: { select: { id: true } }
             }
         })
@@ -182,11 +180,6 @@ class ObligationsRepository {
                 }
             })
 
-            const reconciliation = await reconcileObligation(tx, obligationId, {
-                releaseExcess: data.finalValue !== undefined,
-                releaseAllAllocations: data.status === 'cancelado'
-            })
-
             await tx.employeeHistory.create({
                 data: {
                     employeeId,
@@ -196,9 +189,6 @@ class ObligationsRepository {
                     metadata: {
                         obligationId,
                         changes,
-                        ...(reconciliation.allocationAdjustments.length > 0
-                            ? { allocationAdjustments: reconciliation.allocationAdjustments }
-                            : {})
                     },
                     eventDate: new Date()
                 }
@@ -231,43 +221,19 @@ class ObligationsRepository {
             const obligation = await tx.employeeObligation.findFirstOrThrow({
                 where: { id: obligationId, engagementId },
                 include: {
-                    allocations: {
-                        select: {
-                            id: true,
-                            movementId: true,
-                            type: true,
-                            value: true,
-                            createdAt: true
-                        }
-                    },
                     movements: {
-                        select: {
-                            id: true,
-                            type: true,
-                            description: true,
-                            eventDate: true,
-                            value: true
-                        }
+                        select: { id: true, type: true, description: true, eventDate: true, value: true }
                     }
                 }
             })
 
-            const linkedRecords = {
-                allocations: obligation.allocations.map(allocation => ({
-                    id: allocation.id,
-                    movementId: allocation.movementId,
-                    type: allocation.type,
-                    value: allocation.value.toString(),
-                    createdAt: allocation.createdAt.toISOString()
-                })),
-                movements: obligation.movements.map(movement => ({
-                    id: movement.id,
-                    type: movement.type,
-                    description: movement.description,
-                    eventDate: movement.eventDate?.toISOString() ?? null,
-                    value: movement.value?.toString() ?? null
-                }))
-            }
+            const linkedRecords = obligation.movements.map(movement => ({
+                id: movement.id,
+                type: movement.type,
+                description: movement.description,
+                eventDate: movement.eventDate?.toISOString() ?? null,
+                value: movement.value?.toString() ?? null
+            }))
 
             await tx.employeeHistory.create({
                 data: {
@@ -282,10 +248,6 @@ class ObligationsRepository {
                     },
                     eventDate: new Date()
                 }
-            })
-
-            await tx.employeePaymentAllocation.deleteMany({
-                where: { obligationId }
             })
 
             await tx.employeeMovement.updateMany({
@@ -333,8 +295,7 @@ class ObligationsRepository {
                         originalValue: true,
                         finalValue: true,
                         status: true,
-                        allocations: { select: { value: true } },
-                        movements: { select: { id: true } }
+                        movements: { select: { id: true, type: true, value: true } }
                     }
                 }
             }
