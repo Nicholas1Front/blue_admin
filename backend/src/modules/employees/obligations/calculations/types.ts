@@ -7,6 +7,7 @@ export type ObligationRecord = {
     referenceStart: Date | null
     referenceEnd: Date | null
     dueDate: Date | null
+    createdAt: Date
     originalValue: NumericValue
     finalValue: NumericValue
     status: string
@@ -28,6 +29,7 @@ export type EngagementCalculationContext = {
     currentSalary: NumericValue
     history: SalaryHistoryEntry[]
     obligations: ObligationRecord[]
+    genericPayments?: { id: string; value: NumericValue }[]
 }
 
 export type CalculationPeriod = {
