@@ -8,6 +8,8 @@ class EmployeesRepository {
                 data: {
                     name: data.name,
                     document: data.document ?? null,
+                    address: data.address ?? null,
+                    birthDate: data.birthDate ?? null,
                     observations: data.observations ?? null
                 }
             })
@@ -84,6 +86,8 @@ class EmployeesRepository {
                 data: {
                     ...(data.name !== undefined ? { name: data.name } : {}),
                     ...(data.document !== undefined ? { document: data.document } : {}),
+                    ...(data.address !== undefined ? { address: data.address } : {}),
+                    ...(data.birthDate !== undefined ? { birthDate: data.birthDate } : {}),
                     ...(data.observations !== undefined ? { observations: data.observations } : {})
                 }
             })
