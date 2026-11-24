@@ -26,7 +26,7 @@ class EmployeesQueriesRepository {
                 createdAt: true,
                 updatedAt: true,
                 engagements: {
-                    orderBy: [{ entryDate: 'desc' }, { createdAt: 'desc' }],
+                    orderBy: [{ entryDate: { sort: 'desc', nulls: 'last' } }, { createdAt: 'desc' }, { id: 'desc' }],
                     select: {
                         id: true,
                         entryDate: true,
@@ -82,8 +82,8 @@ class EmployeesQueriesRepository {
                     ...(query.obligationsCursor ? { cursor: { id: query.obligationsCursor }, skip: 1 } : {}),
                     take: obligationLimit + 1,
                     orderBy: [
-                        { referenceStart: 'desc' },
-                        { dueDate: 'asc' },
+                        { referenceStart: { sort: 'desc', nulls: 'last' } },
+                        { dueDate: { sort: 'asc', nulls: 'last' } },
                         { createdAt: 'desc' },
                         { id: 'desc' }
                     ],
@@ -111,7 +111,7 @@ class EmployeesQueriesRepository {
                     ...(query.movementsCursor ? { cursor: { id: query.movementsCursor }, skip: 1 } : {}),
                     take: movementLimit + 1,
                     orderBy: [
-                        { eventDate: 'desc' },
+                        { eventDate: { sort: 'desc', nulls: 'last' } },
                         { createdAt: 'desc' },
                         { id: 'desc' }
                     ],
