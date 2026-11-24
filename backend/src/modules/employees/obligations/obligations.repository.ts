@@ -9,6 +9,11 @@ const getMonthRange = (date: Date) => ({
     lt: new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth() + 1, 1))
 })
 
+const getDayRange = (date: Date) => ({
+    gte: new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate())),
+    lt: new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate() + 1))
+})
+
 const getYearRange = (date: Date) => ({
     gte: new Date(Date.UTC(date.getUTCFullYear(), 0, 1)),
     lt: new Date(Date.UTC(date.getUTCFullYear() + 1, 0, 1))
@@ -24,6 +29,14 @@ const getDuplicateReferenceWhere = (
             type,
             referenceStart: getMonthRange(referenceStart),
             referenceEnd: getMonthRange(referenceEnd)
+        }
+    }
+
+    if (type === 'ferias') {
+        return {
+            type,
+            referenceStart: getDayRange(referenceStart),
+            referenceEnd: getDayRange(referenceEnd)
         }
     }
 
