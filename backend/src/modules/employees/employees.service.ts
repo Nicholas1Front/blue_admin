@@ -12,17 +12,20 @@ class EmployeesService {
         if (!employee) throw new AppError('Employee not found', 404, 'EMPLOYEE_NOT_FOUND')
 
         const changes: Record<string, { previous: string | null; current: string | null }> = {}
+        const historyValue = (value: string | Date | null) => value instanceof Date ? value.toISOString() : value
 
-        for (const field of ['name', 'document', 'observations'] as const) {
+        for (const field of ['name', 'document', 'address', 'birthDate', 'observations'] as const) {
             const nextValue = data[field]
             if (nextValue === undefined) continue
 
             const previousValue = employee[field]
-            if (previousValue === nextValue) continue
+            const normalizedPrevious = previousValue instanceof Date ? previousValue.getTime() : previousValue
+            const normalizedNext = nextValue instanceof Date ? nextValue.getTime() : nextValue
+            if (normalizedPrevious === normalizedNext) continue
 
             changes[field] = {
-                previous: previousValue,
-                current: nextValue
+                previous: historyValue(previousValue),
+                current: historyValue(nextValue)
             }
         }
 
