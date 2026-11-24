@@ -2,6 +2,7 @@ import type { Request, Response } from 'express'
 import { AppError } from '../../../shared/errors/AppError.js'
 import {
     createEngagementSchema,
+    findEngagementsByFiltersSchema,
     updateEngagementSchema
 } from './engagements.schema.js'
 import engagementsService from './engagements.service.js'
@@ -32,6 +33,17 @@ class EngagementsController {
         return res.status(200).json({
             message: 'Employee engagement updated successfully',
             data: engagement
+        })
+    }
+
+    async findEngagementsByFilters(req: Request, res: Response) {
+        if (!req.user) throw new AppError('User not authenticated', 401, 'USER_NOT_AUTHENTICATED')
+
+        const filters = findEngagementsByFiltersSchema.parse(req.query)
+        const engagements = await engagementsService.findEngagementsByFilters(filters)
+        return res.status(200).json({
+            message: 'Employee engagements found successfully',
+            data: engagements
         })
     }
 
