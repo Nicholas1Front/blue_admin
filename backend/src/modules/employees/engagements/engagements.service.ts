@@ -1,6 +1,6 @@
 import { AppError } from '../../../shared/errors/AppError.js'
 import engagementsRepository from './engagements.repository.js'
-import type { createEngagementDTO, updateEngagementDTO } from './engagements.schema.js'
+import type { createEngagementDTO, findEngagementsByFiltersDTO, updateEngagementDTO } from './engagements.schema.js'
 
 const validateEngagementPeriod = (entryDate: Date | null, exitDate: Date | null) => {
     if (entryDate && exitDate && exitDate < entryDate) {
@@ -63,6 +63,14 @@ class EngagementsService {
             effectiveDate ?? new Date(),
             salaryChanged
         )
+    }
+
+    async findEngagementsByFilters(filters: findEngagementsByFiltersDTO) {
+        const result = await engagementsRepository.findEngagementsByFilters(filters)
+        if ('invalidCursor' in result) {
+            throw new AppError('Pagination cursor does not match the engagement filters', 400, 'INVALID_CURSOR')
+        }
+        return result
     }
 
     async findEngagementsByEmployee(employeeId: string) {
