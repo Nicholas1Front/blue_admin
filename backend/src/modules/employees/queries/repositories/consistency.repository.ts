@@ -26,7 +26,7 @@ class EmployeesConsistencyRepository {
             }
         }
 
-        const [obligations, paymentsByObligation, financialMovements] = await Promise.all([
+        const [obligations, paymentsByObligation, movements] = await Promise.all([
             prisma.employeeObligation.findMany({
                 where: { engagementId: { in: engagementIds } },
                 select: {
@@ -51,10 +51,7 @@ class EmployeesConsistencyRepository {
                 _sum: { value: true }
             }),
             prisma.employeeMovement.findMany({
-                where: {
-                    engagementId: { in: engagementIds },
-                    type: { in: financialMovementTypes }
-                },
+                where: { engagementId: { in: engagementIds } },
                 select: {
                     id: true,
                     engagementId: true,
@@ -158,8 +155,11 @@ class EmployeesConsistencyRepository {
             return issues
         })
 
-        const missingObligationFindings = financialMovements
-            .filter(movement => !movement.obligationId)
+        const missingObligationFindings = movements
+            .filter(movement =>
+                (financialMovementTypes as readonly string[]).includes(movement.type) &&
+                !movement.obligationId
+            )
             .map(movement => ({
                 code: 'FINANCIAL_MOVEMENT_WITHOUT_OBLIGATION',
                 movementId: movement.id,
@@ -169,7 +169,7 @@ class EmployeesConsistencyRepository {
                 value: movement.value === null ? null : Number(movement.value)
             }))
 
-        const invalidObligationLinkFindings = financialMovements
+        const invalidObligationLinkFindings = movements
             .filter(movement => movement.obligation && movement.obligation.engagementId !== movement.engagementId)
             .map(movement => ({
                 code: 'MOVEMENT_OBLIGATION_ENGAGEMENT_MISMATCH',
@@ -179,7 +179,7 @@ class EmployeesConsistencyRepository {
                 obligationEngagementId: movement.obligation?.engagementId
             }))
 
-        const transactionIds = [...new Set(financialMovements
+        const transactionIds = [...new Set(movements
             .map(movement => movement.financialTransactionId)
             .filter((id): id is string => id !== null))]
         const transactionAllocationFindings = transactionIds.length
