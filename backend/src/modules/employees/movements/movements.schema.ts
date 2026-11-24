@@ -92,3 +92,22 @@ export type updateMovementDTO = z.infer<typeof updateMovementSchema>
 export type createPaymentDTO = z.infer<typeof createPaymentSchema>
 export type updatePaymentDTO = z.infer<typeof updatePaymentSchema>
 export type findMovementsQueryDTO = z.infer<typeof findMovementsQuerySchema>
+
+export const findMovementsByFiltersSchema = z.object({
+    employeeId: z.string().uuid().optional(),
+    employeeName: z.string().trim().min(1).optional(),
+    engagementId: z.string().uuid().optional(),
+    type: movementTypeSchema.optional(),
+    description: z.string().trim().min(1).optional(),
+    obligationId: z.string().uuid().optional(),
+    financialTransactionId: z.string().uuid().optional(),
+    eventDateFrom: z.coerce.date().optional(),
+    eventDateTo: z.coerce.date().optional(),
+    cursor: z.string().uuid().optional(),
+    limit: z.coerce.number().int().min(1).max(100).default(20)
+}).refine(data => !data.eventDateFrom || !data.eventDateTo || data.eventDateTo >= data.eventDateFrom, {
+    message: 'Event date end cannot be before start',
+    path: ['eventDateTo']
+})
+
+export type findMovementsByFiltersDTO = z.infer<typeof findMovementsByFiltersSchema>
