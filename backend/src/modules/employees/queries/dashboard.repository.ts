@@ -143,8 +143,12 @@ class EmployeesDashboardRepository {
             paymentTotals.map(item => [item.obligationId, Number(item._sum.value ?? 0)] as const)
         )
         const employeeByEngagement = new Map<string, string>()
+        const employeeNameByEngagement = new Map<string, string>()
         for (const employee of employees) {
-            for (const engagement of employee.engagements) employeeByEngagement.set(engagement.id, employee.id)
+            for (const engagement of employee.engagements) {
+                employeeByEngagement.set(engagement.id, employee.id)
+                employeeNameByEngagement.set(engagement.id, employee.name)
+            }
         }
 
         const summaries = new Map<string, EmployeeSummary>(employees.map(employee => [employee.id, {
@@ -177,6 +181,8 @@ class EmployeesDashboardRepository {
             }
             return {
                 ...obligation,
+                employeeId: employeeId ?? null,
+                employeeName: employeeNameByEngagement.get(obligation.engagementId) ?? null,
                 finalValue,
                 paidValue,
                 outstandingValue
