@@ -1,5 +1,5 @@
 import { prisma } from '../../../../shared/database/prisma.js'
-import { movementTypesRequiringObligation } from '../../../shareds/allowedMovementTypes.js'
+import { movementTypesRequiringObligation } from '../../shareds/allowedMovementTypes.js'
 
 const financialMovementTypes = ['pagamento', ...movementTypesRequiringObligation]
 
