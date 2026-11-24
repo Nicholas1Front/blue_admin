@@ -20,7 +20,7 @@ Parâmetros independentes:
 
 Cada limite usa padrão 20 e máximo 100. A paginação busca um item adicional para informar `hasMore`; `nextCursor` recebe o ID do último item entregue. Os cursores são validados dentro do funcionário solicitado.
 
-A paginação é global por coleção entre os vínculos do funcionário. Os resultados são agrupados por `engagementId), e o histórico sem vínculo permanece em `history.employee`.
+A paginação é global por coleção entre os vínculos do funcionário. Os resultados são agrupados por `engagementId`, e o histórico sem vínculo permanece em `history.employee`.
 
 ### Dashboard
 
