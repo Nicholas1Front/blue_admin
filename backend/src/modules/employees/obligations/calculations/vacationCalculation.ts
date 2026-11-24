@@ -81,7 +81,7 @@ export const calculateVacationCompetencies = (
     }
 
     const hasIncompleteReferences = context.obligations.some(obligation =>
-        obligation.type === 'ferias' && (
+        obligation.type === 'ferias' && obligation.status !== 'cancelado' && (
             obligation.referenceStart === null ||
             obligation.referenceEnd === null ||
             obligation.referenceEnd < obligation.referenceStart
@@ -104,6 +104,7 @@ export const calculateVacationCompetencies = (
             let requiresReview = anchorRequiresReview
             const matchingObligations = context.obligations.filter(obligation =>
                 obligation.type === 'ferias' &&
+                obligation.status !== 'cancelado' &&
                 obligation.referenceStart !== null &&
                 obligation.referenceEnd !== null &&
                 sameDay(obligation.referenceStart, periodStart) &&
