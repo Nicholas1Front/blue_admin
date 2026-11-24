@@ -24,8 +24,14 @@ export type updateEmployeeDTO = z.infer<typeof updateEmployeeSchema>
 export const findEmployeesByFiltersSchema = z.object({
     name: z.string().trim().min(1).optional(),
     document: z.string().trim().min(1).optional(),
+    address: z.string().trim().min(1).optional(),
+    birthDateFrom: z.coerce.date().optional(),
+    birthDateTo: z.coerce.date().optional(),
     cursor: z.string().uuid().optional(),
     limit: z.coerce.number().int().min(1).max(100).default(20)
+}).refine(data => !data.birthDateFrom || !data.birthDateTo || data.birthDateTo >= data.birthDateFrom, {
+    message: 'Birth date end cannot be before start',
+    path: ['birthDateTo']
 })
 
 export type findEmployeesByFiltersDTO = z.infer<typeof findEmployeesByFiltersSchema>
