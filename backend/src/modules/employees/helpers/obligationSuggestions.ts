@@ -1,6 +1,7 @@
 import {
     calculateSalaryCompetencies,
     roundCurrency,
+    sameDay,
     sameMonth,
     toNumber
 } from '../obligations/calculations/salaryCalculation.js'
@@ -89,8 +90,8 @@ const findMatchingObligations = (
             obligation.referenceEnd.getUTCFullYear() === year
     }
 
-    return obligation.referenceStart.getTime() === item.referenceStart.getTime() &&
-        obligation.referenceEnd.getTime() === item.referenceEnd.getTime()
+    return sameDay(obligation.referenceStart, item.referenceStart) &&
+        sameDay(obligation.referenceEnd, item.referenceEnd)
 })
 
 const hasUnreliableReferenceForItem = (
@@ -130,8 +131,8 @@ const hasUnreliableReferenceForItem = (
         sameMonth(obligation.referenceStart, item.referenceStart) ||
         sameMonth(obligation.referenceEnd, item.referenceEnd)
     const matchesAcquisitionPeriod =
-        obligation.referenceStart.getTime() === item.referenceStart.getTime() &&
-        obligation.referenceEnd.getTime() === item.referenceEnd.getTime()
+        sameDay(obligation.referenceStart, item.referenceStart) &&
+        sameDay(obligation.referenceEnd, item.referenceEnd)
 
     return relevant && !matchesAcquisitionPeriod
 })
@@ -150,8 +151,8 @@ const buildSuggestion = (
             ? !existing.referenceStart || !sameMonth(existing.referenceStart, item.referenceStart) ||
                 !existing.referenceEnd || !sameMonth(existing.referenceEnd, item.referenceEnd)
             : item.type === 'ferias'
-                ? !existing.referenceStart || existing.referenceStart.getTime() !== item.referenceStart.getTime() ||
-                    !existing.referenceEnd || existing.referenceEnd.getTime() !== item.referenceEnd.getTime()
+                ? !existing.referenceStart || !sameDay(existing.referenceStart, item.referenceStart) ||
+                    !existing.referenceEnd || !sameDay(existing.referenceEnd, item.referenceEnd)
                 : !existing.referenceStart ||
                     existing.referenceStart.getUTCFullYear() !== item.referenceStart.getUTCFullYear() ||
                     existing.referenceStart.getUTCMonth() !== 0 ||
