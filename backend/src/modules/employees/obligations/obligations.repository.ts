@@ -19,7 +19,7 @@ const getDuplicateReferenceWhere = (
     referenceStart: Date,
     referenceEnd: Date
 ): Prisma.EmployeeObligationWhereInput => {
-    if (type === 'salario' || type === 'ferias') {
+    if (type === 'salario') {
         return {
             type,
             referenceStart: getMonthRange(referenceStart),
