@@ -2,6 +2,11 @@ import { AppError } from '../../../shared/errors/AppError.js'
 import engagementsRepository from './engagements.repository.js'
 import type { createEngagementDTO, findEngagementsByFiltersDTO, updateEngagementDTO } from './engagements.schema.js'
 
+const calculateHourlyRate = (monthlySalary: number | null | undefined) =>
+    monthlySalary === null || monthlySalary === undefined
+        ? null
+        : Number((monthlySalary / 30 / 8).toFixed(2))
+
 const validateEngagementPeriod = (entryDate: Date | null, exitDate: Date | null) => {
     if (entryDate && exitDate && exitDate < entryDate) {
         throw new AppError('Exit date cannot be before entry date', 400, 'INVALID_ENGAGEMENT_PERIOD')
@@ -20,7 +25,13 @@ class EngagementsService {
         if (!employeeExists) throw new AppError('Employee not found', 404, 'EMPLOYEE_NOT_FOUND')
 
         validateEngagementPeriod(data.entryDate ?? null, data.exitDate ?? null)
-        return engagementsRepository.createEngagement(employeeId, data)
+        const engagementData = {
+            ...data,
+            ...(data.hourlyRate === undefined
+                ? { hourlyRate: calculateHourlyRate(data.currentSalary) }
+                : {})
+        }
+        return engagementsRepository.createEngagement(employeeId, engagementData)
     }
 
     async updateEngagement(employeeId: string, engagementId: string, data: updateEngagementDTO) {
@@ -29,7 +40,13 @@ class EngagementsService {
             throw new AppError('Engagement not found for this employee', 404, 'ENGAGEMENT_NOT_FOUND')
         }
 
-        const { effectiveDate, ...updateData } = data
+        const { effectiveDate, ...requestedUpdateData } = data
+        const updateData = {
+            ...requestedUpdateData,
+            ...(requestedUpdateData.currentSalary !== undefined && requestedUpdateData.hourlyRate === undefined
+                ? { hourlyRate: calculateHourlyRate(requestedUpdateData.currentSalary) }
+                : {})
+        }
         const entryDate = updateData.entryDate !== undefined ? updateData.entryDate : existingEngagement.entryDate
         const exitDate = updateData.exitDate !== undefined ? updateData.exitDate : existingEngagement.exitDate
         validateEngagementPeriod(entryDate, exitDate)
