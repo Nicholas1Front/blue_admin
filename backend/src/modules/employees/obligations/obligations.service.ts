@@ -67,9 +67,11 @@ class ObligationsService {
             const end = candidate.referenceEnd
             const startMonth = `${start.getUTCFullYear()}-${String(start.getUTCMonth() + 1).padStart(2, '0')}`
             const endMonth = `${end.getUTCFullYear()}-${String(end.getUTCMonth() + 1).padStart(2, '0')}`
-            const key = candidate.type === 'salario' || candidate.type === 'ferias'
+            const key = candidate.type === 'salario'
                 ? `${candidate.type}:${startMonth}:${endMonth}`
-                : candidate.type === 'decimo_terceiro'
+                : candidate.type === 'ferias'
+                    ? `${candidate.type}:${start.getTime()}:${end.getTime()}`
+                    : candidate.type === 'decimo_terceiro'
                     ? `${candidate.type}:${start.getUTCFullYear()}:${end.getUTCFullYear()}`
                     : `${candidate.type}:${start.getTime()}:${end.getTime()}`
 
