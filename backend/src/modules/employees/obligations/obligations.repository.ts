@@ -141,22 +141,27 @@ class ObligationsRepository {
                         id: true,
                         employee: { select: { id: true, name: true, document: true } }
                     }
-                },
-                movements: {
-                    where: { type: 'pagamento' },
-                    select: { value: true }
                 }
             }
         })
 
         const hasMore = rows.length > filters.limit
         const page = hasMore ? rows.slice(0, filters.limit) : rows
+        const obligationIds = page.map(obligation => obligation.id)
+        const paymentTotals = obligationIds.length
+            ? await prisma.employeeMovement.groupBy({
+                by: ['obligationId'],
+                where: { obligationId: { in: obligationIds }, type: 'pagamento' },
+                _sum: { value: true }
+            })
+            : []
+        const paidByObligation = new Map(
+            paymentTotals.map(item => [item.obligationId, Number(item._sum.value ?? 0)] as const)
+        )
+
         return {
-            data: page.map(({ movements, ...obligation }) => {
-                const paidValue = Number(movements.reduce(
-                    (total, movement) => total + Number(movement.value ?? 0),
-                    0
-                ).toFixed(2))
+            data: page.map(obligation => {
+                const paidValue = paidByObligation.get(obligation.id) ?? 0
                 const finalValue = Number(obligation.finalValue)
                 return {
                     ...obligation,
