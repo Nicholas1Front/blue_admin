@@ -4,6 +4,7 @@ import {
     createMovementSchema,
     createPaymentSchema,
     findMovementsQuerySchema,
+    findMovementsByFiltersSchema,
     updateMovementSchema,
     updatePaymentSchema
 } from './movements.schema.js'
@@ -82,6 +83,17 @@ class MovementsController {
 
         return res.status(200).json({
             message: 'Employee movement deleted successfully'
+        })
+    }
+
+    async findMovementsByFilters(req: Request, res: Response) {
+        if (!req.user) throw new AppError('User not authenticated', 401, 'USER_NOT_AUTHENTICATED')
+
+        const filters = findMovementsByFiltersSchema.parse(req.query)
+        const movements = await movementsService.findMovementsByFilters(filters)
+        return res.status(200).json({
+            message: 'Employee movements found successfully',
+            data: movements
         })
     }
 
