@@ -1,5 +1,5 @@
 import { prisma } from '../../shared/database/prisma.js'
-import type { createEmployeeDTO, updateEmployeeDTO } from './employees.schema.js'
+import type { createEmployeeDTO, findEmployeesByFiltersDTO, updateEmployeeDTO } from './employees.schema.js'
 
 class EmployeesRepository {
     async createEmployee(data: createEmployeeDTO) {
@@ -27,6 +27,48 @@ class EmployeesRepository {
 
             return { employee, history }
         })
+    }
+
+    async findEmployeesByFilters(filters: findEmployeesByFiltersDTO) {
+        const where = {
+            ...(filters.name ? { name: { contains: filters.name, mode: 'insensitive' as const } } : {}),
+            ...(filters.document ? { document: { contains: filters.document, mode: 'insensitive' as const } } : {})
+        }
+
+        if (filters.cursor) {
+            const cursorExists = await prisma.employee.findFirst({
+                where: { ...where, id: filters.cursor },
+                select: { id: true }
+            })
+            if (!cursorExists) return { invalidCursor: true as const }
+        }
+
+        const rows = await prisma.employee.findMany({
+            where,
+            ...(filters.cursor ? { cursor: { id: filters.cursor }, skip: 1 } : {}),
+            take: filters.limit + 1,
+            orderBy: [{ name: 'asc' }, { id: 'asc' }],
+            select: {
+                id: true,
+                name: true,
+                document: true,
+                observations: true,
+                createdAt: true,
+                updatedAt: true,
+                _count: { select: { engagements: true } }
+            }
+        })
+
+        const hasMore = rows.length > filters.limit
+        const data = hasMore ? rows.slice(0, filters.limit) : rows
+        return {
+            data,
+            pagination: {
+                limit: filters.limit,
+                hasMore,
+                nextCursor: hasMore ? data[data.length - 1]?.id ?? null : null
+            }
+        }
     }
 
     async findEmployeeById(id: string) {
