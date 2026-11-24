@@ -9,6 +9,7 @@ class EmployeesDashboardRepository {
         const monthStart = new Date(Date.UTC(year, month - 1, 1))
         const nextMonthStart = new Date(Date.UTC(year, month, 1))
         const monthEnd = new Date(nextMonthStart.getTime() - 1)
+        const todayStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
 
         const employees = await prisma.employee.findMany({
             orderBy: { name: 'asc' },
@@ -156,7 +157,7 @@ class EmployeesDashboardRepository {
                     summary.obligationsDueThisMonth += 1
                     summary.dueThisMonthValue += outstandingValue
                 }
-                if (obligation.dueDate && obligation.dueDate < monthStart) {
+                if (obligation.dueDate && obligation.dueDate < todayStart) {
                     summary.overdueValue += outstandingValue
                 }
             }
@@ -188,7 +189,7 @@ class EmployeesDashboardRepository {
         const daysInMonth = new Date(Date.UTC(year, month, 0)).getUTCDate()
         const daysRemaining = currentMonth ? Math.max(0, daysInMonth - now.getUTCDate()) : 0
         const nextObligation = openObligations
-            .filter(item => item.dueDate && item.dueDate >= now)
+            .filter(item => item.dueDate && item.dueDate >= todayStart)
             .sort((a, b) => (a.dueDate?.getTime() ?? 0) - (b.dueDate?.getTime() ?? 0))[0] ?? null
 
         const totalOpenValue = openObligations.reduce((sum, item) => sum + item.outstandingValue, 0)
@@ -196,7 +197,7 @@ class EmployeesDashboardRepository {
             item.dueDate && item.dueDate >= monthStart && item.dueDate < nextMonthStart
         )
         const overdueValue = openObligations
-            .filter(item => item.dueDate && item.dueDate < monthStart)
+            .filter(item => item.dueDate && item.dueDate < todayStart)
             .reduce((sum, item) => sum + item.outstandingValue, 0)
         const paymentsRecordedThisMonth = [...summaries.values()]
             .reduce((sum, item) => sum + item.paymentsRecordedThisMonth, 0)
@@ -215,7 +216,7 @@ class EmployeesDashboardRepository {
             nextObligation,
             employees: [...summaries.values()],
             obligationsDueThisMonth: dueThisMonth,
-            overdueObligations: openObligations.filter(item => item.dueDate && item.dueDate < monthStart),
+            overdueObligations: openObligations.filter(item => item.dueDate && item.dueDate < todayStart),
             recentMovements: {
                 data: recentData.map(item => ({
                     ...item,
