@@ -21,7 +21,9 @@ class EmployeesRepository {
                     description: 'Funcionário cadastrado.',
                     metadata: {
                         name: employee.name,
-                        document: employee.document
+                        document: employee.document,
+                        address: employee.address,
+                        birthDate: employee.birthDate?.toISOString() ?? null
                     },
                     eventDate: new Date()
                 }
@@ -34,7 +36,14 @@ class EmployeesRepository {
     async findEmployeesByFilters(filters: findEmployeesByFiltersDTO) {
         const where = {
             ...(filters.name ? { name: { contains: filters.name, mode: 'insensitive' as const } } : {}),
-            ...(filters.document ? { document: { contains: filters.document, mode: 'insensitive' as const } } : {})
+            ...(filters.document ? { document: { contains: filters.document, mode: 'insensitive' as const } } : {}),
+            ...(filters.address ? { address: { contains: filters.address, mode: 'insensitive' as const } } : {}),
+            ...(filters.birthDateFrom || filters.birthDateTo ? {
+                birthDate: {
+                    ...(filters.birthDateFrom ? { gte: new Date(Date.UTC(filters.birthDateFrom.getUTCFullYear(), filters.birthDateFrom.getUTCMonth(), filters.birthDateFrom.getUTCDate())) } : {}),
+                    ...(filters.birthDateTo ? { lt: new Date(Date.UTC(filters.birthDateTo.getUTCFullYear(), filters.birthDateTo.getUTCMonth(), filters.birthDateTo.getUTCDate() + 1)) } : {})
+                }
+            } : {})
         }
 
         if (filters.cursor) {
@@ -54,6 +63,8 @@ class EmployeesRepository {
                 id: true,
                 name: true,
                 document: true,
+                address: true,
+                birthDate: true,
                 observations: true,
                 createdAt: true,
                 updatedAt: true,
