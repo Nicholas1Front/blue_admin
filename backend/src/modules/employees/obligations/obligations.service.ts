@@ -6,7 +6,8 @@ import type {
     analyzeObligationsQueryDTO,
     createObligationDTO,
     createObligationsBatchDTO,
-    updateObligationDTO
+    updateObligationDTO,
+    findObligationsByFiltersDTO
 } from './obligations.schema.js'
 
 const historyValue = (value: Date | { toString(): string } | string | number | null) => {
@@ -200,6 +201,14 @@ class ObligationsService {
         }
 
         return result.obligation
+    }
+
+    async findObligationsByFilters(filters: findObligationsByFiltersDTO) {
+        const result = await obligationsRepository.findObligationsByFilters(filters)
+        if ('invalidCursor' in result) {
+            throw new AppError('Pagination cursor does not match the obligation filters', 400, 'INVALID_CURSOR')
+        }
+        return result
     }
 
     async findOpenObligations(engagementId: string) {
