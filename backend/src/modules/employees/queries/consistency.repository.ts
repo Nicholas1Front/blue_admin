@@ -116,6 +116,19 @@ class EmployeesConsistencyRepository {
                     difference
                 })
             }
+            if (obligation.status === 'parcial' && toCents(paidValue) >= toCents(finalValue)) {
+                issues.push({
+                    code: 'PARTIAL_STATUS_WITHOUT_OPEN_BALANCE',
+                    obligationId: obligation.id,
+                    engagementId: obligation.engagementId,
+                    type: obligation.type,
+                    title: obligation.title,
+                    status: obligation.status,
+                    finalValue,
+                    paidValue,
+                    difference
+                })
+            }
             if (obligation.status === 'pendente' && paidValue > 0) {
                 issues.push({
                     code: 'PENDING_STATUS_WITH_PAYMENT',
