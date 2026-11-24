@@ -4,7 +4,7 @@ import {
     monthEnd,
     monthStart,
     roundCurrency,
-    sameMonth,
+    sameDay,
     toNumber,
     utcDay
 } from './salaryCalculation.js'
@@ -72,7 +72,7 @@ export const calculateVacationCompetencies = (
 
         const latestPeriodCount = recordedVacations.filter(obligation =>
             obligation.referenceEnd !== null &&
-            sameMonth(obligation.referenceEnd, latestVacationEnd)
+            sameDay(obligation.referenceEnd, latestVacationEnd)
         ).length
 
         if (latestPeriodCount > 1) {
@@ -106,8 +106,8 @@ export const calculateVacationCompetencies = (
                 obligation.type === 'ferias' &&
                 obligation.referenceStart !== null &&
                 obligation.referenceEnd !== null &&
-                sameMonth(obligation.referenceStart, periodStart) &&
-                sameMonth(obligation.referenceEnd, periodEnd)
+                sameDay(obligation.referenceStart, periodStart) &&
+                sameDay(obligation.referenceEnd, periodEnd)
             )
             const salary = getSalaryReference(context, periodEnd)
             let usedExistingValue = false
