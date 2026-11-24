@@ -128,7 +128,7 @@ class EmployeesDashboardRepository {
 
 
         const paidByObligation = new Map(
-            paymentTotals.map(item => [item.obligationId, Number(item._sum.value ?? 0)])
+            paymentTotals.map(item => [item.obligationId, Number(item._sum.value ?? 0)] as const)
         )
         const employeeByEngagement = new Map<string, string>()
         for (const employee of employees) {
@@ -145,7 +145,7 @@ class EmployeesDashboardRepository {
             paymentsRecordedThisMonth: 0,
             absencesThisMonth: 0,
             tardinessThisMonth: 0
-        }]))
+        } ] as const))
 
         const openObligations = obligations.map(obligation => {
             const paidValue = paidByObligation.get(obligation.id) ?? 0
