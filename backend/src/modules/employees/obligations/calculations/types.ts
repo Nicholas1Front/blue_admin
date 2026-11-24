@@ -30,7 +30,6 @@ export type EngagementCalculationContext = {
     currentSalary: NumericValue
     history: SalaryHistoryEntry[]
     obligations: ObligationRecord[]
-
 }
 
 export type CalculationPeriod = {

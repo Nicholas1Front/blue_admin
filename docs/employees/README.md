@@ -16,7 +16,7 @@ O sistema não será, nesta etapa, um sistema completo de folha de pagamento nem
 ## Estado
 
 - Cadastro de funcionários, vínculos, obrigações, sugestões de competências, movimentações e pagamentos vinculados a obrigações foram implementados no backend.
-- O schema Prisma já contém as relações necessárias; esta etapa não exigiu migration.
+- O schema Prisma mantém `obligationId` opcional para permitir movimentos administrativos sem obrigação; uma migration adiciona uma CHECK constraint para exigir o vínculo nos movimentos financeiros.
 - Todo pagamento exige uma obrigação do mesmo vínculo. A integração financeira cria uma única despesa por pagamento quando habilitada e permite pagamentos históricos sem transação financeira.
 - Build e testes de integração ainda precisam ser executados no ambiente local antes de considerar o módulo validado.
 - Frontend e cenários de integração devem ser desenvolvidos/revisados incrementalmente.

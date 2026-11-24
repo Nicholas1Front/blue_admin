@@ -143,7 +143,7 @@ Regras que devem ser garantidas:
 - uma obrigação com movimentos financeiros vinculados não pode ser excluída;
 - exclusões não podem apagar histórico ou registros financeiros importantes.
 
-O banco deve proteger relações, unicidade e índices possíveis. Regras que dependem de somas entre várias linhas, estado de estorno ou pertencimento ao mesmo vínculo precisam ser validadas no service dentro de transação. Constraints SQL adicionais só devem ser consideradas depois de revisar o schema e a migration gerada.
+O banco deve proteger relações, unicidade e índices possíveis. Regras que dependem de somas entre várias linhas, estado de estorno ou pertencimento ao mesmo vínculo precisam ser validadas no service dentro de transação. Uma constraint CHECK `NOT VALID` reforça no PostgreSQL que movimentos financeiros novos ou atualizados não podem ficar sem obrigação, sem exigir a correção automática de registros legados já existentes.
 
 ## 5. Integração com FinancialTransaction
 
