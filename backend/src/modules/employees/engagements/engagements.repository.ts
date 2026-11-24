@@ -35,7 +35,10 @@ class EngagementsRepository {
                         status: engagement.status,
                         modality: engagement.modality,
                         entryDate: engagement.entryDate?.toISOString() ?? null,
-                        currentSalary: engagement.currentSalary?.toString() ?? null
+                        exitDate: engagement.exitDate?.toISOString() ?? null,
+                        currentSalary: engagement.currentSalary?.toString() ?? null,
+                        hourlyRate: engagement.hourlyRate?.toString() ?? null,
+                        observations: engagement.observations
                     },
                     eventDate: engagement.entryDate ?? new Date()
                 }
