@@ -46,6 +46,31 @@ class EmployeesQueriesRepository {
         if (!employee) return null
 
         const engagementIds = employee.engagements.map(engagement => engagement.id)
+        const [obligationCursor, movementCursor, historyCursor] = await Promise.all([
+            query.obligationsCursor
+                ? prisma.employeeObligation.findFirst({
+                    where: { id: query.obligationsCursor, engagementId: { in: engagementIds } },
+                    select: { id: true }
+                })
+                : null,
+            query.movementsCursor
+                ? prisma.employeeMovement.findFirst({
+                    where: { id: query.movementsCursor, engagementId: { in: engagementIds } },
+                    select: { id: true }
+                })
+                : null,
+            query.historyCursor
+                ? prisma.employeeHistory.findFirst({
+                    where: { id: query.historyCursor, employeeId },
+                    select: { id: true }
+                })
+                : null
+        ])
+        if (
+            (query.obligationsCursor && !obligationCursor) ||
+            (query.movementsCursor && !movementCursor) ||
+            (query.historyCursor && !historyCursor)
+        ) return { invalidCursor: true as const }
         const obligationLimit = query.obligationsLimit
         const movementLimit = query.movementsLimit
         const historyLimit = query.historyLimit
@@ -204,7 +229,11 @@ class EmployeesQueriesRepository {
                     hourlyRate: engagement.hourlyRate === null ? null : Number(engagement.hourlyRate)
                 }))
             },
-            engagements: employee.engagements,
+            engagements: employee.engagements.map(engagement => ({
+                ...engagement,
+                currentSalary: engagement.currentSalary === null ? null : Number(engagement.currentSalary),
+                hourlyRate: engagement.hourlyRate === null ? null : Number(engagement.hourlyRate)
+            })),
             obligations: {
                 ...groupByEngagement(obligations.map(item => ({ ...item, engagementId: item.engagementId }))),
                 pagination: obligationsPage.pagination
