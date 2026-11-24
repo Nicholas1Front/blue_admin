@@ -4,6 +4,7 @@ import {
     analyzeObligationsQuerySchema,
     createObligationSchema,
     createObligationsBatchSchema,
+    findObligationsByFiltersSchema,
     updateObligationSchema
 } from './obligations.schema.js'
 import obligationsService from './obligations.service.js'
@@ -64,6 +65,17 @@ class ObligationsController {
         return res.status(200).json({
             message: 'Employee obligation updated successfully',
             data: obligation
+        })
+    }
+
+    async findObligationsByFilters(req: Request, res: Response) {
+        if (!req.user) throw new AppError('User not authenticated', 401, 'USER_NOT_AUTHENTICATED')
+
+        const filters = findObligationsByFiltersSchema.parse(req.query)
+        const obligations = await obligationsService.findObligationsByFilters(filters)
+        return res.status(200).json({
+            message: 'Employee obligations found successfully',
+            data: obligations
         })
     }
 
