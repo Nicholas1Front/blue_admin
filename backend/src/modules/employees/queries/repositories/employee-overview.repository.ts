@@ -22,6 +22,8 @@ class EmployeesQueriesRepository {
                 id: true,
                 name: true,
                 document: true,
+                address: true,
+                birthDate: true,
                 observations: true,
                 createdAt: true,
                 updatedAt: true,
@@ -225,6 +227,8 @@ class EmployeesQueriesRepository {
                 id: employee.id,
                 name: employee.name,
                 document: employee.document,
+                address: employee.address,
+                birthDate: employee.birthDate,
                 observations: employee.observations,
                 createdAt: employee.createdAt,
                 updatedAt: employee.updatedAt
