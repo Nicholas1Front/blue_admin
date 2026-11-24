@@ -49,7 +49,7 @@ class EmployeesDashboardRepository {
                     where: {
                         type: 'pagamento',
                         obligationId: { not: null },
-                        obligation: { engagementId: { in: engagementIds } }
+                        obligation: { is: { engagementId: { in: engagementIds } } }
                     },
                     _sum: { value: true }
                 })
