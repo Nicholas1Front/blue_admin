@@ -90,3 +90,31 @@ export const analyzeObligationsQuerySchema = z.object({
 
 export type createObligationsBatchDTO = z.infer<typeof createObligationsBatchSchema>
 export type analyzeObligationsQueryDTO = z.infer<typeof analyzeObligationsQuerySchema>
+
+export const findObligationsByFiltersSchema = z.object({
+    employeeId: z.string().uuid().optional(),
+    employeeName: z.string().trim().min(1).optional(),
+    engagementId: z.string().uuid().optional(),
+    type: obligationTypeSchema.optional(),
+    status: obligationStatusSchema.optional(),
+    title: z.string().trim().min(1).optional(),
+    dueDateFrom: z.coerce.date().optional(),
+    dueDateTo: z.coerce.date().optional(),
+    referenceStartFrom: z.coerce.date().optional(),
+    referenceStartTo: z.coerce.date().optional(),
+    referenceEndFrom: z.coerce.date().optional(),
+    referenceEndTo: z.coerce.date().optional(),
+    cursor: z.string().uuid().optional(),
+    limit: z.coerce.number().int().min(1).max(100).default(20)
+}).refine(data => !data.dueDateFrom || !data.dueDateTo || data.dueDateTo >= data.dueDateFrom, {
+    message: 'Due date end cannot be before start',
+    path: ['dueDateTo']
+}).refine(data => !data.referenceStartFrom || !data.referenceStartTo || data.referenceStartTo >= data.referenceStartFrom, {
+    message: 'Reference start end cannot be before start',
+    path: ['referenceStartTo']
+}).refine(data => !data.referenceEndFrom || !data.referenceEndTo || data.referenceEndTo >= data.referenceEndFrom, {
+    message: 'Reference end end cannot be before start',
+    path: ['referenceEndTo']
+})
+
+export type findObligationsByFiltersDTO = z.infer<typeof findObligationsByFiltersSchema>
