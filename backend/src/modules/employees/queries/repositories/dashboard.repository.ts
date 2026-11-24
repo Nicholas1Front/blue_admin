@@ -103,7 +103,7 @@ class EmployeesDashboardRepository {
                     where: { engagementId: { in: engagementIds } },
                     ...(query.movementsCursor ? { cursor: { id: query.movementsCursor }, skip: 1 } : {}),
                     take: query.movementsLimit + 1,
-                    orderBy: [{ eventDate: 'desc' }, { createdAt: 'desc' }, { id: 'desc' }],
+                    orderBy: [{ eventDate: { sort: 'desc', nulls: 'last' } }, { createdAt: 'desc' }, { id: 'desc' }],
                     select: {
                         id: true,
                         engagementId: true,
