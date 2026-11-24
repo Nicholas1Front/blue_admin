@@ -1,5 +1,5 @@
 import { prisma } from '../../../shared/database/prisma.js'
-import type { createEngagementDTO, updateEngagementDTO } from './engagements.schema.js'
+import type { createEngagementDTO, findEngagementsByFiltersDTO, updateEngagementDTO } from './engagements.schema.js'
 
 class EngagementsRepository {
     async employeeExists(employeeId: string) {
@@ -43,6 +43,64 @@ class EngagementsRepository {
 
             return { engagement, history }
         })
+    }
+
+    async findEngagementsByFilters(filters: findEngagementsByFiltersDTO) {
+        const toDateRange = (from?: Date, to?: Date) => {
+            if (!from && !to) return undefined
+            const range: { gte?: Date; lt?: Date } = {}
+            if (from) range.gte = new Date(Date.UTC(from.getUTCFullYear(), from.getUTCMonth(), from.getUTCDate()))
+            if (to) range.lt = new Date(Date.UTC(to.getUTCFullYear(), to.getUTCMonth(), to.getUTCDate() + 1))
+            return range
+        }
+
+        const where = {
+            ...(filters.employeeId ? { employeeId: filters.employeeId } : {}),
+            ...(filters.status ? { status: filters.status } : {}),
+            ...(filters.modality ? { modality: filters.modality } : {}),
+            ...(filters.employeeName ? {
+                employee: { is: { name: { contains: filters.employeeName, mode: 'insensitive' as const } } }
+            } : {}),
+            ...(filters.entryDateFrom || filters.entryDateTo
+                ? { entryDate: toDateRange(filters.entryDateFrom, filters.entryDateTo) }
+                : {}),
+            ...(filters.exitDateFrom || filters.exitDateTo
+                ? { exitDate: toDateRange(filters.exitDateFrom, filters.exitDateTo) }
+                : {})
+        }
+
+        if (filters.cursor) {
+            const cursorExists = await prisma.employeeEngagement.findFirst({
+                where: { ...where, id: filters.cursor },
+                select: { id: true }
+            })
+            if (!cursorExists) return { invalidCursor: true as const }
+        }
+
+        const rows = await prisma.employeeEngagement.findMany({
+            where,
+            ...(filters.cursor ? { cursor: { id: filters.cursor }, skip: 1 } : {}),
+            take: filters.limit + 1,
+            orderBy: [
+                { entryDate: { sort: 'desc', nulls: 'last' } },
+                { createdAt: 'desc' },
+                { id: 'desc' }
+            ],
+            include: {
+                employee: { select: { id: true, name: true, document: true } }
+            }
+        })
+
+        const hasMore = rows.length > filters.limit
+        const data = hasMore ? rows.slice(0, filters.limit) : rows
+        return {
+            data,
+            pagination: {
+                limit: filters.limit,
+                hasMore,
+                nextCursor: hasMore ? data[data.length - 1]?.id ?? null : null
+            }
+        }
     }
 
     async findEngagementById(employeeId: string, engagementId: string) {
