@@ -1,5 +1,5 @@
 import type { Request, Response } from 'express'
-import { AppError } from '../../shared/errors/AppError.js'
+import { AppError } from '../../../shared/errors/AppError.js'
 import employeeOverviewService from './services/employee-overview.service.js'
 import dashboardService from './services/dashboard.service.js'
 import consistencyService from './services/consistency.service.js'
