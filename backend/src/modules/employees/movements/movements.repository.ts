@@ -5,6 +5,7 @@ import type {
     createMovementDTO,
     createPaymentDTO,
     findMovementsQueryDTO,
+    findMovementsByFiltersDTO,
     updateMovementDTO,
     updatePaymentDTO
 } from './movements.schema.js'
@@ -416,6 +417,90 @@ class MovementsRepository {
         })
     }
 
+    async findMovementsByFilters(filters: findMovementsByFiltersDTO) {
+        const eventDateRange = (() => {
+            if (!filters.eventDateFrom && !filters.eventDateTo) return undefined
+            const range: { gte?: Date; lt?: Date } = {}
+            if (filters.eventDateFrom) {
+                const date = filters.eventDateFrom
+                range.gte = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate()))
+            }
+            if (filters.eventDateTo) {
+                const date = filters.eventDateTo
+                range.lt = new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), date.getUTCDate() + 1))
+            }
+            return range
+        })()
+        const engagementWhere = {
+            ...(filters.employeeId ? { employeeId: filters.employeeId } : {}),
+            ...(filters.employeeName ? {
+                employee: { is: { name: { contains: filters.employeeName, mode: 'insensitive' as const } } }
+            } : {})
+        }
+        const where = {
+            ...(filters.engagementId ? { engagementId: filters.engagementId } : {}),
+            ...(Object.keys(engagementWhere).length ? { engagement: { is: engagementWhere } } : {}),
+            ...(filters.type ? { type: filters.type } : {}),
+            ...(filters.description ? { description: { contains: filters.description, mode: 'insensitive' as const } } : {}),
+            ...(filters.obligationId ? { obligationId: filters.obligationId } : {}),
+            ...(filters.financialTransactionId ? { financialTransactionId: filters.financialTransactionId } : {}),
+            ...(eventDateRange ? { eventDate: eventDateRange } : {})
+        }
+
+        if (filters.cursor) {
+            const cursorExists = await prisma.employeeMovement.findFirst({
+                where: { ...where, id: filters.cursor },
+                select: { id: true }
+            })
+            if (!cursorExists) return { invalidCursor: true as const }
+        }
+
+        const rows = await prisma.employeeMovement.findMany({
+            where,
+            ...(filters.cursor ? { cursor: { id: filters.cursor }, skip: 1 } : {}),
+            take: filters.limit + 1,
+            orderBy: [
+                { eventDate: { sort: 'desc', nulls: 'last' } },
+                { createdAt: 'desc' },
+                { id: 'desc' }
+            ],
+            include: {
+                engagement: {
+                    select: {
+                        id: true,
+                        employee: { select: { id: true, name: true, document: true } }
+                    }
+                },
+                obligation: {
+                    select: { id: true, type: true, title: true, referenceStart: true, referenceEnd: true, finalValue: true, status: true }
+                },
+                financialTransaction: {
+                    select: { id: true, categoryId: true, description: true, value: true, type: true, referenceDate: true }
+                }
+            }
+        })
+
+        const hasMore = rows.length > filters.limit
+        const page = hasMore ? rows.slice(0, filters.limit) : rows
+        return {
+            data: page.map(movement => ({
+                ...movement,
+                value: movement.value === null ? null : Number(movement.value),
+                obligation: movement.obligation
+                    ? { ...movement.obligation, finalValue: Number(movement.obligation.finalValue) }
+                    : null,
+                financialTransaction: movement.financialTransaction
+                    ? { ...movement.financialTransaction, value: Number(movement.financialTransaction.value) }
+                    : null
+            })),
+            pagination: {
+                limit: filters.limit,
+                hasMore,
+                nextCursor: hasMore ? page[page.length - 1]?.id ?? null : null
+            }
+        }
+    }
+
     async findMovementsByEngagement(engagementId: string, filters: findMovementsQueryDTO) {
         const startDate = filters.startDate ? new Date(filters.startDate) : undefined
         const endDate = filters.endDate ? new Date(filters.endDate) : undefined
@@ -433,7 +518,7 @@ class MovementsRepository {
                     }
                 } : {})
             },
-            orderBy: [{ eventDate: 'desc' }, { createdAt: 'desc' }, { id: 'asc' }],
+            orderBy: [{ eventDate: { sort: 'desc', nulls: 'last' } }, { createdAt: 'desc' }, { id: 'desc' }],
             include: {
                 obligation: {
                     select: { id: true, type: true, title: true, referenceStart: true, referenceEnd: true, finalValue: true, status: true }
