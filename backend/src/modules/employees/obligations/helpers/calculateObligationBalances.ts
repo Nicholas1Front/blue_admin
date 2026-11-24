@@ -7,7 +7,6 @@ type PaymentMovement = {
 
 export type ObligationBalanceInput = {
     id: string
-    status: string
     finalValue: NumericValue
     referenceStart: Date | null
     dueDate: Date | null
@@ -15,13 +14,8 @@ export type ObligationBalanceInput = {
     movements: PaymentMovement[]
 }
 
-type GenericPayment = {
-    value: NumericValue
-}
-
 export type ObligationBalance = {
     directPaidValue: number
-    genericPaidValue: number
     paidValue: number
     outstandingValue: number
 }
@@ -49,55 +43,21 @@ export const compareObligationsByCompetence = (
     left.createdAt.getTime() - right.createdAt.getTime() ||
     left.id.localeCompare(right.id)
 
-export const calculateObligationBalances = (
-    obligations: ObligationBalanceInput[],
-    genericPayments: GenericPayment[]
-) => {
+export const calculateObligationBalances = (obligations: ObligationBalanceInput[]) => {
     const balances = new Map<string, ObligationBalance>()
-    const eligible = obligations
-        .filter(obligation => ['pendente', 'parcial'].includes(obligation.status))
-        .sort(compareObligationsByCompetence)
-
-    let genericBalance = genericPayments.reduce(
-        (total, payment) => total + toCents(payment.value),
-        0
-    )
 
     for (const obligation of obligations) {
         const directPaidCents = obligation.movements
             .filter(movement => movement.type === 'pagamento')
             .reduce((total, movement) => total + toCents(movement.value), 0)
         const finalValueCents = toCents(obligation.finalValue)
-        const directAppliedCents = Math.min(directPaidCents, finalValueCents)
+        const paidCents = Math.min(directPaidCents, finalValueCents)
 
         balances.set(obligation.id, {
             directPaidValue: fromCents(directPaidCents),
-            genericPaidValue: 0,
-            paidValue: fromCents(directAppliedCents),
-            outstandingValue: fromCents(finalValueCents - directAppliedCents)
+            paidValue: fromCents(paidCents),
+            outstandingValue: fromCents(Math.max(0, finalValueCents - paidCents))
         })
-    }
-
-    for (const obligation of eligible) {
-        if (genericBalance <= 0) break
-
-        const balance = balances.get(obligation.id)
-        if (!balance) continue
-
-        const outstandingCents = toCents(balance.outstandingValue)
-        const allocatedCents = Math.min(genericBalance, outstandingCents)
-        if (allocatedCents <= 0) continue
-
-        const genericPaidValue = fromCents(allocatedCents)
-        const paidValue = fromCents(toCents(balance.paidValue) + allocatedCents)
-
-        balances.set(obligation.id, {
-            ...balance,
-            genericPaidValue,
-            paidValue,
-            outstandingValue: fromCents(outstandingCents - allocatedCents)
-        })
-        genericBalance -= allocatedCents
     }
 
     return balances

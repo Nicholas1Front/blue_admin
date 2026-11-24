@@ -167,12 +167,9 @@ const buildSuggestion = (
     }
 
     const paidValueFromMovements = obligationBalance?.directPaidValue ?? 0
-    const genericPaidValue = obligationBalance?.genericPaidValue ?? 0
     const recognizedValue = existing ? toNumber(existing.finalValue) : null
     const recognizedOriginalValue = existing ? toNumber(existing.originalValue) : null
-    const paidValue = existing?.status === 'pago' &&
-        paidValueFromMovements === 0 &&
-        genericPaidValue === 0
+    const paidValue = existing?.status === 'pago' && paidValueFromMovements === 0
         ? recognizedValue ?? 0
         : obligationBalance?.paidValue ?? 0
     const balance = existing &&
@@ -220,9 +217,9 @@ const buildSuggestion = (
         warnings.push('The obligation is marked as partially paid but has no linked payment movements to identify the paid amount.')
     }
 
-    const hasFinancialRecords = Boolean(existing && (
-        (existing._count?.movements ?? existing.movements.length) > 0 || genericPaidValue > 0
-    ))
+    const hasFinancialRecords = Boolean(existing &&
+        (existing._count?.movements ?? existing.movements.length) > 0
+    )
     const hasManualAdjustment = existing !== undefined &&
         recognizedOriginalValue !== null &&
         recognizedValue !== null &&
@@ -333,10 +330,7 @@ export const suggestBenefitObligations = (
 
     const items = calculationResults.flatMap(result => result.items)
     const warnings = calculationResults.flatMap(result => result.warnings)
-    const obligationBalances = calculateObligationBalances(
-        context.obligations,
-        context.genericPayments ?? []
-    )
+    const obligationBalances = calculateObligationBalances(context.obligations)
     const suggestions = items
         .sort((left, right) =>
             left.referenceStart.getTime() - right.referenceStart.getTime() ||

@@ -70,7 +70,7 @@ Responsabilidades:
 - data efetiva do evento;
 - competência afetada quando aplicável;
 - valor quando aplicável;
-- referência opcional à obrigação afetada;
+- referência obrigatória à obrigação para movimentos financeiros e opcional para movimentos administrativos;
 - `financialTransactionId` opcional para integração com FinancialTransaction.
 
 Relações:
@@ -81,12 +81,14 @@ Relações:
 
 ### 2.5 Relação entre EmployeeMovement e EmployeeObligation
 
-Não existe tabela associativa de pagamentos. Cada EmployeeMovement possui um `obligationId` opcional:
+Não existe tabela associativa de pagamentos. Cada EmployeeMovement possui um `obligationId`:
+- todo movimento financeiro, inclusive pagamento, deve apontar para uma obrigação;
+- movimentos administrativos como falta, atraso, saída antecipada e anotação podem não apontar para uma obrigação;
 - um movimento aponta para, no máximo, uma obrigação;
 - uma obrigação pode receber vários movimentos de pagamento;
 - pagamentos parciais são registrados como movimentos separados;
 - uma transferência pode ser compartilhada por vários movimentos através de `financialTransactionId`;
-- valores não destinados a uma obrigação permanecem em movimentos sem `obligationId`.
+- não existem pagamentos genéricos nem rateios virtuais entre obrigações.
 
 ### 2.6 `EmployeeHistory` — `employee_history`
 Trilha única de auditoria.
@@ -126,7 +128,7 @@ FinancialTransaction
   +---- EmployeeMovement
 ```
 
-Cada EmployeeMovement pode referenciar uma obrigação e uma transação financeira, ambas opcionais. Uma obrigação recebe movimentos de pagamento independentes; a transação financeira representa a transferência real e pode ser compartilhada por vários movimentos.
+Cada EmployeeMovement financeiro deve referenciar uma obrigação; a referência à transação financeira continua opcional. Uma obrigação recebe movimentos de pagamento independentes; a transação financeira representa a transferência real e pode ser compartilhada por vários movimentos.
 
 ## 4. Integridade do banco e do backend
 
@@ -136,6 +138,9 @@ Regras que devem ser garantidas:
 - uma mesma referência de obrigação recorrente não é criada duas vezes;
 - a soma dos valores dos movimentos vinculados a uma transação não pode superar o valor dessa transação, inclusive sob requisições concorrentes;
 - o status das obrigações não é alterado automaticamente pelo registro de pagamentos;
+- todo pagamento deve estar vinculado a uma obrigação do mesmo vínculo;
+- a soma dos pagamentos diretamente vinculados determina o saldo, sem distribuição virtual;
+- uma obrigação com movimentos financeiros vinculados não pode ser excluída;
 - exclusões não podem apagar histórico ou registros financeiros importantes.
 
 O banco deve proteger relações, unicidade e índices possíveis. Regras que dependem de somas entre várias linhas, estado de estorno ou pertencimento ao mesmo vínculo precisam ser validadas no service dentro de transação. Constraints SQL adicionais só devem ser consideradas depois de revisar o schema e a migration gerada.
@@ -189,13 +194,13 @@ A soma dos valores dos movimentos vinculados não pode superar o valor da transa
 4. Registrar histórico com snapshot dos dados relevantes.
 
 ### 6.5 Pagamento e vínculo com obrigação
-1. Receber vínculo, data (quando conhecida), valor, descrição e obrigação opcional.
+1. Receber vínculo, data (quando conhecida), valor, descrição e obrigação obrigatória.
 2. Validar que a obrigação pertence ao vínculo informado.
-3. Um movimento pode apontar para apenas uma obrigação. Para destinar uma transferência a várias obrigações, cadastrar primeiro a FinancialTransaction pelo valor total da transferência e registrar vários movimentos com o mesmo `financialTransactionId`, cada um com seu valor correspondente.
-4. Se houver transação financeira nova, criar uma única FinancialTransaction de despesa com categoria ativa do tipo `expense`. Para pagamentos históricos, permitir `createFinancialTransaction: false`.
+3. Um movimento aponta para apenas uma obrigação. Para destinar uma transferência a várias obrigações, cadastrar a FinancialTransaction pelo valor total da transferência e registrar vários movimentos, cada um vinculado à sua obrigação e com seu valor correspondente.
+4. Se houver transação financeira nova, criar uma única FinancialTransaction de despesa com categoria ativa do tipo `expense`. Para pagamentos históricos, permitir `createFinancialTransaction: false`, mas manter `obligationId` obrigatório.
 5. Se houver uma transação existente, validar que ela existe, é uma despesa e que a soma dos movimentos vinculados, incluindo o novo movimento, não supera seu valor.
 6. Registrar histórico com a obrigação e a transação vinculadas.
-7. O status da obrigação permanece manual. O saldo é derivado dos pagamentos direcionados e da distribuição virtual dos pagamentos genéricos. Pagamentos direcionados abatem somente sua obrigação; pagamentos genéricos são distribuídos por competência mais antiga entre obrigações pendentes/parciais, respeitando o saldo de cada uma.
+7. O status da obrigação permanece manual. O saldo considera somente pagamentos diretamente vinculados àquela obrigação; não há pagamento genérico nem rateio virtual.
 
 Rotas implementadas sob `/employees`:
 - `POST /create-movement/:engagementId`
@@ -205,9 +210,9 @@ Rotas implementadas sob `/employees`:
 - `DELETE /delete-movement/:engagementId/:movementId`
 - `POST /create-payment/:engagementId`
 - `PUT /update-payment/:engagementId/:movementId`
-- `GET /find-open-obligations/:engagementId` (rota pertencente ao módulo obligations; retorna apenas obrigações `pendente`/`parcial` com saldo positivo após pagamentos direcionados e genéricos)
+- `GET /find-open-obligations/:engagementId` (retorna obrigações pendentes/parciais com saldo positivo após pagamentos diretamente vinculados)
 
-A exclusão de um movimento preserva a transação financeira compartilhada. A exclusão de uma obrigação desvincula seus movimentos e preserva os registros financeiros.
+A exclusão de um movimento preserva a transação financeira compartilhada. Uma obrigação com movimentos financeiros vinculados não pode ser excluída.
 
 Exemplo de pagamento vinculado a uma obrigação:
 
@@ -220,20 +225,20 @@ Exemplo de pagamento vinculado a uma obrigação:
 }
 ```
 
-Para associar outra parte da mesma transferência a uma segunda obrigação, enviar outro pagamento com o mesmo `financialTransactionId` e o valor correspondente. O valor excedente pode permanecer em um movimento sem `obligationId`.
+Para associar outra parte da mesma transferência a uma segunda obrigação, enviar outro pagamento com o mesmo `financialTransactionId`, o `obligationId` da segunda obrigação e o valor correspondente.
 
 Para pagamento histórico sem lançamento financeiro, incluir `"createFinancialTransaction": false`; nesse caso, `categoryId` pode ser omitido e `eventDate` pode permanecer nulo quando desconhecida.
 
 ### 6.6 Análise e sugestão de competências
-1. A rota GET /employees/analyze-obligations/:engagementId consulta o vínculo, o histórico de alterações salariais, todas as obrigações do vínculo e os pagamentos genéricos. Todas as obrigações são necessárias para distribuir pagamentos genéricos corretamente, inclusive quando uma obrigação de outro tipo for mais antiga que salário, férias ou décimo terceiro.
+1. A rota GET /employees/analyze-obligations/:engagementId consulta o vínculo, o histórico de alterações salariais e as obrigações do vínculo, incluindo seus movimentos de pagamento diretamente vinculados.
 2. A consulta exige startMonth, startYear, endMonth e endYear. O intervalo é inclusivo, limitado a 40 anos, e usa somente mês/ano na entrada.
 3. Os parâmetros calculateSalary, calculateVacation e calculateThirteenthSalary permitem selecionar os cálculos. Quando omitidos, os três são executados.
 4. O helper puro, localizado em employees/helpers/obligationSuggestions.ts, coordena três calculadoras independentes dentro de obligations/calculations/: salários, férias e décimo terceiro.
 5. Salários são calculados mês a mês, proporcionalmente aos dias corridos de vínculo ativo e às alterações salariais efetivas no mês. Competências anteriores podem ser usadas como referência quando o histórico salarial não é suficiente, sempre sinalizando a estimativa.
 6. Férias são identificadas pelos períodos aquisitivos de 12 meses a partir da entrada do vínculo. As obrigações existentes são comparadas pelo mês/ano de referenceStart e referenceEnd. Se entryDate for desconhecida, uma competência válida não cancelada permite projetar o próximo período a partir do dia seguinte ao referenceEnd; essa projeção exige revisão e não reconstrói períodos anteriores. Períodos históricos sem registro exigem revisão, pois ausência de obrigação não prova ausência de concessão ou pagamento.
 7. O décimo terceiro é calculado por ano até o mês final da análise: última competência salarial disponível dividida por 12 e multiplicada pelos meses com pelo menos 15 dias de vínculo ativo. Sem competência salarial, usa currentSalary como estimativa e sinaliza a limitação.
-8. Para cada competência, a resposta informa ação sugerida (create, update, none ou manual_review), estimativa, valor reconhecido, total pago diretamente ou alocado virtualmente por pagamento genérico, saldo, memória de cálculo, projeção e alertas. O resumo separa saldo reconhecido em aberto, estimativas sugeridas para criação e estimativas que ainda exigem revisão manual.
-9. A edição só é sugerida quando o valor estimado diverge, a obrigação não possui movimentações associadas, não recebe valor na distribuição genérica e não possui ajuste manual, além de o status permitir revisão automática. Obrigações canceladas ou em revisão exigem conferência; divergências entre status manual e valores pagos diretamente ou distribuídos genericamente também exigem revisão.
+8. Para cada competência, a resposta informa ação sugerida (create, update, none ou manual_review), estimativa, valor reconhecido, total pago por movimentos diretamente vinculados, saldo, memória de cálculo, projeção e alertas. O resumo separa saldo reconhecido em aberto, estimativas sugeridas para criação e estimativas que ainda exigem revisão manual.
+9. A edição só é sugerida quando o valor estimado diverge, a obrigação não possui movimentações associadas nem ajuste manual, além de o status permitir revisão automática. Obrigações canceladas ou em revisão exigem conferência; divergências entre status manual e valores pagos diretamente também exigem revisão.
 10. Datas ou histórico insuficientes, duplicidades, vínculo encerrado/afastado, prazo concessivo vencido e referências salariais ambíguas exigem conferência humana.
 11. A análise nunca cria nem altera obrigações. A criação confirmada pode continuar usando a rota de criação em lote.
 

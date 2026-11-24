@@ -63,12 +63,7 @@ class ObligationsRepository {
                     { id: 'asc' }
                 ]
             })
-            const genericPayments = await tx.employeeMovement.findMany({
-                where: { engagementId, type: 'pagamento', obligationId: null },
-                select: { value: true }
-            })
-
-            const balances = calculateObligationBalances(obligations, genericPayments)
+            const balances = calculateObligationBalances(obligations)
 
             return [...obligations].sort(compareObligationsByCompetence).map(obligation => {
                 const balance = balances.get(obligation.id)
@@ -353,18 +348,11 @@ class ObligationsRepository {
                             select: { id: true, type: true, value: true }
                         }
                     }
-                },
-                movements: {
-                    where: { type: 'pagamento', obligationId: null },
-                    select: { id: true, value: true }
                 }
             }
         })
 
-        if (!context) return null
-
-        const { movements, ...engagement } = context
-        return { ...engagement, genericPayments: movements }
+        return context
     }
 
     async createObligationsBatch(

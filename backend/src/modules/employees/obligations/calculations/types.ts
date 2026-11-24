@@ -30,7 +30,7 @@ export type EngagementCalculationContext = {
     currentSalary: NumericValue
     history: SalaryHistoryEntry[]
     obligations: ObligationRecord[]
-    genericPayments?: { id: string; value: NumericValue }[]
+
 }
 
 export type CalculationPeriod = {

@@ -23,7 +23,7 @@ O Blue Admin será um **assistente administrativo**, não um motor de folha de p
 3. Flexibilidade: aceitar registros retroativos, dados incompletos e datas desconhecidas.
 4. Separação: pessoa, vínculo, obrigação, movimentação e transação financeira têm responsabilidades próprias.
 5. Revisão humana: sugestões não criam obrigações automaticamente.
-6. Integridade financeira: valores pagos devem ser distribuídos e rastreáveis; não contar uma mesma saída financeira duas vezes.
+6. Integridade financeira: todo movimento financeiro deve apontar para a obrigação correspondente; não contar uma mesma saída financeira duas vezes.
 7. Precisão: preservar competência, data do acontecimento, vencimento e data efetiva de pagamento como informações distintas.
 
 ## 3. Conceitos
@@ -123,7 +123,7 @@ Regras:
 - Uma obrigação pode receber vários movimentos de pagamento, inclusive pagamentos parciais.
 - Alterar competência, vencimento ou valor de uma obrigação deve gerar evento em `employee_history`, preservando os valores anteriores e novos no metadata.
 - Não haverá tabela auxiliar exclusiva para histórico de obrigações.
-- Excluir uma obrigação preserva os movimentos e transações financeiras, desvinculando os movimentos da obrigação. O status da obrigação é sempre administrado manualmente.
+- Uma obrigação com movimentos financeiros vinculados não pode ser excluída. Movimentos administrativos vinculados podem ser preservados e desvinculados durante a exclusão. O status da obrigação é sempre administrado manualmente.
 
 Status conceituais:
 - em revisão: ainda não reconhecida definitivamente;
@@ -168,7 +168,7 @@ Campos candidatos:
 - `eventDate` (quando aconteceu)
 - referência/competência afetada, quando aplicável
 - `value`, quando houver valor
-- `obligationId`, quando a movimentação afetar diretamente uma obrigação específica
+- `obligationId`, obrigatório para pagamentos e demais movimentos financeiros; opcional para acontecimentos administrativos
 - `financialTransactionId` opcional
 - observações
 - timestamps
@@ -189,20 +189,18 @@ Regras:
 - O módulo financeiro pode editar dados da transação, mas não pode reduzir seu valor abaixo da soma das movimentações vinculadas, convertê-la em entrada ou excluí-la enquanto houver vínculos.
 - A edição de uma movimentação não altera automaticamente o valor da transação compartilhada. A exclusão do movimento preserva a transação.
 
-Cada movimentação de pagamento pode apontar para, no máximo, uma obrigação por meio de `obligationId`. Uma obrigação pode receber várias movimentações de pagamento, permitindo pagamentos parciais ao longo do tempo.
+Cada movimento financeiro deve apontar para uma obrigação por meio de `obligationId`. Isso inclui pagamentos e movimentos financeiros de bonificação, décimo terceiro, férias, rescisão e ajustes. Movimentos administrativos — como falta, atraso, saída antecipada e anotação — podem permanecer sem obrigação.
 
 Regras:
-- O vínculo direto é opcional: pagamentos históricos ou valores ainda não destinados podem permanecer sem `obligationId`.
-- Pagamento com `obligationId` é direcionado e só abate aquela obrigação.
-- Pagamento sem `obligationId` é genérico. Seu valor forma um saldo disponível para abater obrigações abertas do mesmo vínculo, sem criar associações persistidas.
-- A distribuição genérica é virtual e cronológica: primeiro considera os pagamentos direcionados de cada obrigação; depois aplica o saldo genérico às obrigações elegíveis mais antigas, até zerar o saldo de cada uma antes de avançar para a próxima.
-- A ordem é `referenceStart` crescente (competência mais antiga primeiro; referências nulas por último), `dueDate` crescente, `createdAt` crescente e `id` como desempate determinístico.
-- Somente obrigações com status `pendente` ou `parcial` recebem pagamentos genéricos. Obrigações `pago`, `cancelado` ou `em_revisao` não participam da distribuição.
-- A distribuição nunca atribui a uma obrigação mais do que seu valor reconhecido. Qualquer saldo genérico que exceda todas as obrigações abertas permanece sem destinação.
-- Cada movimentação pertence ao mesmo vínculo da obrigação referenciada. O backend valida esse pertencimento.
-- O status da obrigação (`pendente`, `parcial`, `pago`, `cancelado` ou `em_revisao`) é alterado manualmente. Registrar, editar ou excluir pagamentos não altera o status automaticamente.
-- O valor pago e o saldo são derivados dos movimentos de pagamento e da distribuição genérica em consultas. Não armazenar saldo nem alocação virtual na obrigação.
-- Excluir uma obrigação preserva pagamentos e transações financeiras: os movimentos são desvinculados antes da exclusão.
+- Uma movimentação pode apontar para, no máximo, uma obrigação; uma obrigação pode receber vários movimentos.
+- Todo pagamento deve ter `obligationId`; pagamentos históricos também precisam ser associados a uma obrigação, mesmo quando `financialTransactionId` for nulo.
+- O backend valida que a obrigação pertence ao mesmo vínculo da movimentação.
+- Uma obrigação pode receber vários movimentos de pagamento, inclusive pagamentos parciais.
+- Uma transação financeira pode ser compartilhada por vários movimentos de pagamento. A soma dos movimentos vinculados não pode superar o valor da transação, com validação transacional protegida contra concorrência.
+- O status da obrigação é alterado manualmente. Registrar, editar ou excluir pagamentos não altera o status automaticamente.
+- O valor pago e o saldo são derivados exclusivamente dos movimentos de pagamento diretamente vinculados à obrigação. Não existe pagamento genérico, distribuição virtual ou rateio automático entre obrigações.
+- Registros antigos de pagamento sem `obligationId` não serão associados automaticamente. Devem ser revisados e corrigidos manualmente; enquanto isso, não serão considerados no saldo de uma obrigação.
+- Uma obrigação com movimentos financeiros vinculados não pode ser excluída. Isso evita deixar pagamentos sem sua obrigação de origem.
 - Excluir um movimento não exclui a transação financeira compartilhada.
 - Não registrar o mesmo valor como uma nova saída financeira ao vincular outro movimento à transferência já registrada.
 
