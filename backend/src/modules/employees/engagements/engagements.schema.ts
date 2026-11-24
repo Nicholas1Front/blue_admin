@@ -33,3 +33,24 @@ export const updateEngagementSchema = z.object({
 
 export type createEngagementDTO = z.infer<typeof createEngagementSchema>
 export type updateEngagementDTO = z.infer<typeof updateEngagementSchema>
+
+export const findEngagementsByFiltersSchema = z.object({
+    employeeId: z.string().uuid().optional(),
+    employeeName: z.string().trim().min(1).optional(),
+    status: engagementStatusSchema.optional(),
+    modality: engagementModalitySchema.optional(),
+    entryDateFrom: z.coerce.date().optional(),
+    entryDateTo: z.coerce.date().optional(),
+    exitDateFrom: z.coerce.date().optional(),
+    exitDateTo: z.coerce.date().optional(),
+    cursor: z.string().uuid().optional(),
+    limit: z.coerce.number().int().min(1).max(100).default(20)
+}).refine(data => !data.entryDateFrom || !data.entryDateTo || data.entryDateTo >= data.entryDateFrom, {
+    message: 'Entry date end cannot be before start',
+    path: ['entryDateTo']
+}).refine(data => !data.exitDateFrom || !data.exitDateTo || data.exitDateTo >= data.exitDateFrom, {
+    message: 'Exit date end cannot be before start',
+    path: ['exitDateTo']
+})
+
+export type findEngagementsByFiltersDTO = z.infer<typeof findEngagementsByFiltersSchema>
