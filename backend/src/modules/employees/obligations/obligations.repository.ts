@@ -2,7 +2,7 @@ import { Prisma, type EmployeeObligation } from '../../../generated/prisma/clien
 import { prisma } from '../../../shared/database/prisma.js'
 import { movementTypesRequiringObligation } from '../shareds/allowedMovementTypes.js'
 import { calculateObligationBalances, compareObligationsByCompetence } from './helpers/calculateObligationBalances.js'
-import type { createObligationDTO, updateObligationDTO } from './obligations.schema.js'
+import type { createObligationDTO, findObligationsByFiltersDTO, updateObligationDTO } from './obligations.schema.js'
 
 const getMonthRange = (date: Date) => ({
     gte: new Date(Date.UTC(date.getUTCFullYear(), date.getUTCMonth(), 1)),
@@ -83,6 +83,95 @@ class ObligationsRepository {
         }, {
             isolationLevel: Prisma.TransactionIsolationLevel.RepeatableRead
         })
+    }
+
+    async findObligationsByFilters(filters: findObligationsByFiltersDTO) {
+        const toDateRange = (from?: Date, to?: Date) => {
+            if (!from && !to) return undefined
+            const range: { gte?: Date; lt?: Date } = {}
+            if (from) range.gte = new Date(Date.UTC(from.getUTCFullYear(), from.getUTCMonth(), from.getUTCDate()))
+            if (to) range.lt = new Date(Date.UTC(to.getUTCFullYear(), to.getUTCMonth(), to.getUTCDate() + 1))
+            return range
+        }
+
+        const engagementWhere = {
+            ...(filters.employeeId ? { employeeId: filters.employeeId } : {}),
+            ...(filters.employeeName ? {
+                employee: { is: { name: { contains: filters.employeeName, mode: 'insensitive' as const } } }
+            } : {})
+        }
+        const where = {
+            ...(filters.engagementId ? { engagementId: filters.engagementId } : {}),
+            ...(Object.keys(engagementWhere).length ? { engagement: { is: engagementWhere } } : {}),
+            ...(filters.type ? { type: filters.type } : {}),
+            ...(filters.status ? { status: filters.status } : {}),
+            ...(filters.title ? { title: { contains: filters.title, mode: 'insensitive' as const } } : {}),
+            ...(filters.dueDateFrom || filters.dueDateTo
+                ? { dueDate: toDateRange(filters.dueDateFrom, filters.dueDateTo) }
+                : {}),
+            ...(filters.referenceStartFrom || filters.referenceStartTo
+                ? { referenceStart: toDateRange(filters.referenceStartFrom, filters.referenceStartTo) }
+                : {}),
+            ...(filters.referenceEndFrom || filters.referenceEndTo
+                ? { referenceEnd: toDateRange(filters.referenceEndFrom, filters.referenceEndTo) }
+                : {})
+        }
+
+        if (filters.cursor) {
+            const cursorExists = await prisma.employeeObligation.findFirst({
+                where: { ...where, id: filters.cursor },
+                select: { id: true }
+            })
+            if (!cursorExists) return { invalidCursor: true as const }
+        }
+
+        const rows = await prisma.employeeObligation.findMany({
+            where,
+            ...(filters.cursor ? { cursor: { id: filters.cursor }, skip: 1 } : {}),
+            take: filters.limit + 1,
+            orderBy: [
+                { referenceStart: { sort: 'desc', nulls: 'last' } },
+                { dueDate: { sort: 'asc', nulls: 'last' } },
+                { createdAt: 'desc' },
+                { id: 'desc' }
+            ],
+            include: {
+                engagement: {
+                    select: {
+                        id: true,
+                        employee: { select: { id: true, name: true, document: true } }
+                    }
+                },
+                movements: {
+                    where: { type: 'pagamento' },
+                    select: { value: true }
+                }
+            }
+        })
+
+        const hasMore = rows.length > filters.limit
+        const page = hasMore ? rows.slice(0, filters.limit) : rows
+        return {
+            data: page.map(({ movements, ...obligation }) => {
+                const paidValue = Number(movements.reduce(
+                    (total, movement) => total + Number(movement.value ?? 0),
+                    0
+                ).toFixed(2))
+                const finalValue = Number(obligation.finalValue)
+                return {
+                    ...obligation,
+                    originalValue: Number(obligation.originalValue),
+                    finalValue,
+                    paidValue,
+                    outstandingValue: Math.max(0, Number((finalValue - paidValue).toFixed(2)))
+                }
+            }),
+            pagination: {
+                limit: filters.limit,
+                hasMore,
+                nextCursor: hasMore ? page[page.length - 1]?.id ?? null : null
+            }
+        }
     }
 
     async findObligationsByEngagement(engagementId: string) {
