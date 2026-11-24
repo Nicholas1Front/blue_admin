@@ -1,50 +1,70 @@
 # Employees Queries
 
-Este submódulo concentra consultas de leitura que precisam combinar dados de mais de um domínio de employees. Ele não substitui os repositories de employees, engagements, obligations, movements ou history: sua responsabilidade é montar visões compostas para leitura, sem transferir para cá as regras de escrita.
+Este submódulo concentra consultas compostas de leitura do módulo employees. Ele não substitui os repositories de cadastro, vínculos, obrigações ou movimentos e não executa correções automáticas.
 
-## Primeiro endpoint planejado
+## Endpoints
+
+### Visão geral do funcionário
 
 `GET /employees/queries/find-employee-overview/:employeeId`
 
-A consulta deverá apresentar:
-- cadastro do funcionário;
-- vínculos e seus dados contratuais;
-- obrigações/competências e seus valores reconhecidos, pagamentos considerados e saldos;
-- movimentações do vínculo, incluindo faltas, atrasos, bonificações e pagamentos;
-- histórico do funcionário e de cada vínculo.
+Retorna cadastro, vínculos e três coleções independentes:
+- obrigações/competências, com valores pagos e saldo em aberto;
+- movimentos, com resumo da obrigação e da transação financeira relacionada;
+- histórico, separado entre eventos do funcionário e eventos de cada vínculo.
 
-A resposta deverá agrupar os registros pelo funcionário e pelo vínculo correspondente. O histórico com `engagementId` nulo permanece no nível do funcionário.
+Parâmetros independentes:
+- `obligationsCursor`, `obligationsLimit`;
+- `movementsCursor`, `movementsLimit`;
+- `historyCursor`, `historyLimit`.
 
-## Estratégia de paginação
+Cada limite usa padrão 20 e máximo 100. A paginação busca um item adicional para informar `hasMore`; `nextCursor` recebe o ID do último item entregue. Os cursores são validados dentro do funcionário solicitado.
 
-Obrigações, movimentações e histórico são coleções independentes. Cada coleção terá seu próprio cursor e limite, para que a tela possa carregar mais itens de uma seção sem bloquear ou recarregar as demais.
+A paginação é global por coleção entre os vínculos do funcionário. Os resultados são agrupados por `engagementId), e o histórico sem vínculo permanece em `history.employee`.
 
-A paginação será por cursor, não por `skip/offset`, com ordenação determinística e desempate por ID. Cada consulta buscará `limit + 1` registros para informar `hasMore` e `nextCursor`, evitando consultas de contagem exata em toda navegação.
+### Dashboard
 
-A primeira resposta poderá trazer uma página inicial de cada coleção. As páginas seguintes serão solicitadas independentemente, preservando os dados já carregados no frontend. Os limites deverão ser validados e ter um máximo definido no schema.
+`GET /employees/queries/dashboard`
 
-## Estratégia de leitura
+Sem parâmetros, considera o mês e ano atuais. Também aceita `month` e `year` juntos para consultar outro período. `movementsCursor` e `movementsLimit` paginam a lista de movimentos recentes (padrão 20, máximo 100).
 
-- Buscar o funcionário e os vínculos com seleção explícita dos campos necessários.
-- Buscar uma página de obrigações para os IDs dos vínculos.
-- Buscar uma página de movimentações para os mesmos vínculos, incluindo somente o resumo necessário da obrigação e da transação financeira.
-- Buscar uma página de histórico pelo `employeeId`, incluindo eventos gerais e eventos dos vínculos.
-- Executar as leituras independentes em paralelo quando não houver dependência entre elas.
-- Agrupar os resultados em memória por `engagementId`; não fazer uma consulta adicional para cada vínculo.
-- Não carregar todas as movimentações, obrigações ou entradas de histórico em um único `include`.
-- Não duplicar a transação financeira como uma nova saída: vários movimentos podem compartilhar o mesmo `financialTransactionId`.
+O dashboard retorna:
+- quantidade de funcionários;
+- obrigações abertas e valor total em aberto;
+- obrigações com vencimento no período consultado e seus saldos;
+- valor vencido considerando obrigações com vencimento anterior ao dia atual;
+- pagamentos registrados no período, pela data efetiva do movimento;
+- próxima obrigação ainda em aberto com vencimento a partir do dia atual;
+- resumo por funcionário: saldo em aberto, vencimentos do período, pagamentos registrados, faltas e atrasos;
+- movimentos recentes.
 
-A paginação inicial será global por coleção dentro do funcionário, com os itens agrupados por vínculo na resposta. Se a experiência da interface exigir navegação isolada por vínculo, isso deverá ser decidido no contrato antes da implementação, sem multiplicar consultas N+1.
+Para os indicadores de saldo, são consideradas obrigações com status `pendente` ou `parcial`. Obrigações em revisão e canceladas não entram no total reconhecido em aberto. A consulta não altera status nem cria obrigações.
 
-## Contrato e desempenho
+### Análise de consistência
 
-Antes de implementar o endpoint, definir:
-1. Os campos mínimos de cada entidade no resumo e nos itens paginados.
-2. A ordenação de cada coleção e os campos usados no cursor.
-3. Os limites padrão e máximo de cada coleção.
-4. Como o frontend solicitará páginas seguintes de forma independente.
-5. Os índices compostos necessários após conferir os índices existentes no Prisma.
+`GET /employees/queries/analyze-consistency/:employeeId`
 
-Não retornar contagens exatas por padrão: `hasMore` e `nextCursor` atendem à navegação sem custo extra de `COUNT(*)`. Se um total exato for realmente necessário para uma tela, será uma opção explícita e avaliada separadamente.
+Aponta divergências que precisam de revisão manual:
+- movimentos financeiros sem obrigação vinculada (incluindo possíveis registros legados);
+- pagamentos que ultrapassam o valor final da obrigação;
+- divergência entre o status manual da obrigação e os pagamentos registrados;
+- movimentos cuja obrigação pertence a outro vínculo;
+- soma dos movimentos vinculados que ultrapassa o valor da transação financeira compartilhada.
 
-O endpoint não será implementado nesta etapa. Primeiro estabilizamos as regras de saldo e a organização dos dados; depois fechamos o contrato e implementamos a consulta em etapas pequenas.
+A análise considera o total de movimentos associados a cada transação financeira, inclusive movimentos de outros funcionários que compartilhem a mesma transação. Nenhum registro é corrigido ou alterado automaticamente.
+
+## Regras de leitura
+
+- `referenceStart` e `referenceEnd` representam a competência da obrigação.
+- `dueDate` representa a previsão de pagamento/vencimento da obrigação.
+- `eventDate` representa a data em que o movimento ocorreu.
+- Somente movimentos do tipo `pagamento` reduzem o saldo da obrigação.
+- O saldo é calculado como valor final menos a soma dos pagamentos diretamente vinculados, limitado a zero para apresentação. A análise de consistência aponta pagamentos excedentes separadamente.
+- Uma transação financeira compartilhada não é somada como várias despesas; os movimentos são alocações daquela mesma transação.
+- Consultas usam seleções explícitas, agrupamento em memória e leituras paralelas quando independentes. Não há consulta individual por vínculo (N+1).
+
+## Limites conhecidos
+
+A paginação da visão geral é independente por coleção, mas global entre os vínculos do funcionário. O dashboard carrega as obrigações abertas para calcular os saldos por funcionário e por vencimento; se o volume crescer significativamente, essa agregação deverá ser movida para uma consulta SQL agregada ou materialização avaliada com dados reais.
+
+A análise de consistência é uma leitura completa por funcionário e pode retornar várias divergências. Ela não deve ser executada automaticamente em cada carregamento da tela; é uma consulta de auditoria sob demanda.
