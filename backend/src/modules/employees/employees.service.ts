@@ -1,6 +1,6 @@
 import { AppError } from '../../shared/errors/AppError.js'
 import employeesRepository from './employees.repository.js'
-import type { createEmployeeDTO, updateEmployeeDTO } from './employees.schema.js'
+import type { createEmployeeDTO, findEmployeesByFiltersDTO, updateEmployeeDTO } from './employees.schema.js'
 
 class EmployeesService {
     async createEmployee(data: createEmployeeDTO) {
@@ -29,6 +29,14 @@ class EmployeesService {
         if (Object.keys(changes).length === 0) return { employee, history: null }
 
         return employeesRepository.updateEmployee(id, data, changes)
+    }
+
+    async findEmployeesByFilters(filters: findEmployeesByFiltersDTO) {
+        const result = await employeesRepository.findEmployeesByFilters(filters)
+        if ('invalidCursor' in result) {
+            throw new AppError('Pagination cursor does not match the employee filters', 400, 'INVALID_CURSOR')
+        }
+        return result
     }
 
     async findEmployeeById(id: string) {
