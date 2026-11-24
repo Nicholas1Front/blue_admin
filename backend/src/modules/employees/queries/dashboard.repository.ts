@@ -1,6 +1,18 @@
 import { prisma } from '../../../shared/database/prisma.js'
 import type { employeeDashboardQueryDTO } from './dashboard.schema.js'
 
+type EmployeeSummary = {
+    employeeId: string
+    name: string
+    totalOpenValue: number
+    obligationsDueThisMonth: number
+    dueThisMonthValue: number
+    overdueValue: number
+    paymentsRecordedThisMonth: number
+    absencesThisMonth: number
+    tardinessThisMonth: number
+}
+
 class EmployeesDashboardRepository {
     async findDashboard(query: employeeDashboardQueryDTO) {
         const now = new Date()
@@ -135,7 +147,7 @@ class EmployeesDashboardRepository {
             for (const engagement of employee.engagements) employeeByEngagement.set(engagement.id, employee.id)
         }
 
-        const summaries = new Map(employees.map(employee => [employee.id, {
+        const summaries = new Map<string, EmployeeSummary>(employees.map(employee => [employee.id, {
             employeeId: employee.id,
             name: employee.name,
             totalOpenValue: 0,
@@ -145,7 +157,7 @@ class EmployeesDashboardRepository {
             paymentsRecordedThisMonth: 0,
             absencesThisMonth: 0,
             tardinessThisMonth: 0
-        } ] as const))
+        }] as [string, EmployeeSummary]))
 
         const openObligations = obligations.map(obligation => {
             const paidValue = paidByObligation.get(obligation.id) ?? 0
