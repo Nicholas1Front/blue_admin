@@ -300,7 +300,7 @@ model Employee {
   name        String
   document    String?
   address     String?
-  birthDate   DateTime? @map("birth_date")
+  birthDate   DateTime? @map("birth_date") @db.Date
   observations String?
   createdAt   DateTime @default(now()) @map("created_at")
   updatedAt   DateTime @updatedAt @map("updated_at")
