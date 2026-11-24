@@ -1,5 +1,5 @@
 import { z } from 'zod'
-import { allowedMovementTypes } from '../shareds/allowedMovementTypes.js'
+import { allowedMovementTypes, movementTypesRequiringObligation } from '../shareds/allowedMovementTypes.js'
 
 const movementTypeSchema = z.enum(allowedMovementTypes)
 const optionalDate = z.coerce.date().nullable().optional()
@@ -9,7 +9,7 @@ const paymentBaseSchema = z.object({
     categoryId: z.string().min(1).optional(),
     createFinancialTransaction: z.boolean().optional(),
     financialTransactionId: z.string().min(1).optional(),
-    obligationId: z.string().min(1).nullable().optional(),
+    obligationId: z.string().min(1),
     description: z.string().trim().min(1),
     value: z.coerce.number().finite().positive().multipleOf(0.01),
     eventDate: z.coerce.date().nullable().optional(),
@@ -60,6 +60,14 @@ const validateMovementPeriod = (data: {
 export const createMovementSchema = movementObjectSchema.refine(validateMovementPeriod, {
     message: 'Reference end cannot be before start',
     path: ['referenceEnd']
+}).superRefine((data, context) => {
+    if ((movementTypesRequiringObligation as readonly string[]).includes(data.type) && !data.obligationId) {
+        context.addIssue({
+            code: 'custom',
+            message: 'This movement type requires an obligation',
+            path: ['obligationId']
+        })
+    }
 })
 
 export const updateMovementSchema = movementObjectSchema.partial().refine(

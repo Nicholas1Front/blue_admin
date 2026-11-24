@@ -225,7 +225,7 @@ class ObligationsService {
         const engagement = await obligationsRepository.findEngagementEmployeeId(engagementId)
         if (!engagement) throw new AppError('Engagement not found', 404, 'ENGAGEMENT_NOT_FOUND')
 
-        await obligationsRepository.deleteObligation(
+        const result = await obligationsRepository.deleteObligation(
             engagementId,
             engagement.employeeId,
             obligationId,
@@ -242,6 +242,14 @@ class ObligationsService {
                 observations: existing.observations
             }
         )
+
+        if ('hasFinancialMovements' in result) {
+            throw new AppError(
+                'Cannot delete an obligation with linked financial movements',
+                409,
+                'OBLIGATION_HAS_FINANCIAL_MOVEMENTS'
+            )
+        }
 
         return true
     }

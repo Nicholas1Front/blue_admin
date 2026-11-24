@@ -1,5 +1,6 @@
 import { Prisma } from '../../../generated/prisma/client.js'
 import { prisma } from '../../../shared/database/prisma.js'
+import { movementTypesRequiringObligation } from '../shareds/allowedMovementTypes.js'
 import type {
     createMovementDTO,
     createPaymentDTO,
@@ -74,6 +75,10 @@ class MovementsRepository {
             const engagement = await this.lockEngagement(tx, engagementId)
             if (!engagement) return null
 
+            if ((movementTypesRequiringObligation as readonly string[]).includes(data.type) && !data.obligationId) {
+                return { missingObligation: true as const }
+            }
+
             if (data.obligationId) {
                 const obligation = await tx.employeeObligation.findFirst({
                     where: { id: data.obligationId, engagementId },
@@ -122,12 +127,11 @@ class MovementsRepository {
             const engagement = await this.lockEngagement(tx, engagementId)
             if (!engagement) return null
 
-            if (data.obligationId) {
-                const obligation = await tx.employeeObligation.findFirst({
-                    where: { id: data.obligationId, engagementId }, select: { id: true }
-                })
-                if (!obligation) return { invalidObligation: true as const }
-            }
+            if (!data.obligationId) return { missingObligation: true as const }
+            const obligation = await tx.employeeObligation.findFirst({
+                where: { id: data.obligationId, engagementId }, select: { id: true }
+            })
+            if (!obligation) return { invalidObligation: true as const }
 
             let financialTransactionId = data.financialTransactionId ?? null
             const value = new Prisma.Decimal(data.value)
@@ -219,9 +223,14 @@ class MovementsRepository {
             if (!existing) return null
             if (existing.type === 'pagamento') return { paymentRequiresPaymentFlow: true as const }
 
+            const nextType = data.type ?? existing.type
             const nextObligationId = data.obligationId !== undefined
                 ? data.obligationId
                 : existing.obligationId
+
+            if ((movementTypesRequiringObligation as readonly string[]).includes(nextType) && !nextObligationId) {
+                return { missingObligation: true as const }
+            }
 
             if (nextObligationId) {
                 const obligation = await tx.employeeObligation.findFirst({
@@ -307,6 +316,7 @@ class MovementsRepository {
             }
 
             const obligationId = data.obligationId !== undefined ? data.obligationId : existing.obligationId
+            if (!obligationId) return { missingObligation: true as const }
             if (obligationId) {
                 const obligation = await tx.employeeObligation.findFirst({
                     where: { id: obligationId, engagementId }, select: { id: true }

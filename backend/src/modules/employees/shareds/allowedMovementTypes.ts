@@ -9,3 +9,11 @@ export const allowedMovementTypes = [
     'ajuste',
     'anotacao'
 ] as const
+
+export const movementTypesRequiringObligation = [
+    'bonificacao',
+    'decimo_terceiro',
+    'ferias',
+    'rescisao',
+    'ajuste'
+] as const

@@ -1,5 +1,6 @@
 import { Prisma, type EmployeeObligation } from '../../../generated/prisma/client.js'
 import { prisma } from '../../../shared/database/prisma.js'
+import { movementTypesRequiringObligation } from '../shareds/allowedMovementTypes.js'
 import { calculateObligationBalances, compareObligationsByCompetence } from './helpers/calculateObligationBalances.js'
 import type { createObligationDTO, updateObligationDTO } from './obligations.schema.js'
 
@@ -271,6 +272,12 @@ class ObligationsRepository {
                     }
                 }
             })
+
+            const hasFinancialMovements = obligation.movements.some(movement =>
+                movement.type === 'pagamento' ||
+                (movementTypesRequiringObligation as readonly string[]).includes(movement.type)
+            )
+            if (hasFinancialMovements) return { hasFinancialMovements: true as const }
 
             const linkedRecords = obligation.movements.map(movement => ({
                 id: movement.id,
