@@ -1,7 +1,7 @@
 import { AppError } from '../../../shared/errors/AppError.js'
 import movementsRepository from './movements.repository.js'
 import type {
-    createMovementDTO, createPaymentDTO, findMovementsQueryDTO,
+    createMovementDTO, createPaymentDTO, findMovementsQueryDTO, findMovementsByFiltersDTO,
     updateMovementDTO, updatePaymentDTO
 } from './movements.schema.js'
 
@@ -64,6 +64,14 @@ class MovementsService {
         const result = await movementsRepository.deleteMovement(engagementId, movementId)
         if (!result) throw new AppError('Movement not found for this engagement', 404, 'MOVEMENT_NOT_FOUND')
         return true
+    }
+
+    async findMovementsByFilters(filters: findMovementsByFiltersDTO) {
+        const result = await movementsRepository.findMovementsByFilters(filters)
+        if ('invalidCursor' in result) {
+            throw new AppError('Pagination cursor does not match the movement filters', 400, 'INVALID_CURSOR')
+        }
+        return result
     }
 
     async findMovementsByEngagement(engagementId: string, filters: findMovementsQueryDTO) {
