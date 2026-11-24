@@ -23,6 +23,16 @@ class EmployeesDashboardRepository {
         })
         const engagementIds = employees.flatMap(employee => employee.engagements.map(item => item.id))
 
+        if (query.movementsCursor) {
+            const cursorExists = engagementIds.length
+                ? await prisma.employeeMovement.findFirst({
+                    where: { id: query.movementsCursor, engagementId: { in: engagementIds } },
+                    select: { id: true }
+                })
+                : null
+            if (!cursorExists) return { invalidCursor: true as const }
+        }
+
         const [obligations, paymentTotals, movementCounts, monthlyPayments, recentRows] = await Promise.all([
             engagementIds.length
                 ? prisma.employeeObligation.findMany({
@@ -115,15 +125,7 @@ class EmployeesDashboardRepository {
                 : []
         ])
 
-        if (query.movementsCursor) {
-            const cursorExists = engagementIds.length
-                ? await prisma.employeeMovement.findFirst({
-                    where: { id: query.movementsCursor, engagementId: { in: engagementIds } },
-                    select: { id: true }
-                })
-                : null
-            if (!cursorExists) return { invalidCursor: true as const }
-        }
+
 
         const paidByObligation = new Map(
             paymentTotals.map(item => [item.obligationId, Number(item._sum.value ?? 0)])
