@@ -53,6 +53,18 @@ Aponta divergências que precisam de revisão manual:
 
 A análise considera o total de movimentos associados a cada transação financeira, inclusive movimentos de outros funcionários que compartilhem a mesma transação. Nenhum registro é corrigido ou alterado automaticamente.
 
+
+## Listagens por filtros
+
+As listagens globais dos quatro recursos ficam nos próprios módulos e usam paginação por cursor. Todas aceitam `limit` (padrão 20, máximo 100) e `cursor` (UUID da última linha recebida). A resposta contém `data` e `pagination` com `hasMore` e `nextCursor`. O cursor precisa pertencer ao conjunto que corresponde aos filtros enviados.
+
+- `GET /employees/find-employees-by-filters`: `name`, `document`.
+- `GET /employees/find-engagements-by-filters`: `employeeId`, `employeeName`, `status`, `modality`, `entryDateFrom`, `entryDateTo`, `exitDateFrom`, `exitDateTo`.
+- `GET /employees/find-obligations-by-filters`: `employeeId`, `employeeName`, `engagementId`, `type`, `status`, `title`, `dueDateFrom`, `dueDateTo`, `referenceStartFrom`, `referenceStartTo`, `referenceEndFrom`, `referenceEndTo`.
+- `GET /employees/find-movements-by-filters`: `employeeId`, `employeeName`, `engagementId`, `type`, `description`, `obligationId`, `financialTransactionId`, `eventDateFrom`, `eventDateTo`.
+
+As buscas por nome, título e descrição não diferenciam maiúsculas de minúsculas. Datas são interpretadas como dias completos em UTC, incluindo o dia final. As listagens de obrigações e movimentos incluem os dados resumidos do vínculo/funcionário e, quando aplicável, os dados relacionados à obrigação e à transação financeira.
+
 ## Regras de leitura
 
 - `referenceStart` e `referenceEnd` representam a competência da obrigação.
