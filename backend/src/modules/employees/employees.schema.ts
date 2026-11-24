@@ -16,3 +16,12 @@ export const updateEmployeeSchema = z.object({
 
 export type createEmployeeDTO = z.infer<typeof createEmployeeSchema>
 export type updateEmployeeDTO = z.infer<typeof updateEmployeeSchema>
+
+export const findEmployeesByFiltersSchema = z.object({
+    name: z.string().trim().min(1).optional(),
+    document: z.string().trim().min(1).optional(),
+    cursor: z.string().uuid().optional(),
+    limit: z.coerce.number().int().min(1).max(100).default(20)
+})
+
+export type findEmployeesByFiltersDTO = z.infer<typeof findEmployeesByFiltersSchema>
