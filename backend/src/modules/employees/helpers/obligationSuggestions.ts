@@ -89,8 +89,8 @@ const findMatchingObligations = (
             obligation.referenceEnd.getUTCFullYear() === year
     }
 
-    return sameMonth(obligation.referenceStart, item.referenceStart) &&
-        sameMonth(obligation.referenceEnd, item.referenceEnd)
+    return obligation.referenceStart.getTime() === item.referenceStart.getTime() &&
+        obligation.referenceEnd.getTime() === item.referenceEnd.getTime()
 })
 
 const hasUnreliableReferenceForItem = (
@@ -129,11 +129,11 @@ const hasUnreliableReferenceForItem = (
     const relevant = overlapsPeriod(obligation, item) ||
         sameMonth(obligation.referenceStart, item.referenceStart) ||
         sameMonth(obligation.referenceEnd, item.referenceEnd)
-    const matchesAcquisitionMonths =
-        sameMonth(obligation.referenceStart, item.referenceStart) &&
-        sameMonth(obligation.referenceEnd, item.referenceEnd)
+    const matchesAcquisitionPeriod =
+        obligation.referenceStart.getTime() === item.referenceStart.getTime() &&
+        obligation.referenceEnd.getTime() === item.referenceEnd.getTime()
 
-    return relevant && !matchesAcquisitionMonths
+    return relevant && !matchesAcquisitionPeriod
 })
 
 const buildSuggestion = (
@@ -150,8 +150,8 @@ const buildSuggestion = (
             ? !existing.referenceStart || !sameMonth(existing.referenceStart, item.referenceStart) ||
                 !existing.referenceEnd || !sameMonth(existing.referenceEnd, item.referenceEnd)
             : item.type === 'ferias'
-                ? !existing.referenceStart || !sameMonth(existing.referenceStart, item.referenceStart) ||
-                    !existing.referenceEnd || !sameMonth(existing.referenceEnd, item.referenceEnd)
+                ? !existing.referenceStart || existing.referenceStart.getTime() !== item.referenceStart.getTime() ||
+                    !existing.referenceEnd || existing.referenceEnd.getTime() !== item.referenceEnd.getTime()
                 : !existing.referenceStart ||
                     existing.referenceStart.getUTCFullYear() !== item.referenceStart.getUTCFullYear() ||
                     existing.referenceStart.getUTCMonth() !== 0 ||
