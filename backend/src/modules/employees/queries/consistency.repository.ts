@@ -69,7 +69,7 @@ class EmployeesConsistencyRepository {
         ])
 
         const paidByObligation = new Map(
-            paymentsByObligation.map(item => [item.obligationId, Number(item._sum.value ?? 0)])
+            paymentsByObligation.map(item => [item.obligationId, Number(item._sum.value ?? 0)] as const)
         )
         const obligationBalanceFindings = obligations.flatMap(obligation => {
             const paidValue = paidByObligation.get(obligation.id) ?? 0
@@ -192,7 +192,7 @@ class EmployeesConsistencyRepository {
                     where: { id: { in: transactionIds } },
                     select: { id: true, description: true, value: true, referenceDate: true }
                 })
-                const transactionById = new Map(transactions.map(item => [item.id, item]))
+                const transactionById = new Map(transactions.map(item => [item.id, item] as const))
                 return allocations.flatMap(allocation => {
                     if (!allocation.financialTransactionId) return []
                     const transaction = transactionById.get(allocation.financialTransactionId)
