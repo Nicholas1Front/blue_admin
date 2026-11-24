@@ -58,7 +58,7 @@ A análise considera o total de movimentos associados a cada transação finance
 
 As listagens globais dos quatro recursos ficam nos próprios módulos e usam paginação por cursor. Todas aceitam `limit` (padrão 20, máximo 100) e `cursor` (UUID da última linha recebida). A resposta contém `data` e `pagination` com `hasMore` e `nextCursor`. O cursor precisa pertencer ao conjunto que corresponde aos filtros enviados.
 
-- `GET /employees/find-employees-by-filters`: `name`, `document`.
+- `GET /employees/find-employees-by-filters`: `name`, `document`, `address`, `birthDateFrom`, `birthDateTo`.
 - `GET /employees/find-engagements-by-filters`: `employeeId`, `employeeName`, `status`, `modality`, `entryDateFrom`, `entryDateTo`, `exitDateFrom`, `exitDateTo`.
 - `GET /employees/find-obligations-by-filters`: `employeeId`, `employeeName`, `engagementId`, `type`, `status`, `title`, `dueDateFrom`, `dueDateTo`, `referenceStartFrom`, `referenceStartTo`, `referenceEndFrom`, `referenceEndTo`.
 - `GET /employees/find-movements-by-filters`: `employeeId`, `employeeName`, `engagementId`, `type`, `description`, `obligationId`, `financialTransactionId`, `eventDateFrom`, `eventDateTo`.
