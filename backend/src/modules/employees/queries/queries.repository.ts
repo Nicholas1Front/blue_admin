@@ -222,12 +222,12 @@ class EmployeesQueriesRepository {
 
         return {
             employee: {
-                ...employee,
-                engagements: employee.engagements.map(engagement => ({
-                    ...engagement,
-                    currentSalary: engagement.currentSalary === null ? null : Number(engagement.currentSalary),
-                    hourlyRate: engagement.hourlyRate === null ? null : Number(engagement.hourlyRate)
-                }))
+                id: employee.id,
+                name: employee.name,
+                document: employee.document,
+                observations: employee.observations,
+                createdAt: employee.createdAt,
+                updatedAt: employee.updatedAt
             },
             engagements: employee.engagements.map(engagement => ({
                 ...engagement,
@@ -235,11 +235,11 @@ class EmployeesQueriesRepository {
                 hourlyRate: engagement.hourlyRate === null ? null : Number(engagement.hourlyRate)
             })),
             obligations: {
-                ...groupByEngagement(obligations.map(item => ({ ...item, engagementId: item.engagementId }))),
+                byEngagement: groupByEngagement(obligations),
                 pagination: obligationsPage.pagination
             },
             movements: {
-                ...groupByEngagement(movements),
+                byEngagement: groupByEngagement(movements),
                 pagination: movementsPage.pagination
             },
             history: {
