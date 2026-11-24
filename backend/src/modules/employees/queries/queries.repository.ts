@@ -187,7 +187,7 @@ class EmployeesQueriesRepository {
             : []
 
         const paidByObligation = new Map(
-            paymentTotals.map(item => [item.obligationId, Number(item._sum.value ?? 0)])
+            paymentTotals.map(item => [item.obligationId, Number(item._sum.value ?? 0)] as const)
         )
 
         const obligations = obligationsPage.data.map(obligation => {
