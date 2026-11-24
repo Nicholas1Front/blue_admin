@@ -1,6 +1,6 @@
 # Employees Queries
 
-Este submódulo concentra consultas compostas de leitura do módulo employees. Ele não substitui os repositories de cadastro, vínculos, obrigações ou movimentos e não executa correções automáticas.
+Este submódulo concentra consultas compostas de leitura do módulo employees. O controller, schema e routes são únicos; services e repositories ficam organizados em suas respectivas pastas. Ele não substitui os repositories de cadastro, vínculos, obrigações ou movimentos e não executa correções automáticas.
 
 ## Endpoints
 
