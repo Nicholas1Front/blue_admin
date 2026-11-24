@@ -71,7 +71,7 @@ class ObligationsService {
             const key = candidate.type === 'salario'
                 ? `${candidate.type}:${startMonth}:${endMonth}`
                 : candidate.type === 'ferias'
-                    ? `${candidate.type}:${start.getTime()}:${end.getTime()}`
+                    ? `${candidate.type}:${start.toISOString().slice(0, 10)}:${end.toISOString().slice(0, 10)}`
                     : candidate.type === 'decimo_terceiro'
                     ? `${candidate.type}:${start.getUTCFullYear()}:${end.getUTCFullYear()}`
                     : `${candidate.type}:${start.getTime()}:${end.getTime()}`
