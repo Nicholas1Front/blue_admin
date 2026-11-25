@@ -342,6 +342,7 @@ export function EmployeeDetails() {
                                 ))}
                             </div>
                         )}
+                        </section>
                         <section className="employee-detail-history">
                             <button className="employee-detail-history-toggle" type="button" aria-expanded={historyOpen} onClick={() => setHistoryOpen(value => !value)}><span><FontAwesomeIcon icon={faClockRotateLeft} /> Histórico de alterações</span><small>{historyOpen ? "Ocultar" : "Carregar quando necessário"}</small></button>
                             {historyOpen && (
