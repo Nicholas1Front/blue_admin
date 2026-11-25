@@ -113,6 +113,25 @@ function formatCompetency(obligation?: Pick<EmployeeObligation, "referenceStart"
     return start ?? end ?? "Competência não informada";
 }
 
+function FinancialBreakdown({ title, total, count, obligations, description }: { title: string; total: number; count: number; obligations: Array<{ referenceStart?: string | null; dueDate?: string | null; outstandingValue: number }>; description: string }) {
+    const monthly = new Map<string, { value: number; count: number }>();
+    for (const obligation of obligations) {
+        const key = monthKey(obligation.referenceStart) ?? monthKey(obligation.dueDate) ?? "unknown";
+        const current = monthly.get(key) ?? { value: 0, count: 0 };
+        current.value += Number(obligation.outstandingValue ?? 0);
+        current.count += 1;
+        monthly.set(key, current);
+    }
+    const rows = [...monthly.entries()].sort(([a], [b]) => a.localeCompare(b));
+    return (
+        <article className="employee-detail-financial-breakdown">
+            <div className="employee-detail-financial-breakdown__top"><span>{title}</span><strong>{currency(total)}</strong><small>{count} {count === 1 ? "obrigação" : "obrigações"}</small></div>
+            <p>{description}</p>
+            {rows.length ? <ul>{rows.map(([key, item]) => <li key={key}><span>{key === "unknown" ? "Competência não informada" : monthLabel(key)}<small>{item.count} {item.count === 1 ? "obrigação" : "obrigações"}</small></span><strong>{currency(item.value)}</strong></li>)}</ul> : <div className="employee-detail-financial-breakdown__empty">Nenhuma obrigação neste grupo.</div>}
+        </article>
+    );
+}
+
 function InfoField({ label, value }: { label: string; value?: string | null }) {
     return <div className="employee-detail-info"><span>{label}</span><strong>{value?.trim() || "Não informado"}</strong></div>;
 }
@@ -215,7 +234,7 @@ export function EmployeeDetails() {
 
     return (
         <main className="employee-detail-page">
-            <title>{employee.name} | Funcionários | Blue Admin</title>
+            <title>{employee.name} | Ficha do funcionário | Blue Admin</title>
             <AppHeader />
             <nav className="page-back-row"><BackLink to="/employees" label="Voltar aos funcionários" /></nav>
             <section className="employee-detail-content">
@@ -280,9 +299,9 @@ export function EmployeeDetails() {
                                 <div className="employee-detail-state employee-detail-state--error"><strong>Não foi possível carregar o resumo financeiro.</strong><button type="button" onClick={() => void financialQuery.refetch()}>Tentar novamente</button></div>
                             ) : financialQuery.data && (
                                 <div className="employee-detail-financial-grid">
-                                    <article className="employee-detail-financial-total"><span>Saldo reconhecido em aberto</span><strong>{currency(financialQuery.data.totalOutstanding)}</strong><small>{financialQuery.data.openObligationsCount} obrigações abertas</small></article>
-                                    <article><span>Saldo vencido</span><strong>{currency(financialQuery.data.overdueObligations.reduce((total, obligation) => total + obligation.outstandingValue, 0))}</strong><small>{financialQuery.data.overdueObligations.length} obrigações vencidas</small></article>
-                                    <article><span>Próximos vencimentos</span><strong>{currency(financialQuery.data.upcomingObligations.reduce((total, obligation) => total + obligation.outstandingValue, 0))}</strong><small>{financialQuery.data.upcomingObligations.length} obrigações · próximos 30 dias</small></article>
+                                    <FinancialBreakdown title="Saldo em aberto" total={financialQuery.data.totalOutstanding} count={financialQuery.data.openObligationsCount} obligations={obligations.filter(item => item.status !== "pago" && item.status !== "cancelado").map(item => ({ referenceStart: item.referenceStart, dueDate: item.dueDate, outstandingValue: Math.max(0, Number((Number(item.finalValue) - (paymentsByObligation.get(item.id) ?? 0)).toFixed(2))) }))} description="Valores que ainda precisam ser pagos, agrupados pela competência." />
+                                    <FinancialBreakdown title="Saldo vencido" total={financialQuery.data.overdueObligations.reduce((total, item) => total + item.outstandingValue, 0)} count={financialQuery.data.overdueObligations.length} obligations={financialQuery.data.overdueObligations} description="Obrigações cujo vencimento já passou e ainda têm saldo." />
+                                    <FinancialBreakdown title="Próximos vencimentos" total={financialQuery.data.upcomingObligations.reduce((total, item) => total + item.outstandingValue, 0)} count={financialQuery.data.upcomingObligations.length} obligations={financialQuery.data.upcomingObligations} description="Valores previstos para os próximos 30 dias." />
                                 </div>
                             )}
                             {financialQuery.data?.obligationsByType.length ? <div className="employee-detail-type-breakdown">{financialQuery.data.obligationsByType.map(item => <span key={item.type}><small>{obligationTypeLabels[item.type]}</small><strong>{currency(item.totalOutstanding)}</strong><em>{item.count} {item.count === 1 ? "obrigação" : "obrigações"}</em></span>)}</div> : null}
@@ -290,7 +309,7 @@ export function EmployeeDetails() {
 
                         <section className="employee-detail-timeline-section">
                             <header className="employee-detail-section-heading">
-                                <div><span className="employee-detail-eyebrow">Competências e registros</span><h2><FontAwesomeIcon icon={faCalendarDays} /> Linha do tempo do vínculo</h2><p>As obrigações ficam organizadas pela competência. Os movimentos aparecem no mês em que ocorreram, com a obrigação relacionada quando houver.</p></div>
+                                <div><span className="employee-detail-eyebrow">Competências e registros</span><h2><FontAwesomeIcon icon={faCalendarDays} /> Linha do tempo do vínculo</h2><p>As obrigações são agrupadas pelo mês de competência; os movimentos, pelo mês em que foram registrados. Assim, um pagamento feito em outro mês continua ligado à obrigação que quitou.</p></div>
                             <span className="employee-detail-count">{obligations.length} obrigações · {movements.length} movimentos</span>
                         </header>
 
@@ -302,10 +321,10 @@ export function EmployeeDetails() {
                             <div className="employee-detail-months">
                                 {timeline.map(group => (
                                     <article className="employee-detail-month" key={group.key}>
-                                        <header className="employee-detail-month__heading"><h3>{monthLabel(group.key)}</h3><span>{group.obligations.length} competências · {group.movements.length} movimentos</span></header>
+                                        <header className="employee-detail-month__heading"><h3>{monthLabel(group.key)}</h3><span>{group.obligations.length} obrigações por competência · {group.movements.length} movimentos por data</span></header>
                                         {group.obligations.length > 0 && (
                                             <section className="employee-detail-month__section">
-                                                <h4><FontAwesomeIcon icon={faFileInvoiceDollar} /> Obrigações da competência</h4>
+                                                <h4><FontAwesomeIcon icon={faFileInvoiceDollar} /> Obrigações desta competência <small>Valores previstos e saldo a pagar</small></h4>
                                                 <div className="employee-detail-obligations">
                                                     {group.obligations.map(obligation => {
                                                         const finalValue = Number(obligation.finalValue);
@@ -314,8 +333,8 @@ export function EmployeeDetails() {
                                                         return (
                                                             <article className="employee-detail-obligation" key={obligation.id}>
                                                                 <header><div><span className={`employee-detail-obligation-type employee-detail-obligation-type--${obligation.type}`}>{obligationTypeLabels[obligation.type]}</span><strong>{obligation.title}</strong></div><span className={`employee-detail-obligation-status employee-detail-obligation-status--${obligation.status}`}>{obligationStatusLabels[obligation.status]}</span></header>
-                                                                <p>{formatCompetency(obligation)}{obligation.dueDate ? ` · Vencimento ${dateOnly(obligation.dueDate)}` : ""}</p>
-                                                                <div className="employee-detail-obligation-values"><span><small>Valor reconhecido</small><strong>{currency(finalValue)}</strong></span><span><small>Já alocado</small><strong>{currency(paidValue)}</strong></span><span><small>Saldo calculado</small><strong>{currency(balance)}</strong></span></div>
+                                                                <p>Competência: {formatCompetency(obligation)}{obligation.dueDate ? ` · Vence em ${dateOnly(obligation.dueDate)}` : ""}{obligation.createdAt ? ` · Registrada em ${dateOnly(obligation.createdAt)}` : ""}</p>
+                                                                <div className="employee-detail-obligation-values"><span><small>Valor previsto</small><strong>{currency(finalValue)}</strong></span><span><small>Já pago / alocado</small><strong>{currency(paidValue)}</strong></span><span><small>Falta pagar</small><strong>{currency(balance)}</strong></span></div>
                                                                 {obligation.description && <p className="employee-detail-obligation-description">{obligation.description}</p>}
                                                                 {obligation.observations && <small className="employee-detail-obligation-note">Observação: {obligation.observations}</small>}
                                                             </article>
@@ -326,7 +345,7 @@ export function EmployeeDetails() {
                                         )}
                                         {group.movements.length > 0 && (
                                             <section className="employee-detail-month__section">
-                                                <h4><FontAwesomeIcon icon={faClockRotateLeft} /> Movimentos ocorridos no mês</h4>
+                                                <h4><FontAwesomeIcon icon={faClockRotateLeft} /> Movimentos realizados neste mês <small>Pagamentos e outros registros pela data do evento</small></h4>
                                                 <ol className="employee-detail-movements">
                                                     {group.movements.map(movement => (
                                                         <li key={movement.id} className={`employee-detail-movement employee-detail-movement--${movement.type}`}>
