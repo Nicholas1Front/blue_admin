@@ -375,10 +375,23 @@ class MovementsRepository {
                     eventType: 'pagamento_funcionario_atualizado',
                     description: 'Pagamento do funcionário atualizado.',
                     metadata: {
-                        movementId, previousValue: existing.value?.toString() ?? null,
-                        value: value.toString(), previousObligationId: existing.obligationId,
-                        obligationId, previousFinancialTransactionId: existing.financialTransaction?.id ?? null,
-                        financialTransactionId
+                        movementId,
+                        previous: {
+                            description: existing.description,
+                            eventDate: existing.eventDate?.toISOString() ?? null,
+                            value: existing.value?.toString() ?? null,
+                            obligationId: existing.obligationId,
+                            observations: existing.observations,
+                            financialTransactionId: existing.financialTransaction?.id ?? null
+                        },
+                        changes: {
+                            description: data.description,
+                            eventDate: eventDate?.toISOString() ?? null,
+                            value: value.toString(),
+                            obligationId,
+                            observations: data.observations !== undefined ? data.observations : existing.observations,
+                            financialTransactionId
+                        }
                     },
                     eventDate
                 }
