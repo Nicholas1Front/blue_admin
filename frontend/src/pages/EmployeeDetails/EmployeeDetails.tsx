@@ -281,8 +281,8 @@ export function EmployeeDetails() {
                             ) : financialQuery.data && (
                                 <div className="employee-detail-financial-grid">
                                     <article className="employee-detail-financial-total"><span>Saldo reconhecido em aberto</span><strong>{currency(financialQuery.data.totalOutstanding)}</strong><small>{financialQuery.data.openObligationsCount} obrigações abertas</small></article>
-                                    <article><span>Obrigações vencidas</span><strong>{financialQuery.data.overdueObligations.length}</strong><small>Itens para conferência</small></article>
-                                    <article><span>Próximos vencimentos</span><strong>{financialQuery.data.upcomingObligations.length}</strong><small>Próximos 30 dias</small></article>
+                                    <article><span>Saldo vencido</span><strong>{currency(financialQuery.data.overdueObligations.reduce((total, obligation) => total + obligation.outstandingValue, 0))}</strong><small>{financialQuery.data.overdueObligations.length} obrigações vencidas</small></article>
+                                    <article><span>Próximos vencimentos</span><strong>{currency(financialQuery.data.upcomingObligations.reduce((total, obligation) => total + obligation.outstandingValue, 0))}</strong><small>{financialQuery.data.upcomingObligations.length} obrigações · próximos 30 dias</small></article>
                                 </div>
                             )}
                             {financialQuery.data?.obligationsByType.length ? <div className="employee-detail-type-breakdown">{financialQuery.data.obligationsByType.map(item => <span key={item.type}><small>{obligationTypeLabels[item.type]}</small><strong>{currency(item.totalOutstanding)}</strong><em>{item.count} {item.count === 1 ? "obrigação" : "obrigações"}</em></span>)}</div> : null}
