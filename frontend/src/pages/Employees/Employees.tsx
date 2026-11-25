@@ -237,7 +237,7 @@ export function Employees() {
                             <span className="employees-metric__icon"><FontAwesomeIcon icon={faUsers} /></span>
                         </div>
                         <strong>{dashboard.isPending ? "—" : totals?.employees ?? 0}</strong>
-                        <small>Cadastros ativos no módulo</small>
+                        <small>Funcionários cadastrados</small>
                     </article>
                     <article className="employees-metric employees-metric--violet">
                         <div className="employees-metric__top">
@@ -268,7 +268,7 @@ export function Employees() {
                             <span>Pagamentos registrados</span>
                             <span className="employees-metric__icon"><FontAwesomeIcon icon={faCalendarDays} /></span>
                         </div>
-                        <strong>{dashboard.isPending ? "—" : totals?.paymentsRecordedThisMonth ?? 0}</strong>
+                        <strong>{dashboard.isPending ? "—" : formatCurrency(totals?.paymentsRecordedThisMonth)}</strong>
                         <small>Registros no período selecionado</small>
                     </article>
                 </section>
