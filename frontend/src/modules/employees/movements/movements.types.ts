@@ -12,7 +12,7 @@ export interface EmployeeMovement {
     financialTransaction?: { id: string; description: string; value: number; referenceDate: string; categoryId?: string; type?: string } | null;
 }
 export interface MovementListItem extends EmployeeMovement {
-    engagement: { id: string; employee: { id: string; name: string; document?: string | null } };
+    engagement: { id?: string; employee: { id: string; name: string; document?: string | null } };
 }
 export interface CreateMovementRequest {
     type: MovementCreationType; description: string;
