@@ -63,6 +63,28 @@ export function Dashboard() {
                     <button
                         className="dashboard-card dashboard-card--action"
                         type="button"
+                        onClick={() => navigate("/employees")}
+                    >
+                        <div className="dashboard-card__icon">
+                            <FontAwesomeIcon icon={faUsers} />
+                        </div>
+
+                        <div>
+                            <span className="dashboard-card__label">
+                                Administração de pessoas
+                            </span>
+
+                            <strong>Funcionários</strong>
+
+                            <p>
+                                Consulte vínculos, obrigações e movimentações da equipe.
+                            </p>
+                        </div>
+                    </button>
+
+                    <button
+                        className="dashboard-card dashboard-card--action"
+                        type="button"
                         onClick={() => navigate("/clients")}
                     >
                         <div className="dashboard-card__icon">
