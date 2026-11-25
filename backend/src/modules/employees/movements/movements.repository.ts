@@ -460,9 +460,9 @@ class MovementsRepository {
             ...(filters.cursor ? { cursor: { id: filters.cursor }, skip: 1 } : {}),
             take: filters.limit + 1,
             orderBy: [
-                { eventDate: { sort: 'desc', nulls: 'last' } },
-                { createdAt: 'desc' },
-                { id: 'desc' }
+                { eventDate: { sort: filters.order, nulls: 'last' } },
+                { createdAt: filters.order },
+                { id: filters.order }
             ],
             include: {
                 engagement: {
@@ -518,7 +518,7 @@ class MovementsRepository {
                     }
                 } : {})
             },
-            orderBy: [{ eventDate: { sort: 'desc', nulls: 'last' } }, { createdAt: 'desc' }, { id: 'desc' }],
+            orderBy: [{ eventDate: { sort: filters.order, nulls: 'last' } }, { createdAt: filters.order }, { id: filters.order }],
             include: {
                 obligation: {
                     select: { id: true, type: true, title: true, referenceStart: true, referenceEnd: true, finalValue: true, status: true }
