@@ -113,21 +113,18 @@ function formatCompetency(obligation?: Pick<EmployeeObligation, "referenceStart"
     return start ?? end ?? "Competência não informada";
 }
 
-function FinancialBreakdown({ title, total, count, obligations, description }: { title: string; total: number; count: number; obligations: Array<{ referenceStart?: string | null; dueDate?: string | null; outstandingValue: number }>; description: string }) {
-    const monthly = new Map<string, { value: number; count: number }>();
-    for (const obligation of obligations) {
-        const key = monthKey(obligation.referenceStart) ?? monthKey(obligation.dueDate) ?? "unknown";
-        const current = monthly.get(key) ?? { value: 0, count: 0 };
-        current.value += Number(obligation.outstandingValue ?? 0);
-        current.count += 1;
-        monthly.set(key, current);
-    }
-    const rows = [...monthly.entries()].sort(([a], [b]) => a.localeCompare(b));
+function FinancialBreakdown({ title, total, count, obligations, description, emptyLabel }: { title: string; total: number; count: number; obligations: Array<{ title: string; referenceStart?: string | null; referenceEnd?: string | null; dueDate?: string | null; outstandingValue: number }>; description: string; emptyLabel: string }) {
+    const sortedObligations = [...obligations].sort((a, b) => (a.dueDate ?? "").localeCompare(b.dueDate ?? ""));
     return (
         <article className="employee-detail-financial-breakdown">
             <div className="employee-detail-financial-breakdown__top"><span>{title}</span><strong>{currency(total)}</strong><small>{count} {count === 1 ? "obrigação" : "obrigações"}</small></div>
             <p>{description}</p>
-            {rows.length ? <ul>{rows.map(([key, item]) => <li key={key}><span>{key === "unknown" ? "Competência não informada" : monthLabel(key)}<small>{item.count} {item.count === 1 ? "obrigação" : "obrigações"}</small></span><strong>{currency(item.value)}</strong></li>)}</ul> : <div className="employee-detail-financial-breakdown__empty">Nenhuma obrigação neste grupo.</div>}
+            {sortedObligations.length ? (
+                <ul>{sortedObligations.map((obligation, index) => <li key={obligation.title + index}>
+                    <span><strong>{obligation.title}</strong><small>{obligation.dueDate ? "Vencimento: " + dateOnly(obligation.dueDate) : "Vencimento não definido"}{(obligation.referenceStart || obligation.referenceEnd) ? " · Competência: " + formatCompetency(obligation) : ""}</small></span>
+                    <strong>{currency(obligation.outstandingValue)}</strong>
+                </li>)}</ul>
+            ) : <div className="employee-detail-financial-breakdown__empty">{emptyLabel}</div>}
         </article>
     );
 }
@@ -266,7 +263,7 @@ export function EmployeeDetails() {
 
                 <section className="employee-detail-engagement-section">
                     <header className="employee-detail-section-heading">
-                        <div><span className="employee-detail-eyebrow">Histórico profissional</span><h2><FontAwesomeIcon icon={faBriefcase} /> Vínculos</h2><p>Selecione um vínculo para consultar suas competências, obrigações e movimentações.</p></div>
+                        <div><span className="employee-detail-eyebrow">Histórico profissional</span><h2><FontAwesomeIcon icon={faBriefcase} /> Vínculos</h2><p>Selecione um vínculo para consultar o que precisa ser pago, os próximos vencimentos e os registros.</p></div>
                         <span className="employee-detail-count">{engagements.length} {engagements.length === 1 ? "vínculo" : "vínculos"}</span>
                     </header>
                     {engagementsQuery.isError ? (
@@ -299,9 +296,9 @@ export function EmployeeDetails() {
                                 <div className="employee-detail-state employee-detail-state--error"><strong>Não foi possível carregar o resumo financeiro.</strong><button type="button" onClick={() => void financialQuery.refetch()}>Tentar novamente</button></div>
                             ) : financialQuery.data && (
                                 <div className="employee-detail-financial-grid">
-                                    <FinancialBreakdown title="Saldo em aberto" total={financialQuery.data.totalOutstanding} count={financialQuery.data.openObligationsCount} obligations={obligations.filter(item => item.status !== "pago" && item.status !== "cancelado").map(item => ({ referenceStart: item.referenceStart, dueDate: item.dueDate, outstandingValue: Math.max(0, Number((Number(item.finalValue) - (paymentsByObligation.get(item.id) ?? 0)).toFixed(2))) }))} description="Valores que ainda precisam ser pagos, agrupados pela competência." />
-                                    <FinancialBreakdown title="Saldo vencido" total={financialQuery.data.overdueObligations.reduce((total, item) => total + item.outstandingValue, 0)} count={financialQuery.data.overdueObligations.length} obligations={financialQuery.data.overdueObligations} description="Obrigações cujo vencimento já passou e ainda têm saldo." />
-                                    <FinancialBreakdown title="Próximos vencimentos" total={financialQuery.data.upcomingObligations.reduce((total, item) => total + item.outstandingValue, 0)} count={financialQuery.data.upcomingObligations.length} obligations={financialQuery.data.upcomingObligations} description="Valores previstos para os próximos 30 dias." />
+                                    <FinancialBreakdown title="A pagar agora" total={financialQuery.data.totalOutstanding} count={financialQuery.data.openObligationsCount} obligations={financialQuery.data.dueNowObligations} description="Obrigações vencidas ou com vencimento hoje. Este é o valor que exige atenção imediata." emptyLabel="Nenhuma obrigação vencida ou com vencimento hoje." />
+                                    <FinancialBreakdown title="Próximos vencimentos" total={financialQuery.data.upcomingObligations.reduce((total, item) => total + item.outstandingValue, 0)} count={financialQuery.data.upcomingObligations.length} obligations={financialQuery.data.upcomingObligations} description="Obrigações com vencimento nos próximos 30 dias, organizadas pela data de pagamento." emptyLabel="Nenhum vencimento nos próximos 30 dias." />
+                                    <FinancialBreakdown title="Sem vencimento definido" total={financialQuery.data.undatedObligations.reduce((total, item) => total + item.outstandingValue, 0)} count={financialQuery.data.undatedObligations.length} obligations={financialQuery.data.undatedObligations} description="Obrigações em aberto que precisam de uma data de vencimento definida." emptyLabel="Todas as obrigações em aberto têm vencimento definido." />
                                 </div>
                             )}
                             {financialQuery.data?.obligationsByType.length ? <div className="employee-detail-type-breakdown">{financialQuery.data.obligationsByType.map(item => <span key={item.type}><small>{obligationTypeLabels[item.type]}</small><strong>{currency(item.totalOutstanding)}</strong><em>{item.count} {item.count === 1 ? "obrigação" : "obrigações"}</em></span>)}</div> : null}
