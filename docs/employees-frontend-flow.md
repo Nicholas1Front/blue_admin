@@ -1,6 +1,6 @@
 # Employees — base do frontend
 
-Este documento define a primeira etapa do módulo Employees no frontend: contratos TypeScript, chamadas API e hooks TanStack Query. As páginas e componentes visuais serão construídos depois, usando este documento como referência.
+Este documento registra os contratos TypeScript, chamadas API, hooks TanStack Query e fluxos das páginas do módulo Employees. A ficha individual está implementada conforme o documento complementar `employees-detail-frontend.md`; formulários e ações de criação/edição serão desenvolvidos em etapas próprias.
 
 ## Organização do módulo
 
@@ -102,6 +102,6 @@ O overview agregado existente continua disponível como alternativa, mas a tela 
 - Não usar mutações otimistas para pagamentos ou obrigações nesta primeira etapa; invalidar as queries e refazer os dados do backend.
 - Mensagens de erro do backend devem ser apresentadas ao usuário; especialmente conflitos de alocação, obrigação vinculada, transação compartilhada e exclusão bloqueada.
 
-## Escopo desta etapa
+## Escopo atual
 
-Implementados apenas os contratos, funções API, query keys, hooks e este documento. Pages, components, formulários, modais, estilos e navegação serão feitos em uma etapa posterior.
+Os contratos, APIs, query keys e hooks estão implementados. A página principal Employees e a ficha individual também estão conectadas às rotas, com resumo por funcionário, navegação por vínculo, linha do tempo mensal e histórico sob demanda. Formulários, modais e ações de criação/edição permanecem para etapas posteriores.
