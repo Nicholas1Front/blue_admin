@@ -55,6 +55,9 @@ const obligationStatusLabels: Record<ObligationStatus, string> = {
     pago: "Pago",
     cancelado: "Cancelado"
 };
+const movementTypesRequiringObligation = new Set<EmployeeMovementType>([
+    "bonificacao", "decimo_terceiro", "ferias", "rescisao", "ajuste", "pagamento"
+]);
 const movementTypeLabels: Record<EmployeeMovementType, string> = {
     falta: "Falta",
     atraso: "Atraso",
@@ -328,7 +331,7 @@ export function EmployeeDetails() {
                                                     {group.movements.map(movement => (
                                                         <li key={movement.id} className={`employee-detail-movement employee-detail-movement--${movement.type}`}>
                                                             <div className="employee-detail-movement__date">{dateOnly(movement.eventDate ?? movement.createdAt)}</div>
-                                                            <div className="employee-detail-movement__body"><strong>{movementTypeLabels[movement.type]}</strong><p>{movement.description}</p>{movement.type === "pagamento" && movement.obligation ? <small className="employee-detail-payment-link">Alocado em: <strong>{movement.obligation.title}</strong> · Competência {formatCompetency(movement.obligation)}</small> : movement.obligation ? <small className="employee-detail-payment-link">Relacionado à obrigação: <strong>{movement.obligation.title}</strong> · {formatCompetency(movement.obligation)}</small> : <small className="employee-detail-unlinked">Sem obrigação vinculada</small>}{movement.financialTransaction && <small className="employee-detail-transaction">Transação financeira: {movement.financialTransaction.description} · referência {dateOnly(movement.financialTransaction.referenceDate)}</small>}{movement.observations && <small className="employee-detail-movement-note">Observação: {movement.observations}</small>}</div>
+                                                            <div className="employee-detail-movement__body"><strong>{movementTypeLabels[movement.type]}</strong><p>{movement.description}</p>{movement.type === "pagamento" && movement.obligation ? <small className="employee-detail-payment-link">Alocado em: <strong>{movement.obligation.title}</strong> · Competência {formatCompetency(movement.obligation)}</small> : movement.obligation ? <small className="employee-detail-payment-link">Relacionado à obrigação: <strong>{movement.obligation.title}</strong> · {formatCompetency(movement.obligation)}</small> : movementTypesRequiringObligation.has(movement.type) ? <small className="employee-detail-unlinked">Obrigação não vinculada</small> : null}{movement.financialTransaction && <small className="employee-detail-transaction">Transação financeira: {movement.financialTransaction.description} · referência {dateOnly(movement.financialTransaction.referenceDate)}</small>}{movement.observations && <small className="employee-detail-movement-note">Observação: {movement.observations}</small>}</div>
                                                             <strong className="employee-detail-movement__value">{movement.value == null ? "—" : currency(movement.value)}</strong>
                                                         </li>
                                                     ))}
@@ -364,7 +367,7 @@ function HistoryItem({ event }: { event: EmployeeHistoryEvent }) {
     return (
         <li className="employee-detail-history-item">
             <span className="employee-detail-history-marker" />
-            <article><header><strong>{label.charAt(0).toUpperCase() + label.slice(1)}</strong><time>{dateTime(event.eventDate ?? event.createdAt)}</time></header><p>{event.description}</p><small>{event.engagementId ? `Vínculo: ${event.engagementId}` : "Registro geral do funcionário"}</small></article>
+            <article><header><strong>{label.charAt(0).toUpperCase() + label.slice(1)}</strong><time>{dateTime(event.eventDate ?? event.createdAt)}</time></header><p>{event.description}</p><small>{event.engagementId ? "Vínculo selecionado" : "Registro geral do funcionário"}</small></article>
         </li>
     );
 }
