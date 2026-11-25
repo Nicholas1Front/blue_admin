@@ -22,7 +22,7 @@ export interface EmployeeEngagementSummary {
     id: string; status: EngagementStatus; modality: EngagementModality;
     entryDate: string | null; exitDate: string | null; currentSalary: number | null;
     totalOutstanding: number; openObligations: number;
-    obligations: Array<{ type: ObligationType; totalOutstanding: number; count: number }>;
+    obligations: Array<{ id: string; type: ObligationType; title: string; dueDate: string | null; outstandingValue: number }>;
     absencesThisMonth: number; tardinessThisMonth: number;
 }
 export interface EmployeeSummaryItem {
