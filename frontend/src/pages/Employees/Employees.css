@@ -1178,3 +1178,43 @@
         padding: var(--spacing-3);
     }
 }
+
+/* Employee cards: stronger visual boundaries between records */
+.employees-list {
+    gap: var(--spacing-4);
+}
+
+.employees-row {
+    position: relative;
+    margin: 0;
+    padding: var(--spacing-5);
+    background:
+        linear-gradient(145deg, rgb(35 49 60 / 0.82), rgb(20 30 38 / 0.96));
+    border: 1px solid rgb(112 179 255 / 0.2);
+    border-left: 3px solid rgb(112 179 255 / 0.55);
+    border-radius: var(--radius-xl);
+    box-shadow: 0 5px 18px rgb(0 0 0 / 0.12);
+    transition: border-color 160ms ease, box-shadow 160ms ease;
+}
+
+.employees-row:hover {
+    border-color: rgb(112 179 255 / 0.34);
+    border-left-color: var(--color-primary-400);
+    box-shadow: 0 8px 24px rgb(0 0 0 / 0.18);
+}
+
+.employees-row__engagements {
+    border-top-color: rgb(112 179 255 / 0.14);
+    border-bottom-color: rgb(112 179 255 / 0.14);
+}
+
+@media (max-width: 760px) {
+    .employees-list {
+        gap: var(--spacing-3);
+    }
+
+    .employees-row {
+        padding: var(--spacing-4);
+    }
+}
+
