@@ -197,7 +197,7 @@ export function EmployeeDetails() {
         };
 
         for (const obligation of obligations) {
-            const key = monthKey(obligation.referenceStart) ?? monthKey(obligation.dueDate) ?? monthKey(obligation.createdAt);
+            const key = monthKey(obligation.createdAt) ?? monthKey(obligation.referenceStart) ?? monthKey(obligation.dueDate);
             if (key) ensure(key).obligations.push(obligation);
         }
         for (const movement of movements) {
@@ -309,7 +309,7 @@ export function EmployeeDetails() {
 
                         <section className="employee-detail-timeline-section">
                             <header className="employee-detail-section-heading">
-                                <div><span className="employee-detail-eyebrow">Competências e registros</span><h2><FontAwesomeIcon icon={faCalendarDays} /> Linha do tempo do vínculo</h2><p>As obrigações são agrupadas pelo mês de competência; os movimentos, pelo mês em que foram registrados. Assim, um pagamento feito em outro mês continua ligado à obrigação que quitou.</p></div>
+                                <div><span className="employee-detail-eyebrow">Competências e registros</span><h2><FontAwesomeIcon icon={faCalendarDays} /> Linha do tempo do vínculo</h2><p>As obrigações aparecem no mês em que foram cadastradas, com a competência e o vencimento visíveis dentro do registro. Os movimentos aparecem no mês em que ocorreram, e os pagamentos continuam ligados à obrigação quitada.</p></div>
                             <span className="employee-detail-count">{obligations.length} obrigações · {movements.length} movimentos</span>
                         </header>
 
@@ -321,10 +321,10 @@ export function EmployeeDetails() {
                             <div className="employee-detail-months">
                                 {timeline.map(group => (
                                     <article className="employee-detail-month" key={group.key}>
-                                        <header className="employee-detail-month__heading"><h3>{monthLabel(group.key)}</h3><span>{group.obligations.length} obrigações por competência · {group.movements.length} movimentos por data</span></header>
+                                        <header className="employee-detail-month__heading"><h3>{monthLabel(group.key)}</h3><span>{group.obligations.length} obrigações cadastradas · {group.movements.length} movimentos realizados</span></header>
                                         {group.obligations.length > 0 && (
                                             <section className="employee-detail-month__section">
-                                                <h4><FontAwesomeIcon icon={faFileInvoiceDollar} /> Obrigações desta competência <small>Valores previstos e saldo a pagar</small></h4>
+                                                <h4><FontAwesomeIcon icon={faFileInvoiceDollar} /> Obrigações cadastradas neste mês <small>Competência, vencimento e saldo a pagar</small></h4>
                                                 <div className="employee-detail-obligations">
                                                     {group.obligations.map(obligation => {
                                                         const finalValue = Number(obligation.finalValue);
