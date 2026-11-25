@@ -2,6 +2,7 @@ import { z } from 'zod'
 import { allowedMovementTypes, movementTypesRequiringObligation } from '../shareds/allowedMovementTypes.js'
 
 const movementTypeSchema = z.enum(allowedMovementTypes)
+const movementFilterTypeSchema = z.enum([...allowedMovementTypes, 'pagamento'])
 const optionalDate = z.coerce.date().nullable().optional()
 const optionalValue = z.coerce.number().finite().positive().multipleOf(0.01).nullable().optional()
 
@@ -79,7 +80,7 @@ export const updateMovementSchema = movementObjectSchema.partial().refine(
 })
 
 export const findMovementsQuerySchema = z.object({
-    type: movementTypeSchema.optional(),
+    type: movementFilterTypeSchema.optional(),
     startDate: z.coerce.date().optional(),
     endDate: z.coerce.date().optional(),
     order: z.enum(['asc', 'desc']).default('desc')
@@ -98,7 +99,7 @@ export const findMovementsByFiltersSchema = z.object({
     employeeId: z.string().uuid().optional(),
     employeeName: z.string().trim().min(1).optional(),
     engagementId: z.string().uuid().optional(),
-    type: movementTypeSchema.optional(),
+    type: movementFilterTypeSchema.optional(),
     description: z.string().trim().min(1).optional(),
     obligationId: z.string().uuid().optional(),
     financialTransactionId: z.string().uuid().optional(),
