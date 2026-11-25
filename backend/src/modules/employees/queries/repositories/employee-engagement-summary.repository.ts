@@ -57,17 +57,18 @@ class EmployeeSummaryRepository {
 
         const hasMore = rows.length > query.limit
         const page = hasMore ? rows.slice(0, query.limit) : rows
-        const data = page.map(employee => ({
-            id: employee.id,
-            name: employee.name,
-            document: employee.document,
-            engagements: employee.engagements.map(engagement => {
+        const data = page.map(employee => {
+            const engagements = employee.engagements.map(engagement => {
                 const openObligations = engagement.obligations.map(obligation => {
                     const paidValue = obligation.movements.reduce((sum, movement) => sum + Number(movement.value ?? 0), 0)
                     const finalValue = Number(obligation.finalValue)
-                    return { id: obligation.id, type: obligation.type, title: obligation.title, dueDate: obligation.dueDate, finalValue, paidValue, outstandingValue: Math.max(0, Number((finalValue - paidValue).toFixed(2))) }
+                    return {
+                        id: obligation.id, type: obligation.type, title: obligation.title,
+                        dueDate: obligation.dueDate, finalValue, paidValue,
+                        outstandingValue: Math.max(0, Number((finalValue - paidValue).toFixed(2)))
+                    }
                 }).filter(obligation => obligation.outstandingValue > 0)
-                const breakdown = Object.values(openObligations.reduce<Record<string, { type: string; totalOutstanding: number; count: number }>>((result, obligation) => {
+                const obligations = Object.values(openObligations.reduce<Record<string, { type: string; totalOutstanding: number; count: number }>>((result, obligation) => {
                     const group = result[obligation.type] ?? { type: obligation.type, totalOutstanding: 0, count: 0 }
                     group.totalOutstanding += obligation.outstandingValue
                     group.count += 1
@@ -80,12 +81,22 @@ class EmployeeSummaryRepository {
                     currentSalary: engagement.currentSalary === null ? null : Number(engagement.currentSalary),
                     totalOutstanding: openObligations.reduce((sum, item) => sum + item.outstandingValue, 0),
                     openObligations: openObligations.length,
-                    obligations: breakdown,
+                    obligations,
                     absencesThisMonth: engagement.movements.filter(item => item.type === 'falta').length,
                     tardinessThisMonth: engagement.movements.filter(item => item.type === 'atraso').length
                 }
             })
-        }))
+            return {
+                id: employee.id,
+                name: employee.name,
+                document: employee.document,
+                totalOutstanding: engagements.reduce((sum, item) => sum + item.totalOutstanding, 0),
+                openObligations: engagements.reduce((sum, item) => sum + item.openObligations, 0),
+                absencesThisMonth: engagements.reduce((sum, item) => sum + item.absencesThisMonth, 0),
+                tardinessThisMonth: engagements.reduce((sum, item) => sum + item.tardinessThisMonth, 0),
+                engagements
+            }
+        })
         return {
             data,
             period: { month, year },
