@@ -117,3 +117,7 @@ Busca o histórico somente quando solicitado pela interface, com ordenação mai
 ## Ordenação das movimentações
 
 `GET /employees/find-movements-by-filters` e `GET /employees/find-movements-by-engagement/:engagementId` aceitam `order=asc|desc`. O padrão continua `desc` para preservar o comportamento existente. `asc` retorna movimentos do mais antigo ao mais recente; datas nulas permanecem no final.
+
+## Auditoria de alteração de pagamento
+
+Ao atualizar um pagamento, o histórico agora guarda o snapshot anterior e os campos atualizados de descrição, data do movimento, valor, obrigação, observações e transação financeira. A data do movimento (`eventDate`) continua independente da data da transação financeira (`referenceDate`); alterar uma não atualiza automaticamente a outra.
