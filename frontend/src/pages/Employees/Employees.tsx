@@ -14,12 +14,15 @@ import { AppHeader } from "../../components/AppHeader/AppHeader";
 import { BackLink } from "../../components/BackLink/BackLink";
 import {
     useEmployeeDashboard,
-    useEmployeeEngagementSummaries
+    useEmployeeEngagementSummaries,
+    useMovementsByFilters
 } from "../../modules/employees";
 import type {
+    EmployeeSummaryFilters,
+    EmployeeMovementType,
     EngagementModality,
     EngagementStatus,
-    EmployeeSummaryFilters
+    FindMovementsFilters
 } from "../../modules/employees";
 import "./Employees.css";
 
@@ -39,7 +42,7 @@ const statusLabels: Record<EngagementStatus, string> = {
     demitido: "Desligado"
 };
 
-const movementLabels: Record<string, string> = {
+const movementLabels: Record<EmployeeMovementType, string> = {
     falta: "Falta",
     atraso: "Atraso",
     saida_antecipada: "Saída antecipada",
@@ -52,6 +55,19 @@ const movementLabels: Record<string, string> = {
     pagamento: "Pagamento"
 };
 
+const movementStyles: Record<EmployeeMovementType, string> = {
+    falta: "absence",
+    atraso: "delay",
+    saida_antecipada: "early-exit",
+    bonificacao: "bonus",
+    decimo_terceiro: "thirteenth",
+    ferias: "vacation",
+    rescisao: "termination",
+    ajuste: "adjustment",
+    anotacao: "note",
+    pagamento: "payment"
+};
+
 function formatCurrency(value: number | string | null | undefined) {
     const amount = Number(value ?? 0);
     return new Intl.NumberFormat("pt-BR", {
@@ -62,10 +78,8 @@ function formatCurrency(value: number | string | null | undefined) {
 
 function formatDate(value?: string | null) {
     if (!value) return "Data não informada";
-    const calendarDate = value.slice(0, 10);
-    const [year, month, day] = calendarDate.split("-");
-    if (year && month && day) return `${day}/${month}/${year}`;
-    return "Data não informada";
+    const [year, month, day] = value.slice(0, 10).split("-");
+    return year && month && day ? `${day}/${month}/${year}` : "Data não informada";
 }
 
 function formatPeriod(month: number, year: number) {
@@ -75,10 +89,37 @@ function formatPeriod(month: number, year: number) {
     }).format(new Date(year, month - 1, 1));
 }
 
+function formatCompetency(obligation?: {
+    title?: string;
+    referenceStart?: string | null;
+    referenceEnd?: string | null;
+} | null) {
+    if (!obligation) return "Sem competência vinculada";
+    const toMonth = (value?: string | null) => {
+        if (!value) return null;
+        const [year, month] = value.slice(0, 10).split("-");
+        if (!year || !month) return null;
+        return new Intl.DateTimeFormat("pt-BR", { month: "short", year: "numeric" })
+            .format(new Date(Number(year), Number(month) - 1, 1));
+    };
+    const start = toMonth(obligation.referenceStart);
+    const end = toMonth(obligation.referenceEnd);
+    if (start && end && start !== end) return `${start} – ${end}`;
+    if (start || end) return start ?? end ?? obligation.title ?? "Competência";
+    return obligation.title ?? "Competência";
+}
+
+function getMonthDateRange(month: number, year: number) {
+    return {
+        eventDateFrom: new Date(Date.UTC(year, month - 1, 1)).toISOString(),
+        eventDateTo: new Date(Date.UTC(year, month, 0, 23, 59, 59, 999)).toISOString()
+    };
+}
+
 export function Employees() {
     const now = new Date();
-    const [month, setMonth] = useState(now.getMonth() + 1);
-    const [year, setYear] = useState(now.getFullYear());
+    const currentMonth = now.getMonth() + 1;
+    const currentYear = now.getFullYear();
     const [draft, setDraft] = useState({
         name: "",
         document: "",
@@ -86,91 +127,71 @@ export function Employees() {
         modality: ""
     });
     const [filters, setFilters] = useState<EmployeeSummaryFilters>({
-        month: now.getMonth() + 1,
-        year: now.getFullYear(),
+        month: currentMonth,
+        year: currentYear,
         limit: PAGE_SIZE
     });
-    const [summaryCursor, setSummaryCursor] = useState<string | undefined>();
-    const [summaryCursorHistory, setSummaryCursorHistory] = useState<string[]>([]);
+    const [movementName, setMovementName] = useState("");
+    const [movementType, setMovementType] = useState<EmployeeMovementType | "">("");
+    const [movementMonth, setMovementMonth] = useState(currentMonth);
+    const [movementYear, setMovementYear] = useState(currentYear);
     const [movementCursor, setMovementCursor] = useState<string | undefined>();
     const [movementCursorHistory, setMovementCursorHistory] = useState<string[]>([]);
 
-    const dashboard = useEmployeeDashboard({
-        month,
-        year,
-        movementsLimit: 8,
-        ...(movementCursor ? { movementsCursor: movementCursor } : {})
-    });
-    const summaries = useEmployeeEngagementSummaries({
-        ...filters,
-        ...(summaryCursor ? { cursor: summaryCursor } : {})
-    });
+    const dashboard = useEmployeeDashboard({ movementsLimit: 1 });
+    const summaries = useEmployeeEngagementSummaries(filters);
+    const movementDateRange = getMonthDateRange(movementMonth, movementYear);
+    const movementFilters: FindMovementsFilters = {
+        ...movementDateRange,
+        limit: PAGE_SIZE,
+        order: "desc",
+        ...(movementName.trim() ? { employeeName: movementName.trim() } : {}),
+        ...(movementType ? { type: movementType } : {}),
+        ...(movementCursor ? { cursor: movementCursor } : {})
+    };
+    const movementsQuery = useMovementsByFilters(movementFilters);
+    const employees = summaries.data?.data ?? [];
+    const movements = movementsQuery.data?.data ?? [];
+    const totals = dashboard.data?.totals;
+    const years = Array.from({ length: 6 }, (_, index) => currentYear - 4 + index);
 
     function submitFilters(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
-        const nextFilters: EmployeeSummaryFilters = {
-            month,
-            year,
+        setFilters({
+            month: currentMonth,
+            year: currentYear,
             limit: PAGE_SIZE,
             ...(draft.name.trim() ? { name: draft.name.trim() } : {}),
             ...(draft.document.trim() ? { document: draft.document.trim() } : {}),
             ...(draft.status ? { status: draft.status as EngagementStatus } : {}),
             ...(draft.modality ? { modality: draft.modality as EngagementModality } : {})
-        };
-        setFilters(nextFilters);
-        setSummaryCursor(undefined);
-        setSummaryCursorHistory([]);
+        });
     }
 
-    function changePeriod(nextMonth: number, nextYear: number) {
-        setMonth(nextMonth);
-        setYear(nextYear);
-        setFilters(current => ({ ...current, month: nextMonth, year: nextYear }));
-        setSummaryCursor(undefined);
-        setSummaryCursorHistory([]);
+    function clearEmployeeFilters() {
+        setDraft({ name: "", document: "", status: "", modality: "" });
+        setFilters({ month: currentMonth, year: currentYear, limit: PAGE_SIZE });
+    }
+
+    function changeMovementFilter(change: () => void) {
+        change();
         setMovementCursor(undefined);
         setMovementCursorHistory([]);
     }
 
-    function clearFilters() {
-        setDraft({ name: "", document: "", status: "", modality: "" });
-        setFilters({ month, year, limit: PAGE_SIZE });
-        setSummaryCursor(undefined);
-        setSummaryCursorHistory([]);
-    }
-
-    function nextSummaryPage() {
-        const next = summaries.data?.pagination.nextCursor;
-        if (!next) return;
-        setSummaryCursorHistory(current => [...current, summaryCursor ?? ""]);
-        setSummaryCursor(next);
-    }
-
-    function previousSummaryPage() {
-        if (summaryCursorHistory.length === 0) return;
-        const previous = summaryCursorHistory[summaryCursorHistory.length - 1];
-        setSummaryCursorHistory(current => current.slice(0, -1));
-        setSummaryCursor(previous || undefined);
-    }
-
     function nextMovementPage() {
-        const next = dashboard.data?.recentMovements.pagination.nextCursor;
+        const next = movementsQuery.data?.pagination.nextCursor;
         if (!next) return;
         setMovementCursorHistory(current => [...current, movementCursor ?? ""]);
         setMovementCursor(next);
     }
 
     function previousMovementPage() {
-        if (movementCursorHistory.length === 0) return;
+        if (!movementCursorHistory.length) return;
         const previous = movementCursorHistory[movementCursorHistory.length - 1];
         setMovementCursorHistory(current => current.slice(0, -1));
         setMovementCursor(previous || undefined);
     }
-
-    const totals = dashboard.data?.totals;
-    const employees = summaries.data?.data ?? [];
-    const movements = dashboard.data?.recentMovements.data ?? [];
-    const years = Array.from({ length: 5 }, (_, index) => now.getFullYear() - 2 + index);
 
     return (
         <main className="employees-page">
@@ -185,40 +206,17 @@ export function Employees() {
                     <div className="employees-heading__copy">
                         <span className="employees-eyebrow">Gestão de pessoas</span>
                         <h1>Funcionários.</h1>
-                        <p>
-                            Acompanhe vínculos, obrigações e movimentações da equipe
-                            em um só lugar.
-                        </p>
+                        <p>Acompanhe vínculos, obrigações e movimentações da equipe em um só lugar.</p>
                     </div>
-
-                    <div className="employees-period">
-                        <label>
-                            <span>Mês</span>
-                            <select
-                                value={month}
-                                onChange={event => changePeriod(Number(event.target.value), year)}
-                            >
-                                {Array.from({ length: 12 }, (_, index) => index + 1).map(value => (
-                                    <option value={value} key={value}>
-                                        {new Intl.DateTimeFormat("pt-BR", { month: "long" }).format(new Date(2000, value - 1, 1))}
-                                    </option>
-                                ))}
-                            </select>
-                        </label>
-                        <label>
-                            <span>Ano</span>
-                            <select
-                                value={year}
-                                onChange={event => changePeriod(month, Number(event.target.value))}
-                            >
-                                {years.map(value => <option key={value} value={value}>{value}</option>)}
-                            </select>
-                        </label>
+                    <div className="employees-current-period">
+                        <FontAwesomeIcon icon={faCalendarDays} />
+                        <span>Período atual</span>
+                        <strong>{formatPeriod(currentMonth, currentYear)}</strong>
                     </div>
                 </header>
 
                 <p className="employees-period-caption">
-                    Indicadores e registros de {formatPeriod(month, year)}.
+                    Indicadores e resumo de {formatPeriod(currentMonth, currentYear)}.
                 </p>
 
                 {dashboard.isError && (
@@ -239,18 +237,10 @@ export function Employees() {
                         <strong>{dashboard.isPending ? "—" : totals?.employees ?? 0}</strong>
                         <small>Funcionários cadastrados</small>
                     </article>
-                    <article className="employees-metric employees-metric--violet">
-                        <div className="employees-metric__top">
-                            <span>Obrigações abertas</span>
-                            <span className="employees-metric__icon"><FontAwesomeIcon icon={faWallet} /></span>
-                        </div>
-                        <strong>{dashboard.isPending ? "—" : totals?.openObligations ?? 0}</strong>
-                        <small>Competências ainda em aberto</small>
-                    </article>
                     <article className="employees-metric employees-metric--amber">
                         <div className="employees-metric__top">
                             <span>Saldo em aberto</span>
-                            <span className="employees-metric__icon"><FontAwesomeIcon icon={faCircleExclamation} /></span>
+                            <span className="employees-metric__icon"><FontAwesomeIcon icon={faWallet} /></span>
                         </div>
                         <strong>{dashboard.isPending ? "—" : formatCurrency(totals?.totalOpenValue)}</strong>
                         <small>Valor reconhecido e não liquidado</small>
@@ -263,14 +253,6 @@ export function Employees() {
                         <strong>{dashboard.isPending ? "—" : formatCurrency(totals?.overdueValue)}</strong>
                         <small>Obrigações com vencimento anterior</small>
                     </article>
-                    <article className="employees-metric employees-metric--green">
-                        <div className="employees-metric__top">
-                            <span>Pagamentos registrados</span>
-                            <span className="employees-metric__icon"><FontAwesomeIcon icon={faCalendarDays} /></span>
-                        </div>
-                        <strong>{dashboard.isPending ? "—" : formatCurrency(totals?.paymentsRecordedThisMonth)}</strong>
-                        <small>Registros no período selecionado</small>
-                    </article>
                 </section>
 
                 <section className="employees-panel">
@@ -278,53 +260,39 @@ export function Employees() {
                         <div>
                             <span className="employees-eyebrow">Equipe</span>
                             <h2>Resumo por funcionário</h2>
-                            <p>Consulte os saldos e ocorrências do período por vínculo.</p>
+                            <p>Veja as obrigações pendentes por nome e competência, além dos saldos e ocorrências.</p>
                         </div>
                     </header>
 
-                    <form className="employees-filters" onSubmit={submitFilters}>
+                    <form className="employees-filters employees-filters--employees" onSubmit={submitFilters}>
                         <label className="employees-search">
                             <span>Nome</span>
                             <span className="employees-search__field">
                                 <FontAwesomeIcon icon={faMagnifyingGlass} />
-                                <input
-                                    value={draft.name}
-                                    onChange={event => setDraft(current => ({ ...current, name: event.target.value }))}
-                                    placeholder="Buscar funcionário"
-                                />
+                                <input value={draft.name} onChange={event => setDraft(current => ({ ...current, name: event.target.value }))} placeholder="Buscar funcionário" />
                             </span>
                         </label>
                         <label>
                             <span>Documento</span>
-                            <input
-                                value={draft.document}
-                                onChange={event => setDraft(current => ({ ...current, document: event.target.value }))}
-                                placeholder="CPF ou CNPJ"
-                            />
+                            <input value={draft.document} onChange={event => setDraft(current => ({ ...current, document: event.target.value }))} placeholder="CPF ou CNPJ" />
                         </label>
-                        <label>
+        <label>
                             <span>Status do vínculo</span>
-                            <select
-                                value={draft.status}
-                                onChange={event => setDraft(current => ({ ...current, status: event.target.value }))}
-                            >
+                            <select value={draft.status} onChange={event => setDraft(current => ({ ...current, status: event.target.value }))}>
                                 <option value="">Todos</option>
                                 {Object.entries(statusLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
                             </select>
                         </label>
                         <label>
                             <span>Modalidade</span>
-                            <select
-                                value={draft.modality}
-                                onChange={event => setDraft(current => ({ ...current, modality: event.target.value }))}
-                            >
+                            <select value={draft.modality} onChange={event => setDraft(current => ({ ...current, modality: event.target.value }))}>
                                 <option value="">Todas</option>
                                 {Object.entries(modalityLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
                             </select>
                         </label>
                         <div className="employees-filter-actions">
                             <button className="employees-button employees-button--primary" type="submit">Pesquisar</button>
-                            <button className="employees-button" type="button" onClick={clearFilters}>Limpar</button>
+                            <button className="employees-button" type="button" onClick={clearEmployeeFilters}>Limpar</button>
                         </div>
                     </form>
 
@@ -343,43 +311,61 @@ export function Employees() {
                         </div>
                     ) : (
                         <div className="employees-list">
-                            {employees.map(employee => (
-                                <article className="employees-row" key={employee.id}>
-                                    <div className="employees-row__identity">
-                                        <span className="employees-row__avatar"><FontAwesomeIcon icon={faUsers} /></span>
-                                        <div>
-                                            <strong>{employee.name}</strong>
-                                            <small>{employee.document || "Documento não informado"}</small>
-                                        </div>
-                                    </div>
-                                    <div className="employees-row__numbers">
-                                        <span><small>Saldo em aberto</small><strong>{formatCurrency(employee.totalOutstanding)}</strong></span>
-                                        <span><small>Obrigações</small><strong>{employee.openObligations}</strong></span>
-                                        <span><small>Faltas</small><strong>{employee.absencesThisMonth}</strong></span>
-                                        <span><small>Atrasos</small><strong>{employee.tardinessThisMonth}</strong></span>
-                                    </div>
-                                    <div className="employees-row__engagements">
-                                        {employee.engagements.map(engagement => (
-                                            <div className="employees-engagement" key={engagement.id}>
-                                                <span className={`employees-status employees-status--${engagement.status === "trabalhando" ? "active" : "inactive"}`}>
-                                                    {statusLabels[engagement.status]}
-                                                </span>
-                                                <span>{modalityLabels[engagement.modality]}</span>
-                                                <span>{engagement.currentSalary == null ? "Salário não informado" : formatCurrency(engagement.currentSalary)}</span>
+                            {employees.map(employee => {
+                                const obligations = employee.engagements.flatMap(engagement => engagement.obligations);
+                                const visibleObligations = obligations.slice(0, 3);
+                                const otherObligations = Math.max(0, obligations.length - visibleObligations.length);
+                                return (
+                                    <article className="employees-row" key={employee.id}>
+                                        <div className="employees-row__identity">
+                                            <span className="employees-row__avatar"><FontAwesomeIcon icon={faUsers} /></span>
+                                            <div>
+                                                <strong>{employee.name}</strong>
+                                                <small>{employee.document || "Documento não informado"}</small>
                                             </div>
-                                        ))}
-                                    </div>
-                                </article>
-                            ))}
+                                        </div>
+                                        <div className="employees-row__numbers">
+                                            <span><small>Saldo em aberto</small><strong>{formatCurrency(employee.totalOutstanding)}</strong></span>
+                                            <span><small>Faltas</small><strong>{employee.absencesThisMonth}</strong></span>
+                                            <span><small>Atrasos</small><strong>{employee.tardinessThisMonth}</strong></span>
+                                        </div>
+                                        <div className="employees-row__obligations">
+                                            <small className="employees-row__section-label">Obrigações pendentes</small>
+                                            {visibleObligations.length ? (
+                                                <div className="employees-obligation-list">
+                                                    {visibleObligations.map(obligation => (
+                                                        <span className="employees-obligation-chip" key={obligation.id} title={obligation.title}>
+                                                            <span>{obligation.title}</span>
+                                                            <strong>{formatCurrency(obligation.outstandingValue)}</strong>
+                                                        </span>
+                                                    ))}
+                                                    {otherObligations > 0 && <span className="employees-obligation-more">+ {otherObligations} outras obrigações</span>}
+                                                </div>
+                                            ) : (
+                                                <span className="employees-no-obligations">Nenhuma obrigação pendente</span>
+                                            )}
+                                        </div>
+                                        <div className="employees-row__engagements">
+                                            {employee.engagements.map(engagement => (
+                                                <div className="employees-engagement" key={engagement.id}>
+                                                    <span className={`employees-status employees-status--${engagement.status === "trabalhando" ? "active" : "inactive"}`}>{statusLabels[engagement.status]}</span>
+                                                    <span>{modalityLabels[engagement.modality]}</span>
+                                                    <span>{engagement.currentSalary == null ? "Salário não informado" : formatCurrency(engagement.currentSalary)}</span>
+                                                </div>
+                                            ))}
+                                        </div>
+                                    </article>
+                                );
+                            })}
                         </div>
                     )}
 
                     {summaries.data && summaries.data.data.length > 0 && (
                         <nav className="employees-pagination" aria-label="Paginação dos funcionários">
-                            <span>{summaryCursorHistory.length + 1}ª página</span>
+                            <span>{summaries.data.pagination.limit} por página</span>
                             <div>
-                                <button type="button" disabled={summaryCursorHistory.length === 0} onClick={previousSummaryPage}>Anterior</button>
-                                <button type="button" disabled={!summaries.data.pagination.hasMore} onClick={nextSummaryPage}>Próxima</button>
+                                <button type="button" disabled={!filters.cursor} onClick={() => setFilters(current => ({ ...current, cursor: undefined }))}>Voltar ao início</button>
+                                <button type="button" disabled={!summaries.data.pagination.hasMore} onClick={() => setFilters(current => ({ ...current, cursor: summaries.data?.pagination.nextCursor ?? undefined }))}>Próxima</button>
                             </div>
                         </nav>
                     )}
@@ -389,48 +375,80 @@ export function Employees() {
                     <header className="employees-panel__header">
                         <div>
                             <span className="employees-eyebrow">Registros recentes</span>
-                            <h2>Movimentações do mês</h2>
-                            <p>Eventos registrados em {formatPeriod(month, year)}, do mais recente ao mais antigo.</p>
+                            <h2>Movimentações</h2>
+                            <p>Filtre os lançamentos por período, funcionário ou tipo e veja a competência relacionada.</p>
                         </div>
                     </header>
 
-                    {dashboard.isPending ? (
+                    <div className="employees-movement-filters">
+                        <label className="employees-movement-search">
+                            <span>Funcionário</span>
+                            <span className="employees-search__field">
+                                <FontAwesomeIcon icon={faMagnifyingGlass} />
+                                <input value={movementName} onChange={event => changeMovementFilter(() => setMovementName(event.target.value))} placeholder="Buscar pelo nome" />
+                            </span>
+                        </label>
+                        <label>
+                            <span>Tipo de lançamento</span>
+                            <select value={movementType} onChange={event => changeMovementFilter(() => setMovementType(event.target.value as EmployeeMovementType | ""))}>
+                                <option value="">Todos os tipos</option>
+                                {Object.entries(movementLabels).map(([value, label]) => <option key={value} value={value}>{label}</option>)}
+                            </select>
+                        </label>
+                        <label>
+                            <span>Mês</span>
+                            <select value={movementMonth} onChange={event => changeMovementFilter(() => setMovementMonth(Number(event.target.value)))}>
+                                {Array.from({ length: 12 }, (_, index) => index + 1).map(value => <option key={value} value={value}>{new Intl.DateTimeFormat("pt-BR", { month: "long" }).format(new Date(2000, value - 1, 1))}</option>)}
+                            </select>
+                        </label>
+                        <label>
+                            <span>Ano</span>
+                            <select value={movementYear} onChange={event => changeMovementFilter(() => setMovementYear(Number(event.target.value)))}>
+                                {years.map(value => <option key={value} value={value}>{value}</option>)}
+                            </select>
+                        </label>
+                    </div>
+
+                    {movementsQuery.isPending ? (
                         <div className="employees-state"><span className="employees-spinner" /> Carregando movimentações…</div>
-                    ) : dashboard.isError ? (
+                    ) : movementsQuery.isError ? (
                         <div className="employees-state" role="alert">
                             <strong>Não foi possível carregar as movimentações.</strong>
-                            <button type="button" onClick={() => void dashboard.refetch()}>Tentar novamente</button>
+                            <button type="button" onClick={() => void movementsQuery.refetch()}>Tentar novamente</button>
                         </div>
                     ) : movements.length === 0 ? (
                         <div className="employees-state">
                             <span className="employees-state__icon"><FontAwesomeIcon icon={faCalendarDays} /></span>
-                            <strong>Nenhuma movimentação no período</strong>
-                            <p>Os registros feitos no mês selecionado aparecerão aqui.</p>
+                            <strong>Nenhuma movimentação encontrada</strong>
+                            <p>Não há lançamentos para os filtros selecionados.</p>
                         </div>
                     ) : (
                         <div className="employees-movements">
                             {movements.map(movement => (
-                                <article className="employees-movement" key={movement.id}>
+                                <article className={`employees-movement employees-movement--${movementStyles[movement.type]}`} key={movement.id}>
                                     <span className="employees-movement__date">{formatDate(movement.eventDate)}</span>
                                     <div className="employees-movement__copy">
-                                        <strong>{movement.engagement.employee.name}</strong>
-                                        <span>{movementLabels[movement.type] ?? movement.type} · {movement.description}</span>
-                                        {movement.obligation && <small>{movement.obligation.title}</small>}
+                                        <div className="employees-movement__title-row">
+                                            <strong>{movement.engagement.employee.name}</strong>
+                                            <span className={`employees-movement__type employees-movement__type--${movementStyles[movement.type]}`}>{movementLabels[movement.type]}</span>
+                                        </div>
+                                        <span>{movement.description}</span>
+                                        <small className="employees-movement__competency">
+                                            <FontAwesomeIcon icon={faCalendarDays} /> Competência: {formatCompetency(movement.obligation)}
+                                        </small>
                                     </div>
-                                    <strong className="employees-movement__value">
-                                        {movement.value == null ? "—" : formatCurrency(movement.value)}
-                                    </strong>
+                                    <strong className="employees-movement__value">{movement.value == null ? "—" : formatCurrency(movement.value)}</strong>
                                 </article>
                             ))}
                         </div>
                     )}
 
-                    {dashboard.data && dashboard.data.recentMovements.data.length > 0 && (
+                    {movementsQuery.data && movementsQuery.data.data.length > 0 && (
                         <nav className="employees-pagination" aria-label="Paginação das movimentações">
                             <span>{movementCursorHistory.length + 1}ª página</span>
                             <div>
-                                <button type="button" disabled={movementCursorHistory.length === 0} onClick={previousMovementPage}>Anterior</button>
-                                <button type="button" disabled={!dashboard.data.recentMovements.pagination.hasMore} onClick={nextMovementPage}>Próxima</button>
+                                <button type="button" disabled={!movementCursorHistory.length} onClick={previousMovementPage}>Anterior</button>
+                                <button type="button" disabled={!movementsQuery.data.pagination.hasMore} onClick={nextMovementPage}>Próxima</button>
                             </div>
                         </nav>
                     )}
