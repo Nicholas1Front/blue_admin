@@ -11,6 +11,11 @@ export interface EmployeeObligation {
 export interface ObligationWithBalance extends EmployeeObligation {
     paidValue: number; outstandingValue: number;
 }
+export interface OpenObligation {
+    id: string; type: ObligationType; title: string; referenceStart: string | null;
+    referenceEnd: string | null; dueDate: string | null; status: ObligationStatus;
+    finalValue: number; paidValue: number; outstandingValue: number;
+}
 export interface ObligationListItem extends ObligationWithBalance {
     engagement: { id: string; employee: { id: string; name: string; document: string | null } };
 }
@@ -44,7 +49,7 @@ export interface ObligationSuggestion {
     updatePayload?: { originalValue: number; finalValue: number };
 }
 export interface ObligationAnalysis {
-    period: unknown;
+    period: { startMonth: number; startYear: number; endMonth: number; endYear: number };
     summary: { recognizedOutstanding: number; suggestedToCreate: number; manualReviewEstimate: number };
     suggestions: ObligationSuggestion[]; warnings: string[];
 }

@@ -2,7 +2,7 @@ import type { CursorPage, EmployeeHistoryEvent, EmployeeRecord } from "../employ
 import type { EmployeeEngagement, EngagementModality, EngagementStatus } from "../engagements/engagements.types";
 import type { ObligationType, ObligationStatus, ObligationWithBalance } from "../obligations/obligations.types";
 import type { EmployeeMovement, MovementListItem } from "../movements/movements.types";
-export interface EmployeeDashboardFilters { month?: number; year?: number; movementsCursor?: string; movementsLimit?: number; }
+export type EmployeeDashboardFilters = { movementsCursor?: string; movementsLimit?: number } & ({ month: number; year: number } | { month?: never; year?: never });
 export interface DashboardObligation {
     id: string; engagementId: string; type: ObligationType; title: string;
     referenceStart: string | null; referenceEnd: string | null; dueDate: string | null;
