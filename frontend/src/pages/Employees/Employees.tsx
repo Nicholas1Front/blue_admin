@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faCalendarDays,
@@ -362,7 +363,7 @@ export function Employees() {
                                             <div className="employees-row__identity">
                                                 <span className="employees-row__avatar"><FontAwesomeIcon icon={faUsers} /></span>
                                                 <div>
-                                                    <strong>{employee.name}</strong>
+                                                    <Link className="employees-row__detail-link" to={`/employees/${encodeURIComponent(employee.id)}`}>{employee.name}</Link>
                                                     <small>{employee.document || "Documento não informado"}</small>
                                                 </div>
                                             </div>
