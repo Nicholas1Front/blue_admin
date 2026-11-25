@@ -3,9 +3,11 @@ import { AppError } from '../../../shared/errors/AppError.js'
 import employeeOverviewService from './services/employee-overview.service.js'
 import dashboardService from './services/dashboard.service.js'
 import consistencyService from './services/consistency.service.js'
+import employeeSummaryService from './services/employee-engagement-summary.service.js'
 import {
     employeeOverviewQuerySchema,
-    employeeDashboardQuerySchema
+    employeeDashboardQuerySchema,
+    employeeSummaryQuerySchema
 } from './queries.schema.js'
 
 class EmployeesQueriesController {
@@ -21,6 +23,18 @@ class EmployeesQueriesController {
         return res.status(200).json({
             message: 'Employee overview found successfully',
             data: overview
+        })
+    }
+
+
+    async findEmployeeEngagementSummaries(req: Request, res: Response) {
+        if (!req.user) throw new AppError('User not authenticated', 401, 'USER_NOT_AUTHENTICATED')
+
+        const query = employeeSummaryQuerySchema.parse(req.query)
+        const summaries = await employeeSummaryService.findEmployeeEngagementSummaries(query)
+        return res.status(200).json({
+            message: 'Employee engagement summaries found successfully',
+            data: summaries
         })
     }
 
