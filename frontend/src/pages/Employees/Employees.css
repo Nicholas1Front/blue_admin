@@ -1218,3 +1218,25 @@
     }
 }
 
+/* Link from the employee summary to the individual record */
+.employees-row__detail-link {
+    color: var(--color-text);
+    font-size: var(--font-size-base);
+    font-weight: var(--font-weight-semibold);
+    line-height: 1.35;
+    text-decoration: none;
+    overflow-wrap: anywhere;
+}
+
+.employees-row__detail-link:hover {
+    color: var(--color-primary-300);
+    text-decoration: underline;
+    text-underline-offset: 0.2em;
+}
+
+.employees-row__detail-link:focus-visible {
+    outline: 2px solid var(--color-primary-400);
+    outline-offset: 3px;
+    border-radius: var(--radius-sm);
+}
+
