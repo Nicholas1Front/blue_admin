@@ -5,9 +5,9 @@ export type EmployeeMovementType = "falta" | "atraso" | "saida_antecipada" | "bo
 export type MovementCreationType = Exclude<EmployeeMovementType, "pagamento">;
 export interface EmployeeMovement {
     id: string; engagementId: string; type: EmployeeMovementType; description: string;
-    eventDate: string | null; referenceStart: string | null; referenceEnd: string | null;
+    eventDate: string | null; referenceStart?: string | null; referenceEnd?: string | null;
     value: EmployeeAmount | null; obligationId: string | null; financialTransactionId: string | null;
-    observations: string | null; createdAt: string; updatedAt?: string;
+    observations?: string | null; createdAt: string; updatedAt?: string;
     obligation?: { id: string; type: ObligationType; title: string; referenceStart: string | null; referenceEnd: string | null; dueDate?: string | null; finalValue?: number; status?: string } | null;
     financialTransaction?: { id: string; description: string; value: number; referenceDate: string; categoryId?: string; type?: string } | null;
 }

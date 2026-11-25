@@ -1,7 +1,7 @@
 import { api } from "../../../api/axios";
 import type { ApiResponse } from "../../../api/api.types";
 import type { CursorPage } from "../employees.types";
-import type { AnalyzeObligationsFilters, CreateObligationRequest, CreateObligationsBatchRequest, EmployeeObligation, FindObligationsFilters, ObligationListItem, ObligationWithBalance, OpenObligation, ObligationAnalysis, UpdateObligationRequest } from "./obligations.types";
+import type { AnalyzeObligationsFilters, CreateObligationRequest, CreateObligationsBatchRequest, EmployeeObligation, FindObligationsFilters, ObligationListItem, OpenObligation, ObligationAnalysis, UpdateObligationRequest } from "./obligations.types";
 export async function createObligation(engagementId: string, data: CreateObligationRequest): Promise<EmployeeObligation> {
     const response = await api.post<ApiResponse<EmployeeObligation>>(`/employees/create-obligation/${encodeURIComponent(engagementId)}`, data);
     return response.data.data;
