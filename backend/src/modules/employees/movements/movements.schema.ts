@@ -81,7 +81,8 @@ export const updateMovementSchema = movementObjectSchema.partial().refine(
 export const findMovementsQuerySchema = z.object({
     type: movementTypeSchema.optional(),
     startDate: z.coerce.date().optional(),
-    endDate: z.coerce.date().optional()
+    endDate: z.coerce.date().optional(),
+    order: z.enum(['asc', 'desc']).default('desc')
 }).refine(data => !data.startDate || !data.endDate || data.endDate >= data.startDate, {
     message: 'End date cannot be before start date',
     path: ['endDate']
@@ -104,7 +105,8 @@ export const findMovementsByFiltersSchema = z.object({
     eventDateFrom: z.coerce.date().optional(),
     eventDateTo: z.coerce.date().optional(),
     cursor: z.string().uuid().optional(),
-    limit: z.coerce.number().int().min(1).max(100).default(20)
+    limit: z.coerce.number().int().min(1).max(100).default(20),
+    order: z.enum(['asc', 'desc']).default('desc')
 }).refine(data => !data.eventDateFrom || !data.eventDateTo || data.eventDateTo >= data.eventDateFrom, {
     message: 'Event date end cannot be before start',
     path: ['eventDateTo']
