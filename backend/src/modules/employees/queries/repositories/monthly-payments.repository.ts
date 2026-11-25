@@ -33,6 +33,10 @@ class MonthlyPaymentsRepository {
             }
         })
 
+        const [totalCount, totalValue] = await Promise.all([
+            prisma.employeeMovement.count({ where }),
+            prisma.employeeMovement.aggregate({ where, _sum: { value: true } })
+        ])
         const hasMore = rows.length > query.limit
         const page = hasMore ? rows.slice(0, query.limit) : rows
         return {
@@ -44,7 +48,7 @@ class MonthlyPaymentsRepository {
                     ? { ...item.financialTransaction, value: Number(item.financialTransaction.value) }
                     : null
             })),
-            totals: { count: page.length, value: page.reduce((sum, item) => sum + Number(item.value ?? 0), 0) },
+            totals: { count: totalCount, value: Number(totalValue._sum.value ?? 0) },
             pagination: { limit: query.limit, hasMore, nextCursor: hasMore ? page[page.length - 1]?.id ?? null : null }
         }
     }
