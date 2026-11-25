@@ -50,7 +50,6 @@ class EngagementsRepository {
 
     async findEngagementsByFilters(filters: findEngagementsByFiltersDTO) {
         const toDateRange = (from?: Date, to?: Date) => {
-            if (!from && !to) return undefined
             const range: { gte?: Date; lt?: Date } = {}
             if (from) range.gte = new Date(Date.UTC(from.getUTCFullYear(), from.getUTCMonth(), from.getUTCDate()))
             if (to) range.lt = new Date(Date.UTC(to.getUTCFullYear(), to.getUTCMonth(), to.getUTCDate() + 1))
