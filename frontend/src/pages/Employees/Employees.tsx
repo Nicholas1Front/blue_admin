@@ -358,12 +358,12 @@ export function Employees() {
                                 const visibleObligations = obligations.slice(0, 3);
                                 const otherObligations = Math.max(0, obligations.length - visibleObligations.length);
                                 return (
-                                    <article className="employees-row" key={employee.id}>
+                                    <Link className="employees-row" key={employee.id} to={`/employees/${encodeURIComponent(employee.id)}`} aria-label={`Abrir ficha de ${employee.name}`}>
                                         <div className="employees-row__top">
                                             <div className="employees-row__identity">
                                                 <span className="employees-row__avatar"><FontAwesomeIcon icon={faUsers} /></span>
                                                 <div>
-                                                    <Link className="employees-row__detail-link" to={`/employees/${encodeURIComponent(employee.id)}`}>{employee.name}</Link>
+                                                    <strong>{employee.name}</strong>
                                                     <small>{employee.document || "Documento não informado"}</small>
                                                 </div>
                                             </div>
@@ -439,7 +439,7 @@ export function Employees() {
                                                 <span className="employees-no-obligations">Nenhuma obrigação pendente</span>
                                             )}
                                         </div>
-                                    </article>
+                                    </Link>
                                 );
                             })}
                         </div>
