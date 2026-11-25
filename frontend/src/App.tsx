@@ -26,6 +26,7 @@ import { BudgetMetrics } from "./pages/BudgetMetrics/BudgetMetrics";
 import { Vehicles } from "./pages/Vehicles/Vehicles";
 import { VehicleDetails } from "./pages/VehicleDetails/VehicleDetails";
 import { Employees } from "./pages/Employees/Employees";
+import { EmployeeDetails } from "./pages/EmployeeDetails/EmployeeDetails";
 
 function App() {
     return (
@@ -99,6 +100,10 @@ function App() {
                     <Route
                         path="/employees"
                         element={<ProtectedRoute><Employees /></ProtectedRoute>}
+                    />
+                    <Route
+                        path="/employees/:employeeId"
+                        element={<ProtectedRoute><EmployeeDetails /></ProtectedRoute>}
                     />
 
                     <Route
