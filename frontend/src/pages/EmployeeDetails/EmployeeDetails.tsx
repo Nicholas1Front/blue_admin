@@ -137,11 +137,27 @@ function engagementPeriod(engagement: EmployeeEngagement) {
     return `${dateOnly(engagement.entryDate)} — ${engagement.exitDate ? dateOnly(engagement.exitDate) : "Atual"}`;
 }
 
-type MonthGroup = {
+type ObligationGroup = {
     key: string;
     obligations: EmployeeObligation[];
-    movements: EmployeeMovement[];
+    sortDate: string;
 };
+
+function obligationGroupKey(obligation: EmployeeObligation) {
+    return monthKey(obligation.referenceStart) ?? monthKey(obligation.referenceEnd) ?? "sem-competencia";
+}
+
+function obligationGroupAnchor(key: string) {
+    return `employee-obligation-group-${key}`;
+}
+
+function obligationSortDate(obligation: EmployeeObligation) {
+    return obligation.referenceStart ?? obligation.referenceEnd ?? obligation.dueDate ?? obligation.createdAt ?? "";
+}
+
+function movementSortDate(movement: EmployeeMovement) {
+    return movement.eventDate ?? movement.createdAt ?? "";
+}
 
 export function EmployeeDetails() {
     const { employeeId } = useParams<{ employeeId: string }>();
@@ -169,7 +185,7 @@ export function EmployeeDetails() {
     const selectedEngagement = engagements.find(item => item.id === selectedEngagementId);
     const financialQuery = useEngagementFinancialSummary(selectedEngagementId);
     const obligationsQuery = useObligationsByEngagement(selectedEngagementId);
-    const movementsQuery = useMovementsByEngagement(selectedEngagementId, { order: "asc" });
+    const movementsQuery = useMovementsByEngagement(selectedEngagementId, { order: "desc" });
     const historyQuery = useEmployeeHistory(employeeId, { limit: 100, ...(historyCursor ? { cursor: historyCursor } : {}) }, historyOpen);
 
     const obligations = obligationsQuery.data ?? [];
@@ -183,27 +199,35 @@ export function EmployeeDetails() {
         return totals;
     }, [movements]);
 
-    const timeline = useMemo(() => {
-        const groups = new Map<string, MonthGroup>();
-        const ensure = (key: string) => {
-            const existing = groups.get(key);
-            if (existing) return existing;
-            const created: MonthGroup = { key, obligations: [], movements: [] };
-            groups.set(key, created);
-            return created;
-        };
-
+    const obligationGroups = useMemo(() => {
+        const groups = new Map<string, EmployeeObligation[]>();
         for (const obligation of obligations) {
-            const key = monthKey(obligation.createdAt) ?? monthKey(obligation.referenceStart) ?? monthKey(obligation.dueDate);
-            if (key) ensure(key).obligations.push(obligation);
-        }
-        for (const movement of movements) {
-            const key = monthKey(movement.eventDate) ?? monthKey(movement.createdAt);
-            if (key) ensure(key).movements.push(movement);
+            const key = obligationGroupKey(obligation);
+            const group = groups.get(key) ?? [];
+            group.push(obligation);
+            groups.set(key, group);
         }
 
-        return [...groups.values()].sort((a, b) => b.key.localeCompare(a.key));
-    }, [obligations, movements]);
+        return [...groups.entries()].map(([key, items]): ObligationGroup => ({
+            key,
+            obligations: items.sort((a, b) => obligationSortDate(b).localeCompare(obligationSortDate(a))),
+            sortDate: items.reduce((latest, item) => {
+                const date = obligationSortDate(item);
+                return date > latest ? date : latest;
+            }, "")
+        })).sort((a, b) => b.sortDate.localeCompare(a.sortDate));
+    }, [obligations]);
+
+    const obligationGroupById = useMemo(() => {
+        const groups = new Map<string, string>();
+        for (const obligation of obligations) groups.set(obligation.id, obligationGroupKey(obligation));
+        return groups;
+    }, [obligations]);
+
+    const sortedMovements = useMemo(
+        () => [...movements].sort((a, b) => movementSortDate(b).localeCompare(movementSortDate(a))),
+        [movements]
+    );
 
     const historyEvents = (historyQuery.data?.data ?? []).filter(event =>
         event.engagementId === null || event.engagementId === selectedEngagementId
@@ -304,33 +328,30 @@ export function EmployeeDetails() {
                             {financialQuery.data?.obligationsByType.length ? <div className="employee-detail-type-breakdown">{financialQuery.data.obligationsByType.map(item => <span key={item.type}><small>{obligationTypeLabels[item.type]}</small><strong>{currency(item.totalOutstanding)}</strong><em>{item.count} {item.count === 1 ? "obrigação" : "obrigações"}</em></span>)}</div> : null}
                         </section>
 
-                        <section className="employee-detail-timeline-section">
-                            <header className="employee-detail-section-heading">
-                                <div><span className="employee-detail-eyebrow">Competências e registros</span><h2><FontAwesomeIcon icon={faCalendarDays} /> Linha do tempo do vínculo</h2><p>As obrigações aparecem no mês em que foram cadastradas, com a competência e o vencimento visíveis dentro do registro. Os movimentos aparecem no mês em que ocorreram, e os pagamentos continuam ligados à obrigação quitada.</p></div>
-                            <span className="employee-detail-count">{obligations.length} obrigações · {movements.length} movimentos</span>
-                        </header>
-
-                        {obligationsQuery.isPending || movementsQuery.isPending ? <div className="employee-detail-loading">Carregando competências e movimentações…</div> : obligationsQuery.isError || movementsQuery.isError ? (
-                            <div className="employee-detail-state employee-detail-state--error"><strong>Não foi possível carregar os registros deste vínculo.</strong><button type="button" onClick={() => { void obligationsQuery.refetch(); void movementsQuery.refetch(); }}>Tentar novamente</button></div>
-                        ) : timeline.length === 0 ? (
-                            <div className="employee-detail-empty"><strong>Nenhuma competência ou movimentação registrada</strong><p>Quando houver obrigações ou lançamentos neste vínculo, eles serão organizados aqui por mês.</p></div>
-                        ) : (
-                            <div className="employee-detail-months">
-                                {timeline.map(group => (
-                                    <article className="employee-detail-month" key={group.key}>
-                                        <header className="employee-detail-month__heading"><h3>{monthLabel(group.key)}</h3><span>{group.obligations.length} obrigações cadastradas · {group.movements.length} movimentos realizados</span></header>
-                                        {group.obligations.length > 0 && (
-                                            <section className="employee-detail-month__section">
-                                                <h4><FontAwesomeIcon icon={faFileInvoiceDollar} /> Obrigações cadastradas neste mês <small>Competência, vencimento e saldo a pagar</small></h4>
+                        <section className="employee-detail-records-section">
+                            <section className="employee-detail-records-block">
+                                <header className="employee-detail-section-heading">
+                                    <div><span className="employee-detail-eyebrow">Valores definidos para o vínculo</span><h2><FontAwesomeIcon icon={faFileInvoiceDollar} /> Obrigações</h2><p>Organizadas pela competência, da mais recente para a mais antiga. Obrigações da mesma competência ficam reunidas, mesmo quando são de tipos diferentes.</p></div>
+                                    <span className="employee-detail-count">{obligations.length} {obligations.length === 1 ? "obrigação" : "obrigações"}</span>
+                                </header>
+                                {obligationsQuery.isPending ? <div className="employee-detail-loading">Carregando obrigações…</div> : obligationsQuery.isError ? (
+                                    <div className="employee-detail-state employee-detail-state--error"><strong>Não foi possível carregar as obrigações.</strong><button type="button" onClick={() => void obligationsQuery.refetch()}>Tentar novamente</button></div>
+                                ) : obligationGroups.length === 0 ? (
+                                    <div className="employee-detail-empty"><strong>Nenhuma obrigação cadastrada</strong><p>As obrigações deste vínculo aparecerão aqui, agrupadas pela competência.</p></div>
+                                ) : (
+                                    <div className="employee-detail-obligation-groups">
+                                        {obligationGroups.map(group => (
+                                            <article className="employee-detail-obligation-group" id={obligationGroupAnchor(group.key)} key={group.key}>
+                                                <header className="employee-detail-obligation-group__heading"><h3>{group.key === "sem-competencia" ? "Sem competência informada" : monthLabel(group.key)}</h3><span>{group.obligations.length} {group.obligations.length === 1 ? "obrigação" : "obrigações"}</span></header>
                                                 <div className="employee-detail-obligations">
                                                     {group.obligations.map(obligation => {
                                                         const finalValue = Number(obligation.finalValue);
                                                         const paidValue = paymentsByObligation.get(obligation.id) ?? 0;
                                                         const balance = Math.max(0, Number((finalValue - paidValue).toFixed(2)));
                                                         return (
-                                                            <article className="employee-detail-obligation" key={obligation.id}>
+                                                            <article className="employee-detail-obligation" id={`employee-obligation-${obligation.id}`} key={obligation.id}>
                                                                 <header><div><span className={`employee-detail-obligation-type employee-detail-obligation-type--${obligation.type}`}>{obligationTypeLabels[obligation.type]}</span><strong>{obligation.title}</strong></div><span className={`employee-detail-obligation-status employee-detail-obligation-status--${obligation.status}`}>{obligationStatusLabels[obligation.status]}</span></header>
-                                                                <p>Competência: {formatCompetency(obligation)}{obligation.dueDate ? ` · Vence em ${dateOnly(obligation.dueDate)}` : ""}{obligation.createdAt ? ` · Registrada em ${dateOnly(obligation.createdAt)}` : ""}</p>
+                                                                <p>Competência: {formatCompetency(obligation)}{obligation.dueDate ? ` · Vencimento: ${dateOnly(obligation.dueDate)}` : " · Vencimento não definido"}{obligation.createdAt ? ` · Registrada em: ${dateOnly(obligation.createdAt)}` : ""}</p>
                                                                 <div className="employee-detail-obligation-values"><span><small>Valor previsto</small><strong>{currency(finalValue)}</strong></span><span><small>Já pago / alocado</small><strong>{currency(paidValue)}</strong></span><span><small>Falta pagar</small><strong>{currency(balance)}</strong></span></div>
                                                                 {obligation.description && <p className="employee-detail-obligation-description">{obligation.description}</p>}
                                                                 {obligation.observations && <small className="employee-detail-obligation-note">Observação: {obligation.observations}</small>}
@@ -338,26 +359,36 @@ export function EmployeeDetails() {
                                                         );
                                                     })}
                                                 </div>
-                                            </section>
-                                        )}
-                                        {group.movements.length > 0 && (
-                                            <section className="employee-detail-month__section">
-                                                <h4><FontAwesomeIcon icon={faClockRotateLeft} /> Movimentos realizados neste mês <small>Pagamentos e outros registros pela data do evento</small></h4>
-                                                <ol className="employee-detail-movements">
-                                                    {group.movements.map(movement => (
-                                                        <li key={movement.id} className={`employee-detail-movement employee-detail-movement--${movement.type}`}>
-                                                            <div className="employee-detail-movement__date">{dateOnly(movement.eventDate ?? movement.createdAt)}</div>
-                                                            <div className="employee-detail-movement__body"><strong>{movement.type === "pagamento" ? "Pagamento realizado" : movementTypeLabels[movement.type]}</strong><p>{movement.description}</p>{movement.type === "pagamento" && movement.obligation ? <small className="employee-detail-payment-link">Alocado em: <strong>{movement.obligation.title}</strong> · Competência {formatCompetency(movement.obligation)}</small> : movement.obligation ? <small className="employee-detail-payment-link">Relacionado à obrigação: <strong>{movement.obligation.title}</strong> · {formatCompetency(movement.obligation)}</small> : movementTypesRequiringObligation.has(movement.type) ? <small className="employee-detail-unlinked">Obrigação não vinculada</small> : null}{movement.financialTransaction && <small className="employee-detail-transaction">Transação financeira: {movement.financialTransaction.description} · referência {dateOnly(movement.financialTransaction.referenceDate)}</small>}{movement.observations && <small className="employee-detail-movement-note">Observação: {movement.observations}</small>}</div>
-                                                            <strong className="employee-detail-movement__value">{movement.value == null ? "—" : movement.type === "pagamento" ? "Pago " + currency(movement.value) : currency(movement.value)}</strong>
-                                                        </li>
-                                                    ))}
-                                                </ol>
-                                            </section>
-                                        )}
-                                    </article>
-                                ))}
-                            </div>
-                        )}
+                                            </article>
+                                        ))}
+                                    </div>
+                                )}
+                            </section>
+
+                            <section className="employee-detail-records-block">
+                                <header className="employee-detail-section-heading">
+                                    <div><span className="employee-detail-eyebrow">Registros financeiros e administrativos</span><h2><FontAwesomeIcon icon={faClockRotateLeft} /> Lançamentos</h2><p>Ordenados pela data em que aconteceram. Quando um lançamento estiver ligado a uma obrigação, você poderá ir diretamente à competência correspondente.</p></div>
+                                    <span className="employee-detail-count">{movements.length} {movements.length === 1 ? "lançamento" : "lançamentos"}</span>
+                                </header>
+                                {movementsQuery.isPending ? <div className="employee-detail-loading">Carregando lançamentos…</div> : movementsQuery.isError ? (
+                                    <div className="employee-detail-state employee-detail-state--error"><strong>Não foi possível carregar os lançamentos.</strong><button type="button" onClick={() => void movementsQuery.refetch()}>Tentar novamente</button></div>
+                                ) : sortedMovements.length === 0 ? (
+                                    <div className="employee-detail-empty"><strong>Nenhum lançamento registrado</strong><p>Pagamentos e outros registros do vínculo aparecerão aqui, do mais recente para o mais antigo.</p></div>
+                                ) : (
+                                    <ol className="employee-detail-movements">
+                                        {sortedMovements.map(movement => {
+                                            const linkedGroupKey = movement.obligationId ? obligationGroupById.get(movement.obligationId) : undefined;
+                                            return (
+                                                <li key={movement.id} className={`employee-detail-movement employee-detail-movement--${movement.type}`}>
+                                                    <div className="employee-detail-movement__date">{dateOnly(movement.eventDate ?? movement.createdAt)}</div>
+                                                    <div className="employee-detail-movement__body"><strong>{movement.type === "pagamento" ? "Pagamento realizado" : movementTypeLabels[movement.type]}</strong><p>{movement.description}</p>{movement.type === "pagamento" && movement.obligation ? <small className="employee-detail-payment-link">Alocado em: <strong>{movement.obligation.title}</strong> · Competência {formatCompetency(movement.obligation)}</small> : movement.obligation ? <small className="employee-detail-payment-link">Relacionado à obrigação: <strong>{movement.obligation.title}</strong> · {formatCompetency(movement.obligation)}</small> : movementTypesRequiringObligation.has(movement.type) ? <small className="employee-detail-unlinked">Obrigação não vinculada</small> : null}{linkedGroupKey && <a className="employee-detail-movement-competency-link" href={`#${obligationGroupAnchor(linkedGroupKey)}`}>Ver competência</a>}{movement.financialTransaction && <small className="employee-detail-transaction">Transação financeira: {movement.financialTransaction.description} · referência {dateOnly(movement.financialTransaction.referenceDate)}</small>}{movement.observations && <small className="employee-detail-movement-note">Observação: {movement.observations}</small>}</div>
+                                                    <strong className="employee-detail-movement__value">{movement.value == null ? "—" : movement.type === "pagamento" ? "Pago " + currency(movement.value) : currency(movement.value)}</strong>
+                                                </li>
+                                            );
+                                        })}
+                                    </ol>
+                                )}
+                            </section>
                         </section>
                         <section className="employee-detail-history">
                             <button className="employee-detail-history-toggle" type="button" aria-expanded={historyOpen} onClick={() => setHistoryOpen(value => !value)}><span><FontAwesomeIcon icon={faClockRotateLeft} /> Histórico de alterações</span><small>{historyOpen ? "Ocultar" : "Carregar quando necessário"}</small></button>
