@@ -358,43 +358,85 @@ export function Employees() {
                                 const otherObligations = Math.max(0, obligations.length - visibleObligations.length);
                                 return (
                                     <article className="employees-row" key={employee.id}>
-                                        <div className="employees-row__identity">
-                                            <span className="employees-row__avatar"><FontAwesomeIcon icon={faUsers} /></span>
-                                            <div>
-                                                <strong>{employee.name}</strong>
-                                                <small>{employee.document || "Documento não informado"}</small>
+                                        <div className="employees-row__top">
+                                            <div className="employees-row__identity">
+                                                <span className="employees-row__avatar"><FontAwesomeIcon icon={faUsers} /></span>
+                                                <div>
+                                                    <strong>{employee.name}</strong>
+                                                    <small>{employee.document || "Documento não informado"}</small>
+                                                </div>
+                                            </div>
+                                            <div className="employees-row__numbers">
+                                                <span className="employees-row__balance">
+                                                    <small>Saldo total em aberto</small>
+                                                    <strong>{formatCurrency(employee.totalOutstanding)}</strong>
+                                                </span>
+                                                <span>
+                                                    <small>Faltas no mês</small>
+                                                    <strong>{employee.absencesThisMonth}</strong>
+                                                </span>
+                                                <span>
+                                                    <small>Atrasos no mês</small>
+                                                    <strong>{employee.tardinessThisMonth}</strong>
+                                                </span>
                                             </div>
                                         </div>
-                                        <div className="employees-row__numbers">
-                                            <span><small>Saldo em aberto</small><strong>{formatCurrency(employee.totalOutstanding)}</strong></span>
-                                            <span><small>Faltas</small><strong>{employee.absencesThisMonth}</strong></span>
-                                            <span><small>Atrasos</small><strong>{employee.tardinessThisMonth}</strong></span>
+
+                                        <div className="employees-row__engagements" aria-label="Vínculos">
+                                            {employee.engagements.map(engagement => (
+                                                <div className="employees-engagement" key={engagement.id}>
+                                                    <span className={`employees-status employees-status--${engagement.status === "trabalhando" ? "active" : "inactive"}`}>{statusLabels[engagement.status]}</span>
+                                                    <span className="employees-engagement__modality">{modalityLabels[engagement.modality]}</span>
+                                                    <span className="employees-engagement__salary">
+                                                        {engagement.currentSalary == null ? "Salário não informado" : `Salário: ${formatCurrency(engagement.currentSalary)}`}
+                                                    </span>
+                                                </div>
+                                            ))}
                                         </div>
+
                                         <div className="employees-row__obligations">
-                                            <small className="employees-row__section-label">Obrigações pendentes</small>
+                                            <div className="employees-row__section-heading">
+                                                <small className="employees-row__section-label">Obrigações pendentes</small>
+                                                {obligations.length > 0 && <span>{obligations.length} {obligations.length === 1 ? "item" : "itens"}</span>}
+                                            </div>
                                             {visibleObligations.length ? (
                                                 <div className="employees-obligation-list">
                                                     {visibleObligations.map(obligation => (
-                                                        <span className="employees-obligation-chip" key={obligation.id} title={obligation.title}>
-                                                            <small>{obligationTypeLabels[obligation.type]}</small>
-                                                            <span>{obligation.title}</span>
-                                                            <strong>{formatCurrency(obligation.outstandingValue)}</strong>
-                                                        </span>
+                                                        <div className="employees-obligation-card" key={obligation.id}>
+                                                            <div className="employees-obligation-card__heading">
+                                                                <span className={`employees-obligation-card__type employees-obligation-card__type--${obligation.type}`}>
+                                                                    {obligationTypeLabels[obligation.type]}
+                                                                </span>
+                                                                <strong title={obligation.title}>{obligation.title}</strong>
+                                                            </div>
+                                                            <small className="employees-obligation-card__reference">
+                                                                <FontAwesomeIcon icon={faCalendarDays} />
+                                                                {formatCompetency(obligation)}
+                                                            </small>
+                                                            <div className="employees-obligation-card__amounts">
+                                                                <span>
+                                                                    <small>Valor da obrigação</small>
+                                                                    <strong>{formatCurrency(obligation.finalValue)}</strong>
+                                                                </span>
+                                                                <span className="employees-obligation-card__balance">
+                                                                    <small>Saldo a pagar</small>
+                                                                    <strong>{formatCurrency(obligation.outstandingValue)}</strong>
+                                                                </span>
+                                                            </div>
+                                                            {obligation.paidValue > 0 && (
+                                                                <small className="employees-obligation-card__paid">
+                                                                    Já alocado: {formatCurrency(obligation.paidValue)}
+                                                                </small>
+                                                            )}
+                                                        </div>
                                                     ))}
-                                                    {otherObligations > 0 && <span className="employees-obligation-more">+ {otherObligations} outras obrigações</span>}
+                                                    {otherObligations > 0 && (
+                                                        <span className="employees-obligation-more">+ {otherObligations} outras obrigações</span>
+                                                    )}
                                                 </div>
                                             ) : (
                                                 <span className="employees-no-obligations">Nenhuma obrigação pendente</span>
                                             )}
-                                        </div>
-                                        <div className="employees-row__engagements">
-                                            {employee.engagements.map(engagement => (
-                                                <div className="employees-engagement" key={engagement.id}>
-                                                    <span className={`employees-status employees-status--${engagement.status === "trabalhando" ? "active" : "inactive"}`}>{statusLabels[engagement.status]}</span>
-                                                    <span>{modalityLabels[engagement.modality]}</span>
-                                                    <span>{engagement.currentSalary == null ? "Salário não informado" : formatCurrency(engagement.currentSalary)}</span>
-                                                </div>
-                                            ))}
                                         </div>
                                     </article>
                                 );
