@@ -2350,6 +2350,8 @@ export const EmployeeScalarFieldEnum = {
   id: 'id',
   name: 'name',
   document: 'document',
+  address: 'address',
+  birthDate: 'birthDate',
   observations: 'observations',
   createdAt: 'createdAt',
   updatedAt: 'updatedAt'

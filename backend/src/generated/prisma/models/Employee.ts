@@ -28,6 +28,8 @@ export type EmployeeMinAggregateOutputType = {
   id: string | null
   name: string | null
   document: string | null
+  address: string | null
+  birthDate: Date | null
   observations: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -37,6 +39,8 @@ export type EmployeeMaxAggregateOutputType = {
   id: string | null
   name: string | null
   document: string | null
+  address: string | null
+  birthDate: Date | null
   observations: string | null
   createdAt: Date | null
   updatedAt: Date | null
@@ -46,6 +50,8 @@ export type EmployeeCountAggregateOutputType = {
   id: number
   name: number
   document: number
+  address: number
+  birthDate: number
   observations: number
   createdAt: number
   updatedAt: number
@@ -57,6 +63,8 @@ export type EmployeeMinAggregateInputType = {
   id?: true
   name?: true
   document?: true
+  address?: true
+  birthDate?: true
   observations?: true
   createdAt?: true
   updatedAt?: true
@@ -66,6 +74,8 @@ export type EmployeeMaxAggregateInputType = {
   id?: true
   name?: true
   document?: true
+  address?: true
+  birthDate?: true
   observations?: true
   createdAt?: true
   updatedAt?: true
@@ -75,6 +85,8 @@ export type EmployeeCountAggregateInputType = {
   id?: true
   name?: true
   document?: true
+  address?: true
+  birthDate?: true
   observations?: true
   createdAt?: true
   updatedAt?: true
@@ -157,6 +169,8 @@ export type EmployeeGroupByOutputType = {
   id: string
   name: string
   document: string | null
+  address: string | null
+  birthDate: Date | null
   observations: string | null
   createdAt: Date
   updatedAt: Date
@@ -187,6 +201,8 @@ export type EmployeeWhereInput = {
   id?: Prisma.StringFilter<"Employee"> | string
   name?: Prisma.StringFilter<"Employee"> | string
   document?: Prisma.StringNullableFilter<"Employee"> | string | null
+  address?: Prisma.StringNullableFilter<"Employee"> | string | null
+  birthDate?: Prisma.DateTimeNullableFilter<"Employee"> | Date | string | null
   observations?: Prisma.StringNullableFilter<"Employee"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Employee"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Employee"> | Date | string
@@ -198,6 +214,8 @@ export type EmployeeOrderByWithRelationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   document?: Prisma.SortOrderInput | Prisma.SortOrder
+  address?: Prisma.SortOrderInput | Prisma.SortOrder
+  birthDate?: Prisma.SortOrderInput | Prisma.SortOrder
   observations?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -212,6 +230,8 @@ export type EmployeeWhereUniqueInput = Prisma.AtLeast<{
   NOT?: Prisma.EmployeeWhereInput | Prisma.EmployeeWhereInput[]
   name?: Prisma.StringFilter<"Employee"> | string
   document?: Prisma.StringNullableFilter<"Employee"> | string | null
+  address?: Prisma.StringNullableFilter<"Employee"> | string | null
+  birthDate?: Prisma.DateTimeNullableFilter<"Employee"> | Date | string | null
   observations?: Prisma.StringNullableFilter<"Employee"> | string | null
   createdAt?: Prisma.DateTimeFilter<"Employee"> | Date | string
   updatedAt?: Prisma.DateTimeFilter<"Employee"> | Date | string
@@ -223,6 +243,8 @@ export type EmployeeOrderByWithAggregationInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   document?: Prisma.SortOrderInput | Prisma.SortOrder
+  address?: Prisma.SortOrderInput | Prisma.SortOrder
+  birthDate?: Prisma.SortOrderInput | Prisma.SortOrder
   observations?: Prisma.SortOrderInput | Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -238,6 +260,8 @@ export type EmployeeScalarWhereWithAggregatesInput = {
   id?: Prisma.StringWithAggregatesFilter<"Employee"> | string
   name?: Prisma.StringWithAggregatesFilter<"Employee"> | string
   document?: Prisma.StringNullableWithAggregatesFilter<"Employee"> | string | null
+  address?: Prisma.StringNullableWithAggregatesFilter<"Employee"> | string | null
+  birthDate?: Prisma.DateTimeNullableWithAggregatesFilter<"Employee"> | Date | string | null
   observations?: Prisma.StringNullableWithAggregatesFilter<"Employee"> | string | null
   createdAt?: Prisma.DateTimeWithAggregatesFilter<"Employee"> | Date | string
   updatedAt?: Prisma.DateTimeWithAggregatesFilter<"Employee"> | Date | string
@@ -247,6 +271,8 @@ export type EmployeeCreateInput = {
   id?: string
   name: string
   document?: string | null
+  address?: string | null
+  birthDate?: Date | string | null
   observations?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -258,6 +284,8 @@ export type EmployeeUncheckedCreateInput = {
   id?: string
   name: string
   document?: string | null
+  address?: string | null
+  birthDate?: Date | string | null
   observations?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -269,6 +297,8 @@ export type EmployeeUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   document?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   observations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -280,6 +310,8 @@ export type EmployeeUncheckedUpdateInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   document?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   observations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -291,6 +323,8 @@ export type EmployeeCreateManyInput = {
   id?: string
   name: string
   document?: string | null
+  address?: string | null
+  birthDate?: Date | string | null
   observations?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -300,6 +334,8 @@ export type EmployeeUpdateManyMutationInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   document?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   observations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -309,6 +345,8 @@ export type EmployeeUncheckedUpdateManyInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   document?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   observations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -318,6 +356,8 @@ export type EmployeeCountOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   document?: Prisma.SortOrder
+  address?: Prisma.SortOrder
+  birthDate?: Prisma.SortOrder
   observations?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -327,6 +367,8 @@ export type EmployeeMaxOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   document?: Prisma.SortOrder
+  address?: Prisma.SortOrder
+  birthDate?: Prisma.SortOrder
   observations?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -336,6 +378,8 @@ export type EmployeeMinOrderByAggregateInput = {
   id?: Prisma.SortOrder
   name?: Prisma.SortOrder
   document?: Prisma.SortOrder
+  address?: Prisma.SortOrder
+  birthDate?: Prisma.SortOrder
   observations?: Prisma.SortOrder
   createdAt?: Prisma.SortOrder
   updatedAt?: Prisma.SortOrder
@@ -378,6 +422,8 @@ export type EmployeeCreateWithoutEngagementsInput = {
   id?: string
   name: string
   document?: string | null
+  address?: string | null
+  birthDate?: Date | string | null
   observations?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -388,6 +434,8 @@ export type EmployeeUncheckedCreateWithoutEngagementsInput = {
   id?: string
   name: string
   document?: string | null
+  address?: string | null
+  birthDate?: Date | string | null
   observations?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -414,6 +462,8 @@ export type EmployeeUpdateWithoutEngagementsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   document?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   observations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -424,6 +474,8 @@ export type EmployeeUncheckedUpdateWithoutEngagementsInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   document?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   observations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -434,6 +486,8 @@ export type EmployeeCreateWithoutHistoryInput = {
   id?: string
   name: string
   document?: string | null
+  address?: string | null
+  birthDate?: Date | string | null
   observations?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -444,6 +498,8 @@ export type EmployeeUncheckedCreateWithoutHistoryInput = {
   id?: string
   name: string
   document?: string | null
+  address?: string | null
+  birthDate?: Date | string | null
   observations?: string | null
   createdAt?: Date | string
   updatedAt?: Date | string
@@ -470,6 +526,8 @@ export type EmployeeUpdateWithoutHistoryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   document?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   observations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -480,6 +538,8 @@ export type EmployeeUncheckedUpdateWithoutHistoryInput = {
   id?: Prisma.StringFieldUpdateOperationsInput | string
   name?: Prisma.StringFieldUpdateOperationsInput | string
   document?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  address?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
+  birthDate?: Prisma.NullableDateTimeFieldUpdateOperationsInput | Date | string | null
   observations?: Prisma.NullableStringFieldUpdateOperationsInput | string | null
   createdAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
   updatedAt?: Prisma.DateTimeFieldUpdateOperationsInput | Date | string
@@ -530,6 +590,8 @@ export type EmployeeSelect<ExtArgs extends runtime.Types.Extensions.InternalArgs
   id?: boolean
   name?: boolean
   document?: boolean
+  address?: boolean
+  birthDate?: boolean
   observations?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -542,6 +604,8 @@ export type EmployeeSelectCreateManyAndReturn<ExtArgs extends runtime.Types.Exte
   id?: boolean
   name?: boolean
   document?: boolean
+  address?: boolean
+  birthDate?: boolean
   observations?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -551,6 +615,8 @@ export type EmployeeSelectUpdateManyAndReturn<ExtArgs extends runtime.Types.Exte
   id?: boolean
   name?: boolean
   document?: boolean
+  address?: boolean
+  birthDate?: boolean
   observations?: boolean
   createdAt?: boolean
   updatedAt?: boolean
@@ -560,12 +626,14 @@ export type EmployeeSelectScalar = {
   id?: boolean
   name?: boolean
   document?: boolean
+  address?: boolean
+  birthDate?: boolean
   observations?: boolean
   createdAt?: boolean
   updatedAt?: boolean
 }
 
-export type EmployeeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "document" | "observations" | "createdAt" | "updatedAt", ExtArgs["result"]["employee"]>
+export type EmployeeOmit<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = runtime.Types.Extensions.GetOmit<"id" | "name" | "document" | "address" | "birthDate" | "observations" | "createdAt" | "updatedAt", ExtArgs["result"]["employee"]>
 export type EmployeeInclude<ExtArgs extends runtime.Types.Extensions.InternalArgs = runtime.Types.Extensions.DefaultArgs> = {
   engagements?: boolean | Prisma.Employee$engagementsArgs<ExtArgs>
   history?: boolean | Prisma.Employee$historyArgs<ExtArgs>
@@ -584,6 +652,8 @@ export type $EmployeePayload<ExtArgs extends runtime.Types.Extensions.InternalAr
     id: string
     name: string
     document: string | null
+    address: string | null
+    birthDate: Date | null
     observations: string | null
     createdAt: Date
     updatedAt: Date
@@ -1015,6 +1085,8 @@ export interface EmployeeFieldRefs {
   readonly id: Prisma.FieldRef<"Employee", 'String'>
   readonly name: Prisma.FieldRef<"Employee", 'String'>
   readonly document: Prisma.FieldRef<"Employee", 'String'>
+  readonly address: Prisma.FieldRef<"Employee", 'String'>
+  readonly birthDate: Prisma.FieldRef<"Employee", 'DateTime'>
   readonly observations: Prisma.FieldRef<"Employee", 'String'>
   readonly createdAt: Prisma.FieldRef<"Employee", 'DateTime'>
   readonly updatedAt: Prisma.FieldRef<"Employee", 'DateTime'>
