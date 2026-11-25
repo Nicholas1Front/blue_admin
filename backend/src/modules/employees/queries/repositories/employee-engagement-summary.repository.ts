@@ -68,13 +68,13 @@ class EmployeeSummaryRepository {
                         outstandingValue: Math.max(0, Number((finalValue - paidValue).toFixed(2)))
                     }
                 }).filter(obligation => obligation.outstandingValue > 0)
-                const obligations = Object.values(openObligations.reduce<Record<string, { type: string; totalOutstanding: number; count: number }>>((result, obligation) => {
-                    const group = result[obligation.type] ?? { type: obligation.type, totalOutstanding: 0, count: 0 }
-                    group.totalOutstanding += obligation.outstandingValue
-                    group.count += 1
-                    result[obligation.type] = group
-                    return result
-                }, {}))
+                const obligations = openObligations.map(obligation => ({
+                    id: obligation.id,
+                    type: obligation.type,
+                    title: obligation.title,
+                    dueDate: obligation.dueDate,
+                    outstandingValue: obligation.outstandingValue
+                }))
                 return {
                     id: engagement.id, status: engagement.status, modality: engagement.modality,
                     entryDate: engagement.entryDate, exitDate: engagement.exitDate,
