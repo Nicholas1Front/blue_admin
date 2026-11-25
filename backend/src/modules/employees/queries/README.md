@@ -80,3 +80,40 @@ As buscas por nome, título e descrição não diferenciam maiúsculas de minús
 A paginação da visão geral é independente por coleção, mas global entre os vínculos do funcionário. O dashboard carrega as obrigações abertas para calcular os saldos por funcionário e por vencimento; se o volume crescer significativamente, essa agregação deverá ser movida para uma consulta SQL agregada ou materialização avaliada com dados reais.
 
 A análise de consistência é uma leitura completa por funcionário e pode retornar várias divergências. Ela não deve ser executada automaticamente em cada carregamento da tela; é uma consulta de auditoria sob demanda.
+
+## Resumo para a tela de funcionários
+
+### Resumo por funcionário e vínculo
+
+`GET /employees/queries/find-employee-engagement-summaries`
+
+Filtros opcionais: `employeeId`, `name`, `document`, `engagementId`, `status`, `modality`, `month`, `year`, `cursor`, `limit`.
+
+Retorna funcionários paginados, cada um com os vínculos que correspondem aos filtros e, por vínculo:
+- saldo total em aberto e quantidade de obrigações abertas;
+- saldo e quantidade de obrigações agrupadas por tipo;
+- faltas e atrasos registrados no mês consultado.
+
+Se `month` e `year` não forem enviados, considera o período atual. Quando enviados, devem vir juntos. Os saldos consideram obrigações com status `pendente` ou `parcial` e descontam somente pagamentos vinculados à obrigação. A consulta não altera registros.
+
+### Resumo financeiro de um vínculo
+
+`GET /employees/queries/engagement-financial-summary/:engagementId`
+
+Retorna funcionário, saldo total em aberto, quantidade de obrigações abertas, saldo agrupado por tipo, obrigações vencidas e obrigações com vencimento nos próximos 30 dias. O intervalo de próximos vencimentos começa hoje e termina antes de hoje + 30 dias.
+
+### Pagamentos registrados no mês
+
+`GET /employees/queries/monthly-payments?month=&year=&employeeId=&engagementId=&cursor=&limit=`
+
+`month` e `year` são obrigatórios. A listagem é paginada, mais recente primeiro, e retorna os dados do movimento, funcionário, obrigação e transação financeira relacionada. `totals.count` e `totals.value` representam o mês inteiro, não apenas a página atual.
+
+### Histórico sob demanda
+
+`GET /employees/queries/find-employee-history/:employeeId?eventType=&cursor=&limit=`
+
+Busca o histórico somente quando solicitado pela interface, com ordenação mais recente primeiro e paginação. `eventType` é opcional. A visão geral antiga continua disponível por compatibilidade, mas a tela pode usar este endpoint para carregar o histórico ao abrir a seção.
+
+## Ordenação das movimentações
+
+`GET /employees/find-movements-by-filters` e `GET /employees/find-movements-by-engagement/:engagementId` aceitam `order=asc|desc`. O padrão continua `desc` para preservar o comportamento existente. `asc` retorna movimentos do mais antigo ao mais recente; datas nulas permanecem no final.
