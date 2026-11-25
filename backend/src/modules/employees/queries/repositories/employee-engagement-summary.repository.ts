@@ -8,7 +8,6 @@ class EmployeeSummaryRepository {
         const year = query.year ?? now.getUTCFullYear()
         const monthStart = new Date(Date.UTC(year, month - 1, 1))
         const nextMonthStart = new Date(Date.UTC(year, month, 1))
-        const todayStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
 
         const engagementWhere = {
             ...(query.engagementId ? { id: query.engagementId } : {}),
