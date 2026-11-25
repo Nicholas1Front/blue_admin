@@ -5,7 +5,8 @@ import {
     faChartLine,
     faScrewdriverWrench,
     faFileInvoiceDollar,
-    faTruck
+    faTruck,
+    faUserTie
 } from "@fortawesome/free-solid-svg-icons";
 import { useNavigate } from "react-router-dom";
 
@@ -66,7 +67,7 @@ export function Dashboard() {
                         onClick={() => navigate("/employees")}
                     >
                         <div className="dashboard-card__icon">
-                            <FontAwesomeIcon icon={faUsers} />
+                            <FontAwesomeIcon icon={faUserTie} />
                         </div>
 
                         <div>
