@@ -19,11 +19,11 @@ O fluxo de dados segue a convenção atual do frontend: componente/page → hook
 
 ## Fluxo da tela principal
 
-1. Ao abrir Employees, selecionar o mês e ano atuais.
-2. Buscar `GET /employees/queries/dashboard` para os indicadores gerais e movimentos recentes.
+1. Ao abrir Employees, usar automaticamente o mês e ano atuais nos indicadores e no resumo de funcionários; não oferecer seletor de período nessa área.
+2. Buscar `GET /employees/queries/dashboard` para os indicadores gerais.
 3. Buscar `GET /employees/queries/find-employee-engagement-summaries` para a lista pesquisável de funcionários e vínculos.
-4. Buscar `GET /employees/queries/monthly-payments` para listar pagamentos registrados no período. Esta rota é exclusiva de movimentos do tipo pagamento; para todos os tipos de movimento do mês, usar `find-movements-by-filters` com intervalo de datas.
-5. Ao mudar mês/ano, atualizar as query keys com o novo período e refazer as consultas.
+4. Exibir uma orientação mensal de rotina: pagamento referente ao mês anterior e lembretes sazonais (revisão de férias em junho, 13º em novembro e fechamento anual em dezembro). Esses textos são lembretes de conferência, não cálculos nem geração automática de obrigações.
+5. Em Movimentações, permitir filtrar por funcionário, tipo, mês e ano usando `find-movements-by-filters` com intervalo de datas; a lista inicia no mês atual.
 
 ### Área de resumo de funcionários
 
@@ -35,15 +35,15 @@ Filtros:
 
 Cada funcionário apresenta:
 - saldo total reconhecido em aberto;
-- número de obrigações abertas;
-- faltas e atrasos no mês selecionado;
+- títulos/especificações das obrigações pendentes, com valores; quando houver muitas, mostrar algumas e indicar que existem outras;
+- faltas e atrasos no mês atual;
 - vínculos correspondentes aos filtros.
 
 O endpoint de resumo agrupa os vínculos por funcionário. A paginação é por funcionário, com cursor; não tratar o cursor como número de página.
 
-### Movimentos do mês
+### Movimentações
 
-A listagem de todos os movimentos usa `GET /employees/find-movements-by-filters`, com `eventDateFrom`, `eventDateTo`, `limit`, `cursor` e `order`. A ordenação inicial é mais recente primeiro. A lista de pagamentos pode usar a consulta mensal dedicada, que também retorna os totais do mês completo.
+A listagem usa `GET /employees/find-movements-by-filters`, com `eventDateFrom`, `eventDateTo`, `limit`, `cursor` e `order`. Os filtros de mês e ano ficam nessa seção, junto da pesquisa por funcionário e tipo. A ordenação inicial é mais recente primeiro. Cada movimento deve ter tratamento visual por tipo e mostrar a obrigação/competência vinculada quando existir.
 
 Ao selecionar um movimento, buscar `GET /employees/find-movement-by-id/:engagementId/:movementId`. Edição e exclusão são operações explícitas; após sucesso, os hooks invalidam as consultas de Employees.
 
