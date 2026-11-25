@@ -2,7 +2,6 @@ import { useState, type FormEvent } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faCalendarDays,
-    faCircleExclamation,
     faClock,
     faMagnifyingGlass,
     faRotate,
@@ -22,7 +21,8 @@ import type {
     EmployeeMovementType,
     EngagementModality,
     EngagementStatus,
-    FindMovementsFilters
+    FindMovementsFilters,
+    ObligationType
 } from "../../modules/employees";
 import "./Employees.css";
 
@@ -32,6 +32,16 @@ const modalityLabels: Record<EngagementModality, string> = {
     CLT: "CLT",
     PJ: "PJ",
     Informal: "Informal",
+    outros: "Outros"
+};
+
+const obligationTypeLabels: Record<ObligationType, string> = {
+    salario: "Salário",
+    ferias: "Férias",
+    decimo_terceiro: "13º salário",
+    bonificacao: "Bonificação",
+    rescisao: "Rescisão",
+    ajuste: "Ajuste",
     outros: "Outros"
 };
 
@@ -109,6 +119,27 @@ function formatCompetency(obligation?: {
     return obligation.title ?? "Competência";
 }
 
+function getMonthlyGuidance(month: number, year: number) {
+    const previousMonthDate = new Date(year, month - 2, 1);
+    const previousPeriod = formatPeriod(previousMonthDate.getMonth() + 1, previousMonthDate.getFullYear());
+    let message = `Este mês, confira o pagamento referente ao trabalho realizado em ${previousPeriod}.`;
+
+    if (month === 1) {
+        message += " Como estamos iniciando um novo ano, revise também as competências que ficaram no fechamento do ano anterior.";
+    }
+    if (month === 6) {
+        message += " Aproveite para verificar a situação e o planejamento das férias da equipe.";
+    }
+    if (month === 11) {
+        message += " Confira também as obrigações e a parcela do 13º salário prevista para este período.";
+    }
+    if (month === 12) {
+        message += " Revise o fechamento anual, as obrigações de fim de ano e o que ficará pendente para janeiro.";
+    }
+
+    return { previousPeriod, message };
+}
+
 function getMonthDateRange(month: number, year: number) {
     return {
         eventDateFrom: new Date(Date.UTC(year, month - 1, 1)).toISOString(),
@@ -154,6 +185,7 @@ export function Employees() {
     const movements = movementsQuery.data?.data ?? [];
     const totals = dashboard.data?.totals;
     const years = Array.from({ length: 6 }, (_, index) => currentYear - 4 + index);
+    const monthlyGuidance = getMonthlyGuidance(currentMonth, currentYear);
 
     function submitFilters(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
@@ -210,14 +242,23 @@ export function Employees() {
                     </div>
                     <div className="employees-current-period">
                         <FontAwesomeIcon icon={faCalendarDays} />
-                        <span>Período atual</span>
+                        <span>Visão atual</span>
                         <strong>{formatPeriod(currentMonth, currentYear)}</strong>
                     </div>
                 </header>
 
                 <p className="employees-period-caption">
-                    Indicadores e resumo de {formatPeriod(currentMonth, currentYear)}.
+                    Indicadores e resumo sempre acompanham o mês atual.
                 </p>
+
+                <aside className="employees-monthly-guidance" aria-label="Orientação mensal">
+                    <span className="employees-monthly-guidance__icon"><FontAwesomeIcon icon={faCalendarDays} /></span>
+                    <div>
+                        <span className="employees-eyebrow">Atenção neste mês</span>
+                        <strong>Rotina de {formatPeriod(currentMonth, currentYear)}</strong>
+                        <p>{monthlyGuidance.message}</p>
+                    </div>
+                </aside>
 
                 {dashboard.isError && (
                     <div className="employees-alert" role="alert">
@@ -335,6 +376,7 @@ export function Employees() {
                                                 <div className="employees-obligation-list">
                                                     {visibleObligations.map(obligation => (
                                                         <span className="employees-obligation-chip" key={obligation.id} title={obligation.title}>
+                                                            <small>{obligationTypeLabels[obligation.type]}</small>
                                                             <span>{obligation.title}</span>
                                                             <strong>{formatCurrency(obligation.outstandingValue)}</strong>
                                                         </span>
@@ -374,13 +416,13 @@ export function Employees() {
                 <section className="employees-panel">
                     <header className="employees-panel__header">
                         <div>
-                            <span className="employees-eyebrow">Registros recentes</span>
+                            <span className="employees-eyebrow">Histórico</span>
                             <h2>Movimentações</h2>
-                            <p>Filtre os lançamentos por período, funcionário ou tipo e veja a competência relacionada.</p>
+                            <p>Consulte lançamentos de qualquer mês e ano. Cada registro identifica seu tipo e a competência relacionada.</p>
                         </div>
                     </header>
 
-                    <div className="employees-movement-filters">
+                    <div className="employees-movement-filters" role="search" aria-label="Filtros de movimentações">
                         <label className="employees-movement-search">
                             <span>Funcionário</span>
                             <span className="employees-search__field">
