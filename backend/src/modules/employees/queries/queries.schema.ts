@@ -43,3 +43,22 @@ export const employeeSummaryQuerySchema = z.object({
 })
 
 export type employeeSummaryQueryDTO = z.infer<typeof employeeSummaryQuerySchema>
+
+export const monthlyPaymentsQuerySchema = z.object({
+    month: z.coerce.number().int().min(1).max(12),
+    year: z.coerce.number().int().min(1900).max(2200),
+    employeeId: z.string().uuid().optional(),
+    engagementId: z.string().uuid().optional(),
+    cursor,
+    limit: pageSize
+})
+
+export type monthlyPaymentsQueryDTO = z.infer<typeof monthlyPaymentsQuerySchema>
+
+export const employeeHistoryQuerySchema = z.object({
+    eventType: z.string().trim().min(1).optional(),
+    cursor,
+    limit: pageSize
+})
+
+export type employeeHistoryQueryDTO = z.infer<typeof employeeHistoryQuerySchema>
