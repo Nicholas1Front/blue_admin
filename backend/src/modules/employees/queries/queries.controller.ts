@@ -5,10 +5,14 @@ import dashboardService from './services/dashboard.service.js'
 import consistencyService from './services/consistency.service.js'
 import employeeSummaryService from './services/employee-engagement-summary.service.js'
 import engagementFinancialSummaryService from './services/engagement-financial-summary.service.js'
+import monthlyPaymentsService from './services/monthly-payments.service.js'
+import employeeHistoryService from './services/employee-history.service.js'
 import {
     employeeOverviewQuerySchema,
     employeeDashboardQuerySchema,
-    employeeSummaryQuerySchema
+    employeeSummaryQuerySchema,
+    monthlyPaymentsQuerySchema,
+    employeeHistoryQuerySchema
 } from './queries.schema.js'
 
 class EmployeesQueriesController {
@@ -49,6 +53,32 @@ class EmployeesQueriesController {
         return res.status(200).json({
             message: 'Engagement financial summary found successfully',
             data: summary
+        })
+    }
+
+
+    async findMonthlyPayments(req: Request, res: Response) {
+        if (!req.user) throw new AppError('User not authenticated', 401, 'USER_NOT_AUTHENTICATED')
+
+        const query = monthlyPaymentsQuerySchema.parse(req.query)
+        const payments = await monthlyPaymentsService.findMonthlyPayments(query)
+        return res.status(200).json({
+            message: 'Monthly employee payments found successfully',
+            data: payments
+        })
+    }
+
+    async findEmployeeHistory(req: Request, res: Response) {
+        if (!req.user) throw new AppError('User not authenticated', 401, 'USER_NOT_AUTHENTICATED')
+
+        const query = employeeHistoryQuerySchema.parse(req.query)
+        const history = await employeeHistoryService.findEmployeeHistory(
+            req.params.employeeId as string,
+            query
+        )
+        return res.status(200).json({
+            message: 'Employee history found successfully',
+            data: history
         })
     }
 
