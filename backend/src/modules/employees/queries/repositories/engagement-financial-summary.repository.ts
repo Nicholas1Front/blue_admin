@@ -36,7 +36,12 @@ class EngagementFinancialSummaryRepository {
             }
         }).filter(item => item.outstandingValue > 0)
 
-        const grouped = Object.values(obligations.reduce<Record<string, { type: string; totalOutstanding: number; count: number }>>((result, obligation) => {
+        const dueNowObligations = obligations.filter(item => item.dueDate && item.dueDate <= today)
+        const undatedObligations = obligations.filter(item => !item.dueDate)
+        const upcomingObligations = obligations.filter(item => item.dueDate && item.dueDate > today && item.dueDate <= upcomingUntil)
+            .sort((a, b) => (a.dueDate?.getTime() ?? 0) - (b.dueDate?.getTime() ?? 0))
+
+        const grouped = Object.values(dueNowObligations.reduce<Record<string, { type: string; totalOutstanding: number; count: number }>>((result, obligation) => {
             const group = result[obligation.type] ?? { type: obligation.type, totalOutstanding: 0, count: 0 }
             group.totalOutstanding += obligation.outstandingValue
             group.count += 1
@@ -47,12 +52,13 @@ class EngagementFinancialSummaryRepository {
         return {
             employee: engagement.employee,
             engagementId: engagement.id,
-            totalOutstanding: obligations.reduce((sum, item) => sum + item.outstandingValue, 0),
-            openObligationsCount: obligations.length,
+            totalOutstanding: dueNowObligations.reduce((sum, item) => sum + item.outstandingValue, 0),
+            openObligationsCount: dueNowObligations.length,
             obligationsByType: grouped,
+            dueNowObligations,
             overdueObligations: obligations.filter(item => item.dueDate && item.dueDate < today),
-            upcomingObligations: obligations.filter(item => item.dueDate && item.dueDate >= today && item.dueDate < upcomingUntil)
-                .sort((a, b) => (a.dueDate?.getTime() ?? 0) - (b.dueDate?.getTime() ?? 0))
+            upcomingObligations,
+            undatedObligations
         }
     }
 }
