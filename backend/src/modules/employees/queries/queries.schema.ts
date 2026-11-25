@@ -1,4 +1,6 @@
 import { z } from 'zod'
+import { allowedEngagementStatus } from '../shareds/allowedEngagementStatus.js'
+import { allowedEngagementModalities } from '../shareds/allowedEngagementModalities.js'
 
 const cursor = z.string().uuid().optional()
 const pageSize = z.coerce.number().int().min(1).max(100).default(20)
@@ -31,8 +33,8 @@ export const employeeSummaryQuerySchema = z.object({
     name: z.string().trim().min(1).optional(),
     document: z.string().trim().min(1).optional(),
     engagementId: z.string().uuid().optional(),
-    status: z.string().trim().min(1).optional(),
-    modality: z.string().trim().min(1).optional(),
+    status: z.enum(allowedEngagementStatus).optional(),
+    modality: z.enum(allowedEngagementModalities).optional(),
     month: z.coerce.number().int().min(1).max(12).optional(),
     year: z.coerce.number().int().min(1900).max(2200).optional(),
     cursor,
