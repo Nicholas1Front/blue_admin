@@ -13,7 +13,8 @@
     "seed:services:clients": "tsx src/modules/services/scripts/createClients.ts",
     "seed:services:equipaments": "tsx src/modules/services/scripts/createEquipaments.ts",
     "seed:services:services": "tsx src/modules/services/scripts/createServices.ts",
-    "seed:services:test": "npm run seed:services:clients && npm run seed:services:equipaments && npm run seed:services:services"
+    "seed:services:test": "npm run seed:services:clients && npm run seed:services:equipaments && npm run seed:services:services",
+    "seed:employees:test": "tsx src/modules/employees/scripts/seedEmployees.ts"
   },
   "keywords": [],
   "author": "",
