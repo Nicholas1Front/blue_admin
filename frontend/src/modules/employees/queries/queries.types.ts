@@ -49,8 +49,10 @@ export interface EngagementFinancialSummary {
     employee: { id: string; name: string }; engagementId: string;
     totalOutstanding: number; openObligationsCount: number;
     obligationsByType: Array<{ type: ObligationType; totalOutstanding: number; count: number }>;
+    dueNowObligations: FinancialSummaryObligation[];
     overdueObligations: FinancialSummaryObligation[];
     upcomingObligations: FinancialSummaryObligation[];
+    undatedObligations: FinancialSummaryObligation[];
 }
 export interface MonthlyPaymentsFilters { month: number; year: number; employeeId?: string; engagementId?: string; cursor?: string; limit?: number; }
 export interface MonthlyPaymentItem {
