@@ -42,7 +42,8 @@ class EmployeeSummaryRepository {
                         obligations: {
                             where: { status: { in: ['pendente', 'parcial'] } },
                             select: {
-                                id: true, type: true, title: true, dueDate: true, finalValue: true, status: true,
+                                id: true, type: true, title: true, dueDate: true, referenceStart: true, referenceEnd: true,
+                                finalValue: true, status: true,
                                 movements: { where: { type: 'pagamento' }, select: { value: true } }
                             }
                         },
@@ -64,7 +65,11 @@ class EmployeeSummaryRepository {
                     const finalValue = Number(obligation.finalValue)
                     return {
                         id: obligation.id, type: obligation.type, title: obligation.title,
-                        dueDate: obligation.dueDate, finalValue, paidValue,
+                        dueDate: obligation.dueDate,
+                        referenceStart: obligation.referenceStart,
+                        referenceEnd: obligation.referenceEnd,
+                        finalValue,
+                        paidValue,
                         outstandingValue: Math.max(0, Number((finalValue - paidValue).toFixed(2)))
                     }
                 }).filter(obligation => obligation.outstandingValue > 0)
@@ -73,6 +78,10 @@ class EmployeeSummaryRepository {
                     type: obligation.type,
                     title: obligation.title,
                     dueDate: obligation.dueDate,
+                    referenceStart: obligation.referenceStart,
+                    referenceEnd: obligation.referenceEnd,
+                    finalValue: obligation.finalValue,
+                    paidValue: obligation.paidValue,
                     outstandingValue: obligation.outstandingValue
                 }))
                 return {
