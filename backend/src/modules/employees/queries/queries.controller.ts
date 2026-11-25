@@ -4,6 +4,7 @@ import employeeOverviewService from './services/employee-overview.service.js'
 import dashboardService from './services/dashboard.service.js'
 import consistencyService from './services/consistency.service.js'
 import employeeSummaryService from './services/employee-engagement-summary.service.js'
+import engagementFinancialSummaryService from './services/engagement-financial-summary.service.js'
 import {
     employeeOverviewQuerySchema,
     employeeDashboardQuerySchema,
@@ -35,6 +36,19 @@ class EmployeesQueriesController {
         return res.status(200).json({
             message: 'Employee engagement summaries found successfully',
             data: summaries
+        })
+    }
+
+
+    async findEngagementFinancialSummary(req: Request, res: Response) {
+        if (!req.user) throw new AppError('User not authenticated', 401, 'USER_NOT_AUTHENTICATED')
+
+        const summary = await engagementFinancialSummaryService.findEngagementFinancialSummary(
+            req.params.engagementId as string
+        )
+        return res.status(200).json({
+            message: 'Engagement financial summary found successfully',
+            data: summary
         })
     }
 
