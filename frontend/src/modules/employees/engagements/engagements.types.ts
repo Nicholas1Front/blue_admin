@@ -19,7 +19,7 @@ export interface UpdateEngagementRequest extends Partial<Omit<CreateEngagementRe
     status?: EngagementStatus; modality?: EngagementModality; effectiveDate?: string;
 }
 export interface EngagementMutationResponse {
-    engagement: EmployeeEngagement; history: import("../employees.types").EmployeeHistoryEvent;
+    engagement: EmployeeEngagement; history: import("../employees.types").EmployeeHistoryEvent | null;
 }
 export interface FindEngagementsFilters {
     employeeId?: string; employeeName?: string; status?: EngagementStatus;

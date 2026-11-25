@@ -6,7 +6,7 @@ export interface EmployeeDashboardFilters { month?: number; year?: number; movem
 export interface DashboardObligation {
     id: string; engagementId: string; type: ObligationType; title: string;
     referenceStart: string | null; referenceEnd: string | null; dueDate: string | null;
-    finalValue: number; paidValue: number; outstandingValue: number;
+    finalValue: number; paidValue: number; outstandingValue: number; status: ObligationStatus;
     employeeId: string | null; employeeName: string | null;
 }
 export interface EmployeeDashboardResponse {
