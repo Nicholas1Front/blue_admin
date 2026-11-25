@@ -3,6 +3,9 @@ import type { employeeHistoryQueryDTO } from '../queries.schema.js'
 
 class EmployeeHistoryRepository {
     async findEmployeeHistory(employeeId: string, query: employeeHistoryQueryDTO) {
+        const employee = await prisma.employee.findUnique({ where: { id: employeeId }, select: { id: true } })
+        if (!employee) return null
+
         const where = { employeeId, ...(query.eventType ? { eventType: query.eventType } : {}) }
         if (query.cursor) {
             const cursor = await prisma.employeeHistory.findFirst({
