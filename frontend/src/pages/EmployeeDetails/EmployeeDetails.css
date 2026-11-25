@@ -662,3 +662,19 @@
         font-size: .65rem;
     }
 }
+
+/* Financial cards show the total first, followed by a readable month-by-month breakdown. */
+.employee-detail-financial-breakdown { display:flex; flex-direction:column; gap:var(--spacing-3); min-width:0; padding:var(--spacing-4); background:var(--color-background); border:1px solid var(--color-border); border-radius:var(--radius-lg); }
+.employee-detail-financial-breakdown__top { display:flex; flex-direction:column; align-items:flex-start; gap:var(--spacing-1); }
+.employee-detail-financial-breakdown__top>span { color:var(--color-text-muted); font-size:var(--font-size-xs); }
+.employee-detail-financial-breakdown__top>strong { color:var(--color-text); font-size:clamp(1.1rem,1.8vw,1.45rem); overflow-wrap:anywhere; }
+.employee-detail-financial-breakdown__top>small { color:var(--color-text-muted); font-size:.68rem; }
+.employee-detail-financial-breakdown>p { color:var(--color-text-muted); font-size:.7rem; line-height:1.5; }
+.employee-detail-financial-breakdown>ul { display:flex; flex-direction:column; gap:var(--spacing-2); margin:0; padding:0; list-style:none; }
+.employee-detail-financial-breakdown>ul>li { display:flex; align-items:center; justify-content:space-between; gap:var(--spacing-2); padding-top:var(--spacing-2); border-top:1px solid var(--color-border); }
+.employee-detail-financial-breakdown>ul>li>span { display:flex; flex-direction:column; gap:var(--spacing-1); min-width:0; color:var(--color-text-secondary); font-size:.72rem; text-transform:capitalize; }
+.employee-detail-financial-breakdown>ul>li>span>small { color:var(--color-text-muted); font-size:.62rem; text-transform:none; }
+.employee-detail-financial-breakdown>ul>li>strong { color:var(--color-text); font-size:.78rem; white-space:nowrap; }
+.employee-detail-financial-breakdown__empty { padding-top:var(--spacing-2); color:var(--color-text-muted); font-size:.7rem; border-top:1px solid var(--color-border); }
+.employee-detail-month__section h4 small { margin-left:auto; color:var(--color-text-muted); font-size:.65rem; font-weight:var(--font-weight-normal); }
+.employee-detail-obligation>p:first-of-type { line-height:1.6; }
