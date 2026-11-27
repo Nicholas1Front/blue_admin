@@ -15,8 +15,8 @@ import {
     useEmployeeById,
     useEngagementsByEmployee,
     useEngagementFinancialSummary,
-    useObligationsByEngagement,
-    useMovementsByEngagement,
+    useObligationsByFilters,
+    useMovementsByFilters,
     useEmployeeHistory
 } from "../../modules/employees";
 import type {
@@ -27,7 +27,10 @@ import type {
     EngagementStatus,
     ObligationStatus,
     ObligationType,
-    EmployeeMovementType
+    EmployeeMovementType,
+    FinancialSummaryObligation,
+    FindObligationsFilters,
+    FindMovementsFilters
 } from "../../modules/employees";
 import "./EmployeeDetails.css";
 
@@ -170,9 +173,16 @@ export function EmployeeDetails() {
     const [historyCursor, setHistoryCursor] = useState<string>();
     const [historyCursorStack, setHistoryCursorStack] = useState<string[]>([]);
     const [obligationSearch, setObligationSearch] = useState("");
-    const [obligationGroupPage, setObligationGroupPage] = useState(1);
-    const [movementPage, setMovementPage] = useState(1);
+    const [obligationCursor, setObligationCursor] = useState<string>();
+    const [obligationCursorStack, setObligationCursorStack] = useState<string[]>([]);
     const [obligationStatusFilter, setObligationStatusFilter] = useState<ObligationStatus | "todas">("todas");
+    const [obligationTypeFilter, setObligationTypeFilter] = useState<ObligationType | "todos">("todos");
+    const [movementSearch, setMovementSearch] = useState("");
+    const [movementTypeFilter, setMovementTypeFilter] = useState<EmployeeMovementType | "todos">("todos");
+    const [movementCursor, setMovementCursor] = useState<string>();
+    const [movementCursorStack, setMovementCursorStack] = useState<string[]>([]);
+    const [financialModal, setFinancialModal] = useState<{ title: string; obligations: FinancialSummaryObligation[] } | null>(null);
+    const [selectedObligation, setSelectedObligation] = useState<EmployeeObligation | null>(null);
     const [expandedObligationMovements, setExpandedObligationMovements] = useState<Set<string>>(() => new Set());
 
     useEffect(() => {
@@ -188,38 +198,29 @@ export function EmployeeDetails() {
 
     const selectedEngagement = engagements.find(item => item.id === selectedEngagementId);
     const financialQuery = useEngagementFinancialSummary(selectedEngagementId);
-    const obligationsQuery = useObligationsByEngagement(selectedEngagementId);
-    const movementsQuery = useMovementsByEngagement(selectedEngagementId, { order: "desc" });
+    const obligationFilters: FindObligationsFilters = {
+        engagementId: selectedEngagementId,
+        limit: 10,
+        ...(obligationSearch.trim() ? { title: obligationSearch.trim() } : {}),
+        ...(obligationStatusFilter !== "todas" ? { status: obligationStatusFilter } : {}),
+        ...(obligationTypeFilter !== "todos" ? { type: obligationTypeFilter } : {}),
+        ...(obligationCursor ? { cursor: obligationCursor } : {})
+    };
+    const movementFilters: FindMovementsFilters = {
+        engagementId: selectedEngagementId,
+        limit: 10,
+        order: "desc",
+        ...(movementSearch.trim() ? { description: movementSearch.trim() } : {}),
+        ...(movementTypeFilter !== "todos" ? { type: movementTypeFilter } : {}),
+        ...(movementCursor ? { cursor: movementCursor } : {})
+    };
+    const obligationsQuery = useObligationsByFilters(obligationFilters, Boolean(selectedEngagementId));
+    const movementsQuery = useMovementsByFilters(movementFilters, Boolean(selectedEngagementId));
     const historyQuery = useEmployeeHistory(employeeId, { limit: 100, ...(historyCursor ? { cursor: historyCursor } : {}) }, historyOpen);
 
-    const obligations = obligationsQuery.data ?? [];
-    const movements = movementsQuery.data ?? [];
-    const paymentsByObligation = useMemo(() => {
-        const totals = new Map<string, number>();
-        for (const movement of movements) {
-            if (movement.type !== "pagamento" || !movement.obligationId) continue;
-            totals.set(movement.obligationId, (totals.get(movement.obligationId) ?? 0) + Number(movement.value ?? 0));
-        }
-        return totals;
-    }, [movements]);
-
-    const filteredObligations = useMemo(() => {
-        const search = obligationSearch.trim().toLocaleLowerCase("pt-BR");
-        return obligations.filter(obligation => {
-            if (obligationStatusFilter !== "todas" && obligation.status !== obligationStatusFilter) return false;
-            if (!search) return true;
-            const searchable = [
-                obligation.title,
-                obligation.description,
-                obligationTypeLabels[obligation.type],
-                obligationStatusLabels[obligation.status],
-                formatCompetency(obligation),
-                dateOnly(obligation.dueDate),
-                dateOnly(obligation.createdAt)
-            ].filter(Boolean).join(" ").toLocaleLowerCase("pt-BR");
-            return searchable.includes(search);
-        });
-    }, [obligations, obligationSearch, obligationStatusFilter]);
+    const obligations = obligationsQuery.data?.data ?? [];
+    const movements = movementsQuery.data?.data ?? [];
+    const filteredObligations = obligations;
 
     const obligationGroups = useMemo(() => {
         const groups = new Map<string, EmployeeObligation[]>();
@@ -240,8 +241,7 @@ export function EmployeeDetails() {
         })).sort((a, b) => b.sortDate.localeCompare(a.sortDate));
     }, [filteredObligations]);
 
-    const obligationGroupPageCount = Math.max(1, Math.ceil(obligationGroups.length / 3));
-    const visibleObligationGroups = obligationGroups.slice((obligationGroupPage - 1) * 3, obligationGroupPage * 3);
+    const visibleObligationGroups = obligationGroups;
     const obligationGroupById = useMemo(() => {
         const groups = new Map<string, string>();
         for (const obligation of obligations) groups.set(obligation.id, obligationGroupKey(obligation));
@@ -253,8 +253,7 @@ export function EmployeeDetails() {
         [movements]
     );
 
-    const movementPageCount = Math.max(1, Math.ceil(sortedMovements.length / 10));
-    const visibleMovements = sortedMovements.slice((movementPage - 1) * 10, movementPage * 10);
+    const visibleMovements = sortedMovements;
     const historyEvents = (historyQuery.data?.data ?? []).filter(event =>
         event.engagementId === null || event.engagementId === selectedEngagementId
     );
@@ -323,7 +322,7 @@ export function EmployeeDetails() {
                     ) : (
                         <div className="employee-detail-engagements">
                             {engagements.map(engagement => (
-                                <button type="button" key={engagement.id} className={`employee-detail-engagement ${engagement.id === selectedEngagementId ? "employee-detail-engagement--selected" : ""}`} onClick={() => { setSelectedEngagementId(engagement.id); setHistoryCursor(undefined); setHistoryCursorStack([]); setObligationGroupPage(1); setMovementPage(1); }}>
+                                <button type="button" key={engagement.id} className={`employee-detail-engagement ${engagement.id === selectedEngagementId ? "employee-detail-engagement--selected" : ""}`} onClick={() => { setSelectedEngagementId(engagement.id); setHistoryCursor(undefined); setHistoryCursorStack([]); setObligationCursor(undefined); setObligationCursorStack([]); setMovementCursor(undefined); setMovementCursorStack([]); }}>
                                     <span className={`employee-detail-status employee-detail-status--${engagement.status === "trabalhando" ? "active" : "inactive"}`}>{engagementStatusLabels[engagement.status]}</span>
                                     <strong>{modalityLabels[engagement.modality]}</strong>
                                     <small>{engagementPeriod(engagement)}</small>
@@ -364,8 +363,8 @@ export function EmployeeDetails() {
                                     <div className="employee-detail-state employee-detail-state--error"><strong>Não foi possível carregar as obrigações.</strong><button type="button" onClick={() => void obligationsQuery.refetch()}>Tentar novamente</button></div>
                                 ) : (
                                     <div className="employee-detail-obligation-filters">
-                                        <label className="employee-detail-filter-search"><span>Pesquisar obrigações</span><input type="search" value={obligationSearch} onChange={event => { setObligationSearch(event.target.value); setObligationGroupPage(1); }} placeholder="Título, tipo, competência ou data…" /></label>
-                                        <label className="employee-detail-filter-status"><span>Status</span><select value={obligationStatusFilter} onChange={event => { setObligationStatusFilter(event.target.value as ObligationStatus | "todas"); setObligationGroupPage(1); }}><option value="todas">Todos os status</option>{Object.entries(obligationStatusLabels).map(([status, label]) => <option value={status} key={status}>{label}</option>)}</select></label>
+                                        <label className="employee-detail-filter-search"><span>Pesquisar obrigações</span><input type="search" value={obligationSearch} onChange={event => { setObligationSearch(event.target.value); setObligationCursor(undefined); setObligationCursorStack([]); }} placeholder="Título, tipo, competência ou data…" /></label>
+                                        <label className="employee-detail-filter-status"><span>Status</span><select value={obligationStatusFilter} onChange={event => { setObligationStatusFilter(event.target.value as ObligationStatus | "todas"); setObligationCursor(undefined); setObligationCursorStack([]); }}><option value="todas">Todos os status</option>{Object.entries(obligationStatusLabels).map(([status, label]) => <option value={status} key={status}>{label}</option>)}</select></label>
                                     </div>
                                 )}
                                 {!obligationsQuery.isPending && !obligationsQuery.isError && (obligationGroups.length === 0 ? (
