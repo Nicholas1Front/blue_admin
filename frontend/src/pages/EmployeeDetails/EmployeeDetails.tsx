@@ -120,6 +120,7 @@ function formatCompetency(obligation?: { referenceStart?: string | null | undefi
 
 type ModalObligation = {
     id: string;
+    engagementId?: string;
     type: ObligationType;
     title: string;
     referenceStart: string | null;
