@@ -1392,3 +1392,10 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
     }
 }
+
+.employees-quick-actions { margin-top: var(--spacing-4); }
+.employees-quick-actions .employees-panel__header { margin-bottom: var(--spacing-3); }
+.employees-quick-actions .employee-record-actions { margin: 0; }
+@media (max-width: 640px) {
+    .employees-quick-actions .employee-record-actions { display: grid; grid-template-columns: minmax(0, 1fr); }
+}
