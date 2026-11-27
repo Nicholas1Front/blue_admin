@@ -35,3 +35,10 @@ export const findEmployeesByFiltersSchema = z.object({
 })
 
 export type findEmployeesByFiltersDTO = z.infer<typeof findEmployeesByFiltersSchema>
+
+
+export const deleteEmployeeSchema = z.object({
+    confirmation: z.string().trim().min(1)
+})
+
+export type deleteEmployeeDTO = z.infer<typeof deleteEmployeeSchema>

@@ -3,7 +3,8 @@ import { AppError } from '../../shared/errors/AppError.js'
 import {
     createEmployeeSchema,
     findEmployeesByFiltersSchema,
-    updateEmployeeSchema
+    updateEmployeeSchema,
+    deleteEmployeeSchema
 } from './employees.schema.js'
 import employeesService from './employees.service.js'
 
@@ -52,6 +53,18 @@ class EmployeesController {
             data: employee
         })
     }
+    async deleteEmployee(req: Request, res: Response) {
+        if (!req.user) throw new AppError('User not authenticated', 401, 'USER_NOT_AUTHENTICATED')
+
+        const { confirmation } = deleteEmployeeSchema.parse(req.body)
+        const result = await employeesService.deleteEmployee(req.params.id as string, confirmation)
+
+        return res.status(200).json({
+            message: 'Employee and related engagement records deleted successfully',
+            data: result
+        })
+    }
+
 }
 
 export default new EmployeesController()

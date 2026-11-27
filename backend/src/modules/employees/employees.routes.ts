@@ -12,6 +12,7 @@ router.use(authMiddleware)
 
 router.post('/create-employee', employeesController.createEmployee)
 router.put('/update-employee/:id', employeesController.updateEmployee)
+router.delete('/delete-employee/:id', employeesController.deleteEmployee)
 router.get('/find-employees-by-filters', employeesController.findEmployeesByFilters)
 router.get('/find-employee-by-id/:id', employeesController.findEmployeeById)
 

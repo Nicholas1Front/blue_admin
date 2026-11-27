@@ -116,6 +116,57 @@ class EmployeesRepository {
             return { employee, history }
         })
     }
+    async deleteEmployeeWithEngagements(id: string, expectedName: string) {
+        return prisma.$transaction(async tx => {
+            await tx.$queryRaw`SELECT id FROM employees WHERE id = ${id} FOR UPDATE`
+
+            const employee = await tx.employee.findUnique({
+                where: { id },
+                select: {
+                    id: true,
+                    name: true,
+                    engagements: {
+                        select: {
+                            id: true,
+                            obligations: { select: { id: true } },
+                            movements: { select: { id: true, financialTransactionId: true } }
+                        }
+                    }
+                }
+            })
+
+            if (!employee) return null
+            if (employee.name !== expectedName) return { confirmationMismatch: true as const }
+
+            const engagementIds = employee.engagements.map(item => item.id)
+            const obligationCount = employee.engagements.reduce((total, item) => total + item.obligations.length, 0)
+            const movements = employee.engagements.flatMap(item => item.movements)
+            const financialTransactionIds = [...new Set(
+                movements
+                    .map(item => item.financialTransactionId)
+                    .filter((id): id is string => id !== null)
+            )]
+
+            // Remove dependent employee records in FK-safe order. Financial transactions
+            // belong to the Finance module and are intentionally preserved.
+            await tx.employeeHistory.deleteMany({ where: { employeeId: id } })
+            if (engagementIds.length > 0) {
+                await tx.employeeMovement.deleteMany({ where: { engagementId: { in: engagementIds } } })
+                await tx.employeeObligation.deleteMany({ where: { engagementId: { in: engagementIds } } })
+                await tx.employeeEngagement.deleteMany({ where: { id: { in: engagementIds } } })
+            }
+            await tx.employee.delete({ where: { id } })
+
+            return {
+                employeeId: id,
+                deletedEngagements: engagementIds.length,
+                deletedObligations: obligationCount,
+                deletedMovements: movements.length,
+                preservedFinancialTransactions: financialTransactionIds.length
+            }
+        })
+    }
+
 }
 
 export default new EmployeesRepository()

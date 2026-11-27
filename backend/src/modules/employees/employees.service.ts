@@ -47,6 +47,31 @@ class EmployeesService {
         if (!employee) throw new AppError('Employee not found', 404, 'EMPLOYEE_NOT_FOUND')
         return employee
     }
+    async deleteEmployee(id: string, confirmation: string) {
+        const employee = await employeesRepository.findEmployeeById(id)
+        if (!employee) throw new AppError('Employee not found', 404, 'EMPLOYEE_NOT_FOUND')
+
+        if (confirmation.trim() !== employee.name) {
+            throw new AppError(
+                'Employee name confirmation does not match',
+                400,
+                'EMPLOYEE_DELETE_CONFIRMATION_MISMATCH'
+            )
+        }
+
+        const result = await employeesRepository.deleteEmployeeWithEngagements(id, employee.name)
+        if (!result) throw new AppError('Employee not found', 404, 'EMPLOYEE_NOT_FOUND')
+        if ('confirmationMismatch' in result) {
+            throw new AppError(
+                'Employee name changed during deletion confirmation. Reload and try again.',
+                409,
+                'EMPLOYEE_DELETE_CONFIRMATION_MISMATCH'
+            )
+        }
+
+        return result
+    }
+
 }
 
 export default new EmployeesService()
