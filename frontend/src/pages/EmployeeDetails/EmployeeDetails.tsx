@@ -411,6 +411,7 @@ export function EmployeeDetails() {
                                         ))}
                                     </div>
                                 ))}
+                                <div className="employee-detail-pagination"><span>Página {obligationGroupPage} / {obligationGroupPageCount}</span><button type="button" disabled={obligationGroupPage === 1} onClick={() => setObligationGroupPage(p => p - 1)}>Anterior</button><button type="button" disabled={obligationGroupPage >= obligationGroupPageCount} onClick={() => setObligationGroupPage(p => p + 1)}>Próxima</button></div>
                             </section>
 
                             <section className="employee-detail-records-block">
@@ -436,6 +437,7 @@ export function EmployeeDetails() {
                                             );
                                         })}
                                     </ol>
+                                    <div className="employee-detail-pagination"><span>Página {movementPage} / {movementPageCount}</span><button type="button" disabled={movementPage === 1} onClick={() => setMovementPage(p => p - 1)}>Anterior</button><button type="button" disabled={movementPage >= movementPageCount} onClick={() => setMovementPage(p => p + 1)}>Próxima</button></div>
                                 )}
                             </section>
                         </section>
