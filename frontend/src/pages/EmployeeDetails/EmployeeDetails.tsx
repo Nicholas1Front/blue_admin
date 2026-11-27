@@ -538,6 +538,7 @@ export function EmployeeDetails() {
                                                                 {obligation.description && <p className="employee-detail-obligation-description">{obligation.description}</p>}
                                                                 {obligation.observations && <small className="employee-detail-obligation-note">Observação: {obligation.observations}</small>}
                                                                 <button type="button" className="employee-detail-obligation-details-button" onClick={() => setSelectedObligation(obligation)}>Ver detalhes completos</button>
+                                                                <button type="button" className="employee-detail-obligation-delete-placeholder" disabled title="A exclusão será habilitada após a confirmação de integridade">Excluir</button>
                                                                 <button type="button" className="employee-detail-obligation-movements-toggle" onClick={() => setSelectedObligationMovements(obligation)}>Ver movimentações relacionadas</button>
                                                             </article>
                                                         );
