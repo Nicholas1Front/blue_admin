@@ -71,7 +71,7 @@ export function EmployeeRecordActions(props: Props) {
     const [movementObservations, setMovementObservations] = useState("");
     const [error, setError] = useState("");
 
-    const employeesQuery = useEmployees({ limit: 100 }, Boolean(mode === "employee" || (mode && mode !== "employee" && !props.employeeId && !props.engagementId)));
+    const employeesQuery = useEmployees({ limit: 100 }, Boolean(mode && !props.employeeId && !props.engagementId));
     const engagementsQuery = useEngagementsByFilters({ employeeId: employeeId || undefined, limit: 100 }, Boolean(mode && mode !== "employee" && !props.engagementId));
     const obligationsQuery = useObligationsByFilters({ engagementId: engagementId || undefined, limit: 100 }, Boolean(mode && engagementId));
     const movementsQuery = useMovementsByFilters({ engagementId: engagementId || undefined, obligationId: props.obligationId, limit: 100, order: "desc" }, Boolean(mode && engagementId));
