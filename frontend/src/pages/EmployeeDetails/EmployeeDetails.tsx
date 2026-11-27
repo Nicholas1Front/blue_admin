@@ -198,7 +198,7 @@ type ObligationGroup = {
 };
 
 function obligationGroupKey(obligation: EmployeeObligation) {
-    return monthKey(obligation.dueDate ?? obligation.referenceStart ?? obligation.referenceEnd ?? obligation.createdAt) ?? "sem-vencimento";
+    return monthKey(obligation.dueDate) ?? "sem-vencimento";
 }
 
 function obligationGroupAnchor(key: string) {
