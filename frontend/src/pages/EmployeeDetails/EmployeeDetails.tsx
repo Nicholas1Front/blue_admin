@@ -3,7 +3,6 @@ import { useParams } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
     faBriefcase,
-    faCalendarDays,
     faClockRotateLeft,
     faFileInvoiceDollar,
     faUser,
@@ -113,7 +112,7 @@ function formatCompetency(obligation?: Pick<EmployeeObligation, "referenceStart"
     return start ?? end ?? "Competência não informada";
 }
 
-function FinancialBreakdown({ title, total, count, obligations, description, emptyLabel }: { title: string; total: number; count: number; obligations: Array<{ title: string; referenceStart?: string | null; referenceEnd?: string | null; dueDate?: string | null; outstandingValue: number }>; description: string; emptyLabel: string }) {
+function FinancialBreakdown({ title, total, count, obligations, description, emptyLabel }: { title: string; total: number; count: number; obligations: Array<{ title: string; referenceStart?: string | null | undefined; referenceEnd?: string | null | undefined; dueDate?: string | null; outstandingValue: number }>; description: string; emptyLabel: string }) {
     const sortedObligations = [...obligations].sort((a, b) => (a.dueDate ?? "").localeCompare(b.dueDate ?? ""));
     return (
         <article className="employee-detail-financial-breakdown">
@@ -144,7 +143,7 @@ type ObligationGroup = {
 };
 
 function obligationGroupKey(obligation: EmployeeObligation) {
-    return monthKey(obligation.dueDate) ?? "sem-vencimento";
+    return monthKey(obligation.dueDate ?? obligation.referenceStart ?? obligation.referenceEnd ?? obligation.createdAt) ?? "sem-vencimento";
 }
 
 function obligationGroupAnchor(key: string) {
@@ -346,7 +345,7 @@ export function EmployeeDetails() {
                                     <FinancialBreakdown title="Sem vencimento definido" total={financialQuery.data.undatedObligations.reduce((total, item) => total + item.outstandingValue, 0)} count={financialQuery.data.undatedObligations.length} obligations={financialQuery.data.undatedObligations} description="Obrigações em aberto que precisam de uma data de vencimento definida." emptyLabel="Todas as obrigações em aberto têm vencimento definido." />
                                 </div>
                             )}
-                            {financialQuery.data?.obligationsByType.length ? <div className="employee-detail-type-breakdown">{financialQuery.data.obligationsByType.map(item => <span key={item.type}><small>{obligationTypeLabels[item.type]}</small><strong>{currency(item.totalOutstanding)}</strong><em>{item.count} {item.count === 1 ? "obrigação" : "obrigações"}</em></span>)}</div> : null}
+                            
                         </section>
 
                         <section className="employee-detail-records-section">
@@ -381,7 +380,7 @@ export function EmployeeDetails() {
                                                                 <header><div><span className={`employee-detail-obligation-type employee-detail-obligation-type--${obligation.type}`}>{obligationTypeLabels[obligation.type]}</span><strong>{obligation.title}</strong></div><span className={`employee-detail-obligation-status employee-detail-obligation-status--${obligation.status}`}>{obligationStatusLabels[obligation.status]}</span></header>
                                                                 <div className="employee-detail-obligation-meta">
                                                                     <span><small>Período de referência</small><strong>{formatCompetency(obligation)}</strong></span>
-                                                                    <span><small>Vencimento</small><strong>{dateOnly(obligation.dueDate)}</strong></span>
+                                                                    <span><small>{obligation.dueDate ? "Vencimento" : obligation.referenceStart || obligation.referenceEnd ? "Data de referência" : "Registrada em"}</small><strong>{dateOnly(obligation.dueDate ?? obligation.referenceStart ?? obligation.referenceEnd ?? obligation.createdAt)}</strong></span>
                                                                     <span><small>Registrada em</small><strong>{dateOnly(obligation.createdAt)}</strong></span>
                                                                 </div>
                                                                 <div className="employee-detail-obligation-values"><span><small>Valor previsto</small><strong>{currency(finalValue)}</strong></span><span><small>Já pago / alocado</small><strong>{currency(paidValue)}</strong></span><span><small>Saldo restante</small><strong>{currency(balance)}</strong></span></div>
