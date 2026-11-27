@@ -191,6 +191,31 @@ function engagementPeriod(engagement: EmployeeEngagement) {
     return `${dateOnly(engagement.entryDate)} — ${engagement.exitDate ? dateOnly(engagement.exitDate) : "Atual"}`;
 }
 
+function EngagementDetailsModal({ engagement, onClose }: { engagement: EmployeeEngagement; onClose: () => void }) {
+    return (
+        <div className="employee-detail-modal-backdrop" role="presentation" onMouseDown={event => { if (event.target === event.currentTarget) onClose(); }}>
+            <section className="employee-detail-modal employee-detail-engagement-modal" role="dialog" aria-modal="true" aria-label="Detalhes do vínculo">
+                <header className="employee-detail-modal__header">
+                    <div><span className="employee-detail-eyebrow">Informações profissionais</span><h2>Detalhes do vínculo</h2><p>{modalityLabels[engagement.modality]} · {engagementStatusLabels[engagement.status]}</p></div>
+                    <button type="button" onClick={onClose} aria-label="Fechar detalhes do vínculo">×</button>
+                </header>
+                <div className="employee-detail-engagement-modal__grid">
+                    <InfoField label="Modalidade" value={modalityLabels[engagement.modality]} />
+                    <InfoField label="Status" value={engagementStatusLabels[engagement.status]} />
+                    <InfoField label="Data de admissão" value={dateOnly(engagement.entryDate)} />
+                    <InfoField label="Data de desligamento" value={engagement.exitDate ? dateOnly(engagement.exitDate) : "Vínculo atual"} />
+                    <InfoField label="Salário mensal" value={engagement.currentSalary == null ? null : currency(engagement.currentSalary)} />
+                    <InfoField label="Valor por hora" value={engagement.hourlyRate == null ? null : currency(engagement.hourlyRate)} />
+                    <InfoField label="Cadastrado em" value={dateTime(engagement.createdAt)} />
+                    <InfoField label="Última atualização" value={dateTime(engagement.updatedAt)} />
+                    <InfoField label="Identificador do vínculo" value={engagement.id} />
+                </div>
+                <div className="employee-detail-engagement-modal__observations"><span>Observações</span><p>{engagement.observations?.trim() || "Nenhuma observação cadastrada."}</p></div>
+            </section>
+        </div>
+    );
+}
+
 type ObligationGroup = {
     key: string;
     obligations: ObligationListItem[];
@@ -246,7 +271,8 @@ export function EmployeeDetails() {
     const [movementCursorStack, setMovementCursorStack] = useState<string[]>([]);
     const [financialModal, setFinancialModal] = useState<{ title: string; obligations: FinancialSummaryObligation[] } | null>(null);
     const [selectedObligation, setSelectedObligation] = useState<ModalObligation | null>(null);
-    const [expandedObligationMovements, setExpandedObligationMovements] = useState<Set<string>>(() => new Set());
+    const [selectedEngagementDetails, setSelectedEngagementDetails] = useState<EmployeeEngagement | null>(null);
+    const [selectedObligationMovements, setSelectedObligationMovements] = useState<ObligationListItem | null>(null);
 
     useEffect(() => {
         if (!engagements.length) {
@@ -398,15 +424,18 @@ export function EmployeeDetails() {
                     ) : (
                         <div className="employee-detail-engagements">
                             {engagements.map(engagement => (
-                                <button type="button" key={engagement.id} className={`employee-detail-engagement ${engagement.id === selectedEngagementId ? "employee-detail-engagement--selected" : ""}`} onClick={() => { setSelectedEngagementId(engagement.id); setHistoryCursor(undefined); setHistoryCursorStack([]); setObligationCursor(undefined); setObligationCursorStack([]); setMovementCursor(undefined); setMovementCursorStack([]); }}>
-                                    <span className={`employee-detail-status employee-detail-status--${engagement.status === "trabalhando" ? "active" : "inactive"}`}>{engagementStatusLabels[engagement.status]}</span>
-                                    <strong>{modalityLabels[engagement.modality]}</strong>
-                                    <small>{engagementPeriod(engagement)}</small>
-                                    <span className="employee-detail-engagement__salary">{engagement.currentSalary == null ? "Remuneração não informada" : currency(engagement.currentSalary)}{engagement.hourlyRate != null ? ` · ${currency(engagement.hourlyRate)}/h` : ""}</span>
-                                    <span className="employee-detail-engagement__dates"><small>Admissão</small><strong>{dateOnly(engagement.entryDate)}</strong><small>Desligamento</small><strong>{engagement.exitDate ? dateOnly(engagement.exitDate) : "Vínculo atual"}</strong><small>Cadastrado</small><strong>{dateOnly(engagement.createdAt)}</strong></span>
-                                    {engagement.observations && <span className="employee-detail-engagement__observations">{engagement.observations}</span>}
-                                    {engagement.id === selectedEngagementId && <span className="employee-detail-engagement__selected">Vínculo selecionado</span>}
-                                </button>
+                                <article key={engagement.id} className={`employee-detail-engagement ${engagement.id === selectedEngagementId ? "employee-detail-engagement--selected" : ""}`}>
+                                    <button type="button" className="employee-detail-engagement-select" onClick={() => { setSelectedEngagementId(engagement.id); setHistoryCursor(undefined); setHistoryCursorStack([]); setObligationCursor(undefined); setObligationCursorStack([]); setMovementCursor(undefined); setMovementCursorStack([]); }}>
+                                        <span className={`employee-detail-status employee-detail-status--${engagement.status === "trabalhando" ? "active" : "inactive"}`}>{engagementStatusLabels[engagement.status]}</span>
+                                        <strong>{modalityLabels[engagement.modality]}</strong>
+                                        <small>{engagementPeriod(engagement)}</small>
+                                        <span className="employee-detail-engagement__salary">{engagement.currentSalary == null ? "Remuneração não informada" : currency(engagement.currentSalary)}{engagement.hourlyRate != null ? ` · ${currency(engagement.hourlyRate)}/h` : ""}</span>
+                                        <span className="employee-detail-engagement__dates"><small>Admissão</small><strong>{dateOnly(engagement.entryDate)}</strong><small>Desligamento</small><strong>{engagement.exitDate ? dateOnly(engagement.exitDate) : "Vínculo atual"}</strong><small>Cadastrado</small><strong>{dateOnly(engagement.createdAt)}</strong></span>
+                                        {engagement.observations && <span className="employee-detail-engagement__observations">{engagement.observations}</span>}
+                                        {engagement.id === selectedEngagementId && <span className="employee-detail-engagement__selected">Vínculo selecionado</span>}
+                                    </button>
+                                    <button type="button" className="employee-detail-engagement-details-button" onClick={() => setSelectedEngagementDetails(engagement)}>Detalhes do vínculo</button>
+                                </article>
                             ))}
                         </div>
                     )}
@@ -537,7 +566,9 @@ export function EmployeeDetails() {
                 )}
             </section>
             {financialModal && <ObligationDetailsModal title={financialModal.title} obligations={financialModal.obligations} onClose={() => setFinancialModal(null)} />}
-            {selectedObligation && <ObligationDetailsModal title={selectedObligation.title} obligations={[selectedObligation as ModalObligation]} onClose={() => setSelectedObligation(null)} />}
+            {selectedObligation && <ObligationDetailsModal title={selectedObligation.title} obligations={[selectedObligation]} onClose={() => setSelectedObligation(null)} />}
+            {selectedEngagementDetails && <EngagementDetailsModal engagement={selectedEngagementDetails} onClose={() => setSelectedEngagementDetails(null)} />}
+            {selectedObligationMovements && <ObligationMovementsModal obligation={selectedObligationMovements} onClose={() => setSelectedObligationMovements(null)} />}
         </main>
     );
 }
