@@ -428,7 +428,7 @@ export function Employees() {
                                         <div className="employees-row__obligations">
                                             <div className="employees-row__section-heading">
                                                 <small className="employees-row__section-label">Obrigações vencidas</small>
-                                                {overdueObligations.length > 0 && <span>{overdueObligations.length} {overdueObligations.length === 1 ? "item" : "itens"}</span>
+                                                {overdueObligations.length > 0 && <span>{overdueObligations.length} {overdueObligations.length === 1 ? "item" : "itens"}</span>}
                                             </div>
                                             {visibleObligations.length ? (
                                                 <div className="employees-obligation-list">
