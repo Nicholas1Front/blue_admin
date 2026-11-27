@@ -357,7 +357,7 @@ export function EmployeeDetails() {
                             <section className="employee-detail-records-block">
                                 <header className="employee-detail-section-heading">
                                     <div><span className="employee-detail-eyebrow">Valores definidos para o vínculo</span><h2><FontAwesomeIcon icon={faFileInvoiceDollar} /> Obrigações</h2><p>Agrupadas pelo mês de vencimento, do mais recente para o mais antigo. Dentro de cada mês, as obrigações seguem a data de vencimento, da mais próxima para a mais distante.</p></div>
-                                    <span className="employee-detail-count">{filteredObligations.length} de {obligations.length} obrigações</span>
+                                    <span className="employee-detail-count">{obligations.length} obrigações nesta página</span>
                                 </header>
                                 {obligationsQuery.isPending ? <div className="employee-detail-loading">Carregando obrigações…</div> : obligationsQuery.isError ? (
                                     <div className="employee-detail-state employee-detail-state--error"><strong>Não foi possível carregar as obrigações.</strong><button type="button" onClick={() => void obligationsQuery.refetch()}>Tentar novamente</button></div>
@@ -365,6 +365,7 @@ export function EmployeeDetails() {
                                     <div className="employee-detail-obligation-filters">
                                         <label className="employee-detail-filter-search"><span>Pesquisar obrigações</span><input type="search" value={obligationSearch} onChange={event => { setObligationSearch(event.target.value); setObligationCursor(undefined); setObligationCursorStack([]); }} placeholder="Título, tipo, competência ou data…" /></label>
                                         <label className="employee-detail-filter-status"><span>Status</span><select value={obligationStatusFilter} onChange={event => { setObligationStatusFilter(event.target.value as ObligationStatus | "todas"); setObligationCursor(undefined); setObligationCursorStack([]); }}><option value="todas">Todos os status</option>{Object.entries(obligationStatusLabels).map(([status, label]) => <option value={status} key={status}>{label}</option>)}</select></label>
+                                        <label className="employee-detail-filter-status"><span>Tipo</span><select value={obligationTypeFilter} onChange={event => { setObligationTypeFilter(event.target.value as ObligationType | "todos"); setObligationCursor(undefined); setObligationCursorStack([]); }}><option value="todos">Todos os tipos</option>{Object.entries(obligationTypeLabels).map(([type, label]) => <option value={type} key={type}>{label}</option>)}</select></label>
                                     </div>
                                 )}
                                 {!obligationsQuery.isPending && !obligationsQuery.isError && (obligationGroups.length === 0 ? (
@@ -416,8 +417,12 @@ export function EmployeeDetails() {
                             <section className="employee-detail-records-block">
                                 <header className="employee-detail-section-heading">
                                     <div><span className="employee-detail-eyebrow">Registros financeiros e administrativos</span><h2><FontAwesomeIcon icon={faClockRotateLeft} /> Lançamentos</h2><p>Ordenados pela data em que aconteceram. Quando um lançamento estiver ligado a uma obrigação, você poderá ir diretamente à competência correspondente.</p></div>
-                                    <span className="employee-detail-count">{movements.length} {movements.length === 1 ? "lançamento" : "lançamentos"}</span>
+                                    <span className="employee-detail-count">{movements.length} lançamentos nesta página</span>
                                 </header>
+                                <div className="employee-detail-obligation-filters employee-detail-movement-filters">
+                                    <label className="employee-detail-filter-search"><span>Pesquisar lançamentos</span><input type="search" value={movementSearch} onChange={event => { setMovementSearch(event.target.value); setMovementCursor(undefined); setMovementCursorStack([]); }} placeholder="Descrição do lançamento…" /></label>
+                                    <label className="employee-detail-filter-status"><span>Tipo</span><select value={movementTypeFilter} onChange={event => { setMovementTypeFilter(event.target.value as EmployeeMovementType | "todos"); setMovementCursor(undefined); setMovementCursorStack([]); }}><option value="todos">Todos os tipos</option>{Object.entries(movementTypeLabels).map(([type, label]) => <option value={type} key={type}>{label}</option>)}</select></label>
+                                </div>
                                 {movementsQuery.isPending ? <div className="employee-detail-loading">Carregando lançamentos…</div> : movementsQuery.isError ? (
                                     <div className="employee-detail-state employee-detail-state--error"><strong>Não foi possível carregar os lançamentos.</strong><button type="button" onClick={() => void movementsQuery.refetch()}>Tentar novamente</button></div>
                                 ) : sortedMovements.length === 0 ? (
