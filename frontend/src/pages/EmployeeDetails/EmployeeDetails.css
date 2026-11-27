@@ -923,3 +923,38 @@
         grid-template-columns: minmax(0, 1fr);
     }
 }
+
+
+/* Urgência financeira e distinção visual por tipo de obrigação */
+.employee-detail-financial-breakdown--urgent {
+    background: rgb(127 29 29 / .12);
+    border-color: rgb(248 113 113 / .45);
+    border-top: 3px solid #ef4444;
+}
+.employee-detail-financial-breakdown--urgent .employee-detail-financial-breakdown__top>span,
+.employee-detail-financial-breakdown--urgent .employee-detail-financial-breakdown__top>strong {
+    color: #fca5a5;
+}
+.employee-detail-financial-breakdown--upcoming {
+    background: rgb(120 53 15 / .12);
+    border-color: rgb(251 191 36 / .4);
+    border-top: 3px solid #eab308;
+}
+.employee-detail-financial-breakdown--upcoming .employee-detail-financial-breakdown__top>span,
+.employee-detail-financial-breakdown--upcoming .employee-detail-financial-breakdown__top>strong {
+    color: #fcd34d;
+}
+.employee-detail-obligation {
+    border-top: 3px solid var(--obligation-type-color, var(--color-border));
+}
+.employee-detail-obligation-type--salario { --obligation-type-color: #60a5fa; }
+.employee-detail-obligation-type--ferias { --obligation-type-color: #34d399; }
+.employee-detail-obligation-type--decimo_terceiro { --obligation-type-color: #a78bfa; }
+.employee-detail-obligation-type--bonificacao { --obligation-type-color: #fbbf24; }
+.employee-detail-obligation-type--rescisao { --obligation-type-color: #f87171; }
+.employee-detail-obligation-type--ajuste { --obligation-type-color: #94a3b8; }
+.employee-detail-obligation-type--outros { --obligation-type-color: #c084fc; }
+.employee-detail-obligation-type {
+    color: var(--obligation-type-color, var(--color-primary-300));
+    background: color-mix(in srgb, var(--obligation-type-color, #70b3ff) 13%, transparent);
+}
