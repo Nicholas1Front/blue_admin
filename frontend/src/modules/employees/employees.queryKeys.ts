@@ -15,7 +15,7 @@ export const employeesQueryKeys = {
     obligations: {
         all: ["employees", "obligations"] as const,
         filtered: (filters: FindObligationsFilters) => ["employees", "obligations", "filtered", filters] as const,
-        byEngagement: (id: string | undefined) => ["employees", "obligations", "by-engagement", id ?? null] as const,
+        byEngagement: (id: string | undefined, filters: object = {}) => ["employees", "obligations", "by-engagement", id ?? null, filters] as const,
         open: (id: string | undefined) => ["employees", "obligations", "open", id ?? null] as const,
         analysis: (id: string | undefined, filters: object | undefined) => ["employees", "obligations", "analysis", id ?? null, filters ?? null] as const
     },
