@@ -1247,3 +1247,56 @@ button.employee-detail-financial-breakdown:focus-visible {
         padding: var(--spacing-4);
     }
 }
+
+.employee-detail-obligation-filters {
+    grid-template-columns: minmax(12rem, 1.4fr) repeat(2, minmax(8rem, .7fr)) repeat(2, minmax(8rem, .7fr)) auto;
+    align-items: end;
+}
+.employee-detail-movement-filters {
+    grid-template-columns: minmax(12rem, 1.4fr) minmax(10rem, .7fr) repeat(2, minmax(8rem, .7fr)) auto;
+}
+.employee-detail-filter-actions {
+    display: flex;
+    align-items: center;
+    gap: var(--spacing-2);
+}
+.employee-detail-filter-actions button {
+    min-height: 2.65rem;
+    padding: .6rem .8rem;
+    color: var(--color-text-secondary);
+    background: var(--color-surface-hover);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: .75rem;
+    font-weight: var(--font-weight-medium);
+    cursor: pointer;
+}
+.employee-detail-filter-actions button[type="submit"] {
+    color: #fff;
+    background: var(--color-primary-500);
+    border-color: var(--color-primary-500);
+}
+.employee-detail-filter-actions button:hover {
+    border-color: var(--color-primary-400);
+}
+@media (max-width: 1050px) {
+    .employee-detail-obligation-filters,
+    .employee-detail-movement-filters {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .employee-detail-filter-search {
+        grid-column: 1 / -1;
+    }
+}
+@media (max-width: 680px) {
+    .employee-detail-obligation-filters,
+    .employee-detail-movement-filters {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .employee-detail-filter-search {
+        grid-column: auto;
+    }
+    .employee-detail-filter-actions {
+        flex-wrap: wrap;
+    }
+}
