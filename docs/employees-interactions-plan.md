@@ -194,5 +194,6 @@ Cada etapa pode ser dividida em um ou dois comportamentos relacionados, mantendo
 - Criar e editar obrigação usa os endpoints individuais existentes. Criar/editar lançamento usa o endpoint de movimento comum; pagamentos continuam usando os endpoints específicos de pagamento.
 - Para tipos que exigem obrigação, o formulário solicita o vínculo com uma obrigação. Faltas, atrasos, saída antecipada e anotações podem ser registrados sem obrigação.
 - O formulário não altera automaticamente o status de uma obrigação após salvar um pagamento. O usuário deve revisar o status explicitamente.
+- Ao salvar um pagamento, a interface oferece abrir a obrigação relacionada para revisar status e valores. Ao marcar uma obrigação como paga com valores divergentes, exibe um aviso e permite que o usuário decida se continua.
 - As ações de sugestão e exclusão estão apenas apresentadas visualmente; ainda não executam análise nem exclusão.
 - O cadastro rápido de funcionário solicita nome e documento e, após salvar, abre a ficha. O formulário cadastral completo e a etapa opcional de criação de vínculo ficam para a próxima evolução.
