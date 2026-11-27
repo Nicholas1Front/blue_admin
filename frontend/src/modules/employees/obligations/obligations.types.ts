@@ -55,3 +55,12 @@ export interface ObligationAnalysis {
     suggestions: ObligationSuggestion[]; warnings: string[];
 }
 export type ObligationPage = CursorPage<ObligationListItem>;
+
+export interface DeleteObligationWithMovementsRequest {
+    deleteLinkedMovements: true;
+}
+export interface DeleteObligationWithMovementsResponse {
+    obligationId: string;
+    deletedMovements: number;
+    preservedFinancialTransactions: number;
+}
