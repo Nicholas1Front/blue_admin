@@ -144,7 +144,7 @@ type ObligationGroup = {
 };
 
 function obligationGroupKey(obligation: EmployeeObligation) {
-    return monthKey(obligation.referenceStart) ?? monthKey(obligation.referenceEnd) ?? "sem-competencia";
+    return monthKey(obligation.dueDate) ?? "sem-vencimento";
 }
 
 function obligationGroupAnchor(key: string) {
@@ -152,7 +152,7 @@ function obligationGroupAnchor(key: string) {
 }
 
 function obligationSortDate(obligation: EmployeeObligation) {
-    return obligation.referenceStart ?? obligation.referenceEnd ?? obligation.dueDate ?? obligation.createdAt ?? "";
+    return obligation.dueDate ?? obligation.referenceStart ?? obligation.referenceEnd ?? obligation.createdAt ?? "";
 }
 
 function movementSortDate(movement: EmployeeMovement) {
@@ -170,6 +170,9 @@ export function EmployeeDetails() {
     const [historyOpen, setHistoryOpen] = useState(false);
     const [historyCursor, setHistoryCursor] = useState<string>();
     const [historyCursorStack, setHistoryCursorStack] = useState<string[]>([]);
+    const [obligationSearch, setObligationSearch] = useState("");
+    const [obligationStatusFilter, setObligationStatusFilter] = useState<ObligationStatus | "todas">("todas");
+    const [expandedObligationMovements, setExpandedObligationMovements] = useState<Set<string>>(() => new Set());
 
     useEffect(() => {
         if (!engagements.length) {
@@ -199,9 +202,27 @@ export function EmployeeDetails() {
         return totals;
     }, [movements]);
 
+    const filteredObligations = useMemo(() => {
+        const search = obligationSearch.trim().toLocaleLowerCase("pt-BR");
+        return obligations.filter(obligation => {
+            if (obligationStatusFilter !== "todas" && obligation.status !== obligationStatusFilter) return false;
+            if (!search) return true;
+            const searchable = [
+                obligation.title,
+                obligation.description,
+                obligationTypeLabels[obligation.type],
+                obligationStatusLabels[obligation.status],
+                formatCompetency(obligation),
+                dateOnly(obligation.dueDate),
+                dateOnly(obligation.createdAt)
+            ].filter(Boolean).join(" ").toLocaleLowerCase("pt-BR");
+            return searchable.includes(search);
+        });
+    }, [obligations, obligationSearch, obligationStatusFilter]);
+
     const obligationGroups = useMemo(() => {
         const groups = new Map<string, EmployeeObligation[]>();
-        for (const obligation of obligations) {
+        for (const obligation of filteredObligations) {
             const key = obligationGroupKey(obligation);
             const group = groups.get(key) ?? [];
             group.push(obligation);
@@ -210,13 +231,13 @@ export function EmployeeDetails() {
 
         return [...groups.entries()].map(([key, items]): ObligationGroup => ({
             key,
-            obligations: items.sort((a, b) => obligationSortDate(b).localeCompare(obligationSortDate(a))),
+            obligations: items.sort((a, b) => obligationSortDate(a).localeCompare(obligationSortDate(b))),
             sortDate: items.reduce((latest, item) => {
                 const date = obligationSortDate(item);
                 return date > latest ? date : latest;
             }, "")
         })).sort((a, b) => b.sortDate.localeCompare(a.sortDate));
-    }, [obligations]);
+    }, [filteredObligations]);
 
     const obligationGroupById = useMemo(() => {
         const groups = new Map<string, string>();
@@ -331,18 +352,24 @@ export function EmployeeDetails() {
                         <section className="employee-detail-records-section">
                             <section className="employee-detail-records-block">
                                 <header className="employee-detail-section-heading">
-                                    <div><span className="employee-detail-eyebrow">Valores definidos para o vínculo</span><h2><FontAwesomeIcon icon={faFileInvoiceDollar} /> Obrigações</h2><p>Organizadas pela competência, da mais recente para a mais antiga. Obrigações da mesma competência ficam reunidas, mesmo quando são de tipos diferentes.</p></div>
-                                    <span className="employee-detail-count">{obligations.length} {obligations.length === 1 ? "obrigação" : "obrigações"}</span>
+                                    <div><span className="employee-detail-eyebrow">Valores definidos para o vínculo</span><h2><FontAwesomeIcon icon={faFileInvoiceDollar} /> Obrigações</h2><p>Agrupadas pelo mês de vencimento, do mais recente para o mais antigo. Dentro de cada mês, as obrigações seguem a data de vencimento, da mais próxima para a mais distante.</p></div>
+                                    <span className="employee-detail-count">{filteredObligations.length} de {obligations.length} obrigações</span>
                                 </header>
                                 {obligationsQuery.isPending ? <div className="employee-detail-loading">Carregando obrigações…</div> : obligationsQuery.isError ? (
                                     <div className="employee-detail-state employee-detail-state--error"><strong>Não foi possível carregar as obrigações.</strong><button type="button" onClick={() => void obligationsQuery.refetch()}>Tentar novamente</button></div>
-                                ) : obligationGroups.length === 0 ? (
-                                    <div className="employee-detail-empty"><strong>Nenhuma obrigação cadastrada</strong><p>As obrigações deste vínculo aparecerão aqui, agrupadas pela competência.</p></div>
+                                ) : (
+                                    <div className="employee-detail-obligation-filters">
+                                        <label className="employee-detail-filter-search"><span>Pesquisar obrigações</span><input type="search" value={obligationSearch} onChange={event => setObligationSearch(event.target.value)} placeholder="Título, tipo, competência ou data…" /></label>
+                                        <label className="employee-detail-filter-status"><span>Status</span><select value={obligationStatusFilter} onChange={event => setObligationStatusFilter(event.target.value as ObligationStatus | "todas")}><option value="todas">Todos os status</option>{Object.entries(obligationStatusLabels).map(([status, label]) => <option value={status} key={status}>{label}</option>)}</select></label>
+                                    </div>
+                                )}
+                                {!obligationsQuery.isPending && !obligationsQuery.isError && obligationGroups.length === 0 ? (
+                                    <div className="employee-detail-empty"><strong>{obligations.length ? "Nenhuma obrigação encontrada" : "Nenhuma obrigação cadastrada"}</strong><p>{obligations.length ? "Tente alterar a pesquisa ou o filtro de status." : "As obrigações deste vínculo aparecerão aqui, agrupadas pelo mês de vencimento."}</p></div>
                                 ) : (
                                     <div className="employee-detail-obligation-groups">
                                         {obligationGroups.map(group => (
                                             <article className="employee-detail-obligation-group" id={obligationGroupAnchor(group.key)} key={group.key}>
-                                                <header className="employee-detail-obligation-group__heading"><h3>{group.key === "sem-competencia" ? "Sem competência informada" : monthLabel(group.key)}</h3><span>{group.obligations.length} {group.obligations.length === 1 ? "obrigação" : "obrigações"}</span></header>
+                                                <header className="employee-detail-obligation-group__heading"><h3>{group.key === "sem-vencimento" ? "Sem vencimento definido" : monthLabel(group.key)}</h3><span>{group.obligations.length} {group.obligations.length === 1 ? "obrigação" : "obrigações"}</span></header>
                                                 <div className="employee-detail-obligations">
                                                     {group.obligations.map(obligation => {
                                                         const finalValue = Number(obligation.finalValue);
@@ -351,10 +378,25 @@ export function EmployeeDetails() {
                                                         return (
                                                             <article className="employee-detail-obligation" id={`employee-obligation-${obligation.id}`} key={obligation.id}>
                                                                 <header><div><span className={`employee-detail-obligation-type employee-detail-obligation-type--${obligation.type}`}>{obligationTypeLabels[obligation.type]}</span><strong>{obligation.title}</strong></div><span className={`employee-detail-obligation-status employee-detail-obligation-status--${obligation.status}`}>{obligationStatusLabels[obligation.status]}</span></header>
-                                                                <p>Competência: {formatCompetency(obligation)}{obligation.dueDate ? ` · Vencimento: ${dateOnly(obligation.dueDate)}` : " · Vencimento não definido"}{obligation.createdAt ? ` · Registrada em: ${dateOnly(obligation.createdAt)}` : ""}</p>
-                                                                <div className="employee-detail-obligation-values"><span><small>Valor previsto</small><strong>{currency(finalValue)}</strong></span><span><small>Já pago / alocado</small><strong>{currency(paidValue)}</strong></span><span><small>Falta pagar</small><strong>{currency(balance)}</strong></span></div>
+                                                                <div className="employee-detail-obligation-meta">
+                                                                    <span><small>Período de referência</small><strong>{formatCompetency(obligation)}</strong></span>
+                                                                    <span><small>Vencimento</small><strong>{dateOnly(obligation.dueDate)}</strong></span>
+                                                                    <span><small>Registrada em</small><strong>{dateOnly(obligation.createdAt)}</strong></span>
+                                                                </div>
+                                                                <div className="employee-detail-obligation-values"><span><small>Valor previsto</small><strong>{currency(finalValue)}</strong></span><span><small>Já pago / alocado</small><strong>{currency(paidValue)}</strong></span><span><small>Saldo restante</small><strong>{currency(balance)}</strong></span></div>
                                                                 {obligation.description && <p className="employee-detail-obligation-description">{obligation.description}</p>}
                                                                 {obligation.observations && <small className="employee-detail-obligation-note">Observação: {obligation.observations}</small>}
+                                                                <button type="button" className="employee-detail-obligation-movements-toggle" aria-expanded={expandedObligationMovements.has(obligation.id)} onClick={() => setExpandedObligationMovements(current => { const next = new Set(current); if (next.has(obligation.id)) next.delete(obligation.id); else next.add(obligation.id); return next; })}>{expandedObligationMovements.has(obligation.id) ? "Ocultar movimentações" : "Ver movimentações desta obrigação"} ({movements.filter(item => item.obligationId === obligation.id).length})</button>
+                                                                {expandedObligationMovements.has(obligation.id) && (
+                                                                    <div className="employee-detail-obligation-movements">
+                                                                        {movements.filter(item => item.obligationId === obligation.id).length ? movements.filter(item => item.obligationId === obligation.id).sort((a, b) => movementSortDate(b).localeCompare(movementSortDate(a))).map(item => (
+                                                                            <div className="employee-detail-obligation-movement" key={item.id}>
+                                                                                <span><strong>{item.type === "pagamento" ? "Pagamento realizado" : movementTypeLabels[item.type]}</strong><small>{dateOnly(item.eventDate ?? item.createdAt)} · {item.description}</small></span>
+                                                                                <strong>{item.value == null ? "—" : currency(item.value)}</strong>
+                                                                            </div>
+                                                                        )) : <p className="employee-detail-obligation-movements__empty">Ainda não há movimentações vinculadas a esta obrigação.</p>}
+                                                                    </div>
+                                                                )}}
                                                             </article>
                                                         );
                                                     })}
@@ -381,7 +423,7 @@ export function EmployeeDetails() {
                                             return (
                                                 <li key={movement.id} className={`employee-detail-movement employee-detail-movement--${movement.type}`}>
                                                     <div className="employee-detail-movement__date">{dateOnly(movement.eventDate ?? movement.createdAt)}</div>
-                                                    <div className="employee-detail-movement__body"><strong>{movement.type === "pagamento" ? "Pagamento realizado" : movementTypeLabels[movement.type]}</strong><p>{movement.description}</p>{movement.type === "pagamento" && movement.obligation ? <small className="employee-detail-payment-link">Alocado em: <strong>{movement.obligation.title}</strong> · Competência {formatCompetency(movement.obligation)}</small> : movement.obligation ? <small className="employee-detail-payment-link">Relacionado à obrigação: <strong>{movement.obligation.title}</strong> · {formatCompetency(movement.obligation)}</small> : movementTypesRequiringObligation.has(movement.type) ? <small className="employee-detail-unlinked">Obrigação não vinculada</small> : null}{linkedGroupKey && <a className="employee-detail-movement-competency-link" href={`#${obligationGroupAnchor(linkedGroupKey)}`}>Ver competência</a>}{movement.financialTransaction && <small className="employee-detail-transaction">Transação financeira: {movement.financialTransaction.description} · referência {dateOnly(movement.financialTransaction.referenceDate)}</small>}{movement.observations && <small className="employee-detail-movement-note">Observação: {movement.observations}</small>}</div>
+                                                    <div className="employee-detail-movement__body"><strong>{movement.type === "pagamento" ? "Pagamento realizado" : movementTypeLabels[movement.type]}</strong><p>{movement.description}</p>{movement.obligation ? <small className="employee-detail-payment-link">Obrigação relacionada: <strong>{movement.obligation.title}</strong> · Período: {formatCompetency(movement.obligation)} · Vencimento: {dateOnly(movement.obligation.dueDate)}</small> : movement.obligationId ? <small className="employee-detail-payment-link">Obrigação relacionada: <strong>{obligations.find(item => item.id === movement.obligationId)?.title ?? "ID " + movement.obligationId}</strong></small> : movementTypesRequiringObligation.has(movement.type) ? <small className="employee-detail-unlinked">Sem obrigação vinculada</small> : <small className="employee-detail-movement-context">Lançamento do vínculo, sem obrigação específica</small>}{linkedGroupKey && <a className="employee-detail-movement-competency-link" href={`#${obligationGroupAnchor(linkedGroupKey)}`}>Ver competência</a>}{movement.financialTransaction && <small className="employee-detail-transaction">Transação financeira: {movement.financialTransaction.description} · referência {dateOnly(movement.financialTransaction.referenceDate)}</small>}{movement.observations && <small className="employee-detail-movement-note">Observação: {movement.observations}</small>}</div>
                                                     <strong className="employee-detail-movement__value">{movement.value == null ? "—" : movement.type === "pagamento" ? "Pago " + currency(movement.value) : currency(movement.value)}</strong>
                                                 </li>
                                             );
