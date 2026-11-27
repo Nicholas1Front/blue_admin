@@ -440,7 +440,7 @@ export function EmployeeDetails() {
                         <div className="employee-detail-engagements">
                             {engagements.map(engagement => (
                                 <article key={engagement.id} className={`employee-detail-engagement ${engagement.id === selectedEngagementId ? "employee-detail-engagement--selected" : ""}`} onClick={() => { setSelectedEngagementId(engagement.id); setHistoryCursor(undefined); setHistoryCursorStack([]); setObligationCursor(undefined); setObligationCursorStack([]); setMovementCursor(undefined); setMovementCursorStack([]); }}>
-                                    <button type="button" className="employee-detail-engagement-select" onClick={() => { setSelectedEngagementId(engagement.id); setHistoryCursor(undefined); setHistoryCursorStack([]); setObligationCursor(undefined); setObligationCursorStack([]); setMovementCursor(undefined); setMovementCursorStack([]); }}>
+                                    <button type="button" className="employee-detail-engagement-select">
                                         <span className={`employee-detail-status employee-detail-status--${engagement.status === "trabalhando" ? "active" : "inactive"}`}>{engagementStatusLabels[engagement.status]}</span>
                                         <strong>{modalityLabels[engagement.modality]}</strong>
                                         <small>{engagementPeriod(engagement)}</small>
