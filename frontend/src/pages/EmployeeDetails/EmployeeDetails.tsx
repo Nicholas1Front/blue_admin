@@ -98,7 +98,7 @@ function monthLabel(key: string) {
     return new Intl.DateTimeFormat("pt-BR", { month: "long", year: "numeric" }).format(new Date(year, month - 1, 1));
 }
 
-function formatCompetency(obligation?: Pick<EmployeeObligation, "referenceStart" | "referenceEnd"> | null) {
+function formatCompetency(obligation?: { referenceStart?: string | null | undefined; referenceEnd?: string | null | undefined } | null) {
     if (!obligation) return "Sem competência vinculada";
     const format = (value?: string | null) => {
         const key = monthKey(value);
@@ -120,7 +120,7 @@ function FinancialBreakdown({ title, total, count, obligations, description, emp
             <p>{description}</p>
             {sortedObligations.length ? (
                 <ul>{sortedObligations.map((obligation, index) => <li key={obligation.title + index}>
-                    <span><strong>{obligation.title}</strong><small>{obligation.dueDate ? "Vencimento: " + dateOnly(obligation.dueDate) : "Vencimento não definido"}{(obligation.referenceStart || obligation.referenceEnd) ? " · Competência: " + formatCompetency(obligation) : ""}</small></span>
+                    <span><strong>{obligation.title}</strong><small>{obligation.dueDate ? "Vencimento: " + dateOnly(obligation.dueDate) : obligation.referenceStart || obligation.referenceEnd ? "Data de referência: " + dateOnly(obligation.referenceStart ?? obligation.referenceEnd) : "Registrada em: " + dateOnly(obligation.createdAt)}{(obligation.referenceStart || obligation.referenceEnd) ? " · Competência: " + formatCompetency(obligation) : ""}</small></span>
                     <strong>{currency(obligation.outstandingValue)}</strong>
                 </li>)}</ul>
             ) : <div className="employee-detail-financial-breakdown__empty">{emptyLabel}</div>}
