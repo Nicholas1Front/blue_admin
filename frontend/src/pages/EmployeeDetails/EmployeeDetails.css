@@ -1503,3 +1503,157 @@ button.employee-detail-financial-breakdown:focus-visible {
         grid-template-columns: minmax(0, 1fr);
     }
 }
+
+
+/* Compactação dos registros financeiros sem alterar a hierarquia ou os dados. */
+.employee-detail-records-section {
+    gap: var(--spacing-3);
+}
+.employee-detail-records-block {
+    padding: var(--spacing-4);
+}
+.employee-detail-records-block .employee-detail-section-heading {
+    margin-bottom: var(--spacing-4);
+}
+.employee-detail-records-block .employee-detail-section-heading p {
+    font-size: .8rem;
+    line-height: 1.5;
+}
+.employee-detail-obligation-groups {
+    gap: var(--spacing-3);
+}
+.employee-detail-obligation-group {
+    padding: var(--spacing-3);
+}
+.employee-detail-obligation-group__heading {
+    margin-bottom: var(--spacing-2);
+}
+.employee-detail-obligation-group .employee-detail-obligations {
+    gap: var(--spacing-2);
+}
+.employee-detail-obligation {
+    gap: var(--spacing-2);
+    padding: .7rem;
+}
+.employee-detail-obligation > header {
+    gap: var(--spacing-2);
+}
+.employee-detail-obligation > header > div {
+    gap: .35rem;
+}
+.employee-detail-obligation > header strong {
+    font-size: .82rem;
+}
+.employee-detail-obligation-type,
+.employee-detail-obligation-status {
+    padding: .12rem .45rem;
+    font-size: .6rem;
+}
+.employee-detail-obligation-meta {
+    gap: .4rem;
+    margin: .5rem 0;
+}
+.employee-detail-obligation-meta > span {
+    gap: .2rem;
+    padding: .45rem;
+}
+.employee-detail-obligation-meta small {
+    font-size: .61rem;
+}
+.employee-detail-obligation-meta strong {
+    font-size: .7rem;
+    line-height: 1.4;
+}
+.employee-detail-obligation-values {
+    gap: .4rem;
+}
+.employee-detail-obligation-values span {
+    gap: .2rem;
+    padding: .45rem;
+}
+.employee-detail-obligation-values small {
+    font-size: .59rem;
+}
+.employee-detail-obligation-values strong {
+    font-size: .68rem;
+}
+.employee-detail-obligation > p {
+    font-size: .66rem;
+}
+.employee-detail-obligation-movements-toggle {
+    margin-top: .5rem;
+    padding: .4rem .6rem;
+}
+.employee-detail-movements {
+    gap: var(--spacing-2);
+}
+.employee-detail-movement {
+    grid-template-columns: 5.5rem minmax(0, 1fr) auto;
+    gap: var(--spacing-2);
+    padding: .7rem;
+}
+.employee-detail-movement__body {
+    gap: .4rem;
+}
+.employee-detail-movement__body > strong {
+    font-size: .82rem;
+}
+.employee-detail-movement__body p {
+    font-size: .8rem;
+    line-height: 1.45;
+}
+.employee-detail-movement__value {
+    font-size: .82rem;
+}
+.employee-detail-payment-link,
+.employee-detail-unlinked,
+.employee-detail-transaction,
+.employee-detail-movement-note,
+.employee-detail-movement-context {
+    font-size: .63rem;
+    line-height: 1.45;
+}
+.employee-detail-movement-competency-link {
+    margin-top: 0;
+    padding: .2rem .45rem;
+    font-size: .64rem;
+}
+.employee-detail-obligation-movements-toggle {
+    font-size: .68rem;
+}
+.employee-detail-engagement-modal__actions {
+    margin-top: var(--spacing-4);
+}
+.employee-detail-engagement-modal .employee-detail-edit-form {
+    margin-top: var(--spacing-2);
+}
+@media (max-width: 900px) {
+    .employee-detail-movement {
+        grid-template-columns: 5rem minmax(0, 1fr) auto;
+    }
+}
+@media (max-width: 680px) {
+    .employee-detail-records-block {
+        padding: var(--spacing-3);
+    }
+    .employee-detail-obligation-group {
+        padding: .65rem;
+    }
+    .employee-detail-obligation-meta {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .employee-detail-obligation-values {
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+    .employee-detail-movement {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .employee-detail-movement__date,
+    .employee-detail-movement__body,
+    .employee-detail-movement__value {
+        grid-column: 1;
+    }
+    .employee-detail-movement__value {
+        white-space: normal;
+    }
+}
