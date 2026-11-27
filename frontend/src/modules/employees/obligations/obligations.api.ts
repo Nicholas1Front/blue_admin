@@ -25,8 +25,8 @@ export async function findOpenObligations(engagementId: string): Promise<OpenObl
     const response = await api.get<ApiResponse<OpenObligation[]>>(`/employees/find-open-obligations/${encodeURIComponent(engagementId)}`);
     return response.data.data;
 }
-export async function findObligationsByEngagement(engagementId: string): Promise<EmployeeObligation[]> {
-    const response = await api.get<ApiResponse<EmployeeObligation[]>>(`/employees/find-obligations-by-engagement/${encodeURIComponent(engagementId)}`);
+export async function findObligationsByEngagement(engagementId: string, filters: { cursor?: string; limit?: number } = {}): Promise<CursorPage<ObligationListItem>> {
+    const response = await api.get<ApiResponse<CursorPage<ObligationListItem>>>(`/employees/find-obligations-by-engagement/${encodeURIComponent(engagementId)}`, { params: filters });
     return response.data.data;
 }
 export async function analyzeObligations(engagementId: string, filters: AnalyzeObligationsFilters): Promise<ObligationAnalysis> {
