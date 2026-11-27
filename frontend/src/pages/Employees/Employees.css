@@ -1315,3 +1315,80 @@
     outline: 2px solid var(--color-primary-400);
     outline-offset: 2px;
 }
+
+
+/* Urgency levels on the home dashboard. */
+.employees-metric--blue {
+    --metric-color: #70b3ff;
+    border-top: 3px solid #3b82f6;
+}
+.employees-metric--red {
+    --metric-color: #f87171;
+    border-top: 3px solid #ef4444;
+    background: linear-gradient(145deg, rgb(127 29 29 / .12), var(--color-surface));
+}
+.employees-metric--yellow {
+    --metric-color: #fbbf24;
+    border-top: 3px solid #eab308;
+    background: linear-gradient(145deg, rgb(120 53 15 / .12), var(--color-surface));
+}
+
+/* Four compact indicators per employee, with the same urgency colors. */
+.employees-row__numbers {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: var(--spacing-2);
+}
+.employees-row__numbers > span {
+    min-width: 0;
+    border-top: 2px solid var(--employee-metric-color, var(--color-border));
+}
+.employees-row__balance--overdue {
+    --employee-metric-color: #ef4444;
+    background: rgb(127 29 29 / .12) !important;
+    border-color: rgb(248 113 113 / .35) !important;
+}
+.employees-row__balance--overdue strong {
+    color: #fca5a5 !important;
+}
+.employees-row__balance--upcoming {
+    --employee-metric-color: #eab308;
+    background: rgb(120 53 15 / .12) !important;
+    border-color: rgb(251 191 36 / .35) !important;
+}
+.employees-row__balance--upcoming strong {
+    color: #fcd34d !important;
+}
+.employees-row__balance--absence {
+    --employee-metric-color: #ef4444;
+}
+.employees-row__balance--tardiness {
+    --employee-metric-color: #eab308;
+}
+
+/* Only overdue obligations appear in the employee-card preview. */
+.employees-obligation-card--overdue {
+    border-top: 3px solid #ef4444;
+    border-color: rgb(248 113 113 / .32);
+    background: linear-gradient(145deg, rgb(127 29 29 / .11), var(--color-background));
+}
+.employees-obligation-card--overdue .employees-obligation-card__amounts .employees-obligation-card__balance {
+    background: rgb(127 29 29 / .16);
+    border-color: rgb(248 113 113 / .3);
+}
+.employees-obligation-card--overdue .employees-obligation-card__balance strong {
+    color: #fca5a5;
+}
+.employees-obligation-card__due-date {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-2);
+    color: #fca5a5;
+    font-size: .7rem;
+    font-weight: var(--font-weight-semibold);
+}
+@media (max-width: 760px) {
+    .employees-row__numbers {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
