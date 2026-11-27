@@ -98,6 +98,8 @@ export const findObligationsByFiltersSchema = z.object({
     type: obligationTypeSchema.optional(),
     status: obligationStatusSchema.optional(),
     title: z.string().trim().min(1).optional(),
+    valueFrom: z.coerce.number().finite().min(0).optional(),
+    valueTo: z.coerce.number().finite().min(0).optional(),
     dueDateFrom: z.coerce.date().optional(),
     dueDateTo: z.coerce.date().optional(),
     referenceStartFrom: z.coerce.date().optional(),
@@ -106,6 +108,9 @@ export const findObligationsByFiltersSchema = z.object({
     referenceEndTo: z.coerce.date().optional(),
     cursor: z.string().uuid().optional(),
     limit: z.coerce.number().int().min(1).max(100).default(20)
+}).refine(data => data.valueFrom === undefined || data.valueTo === undefined || data.valueTo >= data.valueFrom, {
+    message: 'Maximum value cannot be below minimum value',
+    path: ['valueTo']
 }).refine(data => !data.dueDateFrom || !data.dueDateTo || data.dueDateTo >= data.dueDateFrom, {
     message: 'Due date end cannot be before start',
     path: ['dueDateTo']
