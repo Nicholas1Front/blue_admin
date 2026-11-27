@@ -1,7 +1,7 @@
 import { useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
-import { faPlus, faPen, faTrash, faWandMagicSparkles, faUserPlus, faFileInvoiceDollar, faClockRotateLeft } from "@fortawesome/free-solid-svg-icons";
+import { faPlus, faPen, faTrash, faWandMagicSparkles, faUserPlus } from "@fortawesome/free-solid-svg-icons";
 import {
     useEmployees,
     useEngagementsByFilters,
@@ -12,7 +12,7 @@ import {
     useMovementMutations
 } from "../../modules/employees";
 import type {
-    EmployeeMovement, EmployeeMovementType,
+    EmployeeMovementType,
     EmployeeAmount, ObligationType, ObligationStatus, ObligationListItem,
     MovementListItem, CreateObligationRequest, CreateMovementRequest,
     CreatePaymentRequest
