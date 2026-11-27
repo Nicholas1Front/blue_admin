@@ -8,6 +8,7 @@ type EmployeeSummary = {
     obligationsDueThisMonth: number
     dueThisMonthValue: number
     overdueValue: number
+    upcomingValue: number
     paymentsRecordedThisMonth: number
     absencesThisMonth: number
     tardinessThisMonth: number
@@ -22,6 +23,8 @@ class EmployeesDashboardRepository {
         const nextMonthStart = new Date(Date.UTC(year, month, 1))
         const monthEnd = new Date(nextMonthStart.getTime() - 1)
         const todayStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
+        const upcomingEnd = new Date(todayStart)
+        upcomingEnd.setUTCDate(upcomingEnd.getUTCDate() + 31)
 
         const employees = await prisma.employee.findMany({
             orderBy: { name: 'asc' },
@@ -158,6 +161,7 @@ class EmployeesDashboardRepository {
             obligationsDueThisMonth: 0,
             dueThisMonthValue: 0,
             overdueValue: 0,
+            upcomingValue: 0,
             paymentsRecordedThisMonth: 0,
             absencesThisMonth: 0,
             tardinessThisMonth: 0
@@ -177,6 +181,9 @@ class EmployeesDashboardRepository {
                 }
                 if (obligation.dueDate && obligation.dueDate < todayStart) {
                     summary.overdueValue += outstandingValue
+                }
+                if (obligation.dueDate && obligation.dueDate >= todayStart && obligation.dueDate < upcomingEnd) {
+                    summary.upcomingValue += outstandingValue
                 }
             }
             return {
@@ -219,6 +226,9 @@ class EmployeesDashboardRepository {
         const overdueValue = openObligations
             .filter(item => item.dueDate && item.dueDate < todayStart)
             .reduce((sum, item) => sum + item.outstandingValue, 0)
+        const upcomingValue = openObligations
+            .filter(item => item.dueDate && item.dueDate >= todayStart && item.dueDate < upcomingEnd)
+            .reduce((sum, item) => sum + item.outstandingValue, 0)
         const paymentsRecordedThisMonth = [...summaries.values()]
             .reduce((sum, item) => sum + item.paymentsRecordedThisMonth, 0)
 
@@ -231,6 +241,7 @@ class EmployeesDashboardRepository {
                 obligationsDueThisMonth: dueThisMonth.length,
                 dueThisMonthValue: dueThisMonth.reduce((sum, item) => sum + item.outstandingValue, 0),
                 overdueValue,
+                upcomingValue,
                 paymentsRecordedThisMonth
             },
             nextObligation,
