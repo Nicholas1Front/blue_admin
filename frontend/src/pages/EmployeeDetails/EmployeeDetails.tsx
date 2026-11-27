@@ -112,7 +112,7 @@ function formatCompetency(obligation?: { referenceStart?: string | null | undefi
     return start ?? end ?? "Competência não informada";
 }
 
-function FinancialBreakdown({ title, total, count, obligations, description, emptyLabel }: { title: string; total: number; count: number; obligations: Array<{ title: string; referenceStart?: string | null | undefined; referenceEnd?: string | null | undefined; dueDate?: string | null; outstandingValue: number }>; description: string; emptyLabel: string }) {
+function FinancialBreakdown({ title, total, count, obligations, description, emptyLabel }: { title: string; total: number; count: number; obligations: Array<{ title: string; referenceStart?: string | null | undefined; referenceEnd?: string | null | undefined; dueDate?: string | null | undefined; createdAt?: string | null | undefined; outstandingValue: number }>; description: string; emptyLabel: string }) {
     const sortedObligations = [...obligations].sort((a, b) => (a.dueDate ?? "").localeCompare(b.dueDate ?? ""));
     return (
         <article className={`employee-detail-financial-breakdown ${title === "A pagar agora" ? "employee-detail-financial-breakdown--urgent" : title === "Próximos vencimentos" ? "employee-detail-financial-breakdown--upcoming" : ""}`}>
