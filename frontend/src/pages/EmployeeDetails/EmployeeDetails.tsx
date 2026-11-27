@@ -24,6 +24,7 @@ import type {
     EmployeeHistoryEvent,
     EmployeeMovement,
     EmployeeObligation,
+    ObligationListItem,
     EngagementStatus,
     ObligationStatus,
     ObligationType,
@@ -192,7 +193,7 @@ function engagementPeriod(engagement: EmployeeEngagement) {
 
 type ObligationGroup = {
     key: string;
-    obligations: EmployeeObligation[];
+    obligations: ObligationListItem[];
     sortDate: string;
 };
 
@@ -244,7 +245,7 @@ export function EmployeeDetails() {
     const [movementCursor, setMovementCursor] = useState<string>();
     const [movementCursorStack, setMovementCursorStack] = useState<string[]>([]);
     const [financialModal, setFinancialModal] = useState<{ title: string; obligations: FinancialSummaryObligation[] } | null>(null);
-    const [selectedObligation, setSelectedObligation] = useState<EmployeeObligation | null>(null);
+    const [selectedObligation, setSelectedObligation] = useState<ModalObligation | null>(null);
     const [expandedObligationMovements, setExpandedObligationMovements] = useState<Set<string>>(() => new Set());
 
     useEffect(() => {
@@ -289,7 +290,7 @@ export function EmployeeDetails() {
     const filteredObligations = obligations;
 
     const obligationGroups = useMemo(() => {
-        const groups = new Map<string, EmployeeObligation[]>();
+        const groups = new Map<string, ObligationListItem[]>();
         for (const obligation of filteredObligations) {
             const key = obligationGroupKey(obligation);
             const group = groups.get(key) ?? [];
@@ -471,7 +472,7 @@ export function EmployeeDetails() {
                                                                 <div className="employee-detail-obligation-values"><span><small>Valor previsto</small><strong>{currency(finalValue)}</strong></span><span><small>Já pago / alocado</small><strong>{currency(paidValue)}</strong></span><span><small>Saldo restante</small><strong>{currency(balance)}</strong></span></div>
                                                                 {obligation.description && <p className="employee-detail-obligation-description">{obligation.description}</p>}
                                                                 {obligation.observations && <small className="employee-detail-obligation-note">Observação: {obligation.observations}</small>}
-                                                                <button type="button" className="employee-detail-obligation-details-button" onClick={() => setSelectedObligation(obligation as ModalObligation)}>Ver detalhes completos</button>
+                                                                <button type="button" className="employee-detail-obligation-details-button" onClick={() => setSelectedObligation(obligation)}>Ver detalhes completos</button>
                                                                 <button type="button" className="employee-detail-obligation-movements-toggle" aria-expanded={expandedObligationMovements.has(obligation.id)} onClick={() => setExpandedObligationMovements(current => { const next = new Set(current); if (next.has(obligation.id)) next.delete(obligation.id); else next.add(obligation.id); return next; })}>{expandedObligationMovements.has(obligation.id) ? "Ocultar movimentações" : "Ver movimentações desta obrigação"}</button>
                                                                 {expandedObligationMovements.has(obligation.id) && <ObligationMovementsList obligationId={obligation.id} />}
                                                             </article>
