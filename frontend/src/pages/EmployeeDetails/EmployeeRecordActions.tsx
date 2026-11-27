@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faPen, faTrash, faWandMagicSparkles, faUserPlus } from "@fortawesome/free-solid-svg-icons";
@@ -20,7 +20,7 @@ import type {
 import "./EmployeeRecordActions.css";
 
 type ActionMode = "employee" | "obligation" | "movement" | "edit-obligation" | "edit-movement" | "suggestions" | "delete";
-type Props = { engagementId?: string; employeeId?: string; obligationId?: string; showEmployee?: boolean; showObligation?: boolean; showMovement?: boolean; showEdit?: boolean; showSuggestions?: boolean; showDelete?: boolean; compact?: boolean };
+type Props = { engagementId?: string; employeeId?: string; obligationId?: string; initialObligationId?: string; showEmployee?: boolean; showObligation?: boolean; showMovement?: boolean; showEdit?: boolean; showSuggestions?: boolean; showDelete?: boolean; compact?: boolean };
 
 const obligationTypes: { value: ObligationType; label: string }[] = [
     { value: "salario", label: "Salário" }, { value: "ferias", label: "Férias" }, { value: "decimo_terceiro", label: "13º salário" },
@@ -102,6 +102,15 @@ export function EmployeeRecordActions(props: Props) {
         setMovementReferenceStart(dateValue(item.referenceStart)); setMovementReferenceEnd(dateValue(item.referenceEnd));
         setMovementValue(money(item.value)); setMovementObligationId(item.obligationId ?? ""); setMovementObservations(item.observations ?? "");
     };
+
+    useEffect(() => {
+        if (mode !== "edit-obligation" || !props.initialObligationId || selectedObligationId === props.initialObligationId) return;
+        const initial = obligations.find(item => item.id === props.initialObligationId);
+        if (initial) {
+            setSelectedObligationId(initial.id);
+            fillObligation(initial);
+        }
+    }, [mode, props.initialObligationId, selectedObligationId, obligations]);
 
     const { create: createEmployee } = useEmployeeMutations();
     const obligationMutations = useObligationMutations();
