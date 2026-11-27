@@ -7,7 +7,8 @@ import type {
     createObligationDTO,
     createObligationsBatchDTO,
     updateObligationDTO,
-    findObligationsByFiltersDTO
+    findObligationsByFiltersDTO,
+    findObligationsByEngagementQueryDTO
 } from './obligations.schema.js'
 
 const historyValue = (value: Date | { toString(): string } | string | number | null) => {
@@ -219,12 +220,16 @@ class ObligationsService {
         return obligationsRepository.findOpenObligations(engagementId)
     }
 
-    async findObligationsByEngagement(engagementId: string) {
+    async findObligationsByEngagement(engagementId: string, filters: findObligationsByEngagementQueryDTO) {
         const engagement = await obligationsRepository.findEngagementEmployeeId(engagementId)
         if (!engagement) {
             throw new AppError('Engagement not found', 404, 'ENGAGEMENT_NOT_FOUND')
         }
-        return obligationsRepository.findObligationsByEngagement(engagementId)
+        const result = await obligationsRepository.findObligationsByEngagement(engagementId, filters)
+        if ("invalidCursor" in result) {
+            throw new AppError("Pagination cursor does not match this engagement", 400, "INVALID_CURSOR")
+        }
+        return result
     }
 
     async deleteObligation(engagementId: string, obligationId: string) {
