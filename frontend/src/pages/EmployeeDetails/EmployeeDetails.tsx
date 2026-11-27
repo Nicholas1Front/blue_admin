@@ -502,8 +502,7 @@ export function EmployeeDetails() {
                                                                 {obligation.description && <p className="employee-detail-obligation-description">{obligation.description}</p>}
                                                                 {obligation.observations && <small className="employee-detail-obligation-note">Observação: {obligation.observations}</small>}
                                                                 <button type="button" className="employee-detail-obligation-details-button" onClick={() => setSelectedObligation(obligation)}>Ver detalhes completos</button>
-                                                                <button type="button" className="employee-detail-obligation-movements-toggle" aria-expanded={expandedObligationMovements.has(obligation.id)} onClick={() => setExpandedObligationMovements(current => { const next = new Set(current); if (next.has(obligation.id)) next.delete(obligation.id); else next.add(obligation.id); return next; })}>{expandedObligationMovements.has(obligation.id) ? "Ocultar movimentações" : "Ver movimentações desta obrigação"}</button>
-                                                                {expandedObligationMovements.has(obligation.id) && <ObligationMovementsList obligationId={obligation.id} />}
+                                                                <button type="button" className="employee-detail-obligation-movements-toggle" onClick={() => setSelectedObligationMovements(obligation)}>Ver movimentações relacionadas</button>
                                                             </article>
                                                         );
                                                     })}
@@ -593,6 +592,20 @@ function ObligationMovementsList({ obligationId }: { obligationId: string }) {
                 </div>
             )) : <p className="employee-detail-obligation-movements__empty">Ainda não há movimentações vinculadas a esta obrigação.</p>}
             {query.data && (cursorStack.length > 0 || query.data.pagination.hasMore) && <div className="employee-detail-pagination"><span>Página {cursorStack.length + 1} · {items.length} registros</span><button type="button" disabled={!cursorStack.length} onClick={() => { const stack=[...cursorStack]; const previous=stack.pop() || undefined; setCursorStack(stack); setCursor(previous); }}>Anterior</button><button type="button" disabled={!query.data.pagination.hasMore} onClick={() => { const next=query.data?.pagination.nextCursor; if(next){setCursorStack(stack=>[...stack,cursor ?? ""]);setCursor(next);} }}>Próxima</button></div>}
+        </div>
+    );
+}
+
+function ObligationMovementsModal({ obligation, onClose }: { obligation: ObligationListItem; onClose: () => void }) {
+    return (
+        <div className="employee-detail-modal-backdrop" role="presentation" onMouseDown={event => { if (event.target === event.currentTarget) onClose(); }}>
+            <section className="employee-detail-modal employee-detail-obligation-movements-modal" role="dialog" aria-modal="true" aria-label="Movimentações da obrigação">
+                <header className="employee-detail-modal__header">
+                    <div><span className="employee-detail-eyebrow">Histórico financeiro</span><h2>Movimentações relacionadas</h2><p>{obligation.title} · Competência: {formatCompetency(obligation)}</p></div>
+                    <button type="button" onClick={onClose} aria-label="Fechar movimentações">×</button>
+                </header>
+                <ObligationMovementsList obligationId={obligation.id} />
+            </section>
         </div>
     );
 }
