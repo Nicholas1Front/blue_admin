@@ -31,7 +31,7 @@ export interface EmployeeEngagementSummary {
 }
 export interface EmployeeSummaryItem {
     id: string; name: string; document: string | null; totalOutstanding: number;
-    openObligations: number; absencesThisMonth: number; tardinessThisMonth: number;
+    overdueValue: number; upcomingValue: number; openObligations: number; absencesThisMonth: number; tardinessThisMonth: number;
     engagements: EmployeeEngagementSummary[];
 }
 export interface EmployeeSummaryFilters {
