@@ -17,7 +17,7 @@ class EngagementFinancialSummaryRepository {
                     where: { status: { in: ['pendente', 'parcial'] } },
                     select: {
                         id: true, type: true, title: true, referenceStart: true, referenceEnd: true,
-                        dueDate: true, finalValue: true, status: true,
+                        dueDate: true, createdAt: true, finalValue: true, status: true,
                         movements: { where: { type: 'pagamento' }, select: { value: true } }
                     }
                 }
@@ -31,7 +31,7 @@ class EngagementFinancialSummaryRepository {
             return {
                 id: obligation.id, type: obligation.type, title: obligation.title,
                 referenceStart: obligation.referenceStart, referenceEnd: obligation.referenceEnd,
-                dueDate: obligation.dueDate, status: obligation.status, finalValue, paidValue,
+                dueDate: obligation.dueDate, createdAt: obligation.createdAt, status: obligation.status, finalValue, paidValue,
                 outstandingValue: Math.max(0, Number((finalValue - paidValue).toFixed(2)))
             }
         }).filter(item => item.outstandingValue > 0)
