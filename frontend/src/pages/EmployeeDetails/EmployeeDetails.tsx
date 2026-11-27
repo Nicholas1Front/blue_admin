@@ -456,17 +456,8 @@ export function EmployeeDetails() {
                                                                 {obligation.description && <p className="employee-detail-obligation-description">{obligation.description}</p>}
                                                                 {obligation.observations && <small className="employee-detail-obligation-note">Observação: {obligation.observations}</small>}
                                                                 <button type="button" className="employee-detail-obligation-details-button" onClick={() => setSelectedObligation(obligation as ModalObligation)}>Ver detalhes completos</button>
-                                                                <button type="button" className="employee-detail-obligation-movements-toggle" aria-expanded={expandedObligationMovements.has(obligation.id)} onClick={() => setExpandedObligationMovements(current => { const next = new Set(current); if (next.has(obligation.id)) next.delete(obligation.id); else next.add(obligation.id); return next; })}>{expandedObligationMovements.has(obligation.id) ? "Ocultar movimentações" : "Ver movimentações desta obrigação"} ({obligationMovements.length})</button>
-                                                                {expandedObligationMovements.has(obligation.id) && (
-                                                                    <div className="employee-detail-obligation-movements">
-                                                                        {obligationMovements.length ? obligationMovements.map(item => (
-                                                                            <div className="employee-detail-obligation-movement" key={item.id}>
-                                                                                <span><strong>{item.type === "pagamento" ? "Pagamento realizado" : movementTypeLabels[item.type]}</strong><small>{dateOnly(item.eventDate ?? item.createdAt)} · {item.description}</small></span>
-                                                                                <strong>{item.value == null ? "—" : currency(item.value)}</strong>
-                                                                            </div>
-                                                                        )) : <p className="employee-detail-obligation-movements__empty">Ainda não há movimentações vinculadas a esta obrigação.</p>}
-                                                                    </div>
-                                                                )}
+                                                                <button type="button" className="employee-detail-obligation-movements-toggle" aria-expanded={expandedObligationMovements.has(obligation.id)} onClick={() => setExpandedObligationMovements(current => { const next = new Set(current); if (next.has(obligation.id)) next.delete(obligation.id); else next.add(obligation.id); return next; })}>{expandedObligationMovements.has(obligation.id) ? "Ocultar movimentações" : "Ver movimentações desta obrigação"}</button>
+                                                                {expandedObligationMovements.has(obligation.id) && <ObligationMovementsList obligationId={obligation.id} />}                                      )}
                                                             </article>
                                                         );
                                                     })}
@@ -528,6 +519,30 @@ export function EmployeeDetails() {
             {financialModal && <ObligationDetailsModal title={financialModal.title} obligations={financialModal.obligations} onClose={() => setFinancialModal(null)} />}
             {selectedObligation && <ObligationDetailsModal title={selectedObligation.title} obligations={[selectedObligation as ModalObligation]} onClose={() => setSelectedObligation(null)} />}
         </main>
+    );
+}
+
+function ObligationMovementsList({ obligationId }: { obligationId: string }) {
+    const [cursor, setCursor] = useState<string>();
+    const [cursorStack, setCursorStack] = useState<string[]>([]);
+    const query = useMovementsByFilters({
+        obligationId,
+        limit: 10,
+        order: "desc",
+        ...(cursor ? { cursor } : {})
+    });
+    const items = query.data?.data ?? [];
+
+    return (
+        <div className="employee-detail-obligation-movements">
+            {query.isPending ? <p className="employee-detail-obligation-movements__empty">Carregando movimentações vinculadas…</p> : query.isError ? <p className="employee-detail-obligation-movements__empty">Não foi possível carregar as movimentações desta obrigação.</p> : items.length ? items.map(item => (
+                <div className="employee-detail-obligation-movement" key={item.id}>
+                    <span><strong>{item.type === "pagamento" ? "Pagamento realizado" : movementTypeLabels[item.type]}</strong><small>{dateOnly(item.eventDate ?? item.createdAt)} · {item.description}</small></span>
+                    <strong>{item.value == null ? "—" : currency(item.value)}</strong>
+                </div>
+            )) : <p className="employee-detail-obligation-movements__empty">Ainda não há movimentações vinculadas a esta obrigação.</p>}
+            {query.data && (cursorStack.length > 0 || query.data.pagination.hasMore) && <div className="employee-detail-pagination"><span>Página {cursorStack.length + 1} · {items.length} registros</span><button type="button" disabled={!cursorStack.length} onClick={() => { const stack=[...cursorStack]; const previous=stack.pop() || undefined; setCursorStack(stack); setCursor(previous); }}>Anterior</button><button type="button" disabled={!query.data.pagination.hasMore} onClick={() => { const next=query.data?.pagination.nextCursor; if(next){setCursorStack(stack=>[...stack,cursor ?? ""]);setCursor(next);} }}>Próxima</button></div>}
+        </div>
     );
 }
 
