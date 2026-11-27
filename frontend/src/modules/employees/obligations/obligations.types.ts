@@ -29,6 +29,7 @@ export type UpdateObligationRequest = Partial<CreateObligationRequest>;
 export interface FindObligationsFilters {
     employeeId?: string; employeeName?: string; engagementId?: string;
     type?: ObligationType; status?: ObligationStatus; title?: string;
+    valueFrom?: number; valueTo?: number;
     dueDateFrom?: string; dueDateTo?: string;
     referenceStartFrom?: string; referenceStartTo?: string;
     referenceEndFrom?: string; referenceEndTo?: string;
