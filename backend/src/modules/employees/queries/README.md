@@ -33,12 +33,13 @@ O dashboard retorna:
 - obrigações abertas e valor total em aberto;
 - obrigações com vencimento no período consultado e seus saldos;
 - valor vencido considerando obrigações com vencimento anterior ao dia atual;
+- valor das obrigações em aberto com vencimento entre hoje e os próximos 30 dias;
 - pagamentos registrados no período, pela data efetiva do movimento;
 - próxima obrigação ainda em aberto com vencimento a partir do dia atual;
-- resumo por funcionário: saldo em aberto, vencimentos do período, pagamentos registrados, faltas e atrasos;
+- resumo por funcionário: saldo em aberto, valores vencidos e com vencimento nos próximos 30 dias, vencimentos do período, pagamentos registrados, faltas e atrasos;
 - movimentos recentes.
 
-Para os indicadores de saldo, são consideradas obrigações com status `pendente` ou `parcial`. Obrigações em revisão e canceladas não entram no total reconhecido em aberto. A consulta não altera status nem cria obrigações.
+Para os indicadores de saldo, são consideradas obrigações com status `pendente` ou `parcial`. O indicador de próximos vencimentos inclui obrigações com data entre hoje e 30 dias à frente; as vencidas têm data anterior ao dia atual. Obrigações em revisão e canceladas não entram no total reconhecido em aberto. A consulta não altera status nem cria obrigações.
 
 ### Análise de consistência
 
