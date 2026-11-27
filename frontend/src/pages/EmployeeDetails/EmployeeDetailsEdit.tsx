@@ -22,17 +22,21 @@ export function EmployeeProfileEditForm({ employee, onCancel }: { employee: Empl
 
     async function handleSubmit(event: FormEvent<HTMLFormElement>) {
         event.preventDefault();
-        await update.mutateAsync({
-            id: employee.id,
-            data: {
-                name: name.trim(),
-                document: document.trim() || null,
-                birthDate: birthDate || null,
-                address: address.trim() || null,
-                observations: observations.trim() || null
-            }
-        });
-        onCancel();
+        try {
+            await update.mutateAsync({
+                id: employee.id,
+                data: {
+                    name: name.trim(),
+                    document: document.trim() || null,
+                    birthDate: birthDate || null,
+                    address: address.trim() || null,
+                    observations: observations.trim() || null
+                }
+            });
+            onCancel();
+        } catch {
+            // The mutation state displays the error beside the form.
+        }
     }
 
     return (
@@ -81,22 +85,26 @@ export function EmployeeEngagementEditModal({ engagement, onClose }: { engagemen
         const currentSalary = engagement.currentSalary == null ? null : Number(engagement.currentSalary);
         const nextSalary = salary.trim() === "" ? null : Number(salary);
         const salaryChanged = currentSalary !== nextSalary;
-        await update.mutateAsync({
-            employeeId: engagement.employeeId,
-            engagementId: engagement.id,
-            data: {
-                entryDate: entryDate || null,
-                exitDate: exitDate || null,
-                status,
-                modality,
-                observations: observations.trim() || null,
-                ...(salaryChanged ? {
-                    currentSalary: nextSalary,
-                    effectiveDate: effectiveDate || todayInput()
-                } : {})
-            }
-        });
-        onClose();
+        try {
+            await update.mutateAsync({
+                employeeId: engagement.employeeId,
+                engagementId: engagement.id,
+                data: {
+                    entryDate: entryDate || null,
+                    exitDate: exitDate || null,
+                    status,
+                    modality,
+                    observations: observations.trim() || null,
+                    ...(salaryChanged ? {
+                        currentSalary: nextSalary,
+                        effectiveDate: effectiveDate || todayInput()
+                    } : {})
+                }
+            });
+            onClose();
+        } catch {
+            // The mutation state displays the error beside the form.
+        }
     }
 
     return (
