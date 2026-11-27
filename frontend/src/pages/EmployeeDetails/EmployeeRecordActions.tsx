@@ -128,6 +128,7 @@ export function EmployeeRecordActions(props: Props) {
         event.preventDefault(); setError("");
         if (!engagementId) { setError("Selecione o vínculo para continuar."); return; }
         if (needsObligation.has(movementType) && !movementObligationId) { setError("Este tipo de lançamento precisa estar ligado a uma obrigação."); return; }
+        if (movementType === "pagamento" && (!movementValue.trim() || !Number.isFinite(Number(movementValue)))) { setError("Informe o valor do pagamento."); return; }
         try {
             const data = { description: movementDescription.trim(), eventDate: isoDate(eventDate), referenceStart: isoDate(movementReferenceStart), referenceEnd: isoDate(movementReferenceEnd), value: movementValue === "" ? null : Number(movementValue), obligationId: movementObligationId || null, observations: movementObservations.trim() || null };
             if (movementType === "pagamento") {
