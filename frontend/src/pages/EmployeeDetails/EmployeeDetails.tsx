@@ -382,7 +382,7 @@ export function EmployeeDetails() {
                                                         const paidValue = paymentsByObligation.get(obligation.id) ?? 0;
                                                         const balance = Math.max(0, Number((finalValue - paidValue).toFixed(2)));
                                                         return (
-                                                            <article className="employee-detail-obligation" id={`employee-obligation-${obligation.id}`} key={obligation.id}>
+                                                            <article className={`employee-detail-obligation employee-detail-obligation--${obligation.type}`} id={`employee-obligation-${obligation.id}`} key={obligation.id}>
                                                                 <header><div><span className={`employee-detail-obligation-type employee-detail-obligation-type--${obligation.type}`}>{obligationTypeLabels[obligation.type]}</span><strong>{obligation.title}</strong></div><span className={`employee-detail-obligation-status employee-detail-obligation-status--${obligation.status}`}>{obligationStatusLabels[obligation.status]}</span></header>
                                                                 <div className="employee-detail-obligation-meta">
                                                                     <span><small>Período de referência</small><strong>{formatCompetency(obligation)}</strong></span>
@@ -424,7 +424,7 @@ export function EmployeeDetails() {
                                 ) : sortedMovements.length === 0 ? (
                                     <div className="employee-detail-empty"><strong>Nenhum lançamento registrado</strong><p>Pagamentos e outros registros do vínculo aparecerão aqui, do mais recente para o mais antigo.</p></div>
                                 ) : (
-                                    <ol className="employee-detail-movements">
+                                    <><ol className="employee-detail-movements">
                                         {visibleMovements.map(movement => {
                                             const linkedGroupKey = movement.obligationId ? obligationGroupById.get(movement.obligationId) : undefined;
                                             const linkedObligation = movement.obligation ?? obligations.find(item => item.id === movement.obligationId);
@@ -437,7 +437,7 @@ export function EmployeeDetails() {
                                             );
                                         })}
                                     </ol>
-                                    <div className="employee-detail-pagination"><span>Página {movementPage} / {movementPageCount}</span><button type="button" disabled={movementPage === 1} onClick={() => setMovementPage(p => p - 1)}>Anterior</button><button type="button" disabled={movementPage >= movementPageCount} onClick={() => setMovementPage(p => p + 1)}>Próxima</button></div>
+                                    <div className="employee-detail-pagination"><span>Página {movementPage} / {movementPageCount}</span><button type="button" disabled={movementPage === 1} onClick={() => setMovementPage(p => p - 1)}>Anterior</button><button type="button" disabled={movementPage >= movementPageCount} onClick={() => setMovementPage(p => p + 1)}>Próxima</button></div></>
                                 )}
                             </section>
                         </section>
