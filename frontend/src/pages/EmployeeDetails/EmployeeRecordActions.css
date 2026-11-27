@@ -54,3 +54,12 @@
     .employee-record-form__full { grid-column: 1; }
     .employee-record-action { flex: 1 1 auto; }
 }
+.employee-record-actions__group { display: flex; align-items: center; flex-wrap: wrap; gap: var(--spacing-2); padding-right: var(--spacing-3); margin-right: var(--spacing-1); border-right: 1px solid var(--color-border); }
+.employee-record-actions__group:last-child { padding-right: 0; margin-right: 0; border-right: 0; }
+.employee-record-actions__label { margin-right: .2rem; color: var(--color-text-muted); font-size: .65rem; font-weight: var(--font-weight-semibold); letter-spacing: .04em; text-transform: uppercase; }
+.employee-record-actions--compact .employee-record-actions__group { padding-right: var(--spacing-2); margin-right: 0; }
+@media (max-width: 640px) {
+    .employee-record-actions__group { width: 100%; padding: 0 0 var(--spacing-2); margin: 0; border-right: 0; border-bottom: 1px solid var(--color-border); }
+    .employee-record-actions__group:last-child { padding-bottom: 0; border-bottom: 0; }
+    .employee-record-actions__label { width: 100%; }
+}
