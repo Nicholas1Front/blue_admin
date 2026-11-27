@@ -8,7 +8,7 @@ export interface EmployeeMovement {
     eventDate: string | null; referenceStart?: string | null; referenceEnd?: string | null;
     value: EmployeeAmount | null; obligationId: string | null; financialTransactionId: string | null;
     observations?: string | null; createdAt: string; updatedAt?: string;
-    obligation?: { id: string; type: ObligationType; title: string; referenceStart: string | null; referenceEnd: string | null; dueDate?: string | null; finalValue?: number; status?: string } | null;
+    obligation?: { id: string; type: ObligationType; title: string; referenceStart: string | null; referenceEnd: string | null; dueDate?: string | null; createdAt?: string; finalValue?: number; status?: string } | null;
     financialTransaction?: { id: string; description: string; value: number; referenceDate: string; categoryId?: string; type?: string } | null;
 }
 export interface MovementListItem extends EmployeeMovement {
