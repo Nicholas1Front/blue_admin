@@ -373,6 +373,7 @@ export function EmployeeDetails() {
                                                 <div className="employee-detail-obligations">
                                                     {group.obligations.map(obligation => {
                                                         const finalValue = Number(obligation.finalValue);
+                                                        const obligationMovements = sortedMovements.filter(item => item.obligationId === obligation.id);
                                                         const paidValue = paymentsByObligation.get(obligation.id) ?? 0;
                                                         const balance = Math.max(0, Number((finalValue - paidValue).toFixed(2)));
                                                         return (
@@ -386,10 +387,10 @@ export function EmployeeDetails() {
                                                                 <div className="employee-detail-obligation-values"><span><small>Valor previsto</small><strong>{currency(finalValue)}</strong></span><span><small>Já pago / alocado</small><strong>{currency(paidValue)}</strong></span><span><small>Saldo restante</small><strong>{currency(balance)}</strong></span></div>
                                                                 {obligation.description && <p className="employee-detail-obligation-description">{obligation.description}</p>}
                                                                 {obligation.observations && <small className="employee-detail-obligation-note">Observação: {obligation.observations}</small>}
-                                                                <button type="button" className="employee-detail-obligation-movements-toggle" aria-expanded={expandedObligationMovements.has(obligation.id)} onClick={() => setExpandedObligationMovements(current => { const next = new Set(current); if (next.has(obligation.id)) next.delete(obligation.id); else next.add(obligation.id); return next; })}>{expandedObligationMovements.has(obligation.id) ? "Ocultar movimentações" : "Ver movimentações desta obrigação"} ({movements.filter(item => item.obligationId === obligation.id).length})</button>
+                                                                <button type="button" className="employee-detail-obligation-movements-toggle" aria-expanded={expandedObligationMovements.has(obligation.id)} onClick={() => setExpandedObligationMovements(current => { const next = new Set(current); if (next.has(obligation.id)) next.delete(obligation.id); else next.add(obligation.id); return next; })}>{expandedObligationMovements.has(obligation.id) ? "Ocultar movimentações" : "Ver movimentações desta obrigação"} ({obligationMovements.length})</button>
                                                                 {expandedObligationMovements.has(obligation.id) && (
                                                                     <div className="employee-detail-obligation-movements">
-                                                                        {movements.filter(item => item.obligationId === obligation.id).length ? movements.filter(item => item.obligationId === obligation.id).sort((a, b) => movementSortDate(b).localeCompare(movementSortDate(a))).map(item => (
+                                                                        {obligationMovements.length ? obligationMovements.map(item => (
                                                                             <div className="employee-detail-obligation-movement" key={item.id}>
                                                                                 <span><strong>{item.type === "pagamento" ? "Pagamento realizado" : movementTypeLabels[item.type]}</strong><small>{dateOnly(item.eventDate ?? item.createdAt)} · {item.description}</small></span>
                                                                                 <strong>{item.value == null ? "—" : currency(item.value)}</strong>
