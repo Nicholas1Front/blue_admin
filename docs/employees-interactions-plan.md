@@ -53,8 +53,10 @@ O backend já exige obrigação para alguns tipos de movimento, incluindo pagame
 - O popup de detalhes do vínculo já permite editar o vínculo.
 - A página Employees já apresenta dashboard, resumos por funcionário, faltas/atrasos e listagem de movimentos.
 - A ficha individual já apresenta vínculos, obrigações, movimentos e histórico, com filtros e paginação.
-- Ainda não há, nas páginas atuais, formulários/fluxos completos de criação de funcionário, criação de vínculo, criação/edição de obrigação e criação/edição de movimento/pagamento.
-- A interface ainda precisa conectar a análise de obrigações às ações de revisar, selecionar e criar/atualizar competências em lote.
+- A home possui uma seção de acessos rápidos acima do resumo por funcionário, com cadastro de funcionário, criação e edição de obrigações e lançamentos, além de ações visuais para sugestões e exclusão.
+- A ficha do funcionário disponibiliza ações dentro das seções de obrigações e lançamentos. Os formulários reutilizam as mutations/hooks existentes e invalidam as consultas após salvar.
+- O cadastro rápido de funcionário encaminha para a ficha após salvar. O formulário completo de vínculo e o fluxo de continuidade (criar vínculo / analisar / concluir) ainda serão implementados.
+- A análise de obrigações ainda não está conectada à revisão e confirmação de sugestões em lote.
 
 ### Contagem mensal de faltas e atrasos
 
@@ -139,7 +141,9 @@ A análise de consistência existente pode ser usada para identificar divergênc
 - Atualmente, excluir uma obrigação é bloqueado quando há movimentos do tipo pagamento ou tipos que exigem obrigação.
 - Quando a exclusão é permitida, o backend desassocia os movimentos restantes (`obligationId = null`) em vez de excluí-los. Isso não corresponde ao fluxo de exclusão em cascata que queremos oferecer; será necessário um novo comportamento explícito.
 - A exclusão de movimento atualmente registra histórico e preserva a transação financeira vinculada.
-- Não existem endpoints de exclusão física de funcionário ou vínculo. O funcionário e o vínculo devem ser preservados até definirmos uma estratégia de exclusão/arquivamento.
+- O backend possui exclusão explícita de funcionário com confirmação do nome e exclusão transacional de vínculos, obrigações, movimentos e histórico. Transações financeiras são preservadas; a exclusão do histórico do funcionário é permanente.
+- A exclusão de obrigação com movimentos possui endpoint explícito e transacional, com registro de histórico e preservação das transações financeiras.
+- Os botões de exclusão na interface permanecem desabilitados até conectarmos os diálogos de confirmação e avisos de integridade.
 - O backend já valida que o total alocado de movimentos ligados a uma transação financeira não ultrapasse o valor da transação.
 - O backend já possui análise de consistência para pagamentos sem obrigação, status divergentes, valores excedentes, vínculo incorreto e alocação acima da transação. Essa consulta é somente de leitura.
 
@@ -181,3 +185,14 @@ Cada etapa pode ser dividida em um ou dois comportamentos relacionados, mantendo
 - Excluir obrigação com movimentos: confirmar exclusão relacionada, preservar transações financeiras e registrar histórico.
 - Excluir movimento de pagamento e confirmar que a transação financeira permanece no módulo financeiro.
 - Verificar que todas as mutations atualizam dashboard, resumos, listas e ficha do funcionário.
+
+
+## Estado da interface — acessos rápidos e formulários
+
+- Na home, os acessos rápidos ficam em uma seção acima do resumo por funcionário.
+- Na ficha individual, os acessos de obrigação e lançamento ficam dentro de suas respectivas seções; os detalhes financeiros e de movimentos relacionados também exibem ações de edição contextualizadas.
+- Criar e editar obrigação usa os endpoints individuais existentes. Criar/editar lançamento usa o endpoint de movimento comum; pagamentos continuam usando os endpoints específicos de pagamento.
+- Para tipos que exigem obrigação, o formulário solicita o vínculo com uma obrigação. Faltas, atrasos, saída antecipada e anotações podem ser registrados sem obrigação.
+- O formulário não altera automaticamente o status de uma obrigação após salvar um pagamento. O usuário deve revisar o status explicitamente.
+- As ações de sugestão e exclusão estão apenas apresentadas visualmente; ainda não executam análise nem exclusão.
+- O cadastro rápido de funcionário solicita nome e documento e, após salvar, abre a ficha. O formulário cadastral completo e a etapa opcional de criação de vínculo ficam para a próxima evolução.
