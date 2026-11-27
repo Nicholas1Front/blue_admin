@@ -1,4 +1,4 @@
-import { useMemo, useState, type FormEvent } from "react";
+import { useState, type FormEvent } from "react";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faPen, faTrash, faWandMagicSparkles, faUserPlus, faFileInvoiceDollar, faClockRotateLeft } from "@fortawesome/free-solid-svg-icons";
 import {
@@ -11,7 +11,7 @@ import {
     useMovementMutations
 } from "../../modules/employees";
 import type {
-    EmployeeMovement, EmployeeMovementType, EmployeeObligation, EmployeeRecord,
+    EmployeeMovement, EmployeeMovementType,
     EmployeeAmount, ObligationType, ObligationStatus, ObligationListItem,
     MovementListItem, CreateObligationRequest, CreateMovementRequest,
     CreatePaymentRequest
@@ -66,7 +66,7 @@ export function EmployeeRecordActions(props: Props) {
     const [movementObservations, setMovementObservations] = useState("");
     const [error, setError] = useState("");
 
-    const employeesQuery = useEmployees({ limit: 100 }, Boolean(mode === "employee"));
+    const employeesQuery = useEmployees({ limit: 100 }, Boolean(mode === "employee" || (mode && mode !== "employee" && !props.employeeId && !props.engagementId)));
     const engagementsQuery = useEngagementsByFilters({ employeeId: employeeId || undefined, limit: 100 }, Boolean(mode && mode !== "employee" && !props.engagementId));
     const obligationsQuery = useObligationsByFilters({ engagementId: engagementId || undefined, limit: 100 }, Boolean(mode && engagementId));
     const movementsQuery = useMovementsByFilters({ engagementId: engagementId || undefined, limit: 100, order: "desc" }, Boolean(mode && engagementId));
