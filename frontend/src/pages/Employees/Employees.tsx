@@ -7,7 +7,6 @@ import {
     faMagnifyingGlass,
     faRotate,
     faUsers,
-    faWallet
 } from "@fortawesome/free-solid-svg-icons";
 
 import { AppHeader } from "../../components/AppHeader/AppHeader";
@@ -204,9 +203,6 @@ export function Employees() {
     const employees = summaries.data?.data ?? [];
     const movements = movementsQuery.data?.data ?? [];
     const totals = dashboard.data?.totals;
-    const dashboardEmployees = dashboard.data?.employees ?? [];
-    const absencesTotal = dashboardEmployees.reduce((sum, employee) => sum + employee.absencesThisMonth, 0);
-    const tardinessTotal = dashboardEmployees.reduce((sum, employee) => sum + employee.tardinessThisMonth, 0);
     const today = new Date();
     const todayKey = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, "0")}-${String(today.getDate()).padStart(2, "0")}`;
     const years = Array.from({ length: 6 }, (_, index) => currentYear - 4 + index);
@@ -303,14 +299,6 @@ export function Employees() {
                         <strong>{dashboard.isPending ? "—" : totals?.employees ?? 0}</strong>
                         <small>Funcionários cadastrados</small>
                     </article>
-                    <article className="employees-metric employees-metric--blue">
-                        <div className="employees-metric__top">
-                            <span>Saldo em aberto</span>
-                            <span className="employees-metric__icon"><FontAwesomeIcon icon={faWallet} /></span>
-                        </div>
-                        <strong>{dashboard.isPending ? "—" : formatCurrency(totals?.totalOpenValue)}</strong>
-                        <small>Valor reconhecido e não liquidado</small>
-                    </article>
                     <article className="employees-metric employees-metric--red">
                         <div className="employees-metric__top">
                             <span>Obrigações vencidas</span>
@@ -326,22 +314,6 @@ export function Employees() {
                         </div>
                         <strong>{dashboard.isPending ? "—" : formatCurrency(totals?.upcomingValue)}</strong>
                         <small>Saldo com vencimento próximo</small>
-                    </article>
-                    <article className="employees-metric employees-metric--red">
-                        <div className="employees-metric__top">
-                            <span>Faltas no mês</span>
-                            <span className="employees-metric__icon"><FontAwesomeIcon icon={faUsers} /></span>
-                        </div>
-                        <strong>{dashboard.isPending ? "—" : absencesTotal}</strong>
-                        <small>Ocorrências registradas</small>
-                    </article>
-                    <article className="employees-metric employees-metric--yellow">
-                        <div className="employees-metric__top">
-                            <span>Atrasos no mês</span>
-                            <span className="employees-metric__icon"><FontAwesomeIcon icon={faClock} /></span>
-                        </div>
-                        <strong>{dashboard.isPending ? "—" : tardinessTotal}</strong>
-                        <small>Ocorrências registradas</small>
                     </article>
                 </section>
 
