@@ -323,7 +323,7 @@ export function EmployeeDetails() {
                     ) : (
                         <div className="employee-detail-engagements">
                             {engagements.map(engagement => (
-                                <button type="button" key={engagement.id} className={`employee-detail-engagement ${engagement.id === selectedEngagementId ? "employee-detail-engagement--selected" : ""}`} onClick={() => { setSelectedEngagementId(engagement.id); setHistoryCursor(undefined); setHistoryCursorStack([]); }}>
+                                <button type="button" key={engagement.id} className={`employee-detail-engagement ${engagement.id === selectedEngagementId ? "employee-detail-engagement--selected" : ""}`} onClick={() => { setSelectedEngagementId(engagement.id); setHistoryCursor(undefined); setHistoryCursorStack([]); setObligationGroupPage(1); setMovementPage(1); }}>
                                     <span className={`employee-detail-status employee-detail-status--${engagement.status === "trabalhando" ? "active" : "inactive"}`}>{engagementStatusLabels[engagement.status]}</span>
                                     <strong>{modalityLabels[engagement.modality]}</strong>
                                     <small>{engagementPeriod(engagement)}</small>
@@ -364,8 +364,8 @@ export function EmployeeDetails() {
                                     <div className="employee-detail-state employee-detail-state--error"><strong>Não foi possível carregar as obrigações.</strong><button type="button" onClick={() => void obligationsQuery.refetch()}>Tentar novamente</button></div>
                                 ) : (
                                     <div className="employee-detail-obligation-filters">
-                                        <label className="employee-detail-filter-search"><span>Pesquisar obrigações</span><input type="search" value={obligationSearch} onChange={event => setObligationSearch(event.target.value)} placeholder="Título, tipo, competência ou data…" /></label>
-                                        <label className="employee-detail-filter-status"><span>Status</span><select value={obligationStatusFilter} onChange={event => setObligationStatusFilter(event.target.value as ObligationStatus | "todas")}><option value="todas">Todos os status</option>{Object.entries(obligationStatusLabels).map(([status, label]) => <option value={status} key={status}>{label}</option>)}</select></label>
+                                        <label className="employee-detail-filter-search"><span>Pesquisar obrigações</span><input type="search" value={obligationSearch} onChange={event => { setObligationSearch(event.target.value); setObligationGroupPage(1); }} placeholder="Título, tipo, competência ou data…" /></label>
+                                        <label className="employee-detail-filter-status"><span>Status</span><select value={obligationStatusFilter} onChange={event => { setObligationStatusFilter(event.target.value as ObligationStatus | "todas"); setObligationGroupPage(1); }}><option value="todas">Todos os status</option>{Object.entries(obligationStatusLabels).map(([status, label]) => <option value={status} key={status}>{label}</option>)}</select></label>
                                     </div>
                                 )}
                                 {!obligationsQuery.isPending && !obligationsQuery.isError && (obligationGroups.length === 0 ? (
