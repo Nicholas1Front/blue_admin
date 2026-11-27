@@ -197,3 +197,10 @@ Cada etapa pode ser dividida em um ou dois comportamentos relacionados, mantendo
 - Ao salvar um pagamento, a interface oferece abrir a obrigação relacionada para revisar status e valores. Ao marcar uma obrigação como paga com valores divergentes, exibe um aviso e permite que o usuário decida se continua.
 - As ações de sugestão e exclusão estão apenas apresentadas visualmente; ainda não executam análise nem exclusão.
 - O cadastro rápido de funcionário solicita nome e documento e, após salvar, abre a ficha. O formulário cadastral completo e a etapa opcional de criação de vínculo ficam para a próxima evolução.
+
+
+## Contratos de exclusão no frontend
+
+- `deleteEmployee` está tipado em `employees.types.ts`, exposto em `employees.api.ts` e `useEmployeeMutations().remove`. Recebe o nome exato para confirmação e retorna contagens de registros excluídos e transações financeiras preservadas.
+- `deleteObligationWithMovements` está tipado em `obligations.types.ts`, exposto em `obligations.api.ts` e `useObligationMutations().removeWithMovements`. Exige `{ deleteLinkedMovements: true }` e retorna contagens de movimentos excluídos e transações financeiras preservadas.
+- Ambas as mutations invalidam as queries do módulo Employees após sucesso. Os botões de exclusão na interface continuam desabilitados até implementarmos confirmação contextual.
