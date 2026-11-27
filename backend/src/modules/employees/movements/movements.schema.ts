@@ -105,11 +105,26 @@ export const findMovementsByFiltersSchema = z.object({
     description: z.string().trim().min(1).optional(),
     obligationId: z.string().uuid().optional(),
     financialTransactionId: z.string().uuid().optional(),
+    valueFrom: z.coerce.number().finite().min(0).optional(),
+    valueTo: z.coerce.number().finite().min(0).optional(),
+    referenceStartFrom: z.coerce.date().optional(),
+    referenceStartTo: z.coerce.date().optional(),
+    referenceEndFrom: z.coerce.date().optional(),
+    referenceEndTo: z.coerce.date().optional(),
     eventDateFrom: z.coerce.date().optional(),
     eventDateTo: z.coerce.date().optional(),
     cursor: z.string().uuid().optional(),
     limit: z.coerce.number().int().min(1).max(100).default(20),
     order: z.enum(['asc', 'desc']).default('desc')
+}).refine(data => data.valueFrom === undefined || data.valueTo === undefined || data.valueTo >= data.valueFrom, {
+    message: 'Maximum value cannot be below minimum value',
+    path: ['valueTo']
+}).refine(data => !data.referenceStartFrom || !data.referenceStartTo || data.referenceStartTo >= data.referenceStartFrom, {
+    message: 'Reference start end cannot be before start',
+    path: ['referenceStartTo']
+}).refine(data => !data.referenceEndFrom || !data.referenceEndTo || data.referenceEndTo >= data.referenceEndFrom, {
+    message: 'Reference end end cannot be before start',
+    path: ['referenceEndTo']
 }).refine(data => !data.eventDateFrom || !data.eventDateTo || data.eventDateTo >= data.eventDateFrom, {
     message: 'Event date end cannot be before start',
     path: ['eventDateTo']
