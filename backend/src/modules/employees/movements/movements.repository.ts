@@ -485,7 +485,7 @@ class MovementsRepository {
                     }
                 },
                 obligation: {
-                    select: { id: true, type: true, title: true, referenceStart: true, referenceEnd: true, finalValue: true, status: true }
+                    select: { id: true, type: true, title: true, referenceStart: true, referenceEnd: true, dueDate: true, createdAt: true, finalValue: true, status: true }
                 },
                 financialTransaction: {
                     select: { id: true, categoryId: true, description: true, value: true, type: true, referenceDate: true }
