@@ -1,7 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { employeesQueryKeys } from "../employees.queryKeys";
-import { analyzeObligations, createObligation, createObligationsBatch, deleteObligation, findObligationsByEngagement, findObligationsByFilters, findOpenObligations, updateObligation } from "./obligations.api";
-import type { AnalyzeObligationsFilters, CreateObligationRequest, CreateObligationsBatchRequest, FindObligationsFilters, UpdateObligationRequest } from "./obligations.types";
+import { analyzeObligations, createObligation, createObligationsBatch, deleteObligation, deleteObligationWithMovements, findObligationsByEngagement, findObligationsByFilters, findOpenObligations, updateObligation } from "./obligations.api";
+import type { AnalyzeObligationsFilters, CreateObligationRequest, CreateObligationsBatchRequest, DeleteObligationWithMovementsRequest, FindObligationsFilters, UpdateObligationRequest } from "./obligations.types";
 export function useObligationsByFilters(filters: FindObligationsFilters, enabled = true) {
     return useQuery({ queryKey: employeesQueryKeys.obligations.filtered(filters), queryFn: () => findObligationsByFilters(filters), enabled });
 }
@@ -21,5 +21,6 @@ export function useObligationMutations() {
     const createBatch = useMutation({ mutationFn: ({ engagementId, data }: { engagementId: string; data: CreateObligationsBatchRequest }) => createObligationsBatch(engagementId, data), onSuccess: invalidate });
     const update = useMutation({ mutationFn: ({ engagementId, obligationId, data }: { engagementId: string; obligationId: string; data: UpdateObligationRequest }) => updateObligation(engagementId, obligationId, data), onSuccess: invalidate });
     const remove = useMutation({ mutationFn: ({ engagementId, obligationId }: { engagementId: string; obligationId: string }) => deleteObligation(engagementId, obligationId), onSuccess: invalidate });
-    return { create, createBatch, update, remove };
+    const removeWithMovements = useMutation({ mutationFn: ({ engagementId, obligationId, data }: { engagementId: string; obligationId: string; data: DeleteObligationWithMovementsRequest }) => deleteObligationWithMovements(engagementId, obligationId, data), onSuccess: invalidate });
+    return { create, createBatch, update, remove, removeWithMovements };
 }
