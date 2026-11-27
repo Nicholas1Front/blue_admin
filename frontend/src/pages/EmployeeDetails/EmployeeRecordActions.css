@@ -1,0 +1,56 @@
+.employee-record-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: var(--spacing-2);
+    margin: var(--spacing-4) 0 var(--spacing-5);
+}
+.employee-record-actions--compact { margin: var(--spacing-2) 0; }
+.employee-record-action {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: var(--spacing-2);
+    min-height: 2.35rem;
+    padding: .55rem .8rem;
+    color: var(--color-text-secondary);
+    background: var(--color-surface-hover);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+}
+.employee-record-action:hover:not(:disabled) { border-color: var(--color-primary-400); color: var(--color-text); }
+.employee-record-action--primary { color: #fff; background: var(--color-primary-600); border-color: var(--color-primary-600); }
+.employee-record-action--danger { color: #fca5a5; border-color: rgb(248 113 113 / .3); }
+.employee-record-action:disabled { opacity: .55; cursor: not-allowed; }
+.employee-record-modal-backdrop { position: fixed; z-index: 1100; inset: 0; display: flex; align-items: center; justify-content: center; padding: 1rem; background: rgb(0 0 0 / .62); overflow-y: auto; }
+.employee-record-modal { width: min(100%, 48rem); max-height: calc(100vh - 2rem); overflow-y: auto; padding: var(--spacing-5); color: var(--color-text); background: var(--color-surface); border: 1px solid var(--color-border); border-radius: var(--radius-xl); box-shadow: var(--shadow-lg); }
+.employee-record-modal > header { display: flex; align-items: flex-start; justify-content: space-between; gap: var(--spacing-4); margin-bottom: var(--spacing-4); }
+.employee-record-modal__eyebrow { color: var(--color-primary-300); font-size: var(--font-size-xs); font-weight: var(--font-weight-semibold); text-transform: uppercase; letter-spacing: .08em; }
+.employee-record-modal h2 { margin-top: .25rem; font-size: var(--font-size-xl); }
+.employee-record-modal header p { margin-top: .4rem; color: var(--color-text-muted); font-size: var(--font-size-sm); }
+.employee-record-modal > header > button { width: 2rem; height: 2rem; flex: 0 0 auto; color: var(--color-text-secondary); background: transparent; border: 1px solid var(--color-border); border-radius: var(--radius-md); font-size: 1.3rem; cursor: pointer; }
+.employee-record-context, .employee-record-form__grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--spacing-3); }
+.employee-record-context { margin-bottom: var(--spacing-4); padding: var(--spacing-3); background: var(--color-background); border: 1px solid var(--color-border); border-radius: var(--radius-lg); }
+.employee-record-form, .employee-record-form label, .employee-record-context label, .employee-record-select { display: flex; flex-direction: column; gap: .4rem; min-width: 0; }
+.employee-record-form label, .employee-record-context label, .employee-record-select { color: var(--color-text-secondary); font-size: var(--font-size-xs); }
+.employee-record-form input, .employee-record-form select, .employee-record-form textarea, .employee-record-context select, .employee-record-select select { width: 100%; min-height: 2.4rem; padding: .55rem .7rem; color: var(--color-text); background: var(--color-surface-hover); border: 1px solid var(--color-border); border-radius: var(--radius-md); font: inherit; font-size: var(--font-size-sm); }
+.employee-record-form textarea { resize: vertical; }
+.employee-record-form__full { grid-column: 1 / -1; }
+.employee-record-select { margin: 0 0 var(--spacing-3); }
+.employee-record-form__actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: var(--spacing-2); margin-top: var(--spacing-4); }
+.employee-record-form__actions button, .employee-record-placeholder button { min-height: 2.35rem; padding: .55rem .85rem; color: var(--color-text-secondary); background: var(--color-surface-hover); border: 1px solid var(--color-border); border-radius: var(--radius-md); font-size: var(--font-size-xs); font-weight: var(--font-weight-semibold); cursor: pointer; }
+.employee-record-form__actions button[type="submit"] { color: #fff; background: var(--color-primary-600); border-color: var(--color-primary-600); }
+.employee-record-form__actions button:disabled { opacity: .6; cursor: wait; }
+.employee-record-form__error { margin-top: var(--spacing-3); color: #fca5a5; font-size: var(--font-size-sm); }
+.employee-record-placeholder { display: flex; align-items: center; flex-direction: column; gap: var(--spacing-3); padding: var(--spacing-5); color: var(--color-text-muted); text-align: center; }
+.employee-record-placeholder svg { color: var(--color-primary-300); font-size: 1.5rem; }
+.employee-record-placeholder p { max-width: 30rem; line-height: 1.6; }
+@media (max-width: 640px) {
+    .employee-record-modal { padding: var(--spacing-4); }
+    .employee-record-context, .employee-record-form__grid { grid-template-columns: minmax(0, 1fr); }
+    .employee-record-form__full { grid-column: 1; }
+    .employee-record-action { flex: 1 1 auto; }
+}
