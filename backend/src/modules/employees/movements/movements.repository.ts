@@ -457,6 +457,24 @@ class MovementsRepository {
             ...(filters.description ? { description: { contains: filters.description, mode: 'insensitive' as const } } : {}),
             ...(filters.obligationId ? { obligationId: filters.obligationId } : {}),
             ...(filters.financialTransactionId ? { financialTransactionId: filters.financialTransactionId } : {}),
+            ...(filters.valueFrom !== undefined || filters.valueTo !== undefined ? {
+                value: {
+                    ...(filters.valueFrom !== undefined ? { gte: filters.valueFrom } : {}),
+                    ...(filters.valueTo !== undefined ? { lte: filters.valueTo } : {})
+                }
+            } : {}),
+            ...(filters.referenceStartFrom || filters.referenceStartTo ? {
+                referenceStart: {
+                    ...(filters.referenceStartFrom ? { gte: new Date(Date.UTC(filters.referenceStartFrom.getUTCFullYear(), filters.referenceStartFrom.getUTCMonth(), filters.referenceStartFrom.getUTCDate())) } : {}),
+                    ...(filters.referenceStartTo ? { lt: new Date(Date.UTC(filters.referenceStartTo.getUTCFullYear(), filters.referenceStartTo.getUTCMonth(), filters.referenceStartTo.getUTCDate() + 1)) } : {})
+                }
+            } : {}),
+            ...(filters.referenceEndFrom || filters.referenceEndTo ? {
+                referenceEnd: {
+                    ...(filters.referenceEndFrom ? { gte: new Date(Date.UTC(filters.referenceEndFrom.getUTCFullYear(), filters.referenceEndFrom.getUTCMonth(), filters.referenceEndFrom.getUTCDate())) } : {}),
+                    ...(filters.referenceEndTo ? { lt: new Date(Date.UTC(filters.referenceEndTo.getUTCFullYear(), filters.referenceEndTo.getUTCMonth(), filters.referenceEndTo.getUTCDate() + 1)) } : {})
+                }
+            } : {}),
             ...(eventDateRange ? { eventDate: eventDateRange } : {})
         }
 
