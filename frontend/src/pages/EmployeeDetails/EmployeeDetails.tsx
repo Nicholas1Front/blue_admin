@@ -363,7 +363,7 @@ export function EmployeeDetails() {
                                         <label className="employee-detail-filter-status"><span>Status</span><select value={obligationStatusFilter} onChange={event => setObligationStatusFilter(event.target.value as ObligationStatus | "todas")}><option value="todas">Todos os status</option>{Object.entries(obligationStatusLabels).map(([status, label]) => <option value={status} key={status}>{label}</option>)}</select></label>
                                     </div>
                                 )}
-                                {!obligationsQuery.isPending && !obligationsQuery.isError && obligationGroups.length === 0 ? (
+                                {!obligationsQuery.isPending && !obligationsQuery.isError && (obligationGroups.length === 0 ? (
                                     <div className="employee-detail-empty"><strong>{obligations.length ? "Nenhuma obrigação encontrada" : "Nenhuma obrigação cadastrada"}</strong><p>{obligations.length ? "Tente alterar a pesquisa ou o filtro de status." : "As obrigações deste vínculo aparecerão aqui, agrupadas pelo mês de vencimento."}</p></div>
                                 ) : (
                                     <div className="employee-detail-obligation-groups">
@@ -397,7 +397,7 @@ export function EmployeeDetails() {
                                                                             </div>
                                                                         )) : <p className="employee-detail-obligation-movements__empty">Ainda não há movimentações vinculadas a esta obrigação.</p>}
                                                                     </div>
-                                                                )}}
+                                                                )}
                                                             </article>
                                                         );
                                                     })}
@@ -405,7 +405,7 @@ export function EmployeeDetails() {
                                             </article>
                                         ))}
                                     </div>
-                                )}
+                                ))}
                             </section>
 
                             <section className="employee-detail-records-block">
