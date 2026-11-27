@@ -20,7 +20,7 @@ import type {
 import "./EmployeeRecordActions.css";
 
 type ActionMode = "employee" | "obligation" | "movement" | "edit-obligation" | "edit-movement" | "suggestions" | "delete";
-type Props = { engagementId?: string; employeeId?: string; showEmployee?: boolean; showObligation?: boolean; showMovement?: boolean; showEdit?: boolean; showSuggestions?: boolean; showDelete?: boolean; compact?: boolean };
+type Props = { engagementId?: string; employeeId?: string; obligationId?: string; showEmployee?: boolean; showObligation?: boolean; showMovement?: boolean; showEdit?: boolean; showSuggestions?: boolean; showDelete?: boolean; compact?: boolean };
 
 const obligationTypes: { value: ObligationType; label: string }[] = [
     { value: "salario", label: "Salário" }, { value: "ferias", label: "Férias" }, { value: "decimo_terceiro", label: "13º salário" },
@@ -71,7 +71,7 @@ export function EmployeeRecordActions(props: Props) {
     const employeesQuery = useEmployees({ limit: 100 }, Boolean(mode === "employee" || (mode && mode !== "employee" && !props.employeeId && !props.engagementId)));
     const engagementsQuery = useEngagementsByFilters({ employeeId: employeeId || undefined, limit: 100 }, Boolean(mode && mode !== "employee" && !props.engagementId));
     const obligationsQuery = useObligationsByFilters({ engagementId: engagementId || undefined, limit: 100 }, Boolean(mode && engagementId));
-    const movementsQuery = useMovementsByFilters({ engagementId: engagementId || undefined, limit: 100, order: "desc" }, Boolean(mode && engagementId));
+    const movementsQuery = useMovementsByFilters({ engagementId: engagementId || undefined, obligationId: props.obligationId, limit: 100, order: "desc" }, Boolean(mode && engagementId));
     const employees = employeesQuery.data?.data ?? [];
     const engagements = engagementsQuery.data?.data ?? [];
     const obligations = obligationsQuery.data?.data ?? [];
