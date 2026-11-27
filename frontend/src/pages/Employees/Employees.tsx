@@ -296,28 +296,52 @@ export function Employees() {
 
                 <section className="employees-metrics" aria-label="Indicadores de funcionários">
                     <article className="employees-metric employees-metric--blue">
-                        <div className="employees-metric__top"><span>Funcionários</span><span className="employees-metric__icon"><FontAwesomeIcon icon={faUsers} /></span></div>
-                        <strong>{dashboard.isPending ? "—" : totals?.employees ?? 0}</strong><small>Funcionários cadastrados</small>
+                        <div className="employees-metric__top">
+                            <span>Funcionários</span>
+                            <span className="employees-metric__icon"><FontAwesomeIcon icon={faUsers} /></span>
+                        </div>
+                        <strong>{dashboard.isPending ? "—" : totals?.employees ?? 0}</strong>
+                        <small>Funcionários cadastrados</small>
                     </article>
                     <article className="employees-metric employees-metric--blue">
-                        <div className="employees-metric__top"><span>Saldo em aberto</span><span className="employees-metric__icon"><FontAwesomeIcon icon={faWallet} /></span></div>
-                        <strong>{dashboard.isPending ? "—" : formatCurrency(totals?.totalOpenValue)}</strong><small>Valor reconhecido e não liquidado</small>
+                        <div className="employees-metric__top">
+                            <span>Saldo em aberto</span>
+                            <span className="employees-metric__icon"><FontAwesomeIcon icon={faWallet} /></span>
+                        </div>
+                        <strong>{dashboard.isPending ? "—" : formatCurrency(totals?.totalOpenValue)}</strong>
+                        <small>Valor reconhecido e não liquidado</small>
                     </article>
                     <article className="employees-metric employees-metric--red">
-                        <div className="employees-metric__top"><span>Obrigações vencidas</span><span className="employees-metric__icon"><FontAwesomeIcon icon={faClock} /></span></div>
-                        <strong>{dashboard.isPending ? "—" : formatCurrency(totals?.overdueValue)}</strong><small>Saldo que já passou do vencimento</small>
+                        <div className="employees-metric__top">
+                            <span>Obrigações vencidas</span>
+                            <span className="employees-metric__icon"><FontAwesomeIcon icon={faClock} /></span>
+                        </div>
+                        <strong>{dashboard.isPending ? "—" : formatCurrency(totals?.overdueValue)}</strong>
+                        <small>Saldo que já passou do vencimento</small>
                     </article>
                     <article className="employees-metric employees-metric--yellow">
-                        <div className="employees-metric__top"><span>Próximos 30 dias</span><span className="employees-metric__icon"><FontAwesomeIcon icon={faCalendarDays} /></span></div>
-                        <strong>{dashboard.isPending ? "—" : formatCurrency(totals?.upcomingValue)}</strong><small>Saldo com vencimento próximo</small>
+                        <div className="employees-metric__top">
+                            <span>Próximos 30 dias</span>
+                            <span className="employees-metric__icon"><FontAwesomeIcon icon={faCalendarDays} /></span>
+                        </div>
+                        <strong>{dashboard.isPending ? "—" : formatCurrency(totals?.upcomingValue)}</strong>
+                        <small>Saldo com vencimento próximo</small>
                     </article>
                     <article className="employees-metric employees-metric--red">
-                        <div className="employees-metric__top"><span>Faltas no mês</span><span className="employees-metric__icon"><FontAwesomeIcon icon={faUsers} /></span></div>
-                        <strong>{dashboard.isPending ? "—" : absencesTotal}</strong><small>Ocorrências registradas</small>
+                        <div className="employees-metric__top">
+                            <span>Faltas no mês</span>
+                            <span className="employees-metric__icon"><FontAwesomeIcon icon={faUsers} /></span>
+                        </div>
+                        <strong>{dashboard.isPending ? "—" : absencesTotal}</strong>
+                        <small>Ocorrências registradas</small>
                     </article>
                     <article className="employees-metric employees-metric--yellow">
-                        <div className="employees-metric__top"><span>Atrasos no mês</span><span className="employees-metric__icon"><FontAwesomeIcon icon={faClock} /></span></div>
-                        <strong>{dashboard.isPending ? "—" : tardinessTotal}</strong><small>Ocorrências registradas</small>
+                        <div className="employees-metric__top">
+                            <span>Atrasos no mês</span>
+                            <span className="employees-metric__icon"><FontAwesomeIcon icon={faClock} /></span>
+                        </div>
+                        <strong>{dashboard.isPending ? "—" : tardinessTotal}</strong>
+                        <small>Ocorrências registradas</small>
                     </article>
                 </section>
 
@@ -326,7 +350,7 @@ export function Employees() {
                         <div>
                             <span className="employees-eyebrow">Equipe</span>
                             <h2>Resumo por funcionário</h2>
-                            <p>Veja as obrigações pendentes por nome e competência, além dos saldos e ocorrências.</p>
+                            <p>Acompanhe valores vencidos, próximos vencimentos, faltas e atrasos por funcionário.</p>
                         </div>
                     </header>
 
