@@ -441,7 +441,6 @@ export function EmployeeDetails() {
                                                 <div className="employee-detail-obligations">
                                                     {group.obligations.map(obligation => {
                                                         const finalValue = Number(obligation.finalValue);
-                                                        const obligationMovements = sortedMovements.filter(item => item.obligationId === obligation.id);
                                                         const paidValue = Number(obligation.paidValue ?? 0);
                                                         const balance = Number(obligation.outstandingValue ?? Math.max(0, finalValue - paidValue));
                                                         return (
@@ -457,7 +456,7 @@ export function EmployeeDetails() {
                                                                 {obligation.observations && <small className="employee-detail-obligation-note">Observação: {obligation.observations}</small>}
                                                                 <button type="button" className="employee-detail-obligation-details-button" onClick={() => setSelectedObligation(obligation as ModalObligation)}>Ver detalhes completos</button>
                                                                 <button type="button" className="employee-detail-obligation-movements-toggle" aria-expanded={expandedObligationMovements.has(obligation.id)} onClick={() => setExpandedObligationMovements(current => { const next = new Set(current); if (next.has(obligation.id)) next.delete(obligation.id); else next.add(obligation.id); return next; })}>{expandedObligationMovements.has(obligation.id) ? "Ocultar movimentações" : "Ver movimentações desta obrigação"}</button>
-                                                                {expandedObligationMovements.has(obligation.id) && <ObligationMovementsList obligationId={obligation.id} />}                                      )}
+                                                                {expandedObligationMovements.has(obligation.id) && <ObligationMovementsList obligationId={obligation.id} />}
                                                             </article>
                                                         );
                                                     })}
