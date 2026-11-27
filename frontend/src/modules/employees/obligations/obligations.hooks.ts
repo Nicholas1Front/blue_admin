@@ -5,8 +5,8 @@ import type { AnalyzeObligationsFilters, CreateObligationRequest, CreateObligati
 export function useObligationsByFilters(filters: FindObligationsFilters, enabled = true) {
     return useQuery({ queryKey: employeesQueryKeys.obligations.filtered(filters), queryFn: () => findObligationsByFilters(filters), enabled });
 }
-export function useObligationsByEngagement(engagementId: string | undefined) {
-    return useQuery({ queryKey: employeesQueryKeys.obligations.byEngagement(engagementId), queryFn: () => findObligationsByEngagement(engagementId!), enabled: Boolean(engagementId) });
+export function useObligationsByEngagement(engagementId: string | undefined, filters: { cursor?: string; limit?: number } = {}) {
+    return useQuery({ queryKey: employeesQueryKeys.obligations.byEngagement(engagementId, filters), queryFn: () => findObligationsByEngagement(engagementId!, filters), enabled: Boolean(engagementId) });
 }
 export function useOpenObligations(engagementId: string | undefined) {
     return useQuery({ queryKey: employeesQueryKeys.obligations.open(engagementId), queryFn: () => findOpenObligations(engagementId!), enabled: Boolean(engagementId) });
