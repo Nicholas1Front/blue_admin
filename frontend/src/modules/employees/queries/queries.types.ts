@@ -11,9 +11,9 @@ export interface DashboardObligation {
 }
 export interface EmployeeDashboardResponse {
     period: { month: number; year: number; startDate: string; endDate: string; daysRemaining: number };
-    totals: { employees: number; openObligations: number; totalOpenValue: number; obligationsDueThisMonth: number; dueThisMonthValue: number; overdueValue: number; paymentsRecordedThisMonth: number };
+    totals: { employees: number; openObligations: number; totalOpenValue: number; obligationsDueThisMonth: number; dueThisMonthValue: number; overdueValue: number; upcomingValue: number; paymentsRecordedThisMonth: number };
     nextObligation: DashboardObligation | null;
-    employees: Array<{ employeeId: string; name: string; totalOpenValue: number; obligationsDueThisMonth: number; dueThisMonthValue: number; overdueValue: number; paymentsRecordedThisMonth: number; absencesThisMonth: number; tardinessThisMonth: number }>;
+    employees: Array<{ employeeId: string; name: string; totalOpenValue: number; obligationsDueThisMonth: number; dueThisMonthValue: number; overdueValue: number; upcomingValue: number; paymentsRecordedThisMonth: number; absencesThisMonth: number; tardinessThisMonth: number }>;
     obligationsDueThisMonth: DashboardObligation[];
     overdueObligations: DashboardObligation[];
     recentMovements: CursorPage<MovementListItem>;
@@ -21,7 +21,7 @@ export interface EmployeeDashboardResponse {
 export interface EmployeeEngagementSummary {
     id: string; status: EngagementStatus; modality: EngagementModality;
     entryDate: string | null; exitDate: string | null; currentSalary: number | null;
-    totalOutstanding: number; openObligations: number;
+    totalOutstanding: number; overdueValue: number; upcomingValue: number; openObligations: number;
     obligations: Array<{
         id: string; type: ObligationType; title: string; dueDate: string | null;
         referenceStart: string | null; referenceEnd: string | null;
