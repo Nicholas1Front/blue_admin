@@ -36,6 +36,7 @@ export interface FindMovementsFilters {
     cursor?: string; limit?: number; order?: "asc" | "desc";
 }
 export interface FindEngagementMovementsFilters {
-    type?: EmployeeMovementType; startDate?: string; endDate?: string; order?: "asc" | "desc";
+    type?: EmployeeMovementType; startDate?: string; endDate?: string;
+    cursor?: string; limit?: number; order?: "asc" | "desc";
 }
 export type MovementPage = CursorPage<MovementListItem>;
