@@ -48,6 +48,9 @@ export function EmployeeRecordActions(props: Props) {
     const [selectedMovementId, setSelectedMovementId] = useState("");
     const [employeeName, setEmployeeName] = useState("");
     const [document, setDocument] = useState("");
+    const [employeeBirthDate, setEmployeeBirthDate] = useState("");
+    const [employeeAddress, setEmployeeAddress] = useState("");
+    const [employeeObservations, setEmployeeObservations] = useState("");
     const [obligationType, setObligationType] = useState<ObligationType>("salario");
     const [obligationTitle, setObligationTitle] = useState("");
     const [obligationDescription, setObligationDescription] = useState("");
@@ -83,6 +86,7 @@ export function EmployeeRecordActions(props: Props) {
         setError(""); setMode(next);
         setEngagementId(props.engagementId ?? "");
         setEmployeeId(props.employeeId ?? "");
+        setEmployeeBirthDate(""); setEmployeeAddress(""); setEmployeeObservations("");
         setSelectedObligationId(""); setSelectedMovementId("");
         setObligationType("salario"); setObligationTitle(""); setObligationDescription(""); setReferenceStart(""); setReferenceEnd(""); setDueDate("");
         setOriginalValue(""); setFinalValue(""); setObligationStatus("pendente"); setObligationObservations("");
@@ -118,7 +122,7 @@ export function EmployeeRecordActions(props: Props) {
 
     async function submitEmployee(event: FormEvent<HTMLFormElement>) {
         event.preventDefault(); setError("");
-        try { const result = await createEmployee.mutateAsync({ name: employeeName.trim(), document: document.trim() || null }); close(); navigate(`/employees/${encodeURIComponent(result.employee.id)}`); }
+        try { const result = await createEmployee.mutateAsync({ name: employeeName.trim(), document: document.trim() || null, birthDate: isoDate(employeeBirthDate), address: employeeAddress.trim() || null, observations: employeeObservations.trim() || null }); close(); navigate(`/employees/${encodeURIComponent(result.employee.id)}`); }
         catch { setError("Não foi possível cadastrar o funcionário. Confira os dados e tente novamente."); }
     }
     async function submitObligation(event: FormEvent<HTMLFormElement>) {
@@ -187,6 +191,10 @@ export function EmployeeRecordActions(props: Props) {
                     {mode === "employee" ? <form onSubmit={event => void submitEmployee(event)} className="employee-record-form">
                         <label>Nome completo<input required value={employeeName} onChange={event => setEmployeeName(event.target.value)} /></label>
                         <label>CPF / CNPJ<input value={document} onChange={event => setDocument(event.target.value)} /></label>
+                        <label>Data de nascimento<input type="date" value={employeeBirthDate} onChange={event => setEmployeeBirthDate(event.target.value)} /></label>
+                        <label>Endereço<input value={employeeAddress} onChange={event => setEmployeeAddress(event.target.value)} /></label>
+                        <label className="employee-record-form__full">Observações<textarea rows={2} value={employeeObservations} onChange={event => setEmployeeObservations(event.target.value)} /></label>
+                        {error && <p className="employee-record-form__error" role="alert">{error}</p>}
                         <div className="employee-record-form__actions"><button type="button" onClick={close}>Cancelar</button><button type="submit" disabled={createEmployee.isPending}>{createEmployee.isPending ? "Salvando…" : "Cadastrar funcionário"}</button></div>
                     </form> : mode === "suggestions" ? <div className="employee-record-placeholder"><FontAwesomeIcon icon={faWandMagicSparkles} /><p>A análise de competências será conectada em uma etapa posterior. Nenhuma obrigação será criada automaticamente.</p><button type="button" onClick={close}>Entendi</button></div> : mode === "delete" ? <div className="employee-record-placeholder"><FontAwesomeIcon icon={faTrash} /><p>As ações de exclusão estão planejadas, mas ainda não estão habilitadas nesta interface.</p><button type="button" onClick={close}>Fechar</button></div> : <>
                         {needsContext && <div className="employee-record-context">
