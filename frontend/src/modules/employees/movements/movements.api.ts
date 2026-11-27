@@ -25,8 +25,8 @@ export async function findMovementsByFilters(filters: FindMovementsFilters): Pro
     const response = await api.get<ApiResponse<CursorPage<MovementListItem>>>("/employees/find-movements-by-filters", { params: filters });
     return response.data.data;
 }
-export async function findMovementsByEngagement(engagementId: string, filters: FindEngagementMovementsFilters = {}): Promise<EmployeeMovement[]> {
-    const response = await api.get<ApiResponse<EmployeeMovement[]>>(`/employees/find-movements-by-engagement/${encodeURIComponent(engagementId)}`, { params: filters });
+export async function findMovementsByEngagement(engagementId: string, filters: FindEngagementMovementsFilters = {}): Promise<CursorPage<EmployeeMovement>> {
+    const response = await api.get<ApiResponse<CursorPage<EmployeeMovement>>>(`/employees/find-movements-by-engagement/${encodeURIComponent(engagementId)}`, { params: filters });
     return response.data.data;
 }
 export async function getMovementById(engagementId: string, movementId: string): Promise<EmployeeMovement> {
