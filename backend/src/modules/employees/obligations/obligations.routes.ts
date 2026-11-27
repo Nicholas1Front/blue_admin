@@ -12,5 +12,6 @@ router.get('/find-obligations-by-filters', obligationsController.findObligations
 router.get('/find-open-obligations/:engagementId', obligationsController.findOpenObligations)
 router.get('/find-obligations-by-engagement/:engagementId', obligationsController.findObligationsByEngagement)
 router.delete('/delete-obligation/:engagementId/:obligationId', obligationsController.deleteObligation)
+router.post('/delete-obligation-with-movements/:engagementId/:obligationId', obligationsController.deleteObligationWithMovements)
 
 export default router

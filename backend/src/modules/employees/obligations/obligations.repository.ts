@@ -545,6 +545,83 @@ class ObligationsRepository {
             }
         })
     }
+    async deleteObligationWithMovements(
+        engagementId: string,
+        employeeId: string,
+        obligationId: string
+    ) {
+        return prisma.$transaction(async tx => {
+            await tx.$queryRaw`SELECT id FROM employee_engagements WHERE id = ${engagementId} FOR UPDATE`
+
+            const obligation = await tx.employeeObligation.findFirst({
+                where: { id: obligationId, engagementId },
+                include: {
+                    movements: {
+                        select: {
+                            id: true,
+                            type: true,
+                            description: true,
+                            eventDate: true,
+                            value: true,
+                            financialTransactionId: true
+                        }
+                    }
+                }
+            })
+            if (!obligation) return null
+
+            const linkedRecords = obligation.movements.map(movement => ({
+                id: movement.id,
+                type: movement.type,
+                description: movement.description,
+                eventDate: movement.eventDate?.toISOString() ?? null,
+                value: movement.value?.toString() ?? null,
+                financialTransactionId: movement.financialTransactionId
+            }))
+            const preservedFinancialTransactionIds = [...new Set(
+                obligation.movements
+                    .map(movement => movement.financialTransactionId)
+                    .filter((id): id is string => id !== null)
+            )]
+
+            await tx.employeeHistory.create({
+                data: {
+                    employeeId,
+                    engagementId,
+                    eventType: 'obrigacao_excluida_com_movimentos',
+                    description: 'Obrigação e movimentos vinculados excluídos por confirmação explícita. Transações financeiras preservadas.',
+                    metadata: {
+                        obligationId,
+                        snapshot: {
+                            type: obligation.type,
+                            title: obligation.title,
+                            description: obligation.description,
+                            referenceStart: obligation.referenceStart?.toISOString() ?? null,
+                            referenceEnd: obligation.referenceEnd?.toISOString() ?? null,
+                            dueDate: obligation.dueDate?.toISOString() ?? null,
+                            originalValue: obligation.originalValue.toString(),
+                            finalValue: obligation.finalValue.toString(),
+                            status: obligation.status,
+                            observations: obligation.observations
+                        },
+                        deletedMovements: linkedRecords,
+                        preservedFinancialTransactionIds
+                    },
+                    eventDate: new Date()
+                }
+            })
+
+            await tx.employeeMovement.deleteMany({ where: { obligationId } })
+            await tx.employeeObligation.delete({ where: { id: obligationId } })
+
+            return {
+                obligationId,
+                deletedMovements: linkedRecords.length,
+                preservedFinancialTransactions: preservedFinancialTransactionIds.length
+            }
+        })
+    }
+
 }
 
 export default new ObligationsRepository()

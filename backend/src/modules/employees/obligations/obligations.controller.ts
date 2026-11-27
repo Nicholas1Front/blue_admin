@@ -6,7 +6,8 @@ import {
     createObligationsBatchSchema,
     findObligationsByFiltersSchema,
     findObligationsByEngagementQuerySchema,
-    updateObligationSchema
+    updateObligationSchema,
+    deleteObligationWithMovementsSchema
 } from './obligations.schema.js'
 import obligationsService from './obligations.service.js'
 
@@ -120,6 +121,21 @@ class ObligationsController {
             message: 'Employee obligation deleted successfully'
         })
     }
+    async deleteObligationWithMovements(req: Request, res: Response) {
+        if (!req.user) throw new AppError('User not authenticated', 401, 'USER_NOT_AUTHENTICATED')
+
+        deleteObligationWithMovementsSchema.parse(req.body)
+        const result = await obligationsService.deleteObligationWithMovements(
+            req.params.engagementId as string,
+            req.params.obligationId as string
+        )
+
+        return res.status(200).json({
+            message: 'Employee obligation and linked movements deleted successfully',
+            data: result
+        })
+    }
+
 }
 
 export default new ObligationsController()

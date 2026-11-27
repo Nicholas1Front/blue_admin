@@ -130,3 +130,10 @@ export const findObligationsByEngagementQuerySchema = z.object({
 })
 
 export type findObligationsByEngagementQueryDTO = z.infer<typeof findObligationsByEngagementQuerySchema>
+
+
+export const deleteObligationWithMovementsSchema = z.object({
+    deleteLinkedMovements: z.literal(true)
+})
+
+export type deleteObligationWithMovementsDTO = z.infer<typeof deleteObligationWithMovementsSchema>

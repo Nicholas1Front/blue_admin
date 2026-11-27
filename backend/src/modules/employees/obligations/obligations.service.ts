@@ -272,5 +272,23 @@ class ObligationsService {
 
         return true
     }
+    async deleteObligationWithMovements(engagementId: string, obligationId: string) {
+        const engagement = await obligationsRepository.findEngagementEmployeeId(engagementId)
+        if (!engagement) {
+            throw new AppError('Engagement not found', 404, 'ENGAGEMENT_NOT_FOUND')
+        }
+
+        const result = await obligationsRepository.deleteObligationWithMovements(
+            engagementId,
+            engagement.employeeId,
+            obligationId
+        )
+        if (!result) {
+            throw new AppError('Obligation not found for this engagement', 404, 'OBLIGATION_NOT_FOUND')
+        }
+
+        return result
+    }
+
 }
 export default new ObligationsService()
