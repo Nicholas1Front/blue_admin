@@ -128,6 +128,7 @@ export function EmployeeRecordActions(props: Props) {
     async function submitObligation(event: FormEvent<HTMLFormElement>) {
         event.preventDefault(); setError("");
         if (!engagementId) { setError("Selecione o vínculo para continuar."); return; }
+        if (mode === "edit-obligation" && !selectedObligation) { setError("Selecione a obrigação que deseja editar."); return; }
         if (mode === "edit-obligation" && selectedObligation) {
             const paidValue = Number(selectedObligation.paidValue ?? 0);
             const nextValue = Number(finalValue);
