@@ -97,7 +97,7 @@ export function EmployeeEngagementEditModal({ engagement, onClose }: { engagemen
                     observations: observations.trim() || null,
                     ...(salaryChanged ? {
                         currentSalary: nextSalary,
-                        effectiveDate: effectiveDate || todayInput()
+                        effectiveDate: effectiveDate ? `${effectiveDate}T12:00:00` : `${todayInput()}T12:00:00`
                     } : {})
                 }
             });
