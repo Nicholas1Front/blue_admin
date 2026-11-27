@@ -3,12 +3,52 @@ import type { Prisma } from '../../../generated/prisma/client.js';
 
 const SEED_PREFIX = 'TESTE BLUE ADMIN -';
 const SEED_YEAR = 2026;
-const currentDate = new Date();
-const lastCompletedMonth = currentDate.getUTCFullYear() === SEED_YEAR
-    ? currentDate.getUTCMonth()
+const completedMonth = new Date().getUTCFullYear() === SEED_YEAR
+    ? new Date().getUTCMonth()
     : 12;
 
-const employees = [
+type SeedAttendance = {
+    type: 'falta' | 'atraso';
+    month: number;
+    day: number;
+    description: string;
+};
+
+type SeedEngagement = {
+    role: string;
+    modality: string;
+    salary: number;
+    entryDate: Date;
+    exitDate: Date | null;
+    status: string;
+    months: number[];
+    attendance?: SeedAttendance[];
+    bonus?: { month: number; value: number };
+    thirteenthMonths?: number;
+    partialPayment?: { month: number; value: number };
+};
+
+type SeedEmployee = {
+    name: string;
+    document: string;
+    address: string;
+    birthDate: Date;
+    observations: string;
+    engagements: SeedEngagement[];
+    termination?: {
+        engagementIndex: number;
+        title: string;
+        referenceStart: Date;
+        referenceEnd: Date;
+        dueDate: Date;
+        eventDate: Date;
+        value: number;
+        paid: boolean;
+    };
+    rehire?: boolean;
+};
+
+const employees: SeedEmployee[] = [
     {
         name: 'TESTE BLUE ADMIN - Rafael Nascimento',
         document: 'TESTE-EMP-001',
@@ -24,8 +64,22 @@ const employees = [
                 exitDate: dateOnly(SEED_YEAR, 8, 31),
                 status: 'demitido',
                 months: [1, 2, 3, 4, 5, 6, 7, 8],
+                attendance: [
+                    { type: 'falta', month: 2, day: 12, description: 'Falta registrada para exemplo de histórico.' },
+                    { type: 'atraso', month: 3, day: 4, description: 'Atraso registrado para exemplo de histórico.' },
+                ],
             },
         ],
+        termination: {
+            engagementIndex: 0,
+            title: 'Rescisão - Rafael Nascimento',
+            referenceStart: dateOnly(SEED_YEAR, 1, 1),
+            referenceEnd: dateOnly(SEED_YEAR, 8, 31),
+            dueDate: dateOnly(SEED_YEAR, 9, 10),
+            eventDate: dateOnly(SEED_YEAR, 8, 31),
+            value: 9200,
+            paid: false,
+        },
     },
     {
         name: 'TESTE BLUE ADMIN - Mateus Carvalho',
@@ -51,15 +105,31 @@ const employees = [
                 exitDate: null,
                 status: 'trabalhando',
                 months: [6, 7, 8, 9, 10, 11, 12],
+                attendance: [
+                    { type: 'atraso', month: 10, day: 21, description: 'Atraso registrado após a recontratação.' },
+                ],
+                bonus: { month: 7, value: 700 },
+                thirteenthMonths: 7,
             },
         ],
+        termination: {
+            engagementIndex: 0,
+            title: 'Rescisão quitada - vínculo anterior',
+            referenceStart: dateOnly(SEED_YEAR, 1, 9),
+            referenceEnd: dateOnly(SEED_YEAR, 4, 30),
+            dueDate: dateOnly(SEED_YEAR, 5, 10),
+            eventDate: dateOnly(SEED_YEAR, 4, 30),
+            value: 6400,
+            paid: true,
+        },
+        rehire: true,
     },
     {
         name: 'TESTE BLUE ADMIN - Bruno Ferreira',
         document: 'TESTE-EMP-003',
         address: 'Rua do Comércio, 315 - Cohama, São Luís/MA',
         birthDate: new Date('1995-12-02T00:00:00.000Z'),
-        observations: 'Cadastro fictício com vínculo ativo e pagamentos parcialmente alocados.',
+        observations: 'Cadastro fictício com vínculo ativo e pagamento parcial de salário.',
         engagements: [
             {
                 role: 'Eletricista de equipamentos',
@@ -69,12 +139,17 @@ const employees = [
                 exitDate: null,
                 status: 'trabalhando',
                 months: [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
-                partialMonth: 10,
-                partialValue: 3300,
+                attendance: [
+                    { type: 'falta', month: 5, day: 14, description: 'Falta registrada para exemplo de histórico.' },
+                    { type: 'atraso', month: 9, day: 2, description: 'Atraso registrado para exemplo de histórico.' },
+                ],
+                bonus: { month: 4, value: 500 },
+                thirteenthMonths: 12,
+                partialPayment: { month: 10, value: 3300 },
             },
         ],
     },
-] as const;
+];
 
 function dateOnly(year: number, month: number, day: number) {
     return new Date(Date.UTC(year, month - 1, day));
@@ -88,7 +163,7 @@ function monthEnd(month: number) {
     return dateOnly(SEED_YEAR, month + 1, 0);
 }
 
-function nextMonthDueDate(month: number) {
+function salaryDueDate(month: number) {
     return dateOnly(SEED_YEAR, month + 1, 5);
 }
 
@@ -96,7 +171,7 @@ function money(value: number) {
     return Number(value.toFixed(2));
 }
 
-async function cleanupPreviousSeed() {
+async function findPreviousSeed() {
     const seededEmployees = await prisma.employee.findMany({
         where: { name: { startsWith: SEED_PREFIX } },
         select: {
@@ -110,44 +185,47 @@ async function cleanupPreviousSeed() {
         },
     });
 
-    if (seededEmployees.length === 0) return;
-
-    const engagementIds = seededEmployees.flatMap(employee =>
-        employee.engagements.map(engagement => engagement.id)
-    );
-    const hasLinkedFinancialTransactions = seededEmployees.some(employee =>
+    const linkedToFinancialTransaction = seededEmployees.some(employee =>
         employee.engagements.some(engagement =>
             engagement.movements.some(movement => movement.financialTransactionId !== null)
         )
     );
 
-    if (hasLinkedFinancialTransactions) {
+    if (linkedToFinancialTransaction) {
         throw new Error(
-            'Seed cleanup stopped: a TESTE BLUE ADMIN movement is linked to a financial transaction. Review it before resetting seed data.'
+            'Seed reset stopped: a TESTE BLUE ADMIN movement is linked to a financial transaction. Review it before resetting test data.'
         );
     }
 
+    return seededEmployees;
+}
+
+async function cleanupPreviousSeed(
+    tx: Prisma.TransactionClient,
+    seededEmployees: Awaited<ReturnType<typeof findPreviousSeed>>,
+) {
+    if (seededEmployees.length === 0) return;
+
     const employeeIds = seededEmployees.map(employee => employee.id);
+    const engagementIds = seededEmployees.flatMap(employee =>
+        employee.engagements.map(engagement => engagement.id)
+    );
 
-    await prisma.$transaction(async tx => {
-        await tx.employeeMovement.deleteMany({
-            where: { engagementId: { in: engagementIds } },
-        });
-        await tx.employeeObligation.deleteMany({
-            where: { engagementId: { in: engagementIds } },
-        });
-        await tx.employeeHistory.deleteMany({
-            where: { employeeId: { in: employeeIds } },
-        });
-        await tx.employeeEngagement.deleteMany({
-            where: { id: { in: engagementIds } },
-        });
-        await tx.employee.deleteMany({
-            where: { id: { in: employeeIds } },
-        });
+    await tx.employeeMovement.deleteMany({
+        where: { engagementId: { in: engagementIds } },
     });
-
-    console.log(`Seed anterior removido: ${seededEmployees.length} funcionários fictícios.`);
+    await tx.employeeObligation.deleteMany({
+        where: { engagementId: { in: engagementIds } },
+    });
+    await tx.employeeHistory.deleteMany({
+        where: { employeeId: { in: employeeIds } },
+    });
+    await tx.employeeEngagement.deleteMany({
+        where: { id: { in: engagementIds } },
+    });
+    await tx.employee.deleteMany({
+        where: { id: { in: employeeIds } },
+    });
 }
 
 async function createHistory(
@@ -160,14 +238,7 @@ async function createHistory(
     eventDate: Date,
 ) {
     await tx.employeeHistory.create({
-        data: {
-            employeeId,
-            engagementId,
-            eventType,
-            description,
-            metadata,
-            eventDate,
-        },
+        data: { employeeId, engagementId, eventType, description, metadata, eventDate },
     });
 }
 
@@ -271,14 +342,7 @@ async function createObligation(
 async function createEngagement(
     tx: Prisma.TransactionClient,
     employeeId: string,
-    data: {
-        role: string;
-        modality: string;
-        salary: number;
-        entryDate: Date;
-        exitDate: Date | null;
-        status: string;
-    },
+    data: SeedEngagement,
 ) {
     const engagement = await tx.employeeEngagement.create({
         data: {
@@ -299,13 +363,7 @@ async function createEngagement(
         engagement.id,
         'vinculo_criado',
         `Vínculo fictício criado: ${data.role}`,
-        {
-            seed: true,
-            modality: data.modality,
-            status: data.status,
-            role: data.role,
-            salary: data.salary,
-        },
+        { seed: true, modality: data.modality, status: data.status, role: data.role, salary: data.salary },
         data.entryDate,
     );
 
@@ -328,14 +386,14 @@ async function createSalaryYear(
     tx: Prisma.TransactionClient,
     employeeId: string,
     engagementId: string,
-    engagement: typeof employees[number]['engagements'][number],
+    engagement: SeedEngagement,
 ) {
     for (const month of engagement.months) {
         const salary = engagement.salary;
-        const dueDate = nextMonthDueDate(month);
-        const paidValue = month <= lastCompletedMonth
-            ? ('partialMonth' in engagement && engagement.partialMonth === month
-                ? engagement.partialValue
+        const dueDate = salaryDueDate(month);
+        const paidValue = month <= completedMonth
+            ? (engagement.partialPayment?.month === month
+                ? engagement.partialPayment.value
                 : salary)
             : 0;
         const status = paidValue >= salary ? 'pago' : paidValue > 0 ? 'parcial' : 'pendente';
@@ -364,22 +422,37 @@ async function createSalaryYear(
     }
 }
 
-async function createPaidBonus(
+async function createAttendance(
     tx: Prisma.TransactionClient,
     employeeId: string,
     engagementId: string,
-    month: number,
-    value: number,
+    events: SeedAttendance[] = [],
 ) {
-    const dueDate = dateOnly(SEED_YEAR, month, 30);
+    for (const event of events) {
+        await createMovement(tx, employeeId, engagementId, {
+            type: event.type,
+            description: event.description,
+            eventDate: dateOnly(SEED_YEAR, event.month, event.day),
+            value: null,
+        });
+    }
+}
+
+async function createBonus(
+    tx: Prisma.TransactionClient,
+    employeeId: string,
+    engagementId: string,
+    bonus: NonNullable<SeedEngagement['bonus']>,
+) {
+    const dueDate = monthEnd(bonus.month);
     const obligation = await createObligation(tx, employeeId, engagementId, {
         type: 'bonificacao',
-        title: `Bonificação de desempenho - ${String(month).padStart(2, '0')}/${SEED_YEAR}`,
+        title: `Bonificação de desempenho - ${String(bonus.month).padStart(2, '0')}/${SEED_YEAR}`,
         description: 'Bonificação fictícia definida manualmente para demonstração.',
-        referenceStart: monthStart(month),
-        referenceEnd: monthEnd(month),
+        referenceStart: monthStart(bonus.month),
+        referenceEnd: monthEnd(bonus.month),
         dueDate,
-        value,
+        value: bonus.value,
         status: 'pago',
     });
 
@@ -387,19 +460,19 @@ async function createPaidBonus(
         type: 'bonificacao',
         description: 'Bonificação de desempenho registrada.',
         eventDate: dueDate,
-        value,
+        value: bonus.value,
         obligationId: obligation.id,
-        referenceStart: monthStart(month),
-        referenceEnd: monthEnd(month),
+        referenceStart: monthStart(bonus.month),
+        referenceEnd: monthEnd(bonus.month),
     });
     await createMovement(tx, employeeId, engagementId, {
         type: 'pagamento',
         description: 'Pagamento da bonificação de desempenho.',
         eventDate: dueDate,
-        value,
+        value: bonus.value,
         obligationId: obligation.id,
-        referenceStart: monthStart(month),
-        referenceEnd: monthEnd(month),
+        referenceStart: monthStart(bonus.month),
+        referenceEnd: monthEnd(bonus.month),
     });
 }
 
@@ -416,41 +489,28 @@ async function createThirteenthInstallments(
     const referenceStart = dateOnly(SEED_YEAR, 1, 1);
     const referenceEnd = dateOnly(SEED_YEAR, 12, 31);
 
-    await createObligation(tx, employeeId, engagementId, {
-        type: 'decimo_terceiro',
-        title: `Décimo terceiro - 1ª parcela/${SEED_YEAR}`,
-        description: 'Valor ilustrativo do seed para testar competência e vencimento; não é cálculo legal automático.',
-        referenceStart,
-        referenceEnd,
-        dueDate: dateOnly(SEED_YEAR, 11, 30),
-        value: firstInstallment,
-        status: 'pendente',
-    });
-    await createObligation(tx, employeeId, engagementId, {
-        type: 'decimo_terceiro',
-        title: `Décimo terceiro - 2ª parcela/${SEED_YEAR}`,
-        description: 'Valor ilustrativo do seed para testar competência e vencimento; não é cálculo legal automático.',
-        referenceStart,
-        referenceEnd,
-        dueDate: dateOnly(SEED_YEAR, 12, 20),
-        value: secondInstallment,
-        status: 'pendente',
-    });
+    for (const installment of [
+        { title: '1ª parcela', dueDate: dateOnly(SEED_YEAR, 11, 30), value: firstInstallment },
+        { title: '2ª parcela', dueDate: dateOnly(SEED_YEAR, 12, 20), value: secondInstallment },
+    ]) {
+        await createObligation(tx, employeeId, engagementId, {
+            type: 'decimo_terceiro',
+            title: `Décimo terceiro - ${installment.title}/${SEED_YEAR}`,
+            description: 'Valor ilustrativo do seed para testar competência e vencimento; não é cálculo legal automático.',
+            referenceStart,
+            referenceEnd,
+            dueDate: installment.dueDate,
+            value: installment.value,
+            status: 'pendente',
+        });
+    }
 }
 
 async function createTermination(
     tx: Prisma.TransactionClient,
     employeeId: string,
     engagementId: string,
-    data: {
-        title: string;
-        referenceStart: Date;
-        referenceEnd: Date;
-        dueDate: Date;
-        value: number;
-        paid: boolean;
-        eventDate: Date;
-    },
+    data: NonNullable<SeedEmployee['termination']>,
 ) {
     const obligation = await createObligation(tx, employeeId, engagementId, {
         type: 'rescisao',
@@ -486,26 +546,12 @@ async function createTermination(
     }
 }
 
-async function createAttendanceMovements(
-    tx: Prisma.TransactionClient,
-    employeeId: string,
-    engagementId: string,
-    events: Array<{ type: 'falta' | 'atraso'; date: Date; description: string }>,
-) {
-    for (const event of events) {
-        await createMovement(tx, employeeId, engagementId, {
-            type: event.type,
-            description: event.description,
-            eventDate: event.date,
-            value: null,
-        });
-    }
-}
-
 async function seedEmployees() {
-    await cleanupPreviousSeed();
+    const previousSeed = await findPreviousSeed();
 
     await prisma.$transaction(async tx => {
+        await cleanupPreviousSeed(tx, previousSeed);
+
         for (const employeeData of employees) {
             const employee = await tx.employee.create({
                 data: {
@@ -527,98 +573,61 @@ async function seedEmployees() {
                 dateOnly(SEED_YEAR, 1, 1),
             );
 
-            const engagements: Array<{ id: string; salary: number; entryDate: Date; exitDate: Date | null; months: readonly number[] }> = [];
+            const engagementIds: string[] = [];
 
             for (const engagementData of employeeData.engagements) {
                 const engagement = await createEngagement(tx, employee.id, engagementData);
-                engagements.push({
-                    id: engagement.id,
-                    salary: engagementData.salary,
-                    entryDate: engagementData.entryDate,
-                    exitDate: engagementData.exitDate,
-                    months: engagementData.months,
-                });
+                engagementIds.push(engagement.id);
 
                 await createSalaryYear(tx, employee.id, engagement.id, engagementData);
+                await createAttendance(tx, employee.id, engagement.id, engagementData.attendance);
 
-                if (employeeData.document === 'TESTE-EMP-001') {
-                    await createAttendanceMovements(tx, employee.id, engagement.id, [
-                        { type: 'falta', date: dateOnly(SEED_YEAR, 2, 12), description: 'Falta registrada para exemplo de histórico.' },
-                        { type: 'atraso', date: dateOnly(SEED_YEAR, 3, 4), description: 'Atraso registrado para exemplo de histórico.' },
-                    ]);
+                if (engagementData.bonus) {
+                    await createBonus(tx, employee.id, engagement.id, engagementData.bonus);
                 }
-
-                if (employeeData.document === 'TESTE-EMP-002' && engagementData.entryDate.getUTCMonth() === 5) {
-                    await createAttendanceMovements(tx, employee.id, engagement.id, [
-                        { type: 'atraso', date: dateOnly(SEED_YEAR, 10, 21), description: 'Atraso registrado após a recontratação.' },
-                    ]);
-                    await createPaidBonus(tx, employee.id, engagement.id, 7, 700);
-                    await createThirteenthInstallments(tx, employee.id, engagement.id, engagementData.salary, 7);
-                }
-
-                if (employeeData.document === 'TESTE-EMP-003') {
-                    await createAttendanceMovements(tx, employee.id, engagement.id, [
-                        { type: 'falta', date: dateOnly(SEED_YEAR, 5, 14), description: 'Falta registrada para exemplo de histórico.' },
-                        { type: 'atraso', date: dateOnly(SEED_YEAR, 9, 2), description: 'Atraso registrado para exemplo de histórico.' },
-                    ]);
-                    await createPaidBonus(tx, employee.id, engagement.id, 4, 500);
-                    await createThirteenthInstallments(tx, employee.id, engagement.id, engagementData.salary, 12);
+                if (engagementData.thirteenthMonths) {
+                    await createThirteenthInstallments(
+                        tx,
+                        employee.id,
+                        engagement.id,
+                        engagementData.salary,
+                        engagementData.thirteenthMonths,
+                    );
                 }
             }
 
-            if (employeeData.document === 'TESTE-EMP-001') {
-                const firstEngagement = engagements[0];
-                if (!firstEngagement) throw new Error('Expected first employee engagement was not created.');
-
-                await createTermination(tx, employee.id, firstEngagement.id, {
-                    title: 'Rescisão - Rafael Nascimento',
-                    referenceStart: dateOnly(SEED_YEAR, 1, 1),
-                    referenceEnd: dateOnly(SEED_YEAR, 8, 31),
-                    dueDate: dateOnly(SEED_YEAR, 9, 10),
-                    value: 9200,
-                    paid: false,
-                    eventDate: dateOnly(SEED_YEAR, 8, 31),
-                });
+            if (employeeData.termination) {
+                const engagementId = engagementIds[employeeData.termination.engagementIndex];
+                if (!engagementId) throw new Error('Seed termination engagement was not created.');
+                await createTermination(tx, employee.id, engagementId, employeeData.termination);
             }
 
-            if (employeeData.document === 'TESTE-EMP-002') {
-                const firstEngagement = engagements[0];
-                if (!firstEngagement) throw new Error('Expected previous engagement was not created.');
-
-                await createTermination(tx, employee.id, firstEngagement.id, {
-                    title: 'Rescisão quitada - vínculo anterior',
-                    referenceStart: dateOnly(SEED_YEAR, 1, 9),
-                    referenceEnd: dateOnly(SEED_YEAR, 4, 30),
-                    dueDate: dateOnly(SEED_YEAR, 5, 10),
-                    value: 6400,
-                    paid: true,
-                    eventDate: dateOnly(SEED_YEAR, 4, 30),
-                });
-
-                const secondEngagement = engagements[1];
-                if (!secondEngagement) throw new Error('Expected re-hired engagement was not created.');
+            if (employeeData.rehire) {
+                const previousEngagementId = engagementIds[0];
+                const currentEngagementId = engagementIds[1];
+                if (!previousEngagementId || !currentEngagementId) {
+                    throw new Error('Seed rehire requires both previous and current engagements.');
+                }
 
                 await createHistory(
                     tx,
                     employee.id,
-                    secondEngagement.id,
+                    currentEngagementId,
                     'vinculo_recontratado',
                     'Funcionário fictício retornou à oficina após a rescisão anterior ter sido quitada.',
-                    {
-                        seed: true,
-                        previousEngagementId: firstEngagement.id,
-                        previousTerminationPaid: true,
-                    },
+                    { seed: true, previousEngagementId, previousTerminationPaid: true },
                     dateOnly(SEED_YEAR, 6, 2),
                 );
             }
         }
     }, { timeout: 30000 });
 
+    if (previousSeed.length > 0) {
+        console.log(`Seed anterior removido e recriado: ${previousSeed.length} funcionários fictícios.`);
+    }
     console.log(`Seed anual concluído: ${employees.length} funcionários fictícios para ${SEED_YEAR}.`);
     console.log('Cenários: funcionário desligado com rescisão pendente; desligamento quitado e recontratação; vínculo ativo com pagamento parcial.');
     console.log('Os valores de rescisão e décimo terceiro são ilustrativos, não cálculos legais.');
-    console.log('Ao executar novamente, registros TESTE BLUE ADMIN anteriores serão removidos e recriados.');
 }
 
 seedEmployees()
