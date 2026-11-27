@@ -76,7 +76,11 @@ class MovementsService {
 
     async findMovementsByEngagement(engagementId: string, filters: findMovementsQueryDTO) {
         await this.ensureEngagement(engagementId)
-        return movementsRepository.findMovementsByEngagement(engagementId, filters)
+        const result = await movementsRepository.findMovementsByEngagement(engagementId, filters)
+        if ("invalidCursor" in result) {
+            throw new AppError("Pagination cursor does not match this engagement", 400, "INVALID_CURSOR")
+        }
+        return result
     }
 
     async findMovementById(engagementId: string, movementId: string) {
