@@ -996,3 +996,254 @@
 .employee-detail-obligation--rescisao { --obligation-type-color: #f87171; }
 .employee-detail-obligation--ajuste { --obligation-type-color: #94a3b8; }
 .employee-detail-obligation--outros { --obligation-type-color: #c084fc; }
+
+
+/* Distinct cards for obligations and movements */
+.employee-detail-records-section {
+    gap: var(--spacing-4);
+    padding: 0;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+}
+.employee-detail-records-block {
+    padding: var(--spacing-5);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    box-shadow: var(--shadow-sm);
+}
+.employee-detail-records-block + .employee-detail-records-block {
+    padding-top: var(--spacing-5);
+    border-top: 1px solid var(--color-border);
+}
+
+/* Clickable financial cards */
+button.employee-detail-financial-breakdown {
+    width: 100%;
+    color: var(--color-text);
+    text-align: left;
+    font: inherit;
+    cursor: pointer;
+    transition: transform 150ms ease, border-color 150ms ease, background 150ms ease;
+}
+button.employee-detail-financial-breakdown:hover {
+    transform: translateY(-2px);
+    border-color: var(--color-primary-400);
+}
+button.employee-detail-financial-breakdown:focus-visible {
+    outline: 2px solid var(--color-primary-400);
+    outline-offset: 3px;
+}
+.employee-detail-financial-breakdown__description {
+    color: var(--color-text-muted);
+    font-size: .7rem;
+    line-height: 1.5;
+}
+.employee-detail-financial-breakdown__items {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+}
+.employee-detail-financial-breakdown__items>span {
+    display: flex;
+    flex-direction: column;
+    gap: .25rem;
+    padding-top: var(--spacing-2);
+    border-top: 1px solid var(--color-border);
+}
+.employee-detail-financial-breakdown__items strong {
+    color: var(--color-text);
+    font-size: .75rem;
+    overflow-wrap: anywhere;
+}
+.employee-detail-financial-breakdown__items small {
+    color: var(--color-text-muted);
+    font-size: .65rem;
+    line-height: 1.45;
+}
+.employee-detail-financial-breakdown__action {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: var(--spacing-2);
+    margin-top: auto;
+    padding-top: var(--spacing-2);
+    color: var(--color-primary-300);
+    border-top: 1px solid var(--color-border);
+    font-size: .7rem;
+    font-weight: var(--font-weight-semibold);
+}
+
+/* Obligation detail dialog */
+.employee-detail-modal-backdrop {
+    position: fixed;
+    z-index: 1000;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+    background: rgb(2 6 23 / .72);
+    backdrop-filter: blur(4px);
+}
+.employee-detail-modal {
+    width: min(100%, 58rem);
+    max-height: min(88vh, 54rem);
+    overflow: auto;
+    padding: var(--spacing-5);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-xl);
+    box-shadow: 0 24px 80px rgb(0 0 0 / .35);
+}
+.employee-detail-modal__header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: var(--spacing-4);
+    margin-bottom: var(--spacing-4);
+}
+.employee-detail-modal__header h2 {
+    font-size: 1.25rem;
+    overflow-wrap: anywhere;
+}
+.employee-detail-modal__header p {
+    margin-top: var(--spacing-2);
+    color: var(--color-text-muted);
+    font-size: .75rem;
+}
+.employee-detail-modal__header>button {
+    flex: 0 0 auto;
+    width: 2.25rem;
+    height: 2.25rem;
+    color: var(--color-text-secondary);
+    background: var(--color-surface-hover);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+    font-size: 1.4rem;
+    cursor: pointer;
+}
+.employee-detail-modal__list {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-3);
+}
+.employee-detail-modal-obligation {
+    padding: var(--spacing-4);
+    background: var(--color-background);
+    border: 1px solid var(--color-border);
+    border-top: 3px solid var(--obligation-type-color, var(--color-border));
+    border-radius: var(--radius-lg);
+}
+.employee-detail-modal-obligation>header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: var(--spacing-2);
+}
+.employee-detail-modal-obligation h3 {
+    margin-top: var(--spacing-3);
+    color: var(--color-text);
+    font-size: .95rem;
+    overflow-wrap: anywhere;
+}
+.employee-detail-modal-obligation .employee-detail-obligation-meta {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+.employee-detail-obligation-details-button {
+    margin-top: var(--spacing-3);
+    padding: .55rem .75rem;
+    color: var(--color-primary-300);
+    background: rgb(112 179 255 / .08);
+    border: 1px solid rgb(112 179 255 / .24);
+    border-radius: var(--radius-md);
+    font-size: .72rem;
+    cursor: pointer;
+}
+.employee-detail-obligation-details-button:hover {
+    background: rgb(112 179 255 / .15);
+}
+
+/* Clearer employee registration layout */
+.employee-detail-profile-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    align-items: start;
+}
+.employee-detail-profile-group {
+    display: flex;
+    flex-direction: column;
+    gap: var(--spacing-2);
+    min-width: 0;
+    padding: var(--spacing-4);
+    background: var(--color-background);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+}
+.employee-detail-profile-group__title {
+    margin-bottom: var(--spacing-1);
+    color: var(--color-primary-300);
+    font-size: .72rem;
+    font-weight: var(--font-weight-semibold);
+}
+.employee-detail-profile-group .employee-detail-info {
+    padding: .5rem 0;
+    background: transparent;
+    border: 0;
+    border-bottom: 1px solid var(--color-border);
+    border-radius: 0;
+}
+.employee-detail-profile-group .employee-detail-info:last-child {
+    border-bottom: 0;
+}
+.employee-detail-profile-group--full {
+    grid-column: 1 / -1;
+}
+.employee-detail-profile-group--full .employee-detail-observations {
+    padding: 0;
+    background: transparent;
+    border: 0;
+}
+.employee-detail-engagement__dates {
+    display: grid;
+    grid-template-columns: auto 1fr;
+    gap: .35rem .75rem;
+    width: 100%;
+    padding: var(--spacing-3);
+    background: var(--color-surface);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+}
+.employee-detail-engagement__dates small {
+    color: var(--color-text-muted);
+    font-size: .65rem;
+}
+.employee-detail-engagement__dates strong {
+    color: var(--color-text-secondary);
+    font-size: .7rem;
+    font-weight: var(--font-weight-medium);
+    text-align: right;
+}
+.employee-detail-engagement__observations {
+    width: 100%;
+    color: var(--color-text-muted);
+    font-size: .7rem;
+    line-height: 1.5;
+    white-space: pre-wrap;
+}
+.employee-detail-movement-filters {
+    margin-top: 0;
+}
+@media (max-width: 680px) {
+    .employee-detail-records-block {
+        padding: var(--spacing-4);
+    }
+    .employee-detail-profile-grid,
+    .employee-detail-modal-obligation .employee-detail-obligation-meta {
+        grid-template-columns: minmax(0, 1fr);
+    }
+    .employee-detail-modal {
+        padding: var(--spacing-4);
+    }
+}
