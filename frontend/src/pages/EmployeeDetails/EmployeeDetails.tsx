@@ -259,7 +259,7 @@ export function EmployeeDetails() {
         ...(obligationCursor ? { cursor: obligationCursor } : {})
     };
     const movementFilters: FindMovementsFilters = {
-        engagementId: selectedEngagementId,
+        ...(selectedEngagementId ? { engagementId: selectedEngagementId } : {}),
         limit: 10,
         order: "desc",
         ...(movementSearch.trim() ? { description: movementSearch.trim() } : {}),
