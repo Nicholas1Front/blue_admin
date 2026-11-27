@@ -1253,3 +1253,39 @@
     outline: 2px solid var(--color-primary-400);
     outline-offset: 3px;
 }
+
+
+/* Expanded movement search layout */
+.employees-movement-filters {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+.employees-movement-filters .employees-filter-actions {
+    grid-column: 1 / -1;
+    justify-content: flex-end;
+}
+.employees-movement-filters .employees-filter-actions button {
+    min-width: 9rem;
+}
+.employees-movement-filters input[type="number"] {
+    font-variant-numeric: tabular-nums;
+}
+.employees-movement-filters input[type="date"] {
+    color-scheme: dark;
+}
+.employees-movement-filters label:focus-within > span:first-child {
+    color: var(--color-primary-300);
+}
+.employees-movement-filters input:hover,
+.employees-movement-filters select:hover {
+    border-color: color-mix(in srgb, var(--color-primary-400) 55%, var(--color-border));
+}
+@media (max-width: 1150px) {
+    .employees-movement-filters {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+@media (max-width: 760px) {
+    .employees-movement-filters {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
