@@ -146,6 +146,7 @@ export function EmployeeRecordActions(props: Props) {
     async function submitMovement(event: FormEvent<HTMLFormElement>) {
         event.preventDefault(); setError("");
         if (!engagementId) { setError("Selecione o vínculo para continuar."); return; }
+        if (mode === "edit-movement" && !selectedMovement) { setError("Selecione o lançamento que deseja editar."); return; }
         if (needsObligation.has(movementType) && !movementObligationId) { setError("Este tipo de lançamento precisa estar ligado a uma obrigação."); return; }
         if (movementType === "pagamento" && (!movementValue.trim() || !Number.isFinite(Number(movementValue)))) { setError("Informe o valor do pagamento."); return; }
         try {
@@ -217,7 +218,7 @@ export function EmployeeRecordActions(props: Props) {
                                 <label className="employee-record-form__full">Observações<textarea rows={2} value={obligationObservations} onChange={event => setObligationObservations(event.target.value)} /></label>
                             </div>
                             {error && <p className="employee-record-form__error" role="alert">{error}</p>}
-                            <div className="employee-record-form__actions"><button type="button" onClick={close}>Cancelar</button><button type="submit" disabled={obligationMutations.create.isPending || obligationMutations.update.isPending}>{obligationMutations.create.isPending || obligationMutations.update.isPending ? "Salvando…" : "Salvar obrigação"}</button></div>
+                            <div className="employee-record-form__actions"><button type="button" onClick={close}>Cancelar</button><button type="submit" disabled={obligationMutations.create.isPending || obligationMutations.update.isPending || (mode === "edit-obligation" && !selectedObligation)}>{obligationMutations.create.isPending || obligationMutations.update.isPending ? "Salvando…" : "Salvar obrigação"}</button></div>
                         </form>}
                         {showMovementForm && <form className="employee-record-form" onSubmit={event => void submitMovement(event)}>
                             <div className="employee-record-form__grid">
@@ -231,7 +232,7 @@ export function EmployeeRecordActions(props: Props) {
                                 <label className="employee-record-form__full">Observações<textarea rows={2} value={movementObservations} onChange={event => setMovementObservations(event.target.value)} /></label>
                             </div>
                             {error && <p className="employee-record-form__error" role="alert">{error}</p>}
-                            <div className="employee-record-form__actions"><button type="button" onClick={close}>Cancelar</button><button type="submit" disabled={movementMutations.create.isPending || movementMutations.update.isPending || movementMutations.createPayment.isPending || movementMutations.updatePayment.isPending}>{movementMutations.create.isPending || movementMutations.update.isPending || movementMutations.createPayment.isPending || movementMutations.updatePayment.isPending ? "Salvando…" : "Salvar lançamento"}</button></div>
+                            <div className="employee-record-form__actions"><button type="button" onClick={close}>Cancelar</button><button type="submit" disabled={movementMutations.create.isPending || movementMutations.update.isPending || movementMutations.createPayment.isPending || movementMutations.updatePayment.isPending || (mode === "edit-movement" && !selectedMovement)}>{movementMutations.create.isPending || movementMutations.update.isPending || movementMutations.createPayment.isPending || movementMutations.updatePayment.isPending ? "Salvando…" : "Salvar lançamento"}</button></div>
                         </form>}
                     </>}
                 </section>
