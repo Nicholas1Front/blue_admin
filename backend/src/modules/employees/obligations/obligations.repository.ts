@@ -197,7 +197,7 @@ class ObligationsRepository {
     ) {
         return this.findObligationsByFilters({
             engagementId,
-            cursor: filters.cursor,
+            ...(filters.cursor ? { cursor: filters.cursor } : {}),
             limit: filters.limit
         })
     }
