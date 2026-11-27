@@ -191,21 +191,15 @@ class ObligationsRepository {
         }
     }
 
-    async findObligationsByEngagement(engagementId: string) {
-        const obligations = await prisma.employeeObligation.findMany({
-            where: { engagementId },
-            orderBy: [
-                { referenceStart: 'desc' },
-                { dueDate: 'asc' },
-                { createdAt: 'desc' }
-            ]
+    async findObligationsByEngagement(
+        engagementId: string,
+        filters: { cursor?: string; limit: number }
+    ) {
+        return this.findObligationsByFilters({
+            engagementId,
+            cursor: filters.cursor,
+            limit: filters.limit
         })
-
-        return obligations.map(obligation => ({
-            ...obligation,
-            originalValue: Number(obligation.originalValue),
-            finalValue: Number(obligation.finalValue)
-        }))
     }
 
     async findObligationById(engagementId: string, obligationId: string) {
