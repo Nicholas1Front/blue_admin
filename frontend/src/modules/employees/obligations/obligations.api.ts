@@ -1,7 +1,7 @@
 import { api } from "../../../api/axios";
 import type { ApiResponse } from "../../../api/api.types";
 import type { CursorPage } from "../employees.types";
-import type { AnalyzeObligationsFilters, CreateObligationRequest, CreateObligationsBatchRequest, EmployeeObligation, FindObligationsFilters, ObligationListItem, OpenObligation, ObligationAnalysis, UpdateObligationRequest } from "./obligations.types";
+import type { AnalyzeObligationsFilters, CreateObligationRequest, CreateObligationsBatchRequest, DeleteObligationWithMovementsRequest, DeleteObligationWithMovementsResponse, EmployeeObligation, FindObligationsFilters, ObligationListItem, OpenObligation, ObligationAnalysis, UpdateObligationRequest } from "./obligations.types";
 export async function createObligation(engagementId: string, data: CreateObligationRequest): Promise<EmployeeObligation> {
     const response = await api.post<ApiResponse<EmployeeObligation>>(`/employees/create-obligation/${encodeURIComponent(engagementId)}`, data);
     return response.data.data;
@@ -31,5 +31,13 @@ export async function findObligationsByEngagement(engagementId: string, filters:
 }
 export async function analyzeObligations(engagementId: string, filters: AnalyzeObligationsFilters): Promise<ObligationAnalysis> {
     const response = await api.get<ApiResponse<ObligationAnalysis>>(`/employees/analyze-obligations/${encodeURIComponent(engagementId)}`, { params: filters });
+    return response.data.data;
+}
+
+export async function deleteObligationWithMovements(engagementId: string, obligationId: string, data: DeleteObligationWithMovementsRequest): Promise<DeleteObligationWithMovementsResponse> {
+    const response = await api.post<ApiResponse<DeleteObligationWithMovementsResponse>>(
+        `/employees/delete-obligation-with-movements/${encodeURIComponent(engagementId)}/${encodeURIComponent(obligationId)}`,
+        data
+    );
     return response.data.data;
 }
