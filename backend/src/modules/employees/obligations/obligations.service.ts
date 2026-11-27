@@ -225,7 +225,10 @@ class ObligationsService {
         if (!engagement) {
             throw new AppError('Engagement not found', 404, 'ENGAGEMENT_NOT_FOUND')
         }
-        const result = await obligationsRepository.findObligationsByEngagement(engagementId, filters)
+        const result = await obligationsRepository.findObligationsByEngagement(engagementId, {
+            ...(filters.cursor ? { cursor: filters.cursor } : {}),
+            limit: filters.limit
+        })
         if ("invalidCursor" in result) {
             throw new AppError("Pagination cursor does not match this engagement", 400, "INVALID_CURSOR")
         }
