@@ -1343,21 +1343,21 @@
     min-width: 0;
     border-top: 2px solid var(--employee-metric-color, var(--color-border));
 }
-.employees-row__balance--overdue {
+.employees-row__numbers .employees-row__balance--overdue {
     --employee-metric-color: #ef4444;
-    background: rgb(127 29 29 / .12) !important;
-    border-color: rgb(248 113 113 / .35) !important;
+    background: rgb(127 29 29 / .12);
+    border-color: rgb(248 113 113 / .35);
 }
-.employees-row__balance--overdue strong {
-    color: #fca5a5 !important;
+.employees-row__numbers .employees-row__balance--overdue strong {
+    color: #fca5a5;
 }
-.employees-row__balance--upcoming {
+.employees-row__numbers .employees-row__balance--upcoming {
     --employee-metric-color: #eab308;
-    background: rgb(120 53 15 / .12) !important;
-    border-color: rgb(251 191 36 / .35) !important;
+    background: rgb(120 53 15 / .12);
+    border-color: rgb(251 191 36 / .35);
 }
-.employees-row__balance--upcoming strong {
-    color: #fcd34d !important;
+.employees-row__numbers .employees-row__balance--upcoming strong {
+    color: #fcd34d;
 }
 .employees-row__balance--absence {
     --employee-metric-color: #ef4444;
@@ -1368,8 +1368,8 @@
 
 /* Only overdue obligations appear in the employee-card preview. */
 .employees-obligation-card--overdue {
+    border: 1px solid rgb(248 113 113 / .32);
     border-top: 3px solid #ef4444;
-    border-color: rgb(248 113 113 / .32);
     background: linear-gradient(145deg, rgb(127 29 29 / .11), var(--color-background));
 }
 .employees-obligation-card--overdue .employees-obligation-card__amounts .employees-obligation-card__balance {
