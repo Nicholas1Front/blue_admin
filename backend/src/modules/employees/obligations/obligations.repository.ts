@@ -118,6 +118,12 @@ class ObligationsRepository {
             ...(filters.type ? { type: filters.type } : {}),
             ...(filters.status ? { status: filters.status } : {}),
             ...(filters.title ? { title: { contains: filters.title, mode: 'insensitive' as const } } : {}),
+            ...(filters.valueFrom !== undefined || filters.valueTo !== undefined ? {
+                finalValue: {
+                    ...(filters.valueFrom !== undefined ? { gte: filters.valueFrom } : {}),
+                    ...(filters.valueTo !== undefined ? { lte: filters.valueTo } : {})
+                }
+            } : {}),
             ...(filters.dueDateFrom || filters.dueDateTo
                 ? { dueDate: toDateRange(filters.dueDateFrom, filters.dueDateTo) }
                 : {}),
