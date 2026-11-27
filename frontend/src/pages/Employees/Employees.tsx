@@ -169,7 +169,14 @@ export function Employees() {
         limit: PAGE_SIZE
     });
     const [movementName, setMovementName] = useState("");
+    const [movementDescription, setMovementDescription] = useState("");
     const [movementType, setMovementType] = useState<EmployeeMovementType | "">("");
+    const [movementEventFrom, setMovementEventFrom] = useState("");
+    const [movementEventTo, setMovementEventTo] = useState("");
+    const [movementReferenceFrom, setMovementReferenceFrom] = useState("");
+    const [movementReferenceTo, setMovementReferenceTo] = useState("");
+    const [movementValueFrom, setMovementValueFrom] = useState("");
+    const [movementValueTo, setMovementValueTo] = useState("");
     const [movementMonth, setMovementMonth] = useState(currentMonth);
     const [movementYear, setMovementYear] = useState(currentYear);
     const [movementCursor, setMovementCursor] = useState<string | undefined>();
@@ -180,10 +187,17 @@ export function Employees() {
     const movementDateRange = getMonthDateRange(movementMonth, movementYear);
     const movementFilters: FindMovementsFilters = {
         ...movementDateRange,
+        ...(movementEventFrom ? { eventDateFrom: movementEventFrom } : {}),
+        ...(movementEventTo ? { eventDateTo: movementEventTo } : {}),
         limit: PAGE_SIZE,
         order: "desc",
         ...(movementName.trim() ? { employeeName: movementName.trim() } : {}),
+        ...(movementDescription.trim() ? { description: movementDescription.trim() } : {}),
         ...(movementType ? { type: movementType } : {}),
+        ...(movementReferenceFrom ? { referenceStartFrom: movementReferenceFrom } : {}),
+        ...(movementReferenceTo ? { referenceEndTo: movementReferenceTo } : {}),
+        ...(movementValueFrom !== "" ? { valueFrom: Number(movementValueFrom) } : {}),
+        ...(movementValueTo !== "" ? { valueTo: Number(movementValueTo) } : {}),
         ...(movementCursor ? { cursor: movementCursor } : {})
     };
     const movementsQuery = useMovementsByFilters(movementFilters);
@@ -479,6 +493,10 @@ export function Employees() {
                             </span>
                         </label>
                         <label>
+                            <span>Descrição</span>
+                            <input value={movementDescription} onChange={event => changeMovementFilter(() => setMovementDescription(event.target.value))} placeholder="Buscar lançamento" />
+                        </label>
+                        <label>
                             <span>Tipo de lançamento</span>
                             <select value={movementType} onChange={event => changeMovementFilter(() => setMovementType(event.target.value as EmployeeMovementType | ""))}>
                                 <option value="">Todos os tipos</option>
@@ -487,16 +505,46 @@ export function Employees() {
                         </label>
                         <label>
                             <span>Mês</span>
-                            <select value={movementMonth} onChange={event => changeMovementFilter(() => setMovementMonth(Number(event.target.value)))}>
+                            <select value={movementMonth} onChange={event => changeMovementFilter(() => { setMovementMonth(Number(event.target.value)); setMovementEventFrom(""); setMovementEventTo(""); })}>
                                 {Array.from({ length: 12 }, (_, index) => index + 1).map(value => <option key={value} value={value}>{new Intl.DateTimeFormat("pt-BR", { month: "long" }).format(new Date(2000, value - 1, 1))}</option>)}
                             </select>
                         </label>
                         <label>
                             <span>Ano</span>
-                            <select value={movementYear} onChange={event => changeMovementFilter(() => setMovementYear(Number(event.target.value)))}>
+                            <select value={movementYear} onChange={event => changeMovementFilter(() => { setMovementYear(Number(event.target.value)); setMovementEventFrom(""); setMovementEventTo(""); })}>
                                 {years.map(value => <option key={value} value={value}>{value}</option>)}
                             </select>
                         </label>
+                        <label>
+                            <span>Data do lançamento desde</span>
+                            <input type="date" value={movementEventFrom} onChange={event => changeMovementFilter(() => setMovementEventFrom(event.target.value))} />
+                        </label>
+                        <label>
+                            <span>Data do lançamento até</span>
+                            <input type="date" value={movementEventTo} onChange={event => changeMovementFilter(() => setMovementEventTo(event.target.value))} />
+                        </label>
+                        <label>
+                            <span>Data de referência desde</span>
+                            <input type="date" value={movementReferenceFrom} onChange={event => changeMovementFilter(() => setMovementReferenceFrom(event.target.value))} />
+                        </label>
+                        <label>
+                            <span>Data de referência até</span>
+                            <input type="date" value={movementReferenceTo} onChange={event => changeMovementFilter(() => setMovementReferenceTo(event.target.value))} />
+                        </label>
+                        <label>
+                            <span>Valor mínimo</span>
+                            <input type="number" min="0" step="0.01" value={movementValueFrom} onChange={event => changeMovementFilter(() => setMovementValueFrom(event.target.value))} placeholder="R$ 0,00" />
+                        </label>
+                        <label>
+                            <span>Valor máximo</span>
+                            <input type="number" min="0" step="0.01" value={movementValueTo} onChange={event => changeMovementFilter(() => setMovementValueTo(event.target.value))} placeholder="Sem limite" />
+                        </label>
+                        <div className="employees-filter-actions">
+                            <button type="button" className="employees-button" onClick={() => changeMovementFilter(() => {
+                                setMovementName(""); setMovementDescription(""); setMovementType(""); setMovementEventFrom(""); setMovementEventTo("");
+                                setMovementReferenceFrom(""); setMovementReferenceTo(""); setMovementValueFrom(""); setMovementValueTo("");
+                            })}>Limpar filtros</button>
+                        </div>
                     </div>
 
                     {movementsQuery.isPending ? (
