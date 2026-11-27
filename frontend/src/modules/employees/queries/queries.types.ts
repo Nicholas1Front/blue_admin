@@ -42,7 +42,7 @@ export interface EmployeeSummaryFilters {
 export interface EmployeeSummaryResponse { data: EmployeeSummaryItem[]; period: { month: number; year: number }; pagination: { limit: number; hasMore: boolean; nextCursor: string | null }; }
 export interface FinancialSummaryObligation {
     id: string; type: ObligationType; title: string; referenceStart: string | null;
-    referenceEnd: string | null; dueDate: string | null; status: ObligationStatus;
+    referenceEnd: string | null; dueDate: string | null; createdAt: string; status: ObligationStatus;
     finalValue: number; paidValue: number; outstandingValue: number;
 }
 export interface EngagementFinancialSummary {
