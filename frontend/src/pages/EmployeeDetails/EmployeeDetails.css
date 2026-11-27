@@ -1482,3 +1482,24 @@ button.employee-detail-financial-breakdown:focus-visible {
         grid-template-columns: minmax(0, 1fr);
     }
 }
+
+
+/* Dados cadastrais: três grupos com largura uniforme no desktop. */
+.employee-detail-profile-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    align-items: stretch;
+}
+.employee-detail-profile-group {
+    width: 100%;
+    min-width: 0;
+}
+@media (max-width: 1050px) {
+    .employee-detail-profile-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+@media (max-width: 680px) {
+    .employee-detail-profile-grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
