@@ -251,7 +251,7 @@ export function EmployeeDetails() {
     const selectedEngagement = engagements.find(item => item.id === selectedEngagementId);
     const financialQuery = useEngagementFinancialSummary(selectedEngagementId);
     const obligationFilters: FindObligationsFilters = {
-        engagementId: selectedEngagementId,
+        ...(selectedEngagementId ? { engagementId: selectedEngagementId } : {}),
         limit: 10,
         ...(obligationSearch.trim() ? { title: obligationSearch.trim() } : {}),
         ...(obligationStatusFilter !== "todas" ? { status: obligationStatusFilter } : {}),
