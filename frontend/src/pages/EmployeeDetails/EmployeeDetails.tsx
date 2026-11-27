@@ -34,7 +34,7 @@ import type {
     FindMovementsFilters
 } from "../../modules/employees";
 import "./EmployeeDetails.css";
-import { EmployeeProfileEditForm, EmployeeEngagementEditModal } from "./EmployeeDetailsEdit";
+import { EmployeeProfileEditForm, EmployeeEngagementEditForm } from "./EmployeeDetailsEdit";
 
 const modalityLabels = { CLT: "CLT", PJ: "PJ", Informal: "Informal", outros: "Outros" } as const;
 const engagementStatusLabels: Record<EngagementStatus, string> = {
@@ -193,25 +193,36 @@ function engagementPeriod(engagement: EmployeeEngagement) {
 }
 
 function EngagementDetailsModal({ engagement, onClose }: { engagement: EmployeeEngagement; onClose: () => void }) {
+    const [editing, setEditing] = useState(false);
+
     return (
         <div className="employee-detail-modal-backdrop" role="presentation" onMouseDown={event => { if (event.target === event.currentTarget) onClose(); }}>
-            <section className="employee-detail-modal employee-detail-engagement-modal" role="dialog" aria-modal="true" aria-label="Detalhes do vínculo">
+            <section className="employee-detail-modal employee-detail-engagement-modal" role="dialog" aria-modal="true" aria-label={editing ? "Editar vínculo" : "Detalhes do vínculo"}>
                 <header className="employee-detail-modal__header">
-                    <div><span className="employee-detail-eyebrow">Informações profissionais</span><h2>Detalhes do vínculo</h2><p>{modalityLabels[engagement.modality]} · {engagementStatusLabels[engagement.status]}</p></div>
+                    <div><span className="employee-detail-eyebrow">Informações profissionais</span><h2>{editing ? "Editar vínculo" : "Detalhes do vínculo"}</h2><p>{modalityLabels[engagement.modality]} · {engagementStatusLabels[engagement.status]}</p></div>
                     <button type="button" onClick={onClose} aria-label="Fechar detalhes do vínculo">×</button>
                 </header>
-                <div className="employee-detail-engagement-modal__grid">
-                    <InfoField label="Modalidade" value={modalityLabels[engagement.modality]} />
-                    <InfoField label="Status" value={engagementStatusLabels[engagement.status]} />
-                    <InfoField label="Data de admissão" value={dateOnly(engagement.entryDate)} />
-                    <InfoField label="Data de desligamento" value={engagement.exitDate ? dateOnly(engagement.exitDate) : "Vínculo atual"} />
-                    <InfoField label="Salário mensal" value={engagement.currentSalary == null ? null : currency(engagement.currentSalary)} />
-                    <InfoField label="Valor por hora" value={engagement.hourlyRate == null ? null : currency(engagement.hourlyRate)} />
-                    <InfoField label="Cadastrado em" value={dateTime(engagement.createdAt)} />
-                    <InfoField label="Última atualização" value={dateTime(engagement.updatedAt)} />
-                    <InfoField label="Identificador do vínculo" value={engagement.id} />
-                </div>
-                <div className="employee-detail-engagement-modal__observations"><span>Observações</span><p>{engagement.observations?.trim() || "Nenhuma observação cadastrada."}</p></div>
+                {editing ? (
+                    <EmployeeEngagementEditForm engagement={engagement} onCancel={() => setEditing(false)} onSaved={onClose} />
+                ) : (
+                    <>
+                        <div className="employee-detail-engagement-modal__grid">
+                            <InfoField label="Modalidade" value={modalityLabels[engagement.modality]} />
+                            <InfoField label="Status" value={engagementStatusLabels[engagement.status]} />
+                            <InfoField label="Data de admissão" value={dateOnly(engagement.entryDate)} />
+                            <InfoField label="Data de desligamento" value={engagement.exitDate ? dateOnly(engagement.exitDate) : "Vínculo atual"} />
+                            <InfoField label="Salário mensal" value={engagement.currentSalary == null ? null : currency(engagement.currentSalary)} />
+                            <InfoField label="Valor por hora" value={engagement.hourlyRate == null ? null : currency(engagement.hourlyRate)} />
+                            <InfoField label="Cadastrado em" value={dateTime(engagement.createdAt)} />
+                            <InfoField label="Última atualização" value={dateTime(engagement.updatedAt)} />
+                            <InfoField label="Identificador do vínculo" value={engagement.id} />
+                        </div>
+                        <div className="employee-detail-engagement-modal__observations"><span>Observações</span><p>{engagement.observations?.trim() || "Nenhuma observação cadastrada."}</p></div>
+                        <div className="employee-detail-edit-actions employee-detail-engagement-modal__actions">
+                            <button type="button" className="employee-detail-edit-button" onClick={() => setEditing(true)}>Editar vínculo</button>
+                        </div>
+                    </>
+                )}
             </section>
         </div>
     );
@@ -253,7 +264,6 @@ export function EmployeeDetails() {
 
     const [selectedEngagementId, setSelectedEngagementId] = useState<string>();
     const [profileEditing, setProfileEditing] = useState(false);
-    const [engagementEditing, setEngagementEditing] = useState<EmployeeEngagement | null>(null);
     const [historyOpen, setHistoryOpen] = useState(false);
     const [historyCursor, setHistoryCursor] = useState<string>();
     const [historyCursorStack, setHistoryCursorStack] = useState<string[]>([]);
@@ -453,10 +463,7 @@ export function EmployeeDetails() {
                                         {engagement.observations && <span className="employee-detail-engagement__observations">{engagement.observations}</span>}
                                         {engagement.id === selectedEngagementId && <span className="employee-detail-engagement__selected">Vínculo selecionado</span>}
                                     </button>
-                                    <div className="employee-detail-engagement-actions">
-                                        <button type="button" className="employee-detail-engagement-details-button" onClick={event => { event.stopPropagation(); setSelectedEngagementDetails(engagement); }}>Detalhes</button>
-                                        <button type="button" className="employee-detail-edit-trigger" onClick={event => { event.stopPropagation(); setEngagementEditing(engagement); }}>Editar vínculo</button>
-                                    </div>
+                                    <button type="button" className="employee-detail-engagement-details-button" onClick={event => { event.stopPropagation(); setSelectedEngagementDetails(engagement); }}>Detalhes</button>
                                 </article>
                             ))}
                         </div>
@@ -597,7 +604,6 @@ export function EmployeeDetails() {
             {financialModal && <ObligationDetailsModal title={financialModal.title} obligations={financialModal.obligations} onClose={() => setFinancialModal(null)} />}
             {selectedObligation && <ObligationDetailsModal title={selectedObligation.title} obligations={[selectedObligation]} onClose={() => setSelectedObligation(null)} />}
             {selectedEngagementDetails && <EngagementDetailsModal engagement={selectedEngagementDetails} onClose={() => setSelectedEngagementDetails(null)} />}
-            {engagementEditing && <EmployeeEngagementEditModal engagement={engagementEditing} onClose={() => setEngagementEditing(null)} />}
             {selectedObligationMovements && <ObligationMovementsModal obligation={selectedObligationMovements} onClose={() => setSelectedObligationMovements(null)} />}
         </main>
     );
