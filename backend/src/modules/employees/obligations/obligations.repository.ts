@@ -142,8 +142,9 @@ class ObligationsRepository {
             ...(filters.cursor ? { cursor: { id: filters.cursor }, skip: 1 } : {}),
             take: filters.limit + 1,
             orderBy: [
+                { dueDate: { sort: 'desc', nulls: 'last' } },
                 { referenceStart: { sort: 'desc', nulls: 'last' } },
-                { dueDate: { sort: 'asc', nulls: 'last' } },
+                { referenceEnd: { sort: 'desc', nulls: 'last' } },
                 { createdAt: 'desc' },
                 { id: 'desc' }
             ],
