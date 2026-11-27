@@ -170,6 +170,8 @@ export function EmployeeDetails() {
     const [historyCursor, setHistoryCursor] = useState<string>();
     const [historyCursorStack, setHistoryCursorStack] = useState<string[]>([]);
     const [obligationSearch, setObligationSearch] = useState("");
+    const [obligationGroupPage, setObligationGroupPage] = useState(1);
+    const [movementPage, setMovementPage] = useState(1);
     const [obligationStatusFilter, setObligationStatusFilter] = useState<ObligationStatus | "todas">("todas");
     const [expandedObligationMovements, setExpandedObligationMovements] = useState<Set<string>>(() => new Set());
 
@@ -238,6 +240,8 @@ export function EmployeeDetails() {
         })).sort((a, b) => b.sortDate.localeCompare(a.sortDate));
     }, [filteredObligations]);
 
+    const obligationGroupPageCount = Math.max(1, Math.ceil(obligationGroups.length / 3));
+    const visibleObligationGroups = obligationGroups.slice((obligationGroupPage - 1) * 3, obligationGroupPage * 3);
     const obligationGroupById = useMemo(() => {
         const groups = new Map<string, string>();
         for (const obligation of obligations) groups.set(obligation.id, obligationGroupKey(obligation));
@@ -249,6 +253,8 @@ export function EmployeeDetails() {
         [movements]
     );
 
+    const movementPageCount = Math.max(1, Math.ceil(sortedMovements.length / 10));
+    const visibleMovements = sortedMovements.slice((movementPage - 1) * 10, movementPage * 10);
     const historyEvents = (historyQuery.data?.data ?? []).filter(event =>
         event.engagementId === null || event.engagementId === selectedEngagementId
     );
@@ -366,7 +372,7 @@ export function EmployeeDetails() {
                                     <div className="employee-detail-empty"><strong>{obligations.length ? "Nenhuma obrigação encontrada" : "Nenhuma obrigação cadastrada"}</strong><p>{obligations.length ? "Tente alterar a pesquisa ou o filtro de status." : "As obrigações deste vínculo aparecerão aqui, agrupadas pelo mês de vencimento."}</p></div>
                                 ) : (
                                     <div className="employee-detail-obligation-groups">
-                                        {obligationGroups.map(group => (
+                                        {visibleObligationGroups.map(group => (
                                             <article className="employee-detail-obligation-group" id={obligationGroupAnchor(group.key)} key={group.key}>
                                                 <header className="employee-detail-obligation-group__heading"><h3>{group.key === "sem-vencimento" ? "Sem vencimento definido" : monthLabel(group.key)}</h3><span>{group.obligations.length} {group.obligations.length === 1 ? "obrigação" : "obrigações"}</span></header>
                                                 <div className="employee-detail-obligations">
@@ -418,7 +424,7 @@ export function EmployeeDetails() {
                                     <div className="employee-detail-empty"><strong>Nenhum lançamento registrado</strong><p>Pagamentos e outros registros do vínculo aparecerão aqui, do mais recente para o mais antigo.</p></div>
                                 ) : (
                                     <ol className="employee-detail-movements">
-                                        {sortedMovements.map(movement => {
+                                        {visibleMovements.map(movement => {
                                             const linkedGroupKey = movement.obligationId ? obligationGroupById.get(movement.obligationId) : undefined;
                                             const linkedObligation = movement.obligation ?? obligations.find(item => item.id === movement.obligationId);
                                             return (
