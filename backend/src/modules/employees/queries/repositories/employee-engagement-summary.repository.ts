@@ -8,6 +8,9 @@ class EmployeeSummaryRepository {
         const year = query.year ?? now.getUTCFullYear()
         const monthStart = new Date(Date.UTC(year, month - 1, 1))
         const nextMonthStart = new Date(Date.UTC(year, month, 1))
+        const todayStart = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate()))
+        const upcomingEnd = new Date(todayStart)
+        upcomingEnd.setUTCDate(upcomingEnd.getUTCDate() + 31)
 
         const engagementWhere = {
             ...(query.engagementId ? { id: query.engagementId } : {}),
@@ -73,6 +76,12 @@ class EmployeeSummaryRepository {
                         outstandingValue: Math.max(0, Number((finalValue - paidValue).toFixed(2)))
                     }
                 }).filter(obligation => obligation.outstandingValue > 0)
+                const overdueValue = openObligations
+                    .filter(obligation => obligation.dueDate && obligation.dueDate < todayStart)
+                    .reduce((sum, obligation) => sum + obligation.outstandingValue, 0)
+                const upcomingValue = openObligations
+                    .filter(obligation => obligation.dueDate && obligation.dueDate >= todayStart && obligation.dueDate < upcomingEnd)
+                    .reduce((sum, obligation) => sum + obligation.outstandingValue, 0)
                 const obligations = openObligations.map(obligation => ({
                     id: obligation.id,
                     type: obligation.type,
@@ -89,6 +98,8 @@ class EmployeeSummaryRepository {
                     entryDate: engagement.entryDate, exitDate: engagement.exitDate,
                     currentSalary: engagement.currentSalary === null ? null : Number(engagement.currentSalary),
                     totalOutstanding: openObligations.reduce((sum, item) => sum + item.outstandingValue, 0),
+                    overdueValue,
+                    upcomingValue,
                     openObligations: openObligations.length,
                     obligations,
                     absencesThisMonth: engagement.movements.filter(item => item.type === 'falta').length,
@@ -100,6 +111,8 @@ class EmployeeSummaryRepository {
                 name: employee.name,
                 document: employee.document,
                 totalOutstanding: engagements.reduce((sum, item) => sum + item.totalOutstanding, 0),
+                overdueValue: engagements.reduce((sum, item) => sum + item.overdueValue, 0),
+                upcomingValue: engagements.reduce((sum, item) => sum + item.upcomingValue, 0),
                 openObligations: engagements.reduce((sum, item) => sum + item.openObligations, 0),
                 absencesThisMonth: engagements.reduce((sum, item) => sum + item.absencesThisMonth, 0),
                 tardinessThisMonth: engagements.reduce((sum, item) => sum + item.tardinessThisMonth, 0),
