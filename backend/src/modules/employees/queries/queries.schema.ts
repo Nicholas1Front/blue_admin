@@ -58,6 +58,7 @@ export const monthlyPaymentsQuerySchema = z.object({
 export type monthlyPaymentsQueryDTO = z.infer<typeof monthlyPaymentsQuerySchema>
 
 export const employeeHistoryQuerySchema = z.object({
+    engagementId: z.string().uuid().optional(),
     eventType: z.string().trim().min(1).optional(),
     cursor,
     limit: pageSize
