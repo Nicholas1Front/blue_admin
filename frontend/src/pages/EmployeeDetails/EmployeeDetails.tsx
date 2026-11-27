@@ -164,7 +164,7 @@ function ObligationDetailsModal({ title, obligations, onClose }: { title: string
         <div className="employee-detail-modal-backdrop" role="presentation" onMouseDown={event => { if (event.target === event.currentTarget) onClose(); }}>
             <section className="employee-detail-modal" role="dialog" aria-modal="true" aria-label={title}>
                 <header className="employee-detail-modal__header"><div><span className="employee-detail-eyebrow">Detalhamento financeiro</span><h2>{title}</h2><p>{obligations.length} {obligations.length === 1 ? "obrigação encontrada" : "obrigações encontradas"}</p></div><button type="button" onClick={onClose} aria-label="Fechar detalhamento">×</button></header>
-                {obligations.length ? <><EmployeeRecordActions engagementId={obligations[0]?.engagementId} initialObligationId={obligations.length === 1 ? obligations[0]?.id : undefined} showEdit showDelete compact /><div className="employee-detail-modal__list">{visibleObligations.map(obligation => {
+                {obligations.length ? <><EmployeeRecordActions engagementId={obligations[0]?.engagementId} initialObligationId={obligations.length === 1 ? obligations[0]?.id : undefined} showEditObligation showDelete compact /><div className="employee-detail-modal__list">{visibleObligations.map(obligation => {
                     const finalValue = Number(obligation.finalValue);
                     const paidValue = Number(obligation.paidValue ?? 0);
                     const outstandingValue = Number(obligation.outstandingValue ?? Math.max(0, finalValue - paidValue));
@@ -497,7 +497,7 @@ export function EmployeeDetails() {
                                     <div><span className="employee-detail-eyebrow">Valores definidos para o vínculo</span><h2><FontAwesomeIcon icon={faFileInvoiceDollar} /> Obrigações</h2><p>Agrupadas pelo mês de vencimento, do mais recente para o mais antigo. Dentro de cada mês, as obrigações seguem a data de vencimento, da mais próxima para a mais distante.</p></div>
                                     <span className="employee-detail-count">{obligations.length} obrigações nesta página</span>
                                 </header>
-                                <EmployeeRecordActions engagementId={selectedEngagementId} showObligation showEdit showSuggestions showDelete compact />
+                                <EmployeeRecordActions engagementId={selectedEngagementId} showObligation showEditObligation showSuggestions showDelete compact />
                                 {obligationsQuery.isPending ? <div className="employee-detail-loading">Carregando obrigações…</div> : obligationsQuery.isError ? (
                                     <div className="employee-detail-state employee-detail-state--error"><strong>Não foi possível carregar as obrigações.</strong><button type="button" onClick={() => void obligationsQuery.refetch()}>Tentar novamente</button></div>
                                 ) : (
@@ -556,7 +556,7 @@ export function EmployeeDetails() {
                                     <div><span className="employee-detail-eyebrow">Registros financeiros e administrativos</span><h2><FontAwesomeIcon icon={faClockRotateLeft} /> Lançamentos</h2><p>Ordenados pela data em que aconteceram. Quando um lançamento estiver ligado a uma obrigação, você poderá ir diretamente à competência correspondente.</p></div>
                                     <span className="employee-detail-count">{movements.length} lançamentos nesta página</span>
                                 </header>
-                                <EmployeeRecordActions engagementId={selectedEngagementId} showMovement showEdit showDelete compact />
+                                <EmployeeRecordActions engagementId={selectedEngagementId} showMovement showEditMovement showDelete compact />
                                 <form className="employee-detail-obligation-filters employee-detail-movement-filters" onSubmit={event => { event.preventDefault(); setMovementSearchApplied(movementSearch.trim()); setMovementCursor(undefined); setMovementCursorStack([]); }}>
                                     <label className="employee-detail-filter-search"><span>Pesquisar lançamentos</span><input type="search" value={movementSearch} onChange={event => setMovementSearch(event.target.value)} placeholder="Descrição do lançamento…" /></label>
                                     <label className="employee-detail-filter-status"><span>Tipo</span><select value={movementTypeFilter} onChange={event => { setMovementTypeFilter(event.target.value as EmployeeMovementType | "todos"); setMovementCursor(undefined); setMovementCursorStack([]); }}><option value="todos">Todos os tipos</option>{Object.entries(movementTypeLabels).map(([type, label]) => <option value={type} key={type}>{label}</option>)}</select></label>
@@ -653,7 +653,7 @@ function ObligationMovementsModal({ obligation, onClose }: { obligation: Obligat
                     <div><span className="employee-detail-eyebrow">Histórico financeiro</span><h2>Movimentações relacionadas</h2><p>{obligation.title} · Competência: {formatCompetency(obligation)}</p></div>
                     <button type="button" onClick={onClose} aria-label="Fechar movimentações">×</button>
                 </header>
-                <EmployeeRecordActions engagementId={obligation.engagementId} obligationId={obligation.id} showEdit showDelete compact /><ObligationMovementsList obligationId={obligation.id} />
+                <EmployeeRecordActions engagementId={obligation.engagementId} obligationId={obligation.id} showEditMovement showDelete compact /><ObligationMovementsList obligationId={obligation.id} />
             </section>
         </div>
     );
