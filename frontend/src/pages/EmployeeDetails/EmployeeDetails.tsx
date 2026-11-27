@@ -352,13 +352,22 @@ export function EmployeeDetails() {
                         <div><span className="employee-detail-eyebrow">Cadastro</span><h2>Dados pessoais</h2></div>
                     </header>
                     <div className="employee-detail-profile-grid">
-                        <InfoField label="Nome completo" value={employee.name} />
-                        <InfoField label="CPF / CNPJ" value={employee.document} />
-                        <InfoField label="Data de nascimento" value={dateOnly(employee.birthDate)} />
-                        <InfoField label="Endereço" value={employee.address} />
-                        <InfoField label="Cadastrado em" value={dateOnly(employee.createdAt)} />
-                        <InfoField label="Última atualização" value={dateOnly(employee.updatedAt)} />
-                        {employee.observations && <div className="employee-detail-observations"><span>Observações cadastrais</span><p>{employee.observations}</p></div>}
+                        <div className="employee-detail-profile-group">
+                            <span className="employee-detail-profile-group__title">Identificação</span>
+                            <InfoField label="Nome completo" value={employee.name} />
+                            <InfoField label="CPF / CNPJ" value={employee.document} />
+                            <InfoField label="Data de nascimento" value={dateOnly(employee.birthDate)} />
+                        </div>
+                        <div className="employee-detail-profile-group">
+                            <span className="employee-detail-profile-group__title">Endereço</span>
+                            <InfoField label="Endereço cadastrado" value={employee.address} />
+                        </div>
+                        <div className="employee-detail-profile-group">
+                            <span className="employee-detail-profile-group__title">Dados do cadastro</span>
+                            <InfoField label="Cadastrado em" value={dateOnly(employee.createdAt)} />
+                            <InfoField label="Última atualização" value={dateOnly(employee.updatedAt)} />
+                        </div>
+                        {employee.observations && <div className="employee-detail-profile-group employee-detail-profile-group--full"><span className="employee-detail-profile-group__title">Observações</span><div className="employee-detail-observations"><p>{employee.observations}</p></div></div>}
                     </div>
                 </section>
 
@@ -417,7 +426,7 @@ export function EmployeeDetails() {
                                     <div className="employee-detail-state employee-detail-state--error"><strong>Não foi possível carregar as obrigações.</strong><button type="button" onClick={() => void obligationsQuery.refetch()}>Tentar novamente</button></div>
                                 ) : (
                                     <div className="employee-detail-obligation-filters">
-                                        <label className="employee-detail-filter-search"><span>Pesquisar obrigações</span><input type="search" value={obligationSearch} onChange={event => { setObligationSearch(event.target.value); setObligationCursor(undefined); setObligationCursorStack([]); }} placeholder="Título, tipo, competência ou data…" /></label>
+                                        <label className="employee-detail-filter-search"><span>Pesquisar obrigações</span><input type="search" value={obligationSearch} onChange={event => { setObligationSearch(event.target.value); setObligationCursor(undefined); setObligationCursorStack([]); }} placeholder="Buscar pelo título da obrigação…" /></label>
                                         <label className="employee-detail-filter-status"><span>Status</span><select value={obligationStatusFilter} onChange={event => { setObligationStatusFilter(event.target.value as ObligationStatus | "todas"); setObligationCursor(undefined); setObligationCursorStack([]); }}><option value="todas">Todos os status</option>{Object.entries(obligationStatusLabels).map(([status, label]) => <option value={status} key={status}>{label}</option>)}</select></label>
                                         <label className="employee-detail-filter-status"><span>Tipo</span><select value={obligationTypeFilter} onChange={event => { setObligationTypeFilter(event.target.value as ObligationType | "todos"); setObligationCursor(undefined); setObligationCursorStack([]); }}><option value="todos">Todos os tipos</option>{Object.entries(obligationTypeLabels).map(([type, label]) => <option value={type} key={type}>{label}</option>)}</select></label>
                                     </div>
