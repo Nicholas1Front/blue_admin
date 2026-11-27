@@ -410,7 +410,7 @@ export function EmployeeDetails() {
                                         ))}
                                     </div>
                                 ))}
-                                <div className="employee-detail-pagination"><span>Página {obligationGroupPage} / {obligationGroupPageCount}</span><button type="button" disabled={obligationGroupPage === 1} onClick={() => setObligationGroupPage(p => p - 1)}>Anterior</button><button type="button" disabled={obligationGroupPage >= obligationGroupPageCount} onClick={() => setObligationGroupPage(p => p + 1)}>Próxima</button></div>
+                                <div className="employee-detail-pagination"><span>Página {obligationCursorStack.length + 1}</span><button type="button" disabled={!obligationCursorStack.length} onClick={() => { const stack = [...obligationCursorStack]; const previous = stack.pop() || undefined; setObligationCursorStack(stack); setObligationCursor(previous); }}>Anterior</button><button type="button" disabled={!obligationsQuery.data?.pagination.hasMore} onClick={() => { const next = obligationsQuery.data?.pagination.nextCursor; if (next) { setObligationCursorStack(stack => [...stack, obligationCursor ?? ""]); setObligationCursor(next); } }}>Próxima</button></div>
                             </section>
 
                             <section className="employee-detail-records-block">
@@ -436,7 +436,7 @@ export function EmployeeDetails() {
                                             );
                                         })}
                                     </ol>
-                                    <div className="employee-detail-pagination"><span>Página {movementPage} / {movementPageCount}</span><button type="button" disabled={movementPage === 1} onClick={() => setMovementPage(p => p - 1)}>Anterior</button><button type="button" disabled={movementPage >= movementPageCount} onClick={() => setMovementPage(p => p + 1)}>Próxima</button></div></>
+                                    <div className="employee-detail-pagination"><span>Página {movementCursorStack.length + 1}</span><button type="button" disabled={!movementCursorStack.length} onClick={() => { const stack = [...movementCursorStack]; const previous = stack.pop() || undefined; setMovementCursorStack(stack); setMovementCursor(previous); }}>Anterior</button><button type="button" disabled={!movementsQuery.data?.pagination.hasMore} onClick={() => { const next = movementsQuery.data?.pagination.nextCursor; if (next) { setMovementCursorStack(stack => [...stack, movementCursor ?? ""]); setMovementCursor(next); } }}>Próxima</button></div></>
                                 )}
                             </section>
                         </section>
