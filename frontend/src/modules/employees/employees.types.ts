@@ -31,3 +31,12 @@ export interface FindEmployeesFilters {
     birthDateFrom?: string; birthDateTo?: string;
     cursor?: string; limit?: number;
 }
+
+export interface DeleteEmployeeRequest { confirmation: string }
+export interface DeleteEmployeeResponse {
+    employeeId: string;
+    deletedEngagements: number;
+    deletedObligations: number;
+    deletedMovements: number;
+    preservedFinancialTransactions: number;
+}
