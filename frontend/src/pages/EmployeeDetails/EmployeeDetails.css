@@ -1321,3 +1321,70 @@ button.employee-detail-financial-breakdown:focus-visible {
     padding: var(--spacing-3);
     background: var(--color-surface);
 }
+
+
+/* Align employee registration fields consistently across groups */
+.employee-detail-profile-grid {
+    align-items: stretch;
+}
+.employee-detail-profile-group {
+    align-content: start;
+}
+.employee-detail-profile-group .employee-detail-info {
+    display: grid;
+    grid-template-columns: minmax(8rem, .8fr) minmax(0, 1.2fr);
+    align-items: start;
+    gap: var(--spacing-3);
+}
+.employee-detail-profile-group .employee-detail-info > span {
+    padding-top: .1rem;
+    line-height: 1.45;
+}
+.employee-detail-profile-group .employee-detail-info > strong {
+    text-align: left;
+    line-height: 1.45;
+}
+.employee-detail-profile-group--full .employee-detail-observations {
+    grid-column: auto;
+}
+
+/* Consistent interaction feedback */
+.employee-detail-engagement:hover,
+.employee-detail-obligation-details-button:hover,
+.employee-detail-obligation-movements-toggle:hover,
+.employee-detail-filter-actions button:hover,
+.employee-detail-pagination button:not(:disabled):hover,
+.employee-detail-history-toggle:hover,
+.employee-detail-history-next:hover {
+    color: var(--color-primary-300);
+    background-color: color-mix(in srgb, var(--color-primary-500) 10%, var(--color-surface));
+    border-color: var(--color-primary-400);
+}
+.employee-detail-engagement--selected:hover {
+    background-color: color-mix(in srgb, var(--color-primary-500) 15%, var(--color-surface));
+    border-color: var(--color-primary-300);
+}
+.employee-detail-filter-actions button[type="submit"]:hover {
+    color: #fff;
+    background: var(--color-primary-600);
+    border-color: var(--color-primary-400);
+}
+.employee-detail-modal__header > button:hover {
+    color: var(--color-danger-300, #fca5a5);
+    background: var(--color-danger-bg);
+    border-color: #ef4444;
+}
+.employee-detail-obligation-details-button:focus-visible,
+.employee-detail-obligation-movements-toggle:focus-visible,
+.employee-detail-filter-actions button:focus-visible,
+.employee-detail-pagination button:focus-visible,
+.employee-detail-modal__header > button:focus-visible {
+    outline: 2px solid var(--color-primary-400);
+    outline-offset: 2px;
+}
+@media (max-width: 680px) {
+    .employee-detail-profile-group .employee-detail-info {
+        grid-template-columns: minmax(0, 1fr);
+        gap: var(--spacing-1);
+    }
+}
