@@ -152,11 +152,15 @@ function FinancialBreakdown({ title, total, count, obligations, description, emp
 }
 
 function ObligationDetailsModal({ title, obligations, onClose }: { title: string; obligations: ModalObligation[]; onClose: () => void }) {
+    const [page, setPage] = useState(1);
+    const pageSize = 10;
+    const pageCount = Math.max(1, Math.ceil(obligations.length / pageSize));
+    const visibleObligations = obligations.slice((page - 1) * pageSize, page * pageSize);
     return (
         <div className="employee-detail-modal-backdrop" role="presentation" onMouseDown={event => { if (event.target === event.currentTarget) onClose(); }}>
             <section className="employee-detail-modal" role="dialog" aria-modal="true" aria-label={title}>
                 <header className="employee-detail-modal__header"><div><span className="employee-detail-eyebrow">Detalhamento financeiro</span><h2>{title}</h2><p>{obligations.length} {obligations.length === 1 ? "obrigação encontrada" : "obrigações encontradas"}</p></div><button type="button" onClick={onClose} aria-label="Fechar detalhamento">×</button></header>
-                {obligations.length ? <div className="employee-detail-modal__list">{obligations.map(obligation => {
+                {obligations.length ? <><div className="employee-detail-modal__list">{visibleObligations.map(obligation => {
                     const finalValue = Number(obligation.finalValue);
                     const paidValue = Number(obligation.paidValue ?? 0);
                     const outstandingValue = Number(obligation.outstandingValue ?? Math.max(0, finalValue - paidValue));
@@ -172,7 +176,7 @@ function ObligationDetailsModal({ title, obligations, onClose }: { title: string
                         {obligation.description && <p className="employee-detail-obligation-description">{obligation.description}</p>}
                         {obligation.observations && <small className="employee-detail-obligation-note">Observação: {obligation.observations}</small>}
                     </article>;
-                })}</div> : <div className="employee-detail-empty">Não há obrigações nesta categoria.</div>}
+                })}</div>{pageCount > 1 && <div className="employee-detail-pagination"><span>Página {page} de {pageCount}</span><button type="button" disabled={page === 1} onClick={() => setPage(current => current - 1)}>Anterior</button><button type="button" disabled={page >= pageCount} onClick={() => setPage(current => current + 1)}>Próxima</button></div>}</> : <div className="employee-detail-empty">Não há obrigações nesta categoria.</div>}
             </section>
         </div>
     );
