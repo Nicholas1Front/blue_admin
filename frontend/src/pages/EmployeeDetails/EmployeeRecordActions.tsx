@@ -20,7 +20,7 @@ import type {
 import "./EmployeeRecordActions.css";
 
 type ActionMode = "employee" | "obligation" | "movement" | "edit-obligation" | "edit-movement" | "suggestions" | "delete";
-type Props = { engagementId?: string; employeeId?: string; obligationId?: string; initialObligationId?: string; showEmployee?: boolean; showObligation?: boolean; showMovement?: boolean; showEdit?: boolean; showSuggestions?: boolean; showDelete?: boolean; compact?: boolean };
+type Props = { engagementId?: string; employeeId?: string; obligationId?: string; initialObligationId?: string; showEmployee?: boolean; showObligation?: boolean; showMovement?: boolean; showEdit?: boolean; showEditObligation?: boolean; showEditMovement?: boolean; showSuggestions?: boolean; showDelete?: boolean; compact?: boolean };
 
 const obligationTypes: { value: ObligationType; label: string }[] = [
     { value: "salario", label: "Salário" }, { value: "ferias", label: "Férias" }, { value: "decimo_terceiro", label: "13º salário" },
@@ -182,7 +182,7 @@ export function EmployeeRecordActions(props: Props) {
             {props.showEmployee && <button type="button" className="employee-record-action employee-record-action--primary" onClick={() => open("employee")}><FontAwesomeIcon icon={faUserPlus} /> Adicionar funcionário</button>}
             {props.showObligation && <button type="button" className="employee-record-action" onClick={() => open("obligation")}><FontAwesomeIcon icon={faPlus} /> Adicionar obrigação</button>}
             {props.showMovement && <button type="button" className="employee-record-action" onClick={() => open("movement")}><FontAwesomeIcon icon={faPlus} /> Adicionar lançamento</button>}
-            {props.showEdit && <><button type="button" className="employee-record-action" onClick={() => open("edit-obligation")}><FontAwesomeIcon icon={faPen} /> Editar obrigação</button><button type="button" className="employee-record-action" onClick={() => open("edit-movement")}><FontAwesomeIcon icon={faPen} /> Editar lançamento</button></>}
+            {(props.showEdit || props.showEditObligation) && <button type="button" className="employee-record-action" onClick={() => open("edit-obligation")}><FontAwesomeIcon icon={faPen} /> Editar obrigação</button>}{(props.showEdit || props.showEditMovement) && <button type="button" className="employee-record-action" onClick={() => open("edit-movement")}><FontAwesomeIcon icon={faPen} /> Editar lançamento</button>}
             {props.showSuggestions && <button type="button" className="employee-record-action" onClick={() => open("suggestions")}><FontAwesomeIcon icon={faWandMagicSparkles} /> Sugestões</button>}
             {props.showDelete && <button type="button" className="employee-record-action employee-record-action--danger" disabled><FontAwesomeIcon icon={faTrash} /> Excluir</button>}
             {mode && <div className="employee-record-modal-backdrop" role="presentation" onMouseDown={event => { if (event.target === event.currentTarget) close(); }}>
