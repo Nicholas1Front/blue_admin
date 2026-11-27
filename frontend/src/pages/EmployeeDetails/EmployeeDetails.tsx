@@ -164,7 +164,7 @@ function ObligationDetailsModal({ title, obligations, onClose }: { title: string
         <div className="employee-detail-modal-backdrop" role="presentation" onMouseDown={event => { if (event.target === event.currentTarget) onClose(); }}>
             <section className="employee-detail-modal" role="dialog" aria-modal="true" aria-label={title}>
                 <header className="employee-detail-modal__header"><div><span className="employee-detail-eyebrow">Detalhamento financeiro</span><h2>{title}</h2><p>{obligations.length} {obligations.length === 1 ? "obrigação encontrada" : "obrigações encontradas"}</p></div><button type="button" onClick={onClose} aria-label="Fechar detalhamento">×</button></header>
-                {obligations.length ? <><EmployeeRecordActions engagementId={obligations[0]?.engagementId} showEdit showDelete compact /><div className="employee-detail-modal__list">{visibleObligations.map(obligation => {
+                {obligations.length ? <><EmployeeRecordActions engagementId={obligations[0]?.engagementId} initialObligationId={obligations.length === 1 ? obligations[0]?.id : undefined} showEdit showDelete compact /><div className="employee-detail-modal__list">{visibleObligations.map(obligation => {
                     const finalValue = Number(obligation.finalValue);
                     const paidValue = Number(obligation.paidValue ?? 0);
                     const outstandingValue = Number(obligation.outstandingValue ?? Math.max(0, finalValue - paidValue));
