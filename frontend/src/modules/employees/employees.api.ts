@@ -1,6 +1,6 @@
 import { api } from "../../api/axios";
 import type { ApiResponse } from "../../api/api.types";
-import type { CursorPage, CreateEmployeeRequest, EmployeeListItem, EmployeeMutationResponse, EmployeeRecord, FindEmployeesFilters, UpdateEmployeeRequest } from "./employees.types";
+import type { CursorPage, CreateEmployeeRequest, EmployeeListItem, EmployeeMutationResponse, EmployeeRecord, FindEmployeesFilters, UpdateEmployeeRequest, DeleteEmployeeRequest, DeleteEmployeeResponse } from "./employees.types";
 export async function createEmployee(data: CreateEmployeeRequest): Promise<EmployeeMutationResponse> {
     const response = await api.post<ApiResponse<EmployeeMutationResponse>>("/employees/create-employee", data);
     return response.data.data;
@@ -15,5 +15,10 @@ export async function findEmployees(filters: FindEmployeesFilters): Promise<Curs
 }
 export async function getEmployeeById(id: string): Promise<EmployeeRecord> {
     const response = await api.get<ApiResponse<EmployeeRecord>>(`/employees/find-employee-by-id/${encodeURIComponent(id)}`);
+    return response.data.data;
+}
+
+export async function deleteEmployee(id: string, data: DeleteEmployeeRequest): Promise<DeleteEmployeeResponse> {
+    const response = await api.delete<ApiResponse<DeleteEmployeeResponse>>(`/employees/delete-employee/${encodeURIComponent(id)}`, { data });
     return response.data.data;
 }
