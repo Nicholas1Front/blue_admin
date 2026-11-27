@@ -68,7 +68,7 @@ export interface MonthlyPaymentsResponse {
     totals: { count: number; value: number };
     pagination: { limit: number; hasMore: boolean; nextCursor: string | null };
 }
-export interface EmployeeHistoryFilters { eventType?: string; cursor?: string; limit?: number; }
+export interface EmployeeHistoryFilters { engagementId?: string; eventType?: string; cursor?: string; limit?: number; }
 export type EmployeeHistoryResponse = CursorPage<EmployeeHistoryEvent>;
 export interface EmployeeOverviewFilters { obligationsCursor?: string; obligationsLimit?: number; movementsCursor?: string; movementsLimit?: number; historyCursor?: string; historyLimit?: number; }
 export interface EmployeeOverviewResponse {
