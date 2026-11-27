@@ -115,6 +115,12 @@ export function EmployeeRecordActions(props: Props) {
     async function submitObligation(event: FormEvent<HTMLFormElement>) {
         event.preventDefault(); setError("");
         if (!engagementId) { setError("Selecione o vínculo para continuar."); return; }
+        if (mode === "edit-obligation" && selectedObligation) {
+            const paidValue = Number(selectedObligation.paidValue ?? 0);
+            const nextValue = Number(finalValue);
+            if (obligationStatus === "pago" && Math.abs(paidValue - nextValue) > 0.01 && !window.confirm("Os movimentos vinculados não correspondem ao valor final. Deseja marcar a obrigação como paga mesmo assim?")) return;
+            if (paidValue > nextValue && !window.confirm("Os movimentos vinculados ultrapassam o valor final da obrigação. Deseja continuar?")) return;
+        }
         const data: CreateObligationRequest = { type: obligationType, title: obligationTitle.trim(), description: obligationDescription.trim() || null,
             referenceStart: isoDate(referenceStart), referenceEnd: isoDate(referenceEnd), dueDate: isoDate(dueDate),
             originalValue: Number(originalValue), finalValue: Number(finalValue), status: obligationStatus, observations: obligationObservations.trim() || null };
@@ -135,6 +141,14 @@ export function EmployeeRecordActions(props: Props) {
                 const payment = { obligationId: movementObligationId, description: data.description, value: Number(movementValue), eventDate: data.eventDate, observations: data.observations } as CreatePaymentRequest;
                 if (mode === "edit-movement" && selectedMovement) await movementMutations.updatePayment.mutateAsync({ engagementId, movementId: selectedMovement.id, data: payment });
                 else await movementMutations.createPayment.mutateAsync({ engagementId, data: payment });
+                if (window.confirm("Pagamento salvo. Deseja revisar agora o status e os valores da obrigação relacionada?")) {
+                    const linkedObligation = obligations.find(item => item.id === movementObligationId);
+                    setSelectedObligationId(movementObligationId);
+                    fillObligation(linkedObligation);
+                    setMode("edit-obligation");
+                    setError("");
+                    return;
+                }
             } else {
                 const movement = { ...data, type: movementType } as CreateMovementRequest;
                 if (mode === "edit-movement" && selectedMovement) await movementMutations.update.mutateAsync({ engagementId, movementId: selectedMovement.id, data: movement });
