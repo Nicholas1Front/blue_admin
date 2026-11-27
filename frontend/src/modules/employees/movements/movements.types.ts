@@ -32,7 +32,9 @@ export interface UpdatePaymentRequest {
 export interface FindMovementsFilters {
     employeeId?: string; employeeName?: string; engagementId?: string;
     type?: EmployeeMovementType; description?: string; obligationId?: string;
-    financialTransactionId?: string; eventDateFrom?: string; eventDateTo?: string;
+    financialTransactionId?: string; valueFrom?: number; valueTo?: number;
+    referenceStartFrom?: string; referenceStartTo?: string; referenceEndFrom?: string; referenceEndTo?: string;
+    eventDateFrom?: string; eventDateTo?: string;
     cursor?: string; limit?: number; order?: "asc" | "desc";
 }
 export interface FindEngagementMovementsFilters {
