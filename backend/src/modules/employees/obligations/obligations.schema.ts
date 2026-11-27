@@ -118,3 +118,10 @@ export const findObligationsByFiltersSchema = z.object({
 })
 
 export type findObligationsByFiltersDTO = z.infer<typeof findObligationsByFiltersSchema>
+
+export const findObligationsByEngagementQuerySchema = z.object({
+    cursor: z.string().uuid().optional(),
+    limit: z.coerce.number().int().min(1).max(100).default(10)
+})
+
+export type findObligationsByEngagementQueryDTO = z.infer<typeof findObligationsByEngagementQuerySchema>
