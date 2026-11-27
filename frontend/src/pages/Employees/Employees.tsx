@@ -1,4 +1,4 @@
-import { useState, type FormEvent } from "react";
+import { useEffect, useState, type FormEvent } from "react";
 import { Link } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import {
@@ -149,6 +149,11 @@ function getMonthDateRange(month: number, year: number) {
 }
 
 export function Employees() {
+    useEffect(() => {
+        document.title = "Funcionários | Blue Admin";
+        return () => { document.title = "Blue Admin"; };
+    }, []);
+
     const now = new Date();
     const currentMonth = now.getMonth() + 1;
     const currentYear = now.getFullYear();
