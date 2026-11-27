@@ -645,7 +645,7 @@ function ObligationMovementsModal({ obligation, onClose }: { obligation: Obligat
                     <div><span className="employee-detail-eyebrow">Histórico financeiro</span><h2>Movimentações relacionadas</h2><p>{obligation.title} · Competência: {formatCompetency(obligation)}</p></div>
                     <button type="button" onClick={onClose} aria-label="Fechar movimentações">×</button>
                 </header>
-                <EmployeeRecordActions engagementId={obligation.engagementId} showEdit showDelete compact /><ObligationMovementsList obligationId={obligation.id} />
+                <EmployeeRecordActions engagementId={obligation.engagementId} obligationId={obligation.id} showEdit showDelete compact /><ObligationMovementsList obligationId={obligation.id} />
             </section>
         </div>
     );
