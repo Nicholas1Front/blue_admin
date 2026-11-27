@@ -1388,3 +1388,97 @@ button.employee-detail-financial-breakdown:focus-visible {
         gap: var(--spacing-1);
     }
 }
+
+
+/* Engagement card with separate selection and detail actions */
+.employee-detail-engagement {
+    display: flex;
+    flex-direction: column;
+    align-items: stretch;
+    gap: var(--spacing-3);
+    padding: var(--spacing-3);
+}
+.employee-detail-engagement-select {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: var(--spacing-2);
+    width: 100%;
+    min-width: 0;
+    padding: var(--spacing-1);
+    color: inherit;
+    text-align: left;
+    background: transparent;
+    border: 0;
+    border-radius: var(--radius-md);
+    cursor: pointer;
+}
+.employee-detail-engagement-select:hover {
+    color: inherit;
+    background: transparent;
+}
+.employee-detail-engagement-select:focus-visible {
+    outline: 2px solid var(--color-primary-400);
+    outline-offset: 2px;
+}
+.employee-detail-engagement-details-button {
+    align-self: flex-start;
+    min-height: 2.25rem;
+    padding: .55rem .8rem;
+    color: var(--color-primary-300);
+    background: color-mix(in srgb, var(--color-primary-500) 10%, var(--color-surface));
+    border: 1px solid color-mix(in srgb, var(--color-primary-400) 35%, var(--color-border));
+    border-radius: var(--radius-md);
+    font-size: .72rem;
+    font-weight: var(--font-weight-semibold);
+    cursor: pointer;
+}
+.employee-detail-engagement-details-button:hover {
+    color: var(--color-primary-200, #bfdbfe);
+    background: color-mix(in srgb, var(--color-primary-500) 18%, var(--color-surface));
+    border-color: var(--color-primary-300);
+}
+.employee-detail-engagement-details-button:focus-visible {
+    outline: 2px solid var(--color-primary-400);
+    outline-offset: 2px;
+}
+.employee-detail-engagement-modal__grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: var(--spacing-3);
+}
+.employee-detail-engagement-modal__grid .employee-detail-info {
+    background: var(--color-background);
+}
+.employee-detail-engagement-modal__observations {
+    margin-top: var(--spacing-3);
+    padding: var(--spacing-3);
+    background: var(--color-background);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-md);
+}
+.employee-detail-engagement-modal__observations > span {
+    color: var(--color-text-muted);
+    font-size: .7rem;
+}
+.employee-detail-engagement-modal__observations p {
+    margin-top: var(--spacing-2);
+    color: var(--color-text-secondary);
+    font-size: .78rem;
+    line-height: 1.55;
+    white-space: pre-wrap;
+    overflow-wrap: anywhere;
+}
+.employee-detail-obligation-movements-modal .employee-detail-obligation-movements {
+    margin-top: 0;
+}
+.employee-detail-obligation-movements-modal .employee-detail-pagination {
+    position: sticky;
+    bottom: 0;
+    background: var(--color-surface);
+}
+@media (max-width: 680px) {
+    .employee-detail-engagement-modal__grid {
+        grid-template-columns: minmax(0, 1fr);
+    }
+}
