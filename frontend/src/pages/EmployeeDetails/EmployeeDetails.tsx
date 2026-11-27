@@ -115,19 +115,66 @@ function formatCompetency(obligation?: { referenceStart?: string | null | undefi
     return start ?? end ?? "Competência não informada";
 }
 
-function FinancialBreakdown({ title, total, count, obligations, description, emptyLabel }: { title: string; total: number; count: number; obligations: Array<{ title: string; referenceStart?: string | null | undefined; referenceEnd?: string | null | undefined; dueDate?: string | null | undefined; createdAt?: string | null | undefined; outstandingValue: number }>; description: string; emptyLabel: string }) {
+type ModalObligation = {
+    id: string;
+    type: ObligationType;
+    title: string;
+    referenceStart: string | null;
+    referenceEnd: string | null;
+    dueDate: string | null;
+    createdAt?: string;
+    status: ObligationStatus;
+    finalValue: number | string;
+    paidValue?: number;
+    outstandingValue?: number;
+    description?: string | null;
+    observations?: string | null;
+};
+
+function FinancialBreakdown({ title, total, count, obligations, description, emptyLabel, onClick }: {
+    title: string;
+    total: number;
+    count: number;
+    obligations: FinancialSummaryObligation[];
+    description: string;
+    emptyLabel: string;
+    onClick: () => void;
+}) {
     const sortedObligations = [...obligations].sort((a, b) => (a.dueDate ?? "").localeCompare(b.dueDate ?? ""));
     return (
-        <article className={`employee-detail-financial-breakdown ${title === "A pagar agora" ? "employee-detail-financial-breakdown--urgent" : title === "Próximos vencimentos" ? "employee-detail-financial-breakdown--upcoming" : ""}`}>
-            <div className="employee-detail-financial-breakdown__top"><span>{title}</span><strong>{currency(total)}</strong><small>{count} {count === 1 ? "obrigação" : "obrigações"}</small></div>
-            <p>{description}</p>
-            {sortedObligations.length ? (
-                <ul>{sortedObligations.map((obligation, index) => <li key={obligation.title + index}>
-                    <span><strong>{obligation.title}</strong><small>{obligation.dueDate ? "Vencimento: " + dateOnly(obligation.dueDate) : obligation.referenceStart || obligation.referenceEnd ? "Data de referência: " + dateOnly(obligation.referenceStart ?? obligation.referenceEnd) : "Registrada em: " + dateOnly(obligation.createdAt)}{(obligation.referenceStart || obligation.referenceEnd) ? " · Competência: " + formatCompetency(obligation) : ""}</small></span>
-                    <strong>{currency(obligation.outstandingValue)}</strong>
-                </li>)}</ul>
-            ) : <div className="employee-detail-financial-breakdown__empty">{emptyLabel}</div>}
-        </article>
+        <button type="button" className={`employee-detail-financial-breakdown ${title === "A pagar agora" ? "employee-detail-financial-breakdown--urgent" : title === "Próximos vencimentos" ? "employee-detail-financial-breakdown--upcoming" : ""}`} onClick={onClick} aria-haspopup="dialog">
+            <span className="employee-detail-financial-breakdown__top"><span>{title}</span><strong>{currency(total)}</strong><small>{count} {count === 1 ? "obrigação" : "obrigações"}</small></span>
+            <span className="employee-detail-financial-breakdown__description">{description}</span>
+            {sortedObligations.length ? <span className="employee-detail-financial-breakdown__items">{sortedObligations.slice(0, 3).map(obligation => <span key={obligation.id}><strong>{obligation.title}</strong><small>{obligation.dueDate ? "Vencimento: " + dateOnly(obligation.dueDate) : obligation.referenceStart || obligation.referenceEnd ? "Data de referência: " + dateOnly(obligation.referenceStart ?? obligation.referenceEnd) : "Data de cadastro: " + dateOnly(obligation.createdAt)}{(obligation.referenceStart || obligation.referenceEnd) ? " · Competência: " + formatCompetency(obligation) : ""}</small></span>)}</span> : <span className="employee-detail-financial-breakdown__empty">{emptyLabel}</span>}
+            <span className="employee-detail-financial-breakdown__action">Clique para detalhar as obrigações <span aria-hidden="true">→</span></span>
+        </button>
+    );
+}
+
+function ObligationDetailsModal({ title, obligations, onClose }: { title: string; obligations: ModalObligation[]; onClose: () => void }) {
+    return (
+        <div className="employee-detail-modal-backdrop" role="presentation" onMouseDown={event => { if (event.target === event.currentTarget) onClose(); }}>
+            <section className="employee-detail-modal" role="dialog" aria-modal="true" aria-label={title}>
+                <header className="employee-detail-modal__header"><div><span className="employee-detail-eyebrow">Detalhamento financeiro</span><h2>{title}</h2><p>{obligations.length} {obligations.length === 1 ? "obrigação encontrada" : "obrigações encontradas"}</p></div><button type="button" onClick={onClose} aria-label="Fechar detalhamento">×</button></header>
+                {obligations.length ? <div className="employee-detail-modal__list">{obligations.map(obligation => {
+                    const finalValue = Number(obligation.finalValue);
+                    const paidValue = Number(obligation.paidValue ?? 0);
+                    const outstandingValue = Number(obligation.outstandingValue ?? Math.max(0, finalValue - paidValue));
+                    return <article className={`employee-detail-modal-obligation employee-detail-obligation--${obligation.type}`} key={obligation.id}>
+                        <header><span className={`employee-detail-obligation-type employee-detail-obligation-type--${obligation.type}`}>{obligationTypeLabels[obligation.type]}</span><span className={`employee-detail-obligation-status employee-detail-obligation-status--${obligation.status}`}>{obligationStatusLabels[obligation.status]}</span></header>
+                        <h3>{obligation.title}</h3>
+                        <div className="employee-detail-obligation-meta">
+                            <span><small>Competência / referência</small><strong>{formatCompetency(obligation)}</strong></span>
+                            <span><small>{obligation.dueDate ? "Data de vencimento" : obligation.referenceStart || obligation.referenceEnd ? "Data de referência" : "Sem vencimento ou referência"}</small><strong>{dateOnly(obligation.dueDate ?? obligation.referenceStart ?? obligation.referenceEnd)}</strong></span>
+                            <span><small>Data de cadastro</small><strong>{dateOnly(obligation.createdAt)}</strong></span>
+                        </div>
+                        <div className="employee-detail-obligation-values"><span><small>Valor previsto</small><strong>{currency(finalValue)}</strong></span><span><small>Já pago / alocado</small><strong>{currency(paidValue)}</strong></span><span><small>Saldo restante</small><strong>{currency(outstandingValue)}</strong></span></div>
+                        {obligation.description && <p className="employee-detail-obligation-description">{obligation.description}</p>}
+                        {obligation.observations && <small className="employee-detail-obligation-note">Observação: {obligation.observations}</small>}
+                    </article>;
+                })}</div> : <div className="employee-detail-empty">Não há obrigações nesta categoria.</div>}
+            </section>
+        </div>
     );
 }
 
