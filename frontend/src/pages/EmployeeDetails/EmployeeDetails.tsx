@@ -115,7 +115,7 @@ function formatCompetency(obligation?: Pick<EmployeeObligation, "referenceStart"
 function FinancialBreakdown({ title, total, count, obligations, description, emptyLabel }: { title: string; total: number; count: number; obligations: Array<{ title: string; referenceStart?: string | null | undefined; referenceEnd?: string | null | undefined; dueDate?: string | null; outstandingValue: number }>; description: string; emptyLabel: string }) {
     const sortedObligations = [...obligations].sort((a, b) => (a.dueDate ?? "").localeCompare(b.dueDate ?? ""));
     return (
-        <article className="employee-detail-financial-breakdown">
+        <article className={`employee-detail-financial-breakdown ${title === "A pagar agora" ? "employee-detail-financial-breakdown--urgent" : title === "Próximos vencimentos" ? "employee-detail-financial-breakdown--upcoming" : ""}`}>
             <div className="employee-detail-financial-breakdown__top"><span>{title}</span><strong>{currency(total)}</strong><small>{count} {count === 1 ? "obrigação" : "obrigações"}</small></div>
             <p>{description}</p>
             {sortedObligations.length ? (
