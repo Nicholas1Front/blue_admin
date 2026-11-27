@@ -1300,3 +1300,24 @@ button.employee-detail-financial-breakdown:focus-visible {
         flex-wrap: wrap;
     }
 }
+
+.employee-detail-movement__date {
+    display: flex;
+    flex-direction: column;
+    gap: .25rem;
+}
+.employee-detail-movement__date small {
+    color: var(--color-text-muted);
+    font-size: .62rem;
+}
+.employee-detail-movement__date strong {
+    color: var(--color-text-secondary);
+    font-size: .72rem;
+    font-weight: var(--font-weight-medium);
+}
+.employee-detail-modal .employee-detail-pagination {
+    position: sticky;
+    bottom: 0;
+    padding: var(--spacing-3);
+    background: var(--color-surface);
+}
