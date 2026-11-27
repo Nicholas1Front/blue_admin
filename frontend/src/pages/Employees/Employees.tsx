@@ -186,7 +186,7 @@ export function Employees() {
     const summaries = useEmployeeEngagementSummaries(filters);
     const movementDateRange = getMonthDateRange(movementMonth, movementYear);
     const movementFilters: FindMovementsFilters = {
-        ...movementDateRange,
+        ...(!movementEventFrom && !movementEventTo ? movementDateRange : {}),
         ...(movementEventFrom ? { eventDateFrom: movementEventFrom } : {}),
         ...(movementEventTo ? { eventDateTo: movementEventTo } : {}),
         limit: PAGE_SIZE,
@@ -480,7 +480,7 @@ export function Employees() {
                         <div>
                             <span className="employees-eyebrow">Histórico</span>
                             <h2>Movimentações</h2>
-                            <p>Consulte lançamentos de qualquer mês e ano. Cada registro identifica seu tipo e a competência relacionada.</p>
+                            <p>Consulte lançamentos por funcionário, tipo, valor e datas. Mês e ano definem o período padrão; ao informar datas específicas, elas substituem esse período.</p>
                         </div>
                     </header>
 
