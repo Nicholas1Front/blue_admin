@@ -520,21 +520,37 @@ class MovementsRepository {
         startDate?.setUTCHours(0, 0, 0, 0)
         endDate?.setUTCHours(23, 59, 59, 999)
 
-        const movements = await prisma.employeeMovement.findMany({
-            where: {
-                engagementId,
-                ...(filters.type !== undefined ? { type: filters.type } : {}),
-                ...(startDate || endDate ? {
-                    eventDate: {
-                        ...(startDate ? { gte: startDate } : {}),
-                        ...(endDate ? { lte: endDate } : {})
-                    }
-                } : {})
-            },
-            orderBy: [{ eventDate: { sort: filters.order, nulls: 'last' } }, { createdAt: filters.order }, { id: filters.order }],
+        const where = {
+            engagementId,
+            ...(filters.type !== undefined ? { type: filters.type } : {}),
+            ...(startDate || endDate ? {
+                eventDate: {
+                    ...(startDate ? { gte: startDate } : {}),
+                    ...(endDate ? { lte: endDate } : {})
+                }
+            } : {})
+        }
+
+        if (filters.cursor) {
+            const cursorExists = await prisma.employeeMovement.findFirst({
+                where: { ...where, id: filters.cursor },
+                select: { id: true }
+            })
+            if (!cursorExists) return { invalidCursor: true as const }
+        }
+
+        const rows = await prisma.employeeMovement.findMany({
+            where,
+            ...(filters.cursor ? { cursor: { id: filters.cursor }, skip: 1 } : {}),
+            take: filters.limit + 1,
+            orderBy: [
+                { eventDate: { sort: filters.order, nulls: 'last' } },
+                { createdAt: filters.order },
+                { id: filters.order }
+            ],
             include: {
                 obligation: {
-                    select: { id: true, type: true, title: true, referenceStart: true, referenceEnd: true, finalValue: true, status: true }
+                    select: { id: true, type: true, title: true, referenceStart: true, referenceEnd: true, dueDate: true, finalValue: true, status: true }
                 },
                 financialTransaction: {
                     select: { id: true, categoryId: true, description: true, value: true, type: true, referenceDate: true }
@@ -542,16 +558,25 @@ class MovementsRepository {
             }
         })
 
-        return movements.map(movement => ({
-            ...movement,
-            value: movement.value === null ? null : Number(movement.value),
-            obligation: movement.obligation
-                ? { ...movement.obligation, finalValue: Number(movement.obligation.finalValue) }
-                : null,
-            financialTransaction: movement.financialTransaction
-                ? { ...movement.financialTransaction, value: Number(movement.financialTransaction.value) }
-                : null
-        }))
+        const hasMore = rows.length > filters.limit
+        const page = hasMore ? rows.slice(0, filters.limit) : rows
+        return {
+            data: page.map(movement => ({
+                ...movement,
+                value: movement.value === null ? null : Number(movement.value),
+                obligation: movement.obligation
+                    ? { ...movement.obligation, finalValue: Number(movement.obligation.finalValue) }
+                    : null,
+                financialTransaction: movement.financialTransaction
+                    ? { ...movement.financialTransaction, value: Number(movement.financialTransaction.value) }
+                    : null
+            })),
+            pagination: {
+                limit: filters.limit,
+                hasMore,
+                nextCursor: hasMore ? page[page.length - 1]?.id ?? null : null
+            }
+        }
     }
 
     async findMovementById(engagementId: string, movementId: string) {
