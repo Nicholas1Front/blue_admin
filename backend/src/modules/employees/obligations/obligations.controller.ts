@@ -5,6 +5,7 @@ import {
     createObligationSchema,
     createObligationsBatchSchema,
     findObligationsByFiltersSchema,
+    findObligationsByEngagementQuerySchema,
     updateObligationSchema
 } from './obligations.schema.js'
 import obligationsService from './obligations.service.js'
@@ -95,8 +96,10 @@ class ObligationsController {
     async findObligationsByEngagement(req: Request, res: Response) {
         if (!req.user) throw new AppError('User not authenticated', 401, 'USER_NOT_AUTHENTICATED')
 
+        const query = findObligationsByEngagementQuerySchema.parse(req.query)
         const obligations = await obligationsService.findObligationsByEngagement(
-            req.params.engagementId as string
+            req.params.engagementId as string,
+            query
         )
 
         return res.status(200).json({
