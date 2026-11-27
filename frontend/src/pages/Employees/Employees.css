@@ -1289,3 +1289,29 @@
         grid-template-columns: minmax(0, 1fr);
     }
 }
+
+
+/* Clear hover and focus states for employee search controls */
+.employees-button:hover,
+.employees-pagination button:not(:disabled):hover,
+.employees-state button:hover {
+    color: var(--color-primary-300);
+    background: color-mix(in srgb, var(--color-primary-500) 12%, var(--color-surface));
+    border-color: var(--color-primary-400);
+}
+.employees-button--primary:hover {
+    color: #fff;
+    background: var(--color-primary-600);
+    border-color: var(--color-primary-400);
+}
+.employees-movement-filters .employees-filter-actions button:hover {
+    color: var(--color-primary-300);
+    background: color-mix(in srgb, var(--color-primary-500) 12%, var(--color-surface));
+    border-color: var(--color-primary-400);
+}
+.employees-button:focus-visible,
+.employees-pagination button:focus-visible,
+.employees-state button:focus-visible {
+    outline: 2px solid var(--color-primary-400);
+    outline-offset: 2px;
+}
