@@ -378,9 +378,11 @@ export function Employees() {
                     ) : (
                         <div className="employees-list">
                             {employees.map(employee => {
-                                const obligations = employee.engagements.flatMap(engagement => engagement.obligations);
-                                const visibleObligations = obligations.slice(0, 3);
-                                const otherObligations = Math.max(0, obligations.length - visibleObligations.length);
+                                const overdueObligations = employee.engagements
+                                    .flatMap(engagement => engagement.obligations)
+                                    .filter(obligation => obligation.dueDate && obligation.dueDate.slice(0, 10) < todayKey);
+                                const visibleObligations = overdueObligations.slice(0, 3);
+                                const otherObligations = Math.max(0, overdueObligations.length - visibleObligations.length);
                                 return (
                                     <Link className="employees-row" key={employee.id} to={`/employees/${encodeURIComponent(employee.id)}`} aria-label={`Abrir ficha de ${employee.name}`}>
                                         <div className="employees-row__top">
@@ -392,15 +394,19 @@ export function Employees() {
                                                 </div>
                                             </div>
                                             <div className="employees-row__numbers">
-                                                <span className="employees-row__balance">
-                                                    <small>Saldo total em aberto</small>
-                                                    <strong>{formatCurrency(employee.totalOutstanding)}</strong>
+                                                <span className="employees-row__balance employees-row__balance--overdue">
+                                                    <small>Vencidas</small>
+                                                    <strong>{formatCurrency(employee.overdueValue)}</strong>
                                                 </span>
-                                                <span>
+                                                <span className="employees-row__balance employees-row__balance--upcoming">
+                                                    <small>Próximos 30 dias</small>
+                                                    <strong>{formatCurrency(employee.upcomingValue)}</strong>
+                                                </span>
+                                                <span className="employees-row__balance employees-row__balance--absence">
                                                     <small>Faltas no mês</small>
                                                     <strong>{employee.absencesThisMonth}</strong>
                                                 </span>
-                                                <span>
+                                                <span className="employees-row__balance employees-row__balance--tardiness">
                                                     <small>Atrasos no mês</small>
                                                     <strong>{employee.tardinessThisMonth}</strong>
                                                 </span>
@@ -421,13 +427,13 @@ export function Employees() {
 
                                         <div className="employees-row__obligations">
                                             <div className="employees-row__section-heading">
-                                                <small className="employees-row__section-label">Obrigações pendentes</small>
-                                                {obligations.length > 0 && <span>{obligations.length} {obligations.length === 1 ? "item" : "itens"}</span>}
+                                                <small className="employees-row__section-label">Obrigações vencidas</small>
+                                                {overdueObligations.length > 0 && <span>{overdueObligations.length} {overdueObligations.length === 1 ? "item" : "itens"}</span>
                                             </div>
                                             {visibleObligations.length ? (
                                                 <div className="employees-obligation-list">
                                                     {visibleObligations.map(obligation => (
-                                                        <div className="employees-obligation-card" key={obligation.id}>
+                                                        <div className="employees-obligation-card employees-obligation-card--overdue" key={obligation.id}>
                                                             <div className="employees-obligation-card__heading">
                                                                 <span className={`employees-obligation-card__type employees-obligation-card__type--${obligation.type}`}>
                                                                     {obligationTypeLabels[obligation.type]}
@@ -436,7 +442,11 @@ export function Employees() {
                                                             </div>
                                                             <small className="employees-obligation-card__reference">
                                                                 <FontAwesomeIcon icon={faCalendarDays} />
-                                                                {formatCompetency(obligation)}
+                                                                Competência: {formatCompetency(obligation)}
+                                                            </small>
+                                                            <small className="employees-obligation-card__due-date">
+                                                                <FontAwesomeIcon icon={faClock} />
+                                                                Venceu em {formatDate(obligation.dueDate)}
                                                             </small>
                                                             <div className="employees-obligation-card__amounts">
                                                                 <span>
@@ -460,7 +470,7 @@ export function Employees() {
                                                     )}
                                                 </div>
                                             ) : (
-                                                <span className="employees-no-obligations">Nenhuma obrigação pendente</span>
+                                                <span className="employees-no-obligations">Nenhuma obrigação vencida</span>
                                             )}
                                         </div>
                                     </Link>
