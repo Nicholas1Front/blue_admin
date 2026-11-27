@@ -25,6 +25,7 @@ import type {
     ObligationType
 } from "../../modules/employees";
 import "./Employees.css";
+import { EmployeeRecordActions } from "../EmployeeDetails/EmployeeRecordActions";
 
 const PAGE_SIZE = 10;
 
@@ -315,6 +316,11 @@ export function Employees() {
                         <strong>{dashboard.isPending ? "—" : formatCurrency(totals?.upcomingValue)}</strong>
                         <small>Saldo com vencimento próximo</small>
                     </article>
+                </section>
+
+                <section className="employees-panel employees-quick-actions">
+                    <header className="employees-panel__header"><div><span className="employees-eyebrow">Acessos rápidos</span><h2>O que deseja registrar?</h2><p>Crie cadastros e lançamentos sem navegar por várias telas.</p></div></header>
+                    <EmployeeRecordActions showEmployee showObligation showMovement showEdit showSuggestions showDelete />
                 </section>
 
                 <section className="employees-panel">
