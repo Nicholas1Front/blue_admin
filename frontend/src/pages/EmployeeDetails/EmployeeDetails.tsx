@@ -283,7 +283,7 @@ export function EmployeeDetails() {
     };
     const obligationsQuery = useObligationsByFilters(obligationFilters, Boolean(selectedEngagementId));
     const movementsQuery = useMovementsByFilters(movementFilters, Boolean(selectedEngagementId));
-    const historyQuery = useEmployeeHistory(employeeId, { limit: 100, ...(historyCursor ? { cursor: historyCursor } : {}) }, historyOpen);
+    const historyQuery = useEmployeeHistory(employeeId, { ...(selectedEngagementId ? { engagementId: selectedEngagementId } : {}), limit: 100, ...(historyCursor ? { cursor: historyCursor } : {}) }, historyOpen);
 
     const obligations = obligationsQuery.data?.data ?? [];
     const movements = movementsQuery.data?.data ?? [];
