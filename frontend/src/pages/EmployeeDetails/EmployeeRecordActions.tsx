@@ -1,4 +1,5 @@
 import { useState, type FormEvent } from "react";
+import { useNavigate } from "react-router-dom";
 import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faPlus, faPen, faTrash, faWandMagicSparkles, faUserPlus, faFileInvoiceDollar, faClockRotateLeft } from "@fortawesome/free-solid-svg-icons";
 import {
@@ -39,6 +40,7 @@ function isoDate(value: string) { return value ? `${value}T12:00:00` : null; }
 function money(value: EmployeeAmount | null | undefined) { return value == null ? "" : String(value); }
 
 export function EmployeeRecordActions(props: Props) {
+    const navigate = useNavigate();
     const [mode, setMode] = useState<ActionMode | null>(null);
     const [engagementId, setEngagementId] = useState(props.engagementId ?? "");
     const [employeeId, setEmployeeId] = useState(props.employeeId ?? "");
@@ -79,8 +81,8 @@ export function EmployeeRecordActions(props: Props) {
 
     const open = (next: ActionMode) => {
         setError(""); setMode(next);
-        if (props.engagementId) setEngagementId(props.engagementId);
-        if (props.employeeId) setEmployeeId(props.employeeId);
+        setEngagementId(props.engagementId ?? "");
+        setEmployeeId(props.employeeId ?? "");
         setSelectedObligationId(""); setSelectedMovementId("");
         setObligationType("salario"); setObligationTitle(""); setObligationDescription(""); setReferenceStart(""); setReferenceEnd(""); setDueDate("");
         setOriginalValue(""); setFinalValue(""); setObligationStatus("pendente"); setObligationObservations("");
@@ -107,7 +109,7 @@ export function EmployeeRecordActions(props: Props) {
 
     async function submitEmployee(event: FormEvent<HTMLFormElement>) {
         event.preventDefault(); setError("");
-        try { await createEmployee.mutateAsync({ name: employeeName.trim(), document: document.trim() || null }); close(); }
+        try { const result = await createEmployee.mutateAsync({ name: employeeName.trim(), document: document.trim() || null }); close(); navigate(`/employees/${encodeURIComponent(result.employee.id)}`); }
         catch { setError("Não foi possível cadastrar o funcionário. Confira os dados e tente novamente."); }
     }
     async function submitObligation(event: FormEvent<HTMLFormElement>) {
