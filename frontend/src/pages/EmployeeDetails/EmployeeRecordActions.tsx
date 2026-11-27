@@ -181,12 +181,19 @@ export function EmployeeRecordActions(props: Props) {
 
     return (
         <div className={`employee-record-actions ${props.compact ? "employee-record-actions--compact" : ""}`}>
-            {props.showEmployee && <button type="button" className="employee-record-action employee-record-action--primary" onClick={() => open("employee")}><FontAwesomeIcon icon={faUserPlus} /> Adicionar funcionário</button>}
-            {props.showObligation && <button type="button" className="employee-record-action" onClick={() => open("obligation")}><FontAwesomeIcon icon={faPlus} /> Adicionar obrigação</button>}
-            {props.showMovement && <button type="button" className="employee-record-action" onClick={() => open("movement")}><FontAwesomeIcon icon={faPlus} /> Adicionar lançamento</button>}
-            {(props.showEdit || props.showEditObligation) && <button type="button" className="employee-record-action" onClick={() => open("edit-obligation")}><FontAwesomeIcon icon={faPen} /> Editar obrigação</button>}{(props.showEdit || props.showEditMovement) && <button type="button" className="employee-record-action" onClick={() => open("edit-movement")}><FontAwesomeIcon icon={faPen} /> Editar lançamento</button>}
-            {props.showSuggestions && <button type="button" className="employee-record-action" onClick={() => open("suggestions")}><FontAwesomeIcon icon={faWandMagicSparkles} /> Sugestões</button>}
-            {props.showDelete && <button type="button" className="employee-record-action employee-record-action--danger" disabled><FontAwesomeIcon icon={faTrash} /> Excluir</button>}
+            {(props.showEmployee || props.showObligation || props.showMovement) && <div className="employee-record-actions__group"><span className="employee-record-actions__label">Adicionar</span>
+                {props.showEmployee && <button type="button" className="employee-record-action employee-record-action--primary" onClick={() => open("employee")}><FontAwesomeIcon icon={faUserPlus} /> Funcionário</button>}
+                {props.showObligation && <button type="button" className="employee-record-action" onClick={() => open("obligation")}><FontAwesomeIcon icon={faPlus} /> Obrigação</button>}
+                {props.showMovement && <button type="button" className="employee-record-action" onClick={() => open("movement")}><FontAwesomeIcon icon={faPlus} /> Lançamento</button>}
+            </div>}
+            {(props.showEdit || props.showEditObligation || props.showEditMovement) && <div className="employee-record-actions__group"><span className="employee-record-actions__label">Editar</span>
+                {(props.showEdit || props.showEditObligation) && <button type="button" className="employee-record-action" onClick={() => open("edit-obligation")}><FontAwesomeIcon icon={faPen} /> Obrigação</button>}
+                {(props.showEdit || props.showEditMovement) && <button type="button" className="employee-record-action" onClick={() => open("edit-movement")}><FontAwesomeIcon icon={faPen} /> Lançamento</button>}
+            </div>}
+            {(props.showSuggestions || props.showDelete) && <div className="employee-record-actions__group"><span className="employee-record-actions__label">Revisão</span>
+                {props.showSuggestions && <button type="button" className="employee-record-action" onClick={() => open("suggestions")}><FontAwesomeIcon icon={faWandMagicSparkles} /> Sugestões</button>}
+                {props.showDelete && <button type="button" className="employee-record-action employee-record-action--danger" disabled><FontAwesomeIcon icon={faTrash} /> Excluir</button>}
+            </div>}
             {mode && <div className="employee-record-modal-backdrop" role="presentation" onMouseDown={event => { if (event.target === event.currentTarget) close(); }}>
                 <section className="employee-record-modal" role="dialog" aria-modal="true" aria-label={title}>
                     <header><div><span className="employee-record-modal__eyebrow">Gestão de funcionários</span><h2>{title}</h2><p>Os dados são salvos somente após confirmar o formulário.</p></div><button type="button" onClick={close} aria-label="Fechar">×</button></header>
