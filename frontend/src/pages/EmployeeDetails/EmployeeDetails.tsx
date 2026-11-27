@@ -13,6 +13,8 @@ import { AppHeader } from "../../components/AppHeader/AppHeader";
 import { BackLink } from "../../components/BackLink/BackLink";
 import {
     useEmployeeById,
+    useEmployeeMutations,
+    useEngagementMutations,
     useEngagementsByEmployee,
     useEngagementFinancialSummary,
     useObligationsByFilters,
@@ -34,6 +36,7 @@ import type {
     FindMovementsFilters
 } from "../../modules/employees";
 import "./EmployeeDetails.css";
+import { EmployeeProfileEditForm, EmployeeEngagementEditModal } from "./EmployeeDetailsEdit";
 
 const modalityLabels = { CLT: "CLT", PJ: "PJ", Informal: "Informal", outros: "Outros" } as const;
 const engagementStatusLabels: Record<EngagementStatus, string> = {
@@ -251,6 +254,8 @@ export function EmployeeDetails() {
     }, [employee?.name]);
 
     const [selectedEngagementId, setSelectedEngagementId] = useState<string>();
+    const [profileEditing, setProfileEditing] = useState(false);
+    const [engagementEditing, setEngagementEditing] = useState<EmployeeEngagement | null>(null);
     const [historyOpen, setHistoryOpen] = useState(false);
     const [historyCursor, setHistoryCursor] = useState<string>();
     const [historyCursorStack, setHistoryCursorStack] = useState<string[]>([]);
@@ -406,8 +411,9 @@ export function EmployeeDetails() {
                 <section className="employee-detail-profile">
                     <header className="employee-detail-section-heading">
                         <div><span className="employee-detail-eyebrow">Cadastro</span><h2>Dados pessoais</h2></div>
+                        {!profileEditing && <button type="button" className="employee-detail-edit-trigger" onClick={() => setProfileEditing(true)}>Editar cadastro</button>}
                     </header>
-                    <div className="employee-detail-profile-grid">
+                    {profileEditing ? <EmployeeProfileEditForm employee={employee} onCancel={() => setProfileEditing(false)} /> : <div className="employee-detail-profile-grid">
                         <div className="employee-detail-profile-group">
                             <span className="employee-detail-profile-group__title">Identificação</span>
                             <InfoField label="Nome completo" value={employee.name} />
@@ -424,7 +430,7 @@ export function EmployeeDetails() {
                             <InfoField label="Última atualização" value={dateOnly(employee.updatedAt)} />
                         </div>
                         {employee.observations && <div className="employee-detail-profile-group employee-detail-profile-group--full"><span className="employee-detail-profile-group__title">Observações</span><div className="employee-detail-observations"><p>{employee.observations}</p></div></div>}
-                    </div>
+                    </div>}
                 </section>
 
                 <section className="employee-detail-engagement-section">
@@ -449,7 +455,10 @@ export function EmployeeDetails() {
                                         {engagement.observations && <span className="employee-detail-engagement__observations">{engagement.observations}</span>}
                                         {engagement.id === selectedEngagementId && <span className="employee-detail-engagement__selected">Vínculo selecionado</span>}
                                     </button>
-                                    <button type="button" className="employee-detail-engagement-details-button" onClick={event => { event.stopPropagation(); setSelectedEngagementDetails(engagement); }}>Detalhes do vínculo</button>
+                                    <div className="employee-detail-engagement-actions">
+                                        <button type="button" className="employee-detail-engagement-details-button" onClick={event => { event.stopPropagation(); setSelectedEngagementDetails(engagement); }}>Detalhes</button>
+                                        <button type="button" className="employee-detail-edit-trigger" onClick={event => { event.stopPropagation(); setEngagementEditing(engagement); }}>Editar vínculo</button>
+                                    </div>
                                 </article>
                             ))}
                         </div>
@@ -590,6 +599,7 @@ export function EmployeeDetails() {
             {financialModal && <ObligationDetailsModal title={financialModal.title} obligations={financialModal.obligations} onClose={() => setFinancialModal(null)} />}
             {selectedObligation && <ObligationDetailsModal title={selectedObligation.title} obligations={[selectedObligation]} onClose={() => setSelectedObligation(null)} />}
             {selectedEngagementDetails && <EngagementDetailsModal engagement={selectedEngagementDetails} onClose={() => setSelectedEngagementDetails(null)} />}
+            {engagementEditing && <EmployeeEngagementEditModal engagement={engagementEditing} onClose={() => setEngagementEditing(null)} />}
             {selectedObligationMovements && <ObligationMovementsModal obligation={selectedObligationMovements} onClose={() => setSelectedObligationMovements(null)} />}
         </main>
     );
