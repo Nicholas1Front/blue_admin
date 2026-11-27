@@ -627,10 +627,17 @@ function ObligationMovementsList({ obligationId }: { obligationId: string }) {
     return (
         <div className="employee-detail-obligation-movements">
             {query.isPending ? <p className="employee-detail-obligation-movements__empty">Carregando movimentações vinculadas…</p> : query.isError ? <p className="employee-detail-obligation-movements__empty">Não foi possível carregar as movimentações desta obrigação.</p> : items.length ? items.map(item => (
-                <div className="employee-detail-obligation-movement" key={item.id}>
-                    <span><strong>{item.type === "pagamento" ? "Pagamento realizado" : movementTypeLabels[item.type]}</strong><small>{dateOnly(item.eventDate ?? item.createdAt)} · {item.description}</small></span>
+                <article className="employee-detail-obligation-movement" key={item.id}>
+                    <div className="employee-detail-obligation-movement__body">
+                        <strong>{item.type === "pagamento" ? "Pagamento realizado" : movementTypeLabels[item.type]}</strong>
+                        <small>{dateOnly(item.eventDate ?? item.createdAt)} · {item.description}</small>
+                        {item.obligation && <small>Competência: {formatCompetency(item.obligation)} · {item.obligation.status ? obligationStatusLabels[item.obligation.status as ObligationStatus] : "Status não informado"}</small>}
+                        {item.financialTransaction && <small>Transação financeira preservada: {item.financialTransaction.description} · {currency(item.financialTransaction.value)}</small>}
+                        {item.observations && <small>Observações: {item.observations}</small>}
+                    </div>
                     <strong>{item.value == null ? "—" : currency(item.value)}</strong>
-                </div>
+                    <button type="button" className="employee-detail-movement-delete-placeholder" disabled title="A exclusão será habilitada após a confirmação de integridade">Excluir</button>
+                </article>
             )) : <p className="employee-detail-obligation-movements__empty">Ainda não há movimentações vinculadas a esta obrigação.</p>}
             {query.data && (cursorStack.length > 0 || query.data.pagination.hasMore) && <div className="employee-detail-pagination"><span>Página {cursorStack.length + 1} · {items.length} registros</span><button type="button" disabled={!cursorStack.length} onClick={() => { const stack=[...cursorStack]; const previous=stack.pop() || undefined; setCursorStack(stack); setCursor(previous); }}>Anterior</button><button type="button" disabled={!query.data.pagination.hasMore} onClick={() => { const next=query.data?.pagination.nextCursor; if(next){setCursorStack(stack=>[...stack,cursor ?? ""]);setCursor(next);} }}>Próxima</button></div>}
         </div>
