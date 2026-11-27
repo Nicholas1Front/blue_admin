@@ -439,7 +439,7 @@ export function EmployeeDetails() {
                     ) : (
                         <div className="employee-detail-engagements">
                             {engagements.map(engagement => (
-                                <article key={engagement.id} className={`employee-detail-engagement ${engagement.id === selectedEngagementId ? "employee-detail-engagement--selected" : ""}`}>
+                                <article key={engagement.id} className={`employee-detail-engagement ${engagement.id === selectedEngagementId ? "employee-detail-engagement--selected" : ""}`} onClick={() => { setSelectedEngagementId(engagement.id); setHistoryCursor(undefined); setHistoryCursorStack([]); setObligationCursor(undefined); setObligationCursorStack([]); setMovementCursor(undefined); setMovementCursorStack([]); }}>
                                     <button type="button" className="employee-detail-engagement-select" onClick={() => { setSelectedEngagementId(engagement.id); setHistoryCursor(undefined); setHistoryCursorStack([]); setObligationCursor(undefined); setObligationCursorStack([]); setMovementCursor(undefined); setMovementCursorStack([]); }}>
                                         <span className={`employee-detail-status employee-detail-status--${engagement.status === "trabalhando" ? "active" : "inactive"}`}>{engagementStatusLabels[engagement.status]}</span>
                                         <strong>{modalityLabels[engagement.modality]}</strong>
@@ -449,7 +449,7 @@ export function EmployeeDetails() {
                                         {engagement.observations && <span className="employee-detail-engagement__observations">{engagement.observations}</span>}
                                         {engagement.id === selectedEngagementId && <span className="employee-detail-engagement__selected">Vínculo selecionado</span>}
                                     </button>
-                                    <button type="button" className="employee-detail-engagement-details-button" onClick={() => setSelectedEngagementDetails(engagement)}>Detalhes do vínculo</button>
+                                    <button type="button" className="employee-detail-engagement-details-button" onClick={event => { event.stopPropagation(); setSelectedEngagementDetails(engagement); }}>Detalhes do vínculo</button>
                                 </article>
                             ))}
                         </div>
