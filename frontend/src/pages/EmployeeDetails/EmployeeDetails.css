@@ -1662,3 +1662,9 @@ button.employee-detail-financial-breakdown:focus-visible {
 .employee-detail-modal > .employee-record-actions { margin: 0 0 var(--spacing-3); }
 .employee-detail-obligation-movements-modal > .employee-record-actions { margin-bottom: var(--spacing-3); }
 .employee-detail-records-block .employee-record-action { min-height: 2rem; padding: .4rem .65rem; }
+
+.employee-detail-obligation-movement { align-items: start; }
+.employee-detail-obligation-movement__body { display: flex; flex-direction: column; gap: .3rem; min-width: 0; }
+.employee-detail-obligation-movement__body small { color: var(--color-text-muted); font-size: .7rem; line-height: 1.5; overflow-wrap: anywhere; }
+.employee-detail-movement-delete-placeholder { padding: .3rem .5rem; color: #fca5a5; background: transparent; border: 1px solid rgb(248 113 113 / .25); border-radius: var(--radius-sm); font-size: .65rem; }
+.employee-detail-movement-delete-placeholder:disabled { opacity: .55; cursor: not-allowed; }
