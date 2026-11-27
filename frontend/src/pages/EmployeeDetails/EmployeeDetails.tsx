@@ -378,8 +378,8 @@ export function EmployeeDetails() {
                                                     {group.obligations.map(obligation => {
                                                         const finalValue = Number(obligation.finalValue);
                                                         const obligationMovements = sortedMovements.filter(item => item.obligationId === obligation.id);
-                                                        const paidValue = paymentsByObligation.get(obligation.id) ?? 0;
-                                                        const balance = Math.max(0, Number((finalValue - paidValue).toFixed(2)));
+                                                        const paidValue = Number(obligation.paidValue ?? 0);
+                                                        const balance = Number(obligation.outstandingValue ?? Math.max(0, finalValue - paidValue));
                                                         return (
                                                             <article className={`employee-detail-obligation employee-detail-obligation--${obligation.type}`} id={`employee-obligation-${obligation.id}`} key={obligation.id}>
                                                                 <header><div><span className={`employee-detail-obligation-type employee-detail-obligation-type--${obligation.type}`}>{obligationTypeLabels[obligation.type]}</span><strong>{obligation.title}</strong></div><span className={`employee-detail-obligation-status employee-detail-obligation-status--${obligation.status}`}>{obligationStatusLabels[obligation.status]}</span></header>
