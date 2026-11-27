@@ -119,6 +119,7 @@ class EmployeesRepository {
     async deleteEmployeeWithEngagements(id: string, expectedName: string) {
         return prisma.$transaction(async tx => {
             await tx.$queryRaw`SELECT id FROM employees WHERE id = ${id} FOR UPDATE`
+            await tx.$queryRaw`SELECT id FROM employee_engagements WHERE employee_id = ${id} FOR UPDATE`
 
             const employee = await tx.employee.findUnique({
                 where: { id },
