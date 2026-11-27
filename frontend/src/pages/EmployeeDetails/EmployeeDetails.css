@@ -1657,3 +1657,8 @@ button.employee-detail-financial-breakdown:focus-visible {
         white-space: normal;
     }
 }
+
+.employee-detail-records-block > .employee-record-actions { margin: 0 0 var(--spacing-4); }
+.employee-detail-modal > .employee-record-actions { margin: 0 0 var(--spacing-3); }
+.employee-detail-obligation-movements-modal > .employee-record-actions { margin-bottom: var(--spacing-3); }
+.employee-detail-records-block .employee-record-action { min-height: 2rem; padding: .4rem .65rem; }
