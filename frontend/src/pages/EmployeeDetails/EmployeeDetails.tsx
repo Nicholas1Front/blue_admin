@@ -171,6 +171,7 @@ function ObligationDetailsModal({ title, obligations, onClose }: { title: string
                         <div className="employee-detail-obligation-values"><span><small>Valor previsto</small><strong>{currency(finalValue)}</strong></span><span><small>Já pago / alocado</small><strong>{currency(paidValue)}</strong></span><span><small>Saldo restante</small><strong>{currency(outstandingValue)}</strong></span></div>
                         {obligation.description && <p className="employee-detail-obligation-description">{obligation.description}</p>}
                         {obligation.observations && <small className="employee-detail-obligation-note">Observação: {obligation.observations}</small>}
+                                                                <button type="button" className="employee-detail-obligation-details-button" onClick={() => setSelectedObligation(obligation as ModalObligation)}>Ver detalhes completos</button>
                     </article>;
                 })}</div> : <div className="employee-detail-empty">Não há obrigações nesta categoria.</div>}
             </section>
@@ -214,6 +215,11 @@ export function EmployeeDetails() {
     const engagementsQuery = useEngagementsByEmployee(employeeId);
     const employee = employeeQuery.data;
     const engagements = engagementsQuery.data ?? [];
+
+    useEffect(() => {
+        document.title = employee ? `${employee.name} | Ficha do funcionário | Blue Admin` : "Ficha do funcionário | Blue Admin";
+        return () => { document.title = "Blue Admin"; };
+    }, [employee?.name]);
 
     const [selectedEngagementId, setSelectedEngagementId] = useState<string>();
     const [historyOpen, setHistoryOpen] = useState(false);
@@ -374,6 +380,8 @@ export function EmployeeDetails() {
                                     <strong>{modalityLabels[engagement.modality]}</strong>
                                     <small>{engagementPeriod(engagement)}</small>
                                     <span className="employee-detail-engagement__salary">{engagement.currentSalary == null ? "Remuneração não informada" : currency(engagement.currentSalary)}{engagement.hourlyRate != null ? ` · ${currency(engagement.hourlyRate)}/h` : ""}</span>
+                                    <span className="employee-detail-engagement__dates"><small>Admissão</small><strong>{dateOnly(engagement.entryDate)}</strong><small>Desligamento</small><strong>{engagement.exitDate ? dateOnly(engagement.exitDate) : "Vínculo atual"}</strong><small>Cadastrado</small><strong>{dateOnly(engagement.createdAt)}</strong></span>
+                                    {engagement.observations && <span className="employee-detail-engagement__observations">{engagement.observations}</span>}
                                     {engagement.id === selectedEngagementId && <span className="employee-detail-engagement__selected">Vínculo selecionado</span>}
                                 </button>
                             ))}
@@ -392,9 +400,9 @@ export function EmployeeDetails() {
                                 <div className="employee-detail-state employee-detail-state--error"><strong>Não foi possível carregar o resumo financeiro.</strong><button type="button" onClick={() => void financialQuery.refetch()}>Tentar novamente</button></div>
                             ) : financialQuery.data && (
                                 <div className="employee-detail-financial-grid">
-                                    <FinancialBreakdown title="A pagar agora" total={financialQuery.data.totalOutstanding} count={financialQuery.data.openObligationsCount} obligations={financialQuery.data.dueNowObligations} description="Obrigações vencidas ou com vencimento hoje. Este é o valor que exige atenção imediata." emptyLabel="Nenhuma obrigação vencida ou com vencimento hoje." />
-                                    <FinancialBreakdown title="Próximos vencimentos" total={financialQuery.data.upcomingObligations.reduce((total, item) => total + item.outstandingValue, 0)} count={financialQuery.data.upcomingObligations.length} obligations={financialQuery.data.upcomingObligations} description="Obrigações com vencimento nos próximos 30 dias, organizadas pela data de pagamento." emptyLabel="Nenhum vencimento nos próximos 30 dias." />
-                                    <FinancialBreakdown title="Sem vencimento definido" total={financialQuery.data.undatedObligations.reduce((total, item) => total + item.outstandingValue, 0)} count={financialQuery.data.undatedObligations.length} obligations={financialQuery.data.undatedObligations} description="Obrigações em aberto que precisam de uma data de vencimento definida." emptyLabel="Todas as obrigações em aberto têm vencimento definido." />
+                                    <FinancialBreakdown title="A pagar agora" total={financialQuery.data.totalOutstanding} count={financialQuery.data.openObligationsCount} obligations={financialQuery.data.dueNowObligations} description="Obrigações vencidas ou com vencimento hoje. Este é o valor que exige atenção imediata." emptyLabel="Nenhuma obrigação vencida ou com vencimento hoje." onClick={() => setFinancialModal({ title: "A pagar agora", obligations: financialQuery.data.dueNowObligations })} />
+                                    <FinancialBreakdown title="Próximos vencimentos" total={financialQuery.data.upcomingObligations.reduce((total, item) => total + item.outstandingValue, 0)} count={financialQuery.data.upcomingObligations.length} obligations={financialQuery.data.upcomingObligations} description="Obrigações com vencimento nos próximos 30 dias, organizadas pela data de pagamento." emptyLabel="Nenhum vencimento nos próximos 30 dias." onClick={() => setFinancialModal({ title: "Próximos vencimentos", obligations: financialQuery.data.upcomingObligations })} />
+                                    <FinancialBreakdown title="Sem vencimento definido" total={financialQuery.data.undatedObligations.reduce((total, item) => total + item.outstandingValue, 0)} count={financialQuery.data.undatedObligations.length} obligations={financialQuery.data.undatedObligations} description="Obrigações em aberto que precisam de uma data de vencimento definida." emptyLabel="Todas as obrigações em aberto têm vencimento definido." onClick={() => setFinancialModal({ title: "Sem vencimento definido", obligations: financialQuery.data.undatedObligations })} />
                                 </div>
                             )}
                             
@@ -508,6 +516,8 @@ export function EmployeeDetails() {
                     </>
                 )}
             </section>
+            {financialModal && <ObligationDetailsModal title={financialModal.title} obligations={financialModal.obligations} onClose={() => setFinancialModal(null)} />}
+            {selectedObligation && <ObligationDetailsModal title={selectedObligation.title} obligations={[selectedObligation as ModalObligation]} onClose={() => setSelectedObligation(null)} />}
         </main>
     );
 }
