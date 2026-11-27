@@ -246,7 +246,7 @@ export function EmployeeDetails() {
     const engagements = engagementsQuery.data ?? [];
 
     useEffect(() => {
-        document.title = employee ? `${employee.name} | Ficha do funcionário | Blue Admin` : "Ficha do funcionário | Blue Admin";
+        document.title = employee ? `Ficha de ${employee.name} | Blue Admin` : "Ficha do funcionário | Blue Admin";
         return () => { document.title = "Blue Admin"; };
     }, [employee?.name]);
 
@@ -389,7 +389,6 @@ export function EmployeeDetails() {
 
     return (
         <main className="employee-detail-page">
-            <title>{employee.name} | Ficha do funcionário | Blue Admin</title>
             <AppHeader />
             <nav className="page-back-row"><BackLink to="/employees" label="Voltar aos funcionários" /></nav>
             <section className="employee-detail-content">
