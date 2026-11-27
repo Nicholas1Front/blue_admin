@@ -230,9 +230,13 @@ export function EmployeeDetails() {
     const [obligationCursorStack, setObligationCursorStack] = useState<string[]>([]);
     const [obligationStatusFilter, setObligationStatusFilter] = useState<ObligationStatus | "todas">("todas");
     const [obligationTypeFilter, setObligationTypeFilter] = useState<ObligationType | "todos">("todos");
+    const [obligationDueFrom, setObligationDueFrom] = useState("");
+    const [obligationDueTo, setObligationDueTo] = useState("");
     const [movementSearch, setMovementSearch] = useState("");
     const [movementSearchApplied, setMovementSearchApplied] = useState("");
     const [movementTypeFilter, setMovementTypeFilter] = useState<EmployeeMovementType | "todos">("todos");
+    const [movementDateFrom, setMovementDateFrom] = useState("");
+    const [movementDateTo, setMovementDateTo] = useState("");
     const [movementCursor, setMovementCursor] = useState<string>();
     const [movementCursorStack, setMovementCursorStack] = useState<string[]>([]);
     const [financialModal, setFinancialModal] = useState<{ title: string; obligations: FinancialSummaryObligation[] } | null>(null);
@@ -258,6 +262,8 @@ export function EmployeeDetails() {
         ...(obligationSearchApplied.trim() ? { title: obligationSearchApplied.trim() } : {}),
         ...(obligationStatusFilter !== "todas" ? { status: obligationStatusFilter } : {}),
         ...(obligationTypeFilter !== "todos" ? { type: obligationTypeFilter } : {}),
+        ...(obligationDueFrom ? { dueDateFrom: obligationDueFrom } : {}),
+        ...(obligationDueTo ? { dueDateTo: obligationDueTo } : {}),
         ...(obligationCursor ? { cursor: obligationCursor } : {})
     };
     const movementFilters: FindMovementsFilters = {
@@ -266,6 +272,8 @@ export function EmployeeDetails() {
         order: "desc",
         ...(movementSearchApplied.trim() ? { description: movementSearchApplied.trim() } : {}),
         ...(movementTypeFilter !== "todos" ? { type: movementTypeFilter } : {}),
+        ...(movementDateFrom ? { eventDateFrom: movementDateFrom } : {}),
+        ...(movementDateTo ? { eventDateTo: movementDateTo } : {}),
         ...(movementCursor ? { cursor: movementCursor } : {})
     };
     const obligationsQuery = useObligationsByFilters(obligationFilters, Boolean(selectedEngagementId));
@@ -431,7 +439,9 @@ export function EmployeeDetails() {
                                         <label className="employee-detail-filter-search"><span>Pesquisar obrigações</span><input type="search" value={obligationSearch} onChange={event => setObligationSearch(event.target.value)} placeholder="Buscar pelo título da obrigação…" /></label>
                                         <label className="employee-detail-filter-status"><span>Status</span><select value={obligationStatusFilter} onChange={event => { setObligationStatusFilter(event.target.value as ObligationStatus | "todas"); setObligationCursor(undefined); setObligationCursorStack([]); }}><option value="todas">Todos os status</option>{Object.entries(obligationStatusLabels).map(([status, label]) => <option value={status} key={status}>{label}</option>)}</select></label>
                                         <label className="employee-detail-filter-status"><span>Tipo</span><select value={obligationTypeFilter} onChange={event => { setObligationTypeFilter(event.target.value as ObligationType | "todos"); setObligationCursor(undefined); setObligationCursorStack([]); }}><option value="todos">Todos os tipos</option>{Object.entries(obligationTypeLabels).map(([type, label]) => <option value={type} key={type}>{label}</option>)}</select></label>
-                                        <div className="employee-detail-filter-actions"><button type="submit">Pesquisar</button><button type="button" onClick={() => { setObligationSearch(""); setObligationSearchApplied(""); setObligationStatusFilter("todas"); setObligationTypeFilter("todos"); setObligationCursor(undefined); setObligationCursorStack([]); }}>Limpar</button></div>
+                                        <label className="employee-detail-filter-status"><span>Vencimento de</span><input type="date" value={obligationDueFrom} onChange={event => { setObligationDueFrom(event.target.value); setObligationCursor(undefined); setObligationCursorStack([]); }} /></label>
+                                        <label className="employee-detail-filter-status"><span>Vencimento até</span><input type="date" value={obligationDueTo} onChange={event => { setObligationDueTo(event.target.value); setObligationCursor(undefined); setObligationCursorStack([]); }} /></label>
+                                        <div className="employee-detail-filter-actions"><button type="submit">Pesquisar</button><button type="button" onClick={() => { setObligationSearch(""); setObligationSearchApplied(""); setObligationStatusFilter("todas"); setObligationTypeFilter("todos"); setObligationDueFrom(""); setObligationDueTo(""); setObligationCursor(undefined); setObligationCursorStack([]); }}>Limpar</button></div>
                                     </form>
                                 )}
                                 {!obligationsQuery.isPending && !obligationsQuery.isError && (obligationGroups.length === 0 ? (
@@ -479,7 +489,9 @@ export function EmployeeDetails() {
                                 <form className="employee-detail-obligation-filters employee-detail-movement-filters" onSubmit={event => { event.preventDefault(); setMovementSearchApplied(movementSearch.trim()); setMovementCursor(undefined); setMovementCursorStack([]); }}>
                                     <label className="employee-detail-filter-search"><span>Pesquisar lançamentos</span><input type="search" value={movementSearch} onChange={event => setMovementSearch(event.target.value)} placeholder="Descrição do lançamento…" /></label>
                                     <label className="employee-detail-filter-status"><span>Tipo</span><select value={movementTypeFilter} onChange={event => { setMovementTypeFilter(event.target.value as EmployeeMovementType | "todos"); setMovementCursor(undefined); setMovementCursorStack([]); }}><option value="todos">Todos os tipos</option>{Object.entries(movementTypeLabels).map(([type, label]) => <option value={type} key={type}>{label}</option>)}</select></label>
-                                    <div className="employee-detail-filter-actions"><button type="submit">Pesquisar</button><button type="button" onClick={() => { setMovementSearch(""); setMovementSearchApplied(""); setMovementTypeFilter("todos"); setMovementCursor(undefined); setMovementCursorStack([]); }}>Limpar</button></div>
+                                    <label className="employee-detail-filter-status"><span>Data de</span><input type="date" value={movementDateFrom} onChange={event => { setMovementDateFrom(event.target.value); setMovementCursor(undefined); setMovementCursorStack([]); }} /></label>
+                                    <label className="employee-detail-filter-status"><span>Data até</span><input type="date" value={movementDateTo} onChange={event => { setMovementDateTo(event.target.value); setMovementCursor(undefined); setMovementCursorStack([]); }} /></label>
+                                    <div className="employee-detail-filter-actions"><button type="submit">Pesquisar</button><button type="button" onClick={() => { setMovementSearch(""); setMovementSearchApplied(""); setMovementTypeFilter("todos"); setMovementDateFrom(""); setMovementDateTo(""); setMovementCursor(undefined); setMovementCursorStack([]); }}>Limpar</button></div>
                                 </form>
                                 {movementsQuery.isPending ? <div className="employee-detail-loading">Carregando lançamentos…</div> : movementsQuery.isError ? (
                                     <div className="employee-detail-state employee-detail-state--error"><strong>Não foi possível carregar os lançamentos.</strong><button type="button" onClick={() => void movementsQuery.refetch()}>Tentar novamente</button></div>
