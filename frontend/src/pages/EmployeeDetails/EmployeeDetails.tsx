@@ -171,7 +171,6 @@ function ObligationDetailsModal({ title, obligations, onClose }: { title: string
                         <div className="employee-detail-obligation-values"><span><small>Valor previsto</small><strong>{currency(finalValue)}</strong></span><span><small>Já pago / alocado</small><strong>{currency(paidValue)}</strong></span><span><small>Saldo restante</small><strong>{currency(outstandingValue)}</strong></span></div>
                         {obligation.description && <p className="employee-detail-obligation-description">{obligation.description}</p>}
                         {obligation.observations && <small className="employee-detail-obligation-note">Observação: {obligation.observations}</small>}
-                                                                <button type="button" className="employee-detail-obligation-details-button" onClick={() => setSelectedObligation(obligation as ModalObligation)}>Ver detalhes completos</button>
                     </article>;
                 })}</div> : <div className="employee-detail-empty">Não há obrigações nesta categoria.</div>}
             </section>
@@ -447,6 +446,7 @@ export function EmployeeDetails() {
                                                                 <div className="employee-detail-obligation-values"><span><small>Valor previsto</small><strong>{currency(finalValue)}</strong></span><span><small>Já pago / alocado</small><strong>{currency(paidValue)}</strong></span><span><small>Saldo restante</small><strong>{currency(balance)}</strong></span></div>
                                                                 {obligation.description && <p className="employee-detail-obligation-description">{obligation.description}</p>}
                                                                 {obligation.observations && <small className="employee-detail-obligation-note">Observação: {obligation.observations}</small>}
+                                                                <button type="button" className="employee-detail-obligation-details-button" onClick={() => setSelectedObligation(obligation as ModalObligation)}>Ver detalhes completos</button>
                                                                 <button type="button" className="employee-detail-obligation-movements-toggle" aria-expanded={expandedObligationMovements.has(obligation.id)} onClick={() => setExpandedObligationMovements(current => { const next = new Set(current); if (next.has(obligation.id)) next.delete(obligation.id); else next.add(obligation.id); return next; })}>{expandedObligationMovements.has(obligation.id) ? "Ocultar movimentações" : "Ver movimentações desta obrigação"} ({obligationMovements.length})</button>
                                                                 {expandedObligationMovements.has(obligation.id) && (
                                                                     <div className="employee-detail-obligation-movements">
