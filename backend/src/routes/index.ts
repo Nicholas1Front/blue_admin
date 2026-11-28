@@ -9,6 +9,7 @@ import budgetsRoutes from '../modules/budgets/budgets.routes.js'
 import vehiclesRoutes from '../modules/vehicles/vehicles.routes.js'
 import notesRoutes from '../modules/notes/notes.routes.js'
 import foldersRoutes from '../modules/notes/folders/folders.routes.js'
+import notificationsRoutes from '../modules/notes/notifications/notifications.routes.js'
 
 const routes = Router();
 
@@ -22,5 +23,6 @@ routes.use('/budgets', budgetsRoutes)
 routes.use('/vehicles', vehiclesRoutes)
 routes.use('/notes/folders', foldersRoutes)
 routes.use('/notes', notesRoutes)
+routes.use('/notifications', notificationsRoutes)
 
 export default routes;
