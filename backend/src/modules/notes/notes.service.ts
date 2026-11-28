@@ -30,7 +30,7 @@ class NotesService {
         return notesRepository.createNote(data, userId)
     }
 
-    async find(filters: FindNotesDTO) {
+    async findDashboard() {\n        return notesRepository.findNotesDashboard()\n    }\n\n    async find(filters: FindNotesDTO) {
         if (filters.folderId && filters.withoutFolder) {
             throw new AppError('Choose a folder or notes without a folder', 400, 'INVALID_NOTE_FOLDER_FILTER')
         }
