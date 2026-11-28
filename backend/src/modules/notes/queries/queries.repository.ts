@@ -1,7 +1,7 @@
 import { prisma } from '../../../shared/database/prisma.js'
 import type { FindNotesByDayDTO } from './queries.schema.js'
 
-const getBrazilDayRange = (date: string) => {
+const getCurrentBrazilDate = () => {\n    const parts = new Intl.DateTimeFormat('en-US', {\n        timeZone: 'America/Sao_Paulo',\n        year: 'numeric',\n        month: '2-digit',\n        day: '2-digit'\n    }).formatToParts(new Date())\n    const values = Object.fromEntries(parts.map(part => [part.type, part.value]))\n    return `${values.year}-${values.month}-${values.day}`\n}\n\nconst getBrazilDayRange = (date: string) => {
     const [year, month, day] = date.split('-').map(Number)
     const nextDay = new Date(Date.UTC(year, month - 1, day + 1))
     const nextDate = [
@@ -37,7 +37,7 @@ class NotesQueriesRepository {
     }
 
     async findByDay(filters: FindNotesByDayDTO) {
-        const { start, end } = getBrazilDayRange(filters.date)
+        const date = filters.date ?? getCurrentBrazilDate()\n        const { start, end } = getBrazilDayRange(date)
         const where = {
             isArchived: false,
             happenedAt: { gte: start, lt: end }
@@ -55,7 +55,7 @@ class NotesQueriesRepository {
         ])
 
         return {
-            date: filters.date,
+            date,
             items,
             pagination: {
                 page: filters.page,
