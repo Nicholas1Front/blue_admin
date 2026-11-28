@@ -11,7 +11,13 @@ class NotesController {
         return res.status(201).json({ message: 'Note created successfully', data: note })
     }
 
-    async findDashboard(req: Request, res: Response) {\n        if (!req.user) throw new AppError('User not authenticated', 401, 'USER_NOT_AUTHENTICATED')\n        const dashboard = await notesService.findDashboard()\n        return res.status(200).json({ message: 'Notes dashboard found successfully', data: dashboard })\n    }\n\n    async find(req: Request, res: Response) {
+    async findDashboard(req: Request, res: Response) {
+        if (!req.user) throw new AppError('User not authenticated', 401, 'USER_NOT_AUTHENTICATED')
+        const dashboard = await notesService.findDashboard()
+        return res.status(200).json({ message: 'Notes dashboard found successfully', data: dashboard })
+    }
+
+    async find(req: Request, res: Response) {
         if (!req.user) throw new AppError('User not authenticated', 401, 'USER_NOT_AUTHENTICATED')
         const filters = findNotesSchema.parse(req.query)
         const notes = await notesService.find(filters)
