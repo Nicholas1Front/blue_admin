@@ -13,6 +13,12 @@ const noteReferenceSchema = z.object({
     entityId: z.string().trim().min(1)
 })
 
+const queryBoolean = z.preprocess(value => {
+    if (value === 'true') return true
+    if (value === 'false') return false
+    return value
+}, z.boolean())
+
 const uniqueReferences = (references: Array<{ entityType: string; entityId: string }>) =>
     new Set(references.map(reference => `${reference.entityType}:${reference.entityId}`)).size === references.length
 
@@ -45,9 +51,9 @@ export const updateNoteSchema = z.object({
 export const findNotesSchema = z.object({
     search: z.string().trim().min(1).optional(),
     folderId: z.string().min(1).optional(),
-    withoutFolder: z.coerce.boolean().optional(),
-    isPinned: z.coerce.boolean().optional(),
-    isArchived: z.coerce.boolean().optional(),
+    withoutFolder: queryBoolean.optional(),
+    isPinned: queryBoolean.optional(),
+    isArchived: queryBoolean.default(false),
     happenedFrom: z.coerce.date().optional(),
     happenedTo: z.coerce.date().optional(),
     referenceType: noteReferenceSchema.shape.entityType.optional(),
