@@ -1,6 +1,14 @@
 import { prisma } from '../../shared/database/prisma.js'
 import type { CreateNoteDTO, FindNotesDTO, UpdateNoteDTO } from './notes.schema.js'
 
+const notificationExpiry = () => {
+    const expiresAt = new Date()
+    expiresAt.setDate(expiresAt.getDate() + 7)
+    return expiresAt
+}
+
+const notificationMessage = (content: string) => content.slice(0, 180)
+
 class NotesRepository {
     async folderExists(id: string) {
         return (await prisma.noteFolder.findUnique({ where: { id }, select: { id: true } })) !== null
@@ -29,74 +37,124 @@ class NotesRepository {
 
     async createNote(data: CreateNoteDTO, createdById: string) {
         return prisma.$transaction(async tx => {
+            const { references, notifyUsers, ...noteData } = data
             const note = await tx.note.create({
                 data: {
-                    title: data.title,
-                    content: data.content,
-                    ...(data.happenedAt !== undefined && { happenedAt: data.happenedAt }),
-                    ...(data.folderId !== undefined && { folderId: data.folderId }),
-                    createdById,
-                    ...(data.isPinned !== undefined && { isPinned: data.isPinned }),
-                    ...(data.isArchived !== undefined && { isArchived: data.isArchived })
+                    ...noteData,
+                    createdById
                 }
             })
 
-            if (data.references?.length) {
+            if (references?.length) {
                 await tx.noteReference.createMany({
-                    data: data.references.map(reference => ({ noteId: note.id, ...reference }))
+                    data: references.map(reference => ({ noteId: note.id, ...reference }))
+                })
+            }
+
+            if (notifyUsers) {
+                await tx.notification.create({
+                    data: {
+                        noteId: note.id,
+                        createdById,
+                        title: note.title,
+                        message: notificationMessage(note.content),
+                        expiresAt: notificationExpiry()
+                    }
                 })
             }
 
             return tx.note.findUniqueOrThrow({
                 where: { id: note.id },
-                include: { folder: true, references: true }
+                include: { folder: true, references: true, notification: true }
             })
         })
     }
 
     async findNotes(filters: FindNotesDTO) {
-        return prisma.note.findMany({
-            where: {
-                ...(filters.search && {
-                    OR: [
-                        { title: { contains: filters.search, mode: 'insensitive' } },
-                        { content: { contains: filters.search, mode: 'insensitive' } }
-                    ]
-                }),
-                ...(filters.folderId && { folderId: filters.folderId }),
-                ...(filters.withoutFolder && { folderId: null }),
-                ...(filters.isPinned !== undefined && { isPinned: filters.isPinned }),
-                ...(filters.isArchived !== undefined && { isArchived: filters.isArchived }),
-                ...(filters.happenedFrom || filters.happenedTo ? {
-                    happenedAt: {
-                        ...(filters.happenedFrom && { gte: filters.happenedFrom }),
-                        ...(filters.happenedTo && { lte: filters.happenedTo })
+        const {
+            page,
+            limit,
+            ...criteria
+        } = filters
+
+        const where = {
+            ...(criteria.search && {
+                OR: [
+                    { title: { contains: criteria.search, mode: 'insensitive' as const } },
+                    { content: { contains: criteria.search, mode: 'insensitive' as const } }
+                ]
+            }),
+            ...(criteria.folderId && { folderId: criteria.folderId }),
+            ...(criteria.withoutFolder && { folderId: null }),
+            ...(criteria.isPinned !== undefined && { isPinned: criteria.isPinned }),
+            ...(criteria.isArchived !== undefined && { isArchived: criteria.isArchived }),
+            ...(criteria.happenedFrom || criteria.happenedTo ? {
+                happenedAt: {
+                    ...(criteria.happenedFrom && { gte: criteria.happenedFrom }),
+                    ...(criteria.happenedTo && { lte: criteria.happenedTo })
+                }
+            } : {}),
+            ...(criteria.referenceType || criteria.referenceId ? {
+                references: {
+                    some: {
+                        ...(criteria.referenceType && { entityType: criteria.referenceType }),
+                        ...(criteria.referenceId && { entityId: criteria.referenceId })
                     }
-                } : {}),
-                ...(filters.referenceType || filters.referenceId ? {
-                    references: {
-                        some: {
-                            ...(filters.referenceType && { entityType: filters.referenceType }),
-                            ...(filters.referenceId && { entityId: filters.referenceId })
-                        }
-                    }
-                } : {})
-            },
-            include: { folder: true, references: true },
-            orderBy: [{ isPinned: 'desc' }, { updatedAt: 'desc' }]
-        })
+                }
+            } : {})
+        }
+
+        const [items, total] = await prisma.$transaction([
+            prisma.note.findMany({
+                where,
+                include: { folder: true, references: true },
+                orderBy: [{ isPinned: 'desc' }, { updatedAt: 'desc' }],
+                skip: (page - 1) * limit,
+                take: limit
+            }),
+            prisma.note.count({ where })
+        ])
+
+        return {
+            items,
+            pagination: {
+                page,
+                limit,
+                total,
+                totalPages: Math.ceil(total / limit)
+            }
+        }
+    }
+
+    async findNotesDashboard() {
+        const [folders, latestNotes, notesWithoutFolder, totalNotes] = await prisma.$transaction([
+            prisma.noteFolder.findMany({
+                include: { _count: { select: { notes: { where: { isArchived: false } } } } },
+                orderBy: { name: 'asc' }
+            }),
+            prisma.note.findMany({
+                where: { isArchived: false },
+                include: { folder: true, references: true },
+                orderBy: [{ isPinned: 'desc' }, { updatedAt: 'desc' }],
+                take: 8
+            }),
+            prisma.note.count({ where: { folderId: null, isArchived: false } }),
+            prisma.note.count({ where: { isArchived: false } })
+        ])
+
+        return { folders, latestNotes, notesWithoutFolder, totalNotes }
     }
 
     async findNoteById(id: string) {
         return prisma.note.findUnique({
             where: { id },
-            include: { folder: true, references: true }
+            include: { folder: true, references: true, notification: true }
         })
     }
 
     async updateNote(id: string, data: UpdateNoteDTO) {
         return prisma.$transaction(async tx => {
-            const { references, ...fields } = data
+            const { references, notifyUsers, ...fields } = data
             const noteData = {
                 ...(fields.title !== undefined && { title: fields.title }),
                 ...(fields.content !== undefined && { content: fields.content }),
@@ -106,7 +164,10 @@ class NotesRepository {
                 ...(fields.isArchived !== undefined && { isArchived: fields.isArchived })
             }
 
-            await tx.note.update({ where: { id }, data: noteData })
+            const updatedNote = await tx.note.update({
+                where: { id },
+                data: noteData
+            })
 
             if (references !== undefined) {
                 await tx.noteReference.deleteMany({ where: { noteId: id } })
@@ -117,9 +178,29 @@ class NotesRepository {
                 }
             }
 
+            if (notifyUsers === true) {
+                await tx.notification.upsert({
+                    where: { noteId: id },
+                    create: {
+                        noteId: id,
+                        createdById: updatedNote.createdById,
+                        title: updatedNote.title,
+                        message: notificationMessage(updatedNote.content),
+                        expiresAt: notificationExpiry()
+                    },
+                    update: {
+                        title: updatedNote.title,
+                        message: notificationMessage(updatedNote.content),
+                        expiresAt: notificationExpiry()
+                    }
+                })
+            } else if (notifyUsers === false) {
+                await tx.notification.deleteMany({ where: { noteId: id } })
+            }
+
             return tx.note.findUniqueOrThrow({
                 where: { id },
-                include: { folder: true, references: true }
+                include: { folder: true, references: true, notification: true }
             })
         })
     }
