@@ -4,7 +4,11 @@ import type { CreateFolderDTO, UpdateFolderDTO } from './folders.schema.js'
 class FoldersRepository {
     async create(data: CreateFolderDTO, createdById: string) {
         return prisma.noteFolder.create({
-            data: { ...data, createdById },
+            data: {
+                name: data.name,
+                description: data.description ?? null,
+                createdById
+            },
             include: { _count: { select: { notes: true } } }
         })
     }
@@ -30,7 +34,10 @@ class FoldersRepository {
     async update(id: string, data: UpdateFolderDTO) {
         return prisma.noteFolder.update({
             where: { id },
-            data,
+            data: {
+                ...(data.name !== undefined && { name: data.name }),
+                ...(data.description !== undefined && { description: data.description })
+            },
             include: { _count: { select: { notes: true } } }
         })
     }
