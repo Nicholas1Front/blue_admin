@@ -37,10 +37,15 @@ class NotesRepository {
 
     async createNote(data: CreateNoteDTO, createdById: string) {
         return prisma.$transaction(async tx => {
-            const { references, notifyUsers, ...noteData } = data
+            const { references, notifyUsers, ...noteFields } = data
             const note = await tx.note.create({
                 data: {
-                    ...noteData,
+                    title: noteFields.title,
+                    content: noteFields.content,
+                    ...(noteFields.happenedAt !== undefined && { happenedAt: noteFields.happenedAt }),
+                    ...(noteFields.folderId !== undefined && { folderId: noteFields.folderId }),
+                    ...(noteFields.isPinned !== undefined && { isPinned: noteFields.isPinned }),
+                    ...(noteFields.isArchived !== undefined && { isArchived: noteFields.isArchived }),
                     createdById
                 }
             })
@@ -108,7 +113,7 @@ class NotesRepository {
             prisma.note.findMany({
                 where,
                 include: { folder: true, references: true },
-                orderBy: [{ isPinned: 'desc' }, { updatedAt: 'desc' }],
+                orderBy: [{ createdAt: 'desc' }, { id: 'desc' }],
                 skip: (page - 1) * limit,
                 take: limit
             }),
