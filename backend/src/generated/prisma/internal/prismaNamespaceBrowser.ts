@@ -67,7 +67,12 @@ export const ModelName = {
   BudgetPrice: 'BudgetPrice',
   BudgetHistory: 'BudgetHistory',
   Vehicle: 'Vehicle',
-  VehicleHistory: 'VehicleHistory'
+  VehicleHistory: 'VehicleHistory',
+  NoteFolder: 'NoteFolder',
+  Note: 'Note',
+  NoteReference: 'NoteReference',
+  Notification: 'Notification',
+  NotificationRead: 'NotificationRead'
 } as const
 
 export type ModelName = (typeof ModelName)[keyof typeof ModelName]
@@ -325,6 +330,68 @@ export const VehicleHistoryScalarFieldEnum = {
 } as const
 
 export type VehicleHistoryScalarFieldEnum = (typeof VehicleHistoryScalarFieldEnum)[keyof typeof VehicleHistoryScalarFieldEnum]
+
+
+export const NoteFolderScalarFieldEnum = {
+  id: 'id',
+  name: 'name',
+  description: 'description',
+  createdById: 'createdById',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type NoteFolderScalarFieldEnum = (typeof NoteFolderScalarFieldEnum)[keyof typeof NoteFolderScalarFieldEnum]
+
+
+export const NoteScalarFieldEnum = {
+  id: 'id',
+  title: 'title',
+  content: 'content',
+  happenedAt: 'happenedAt',
+  folderId: 'folderId',
+  createdById: 'createdById',
+  isPinned: 'isPinned',
+  isArchived: 'isArchived',
+  createdAt: 'createdAt',
+  updatedAt: 'updatedAt'
+} as const
+
+export type NoteScalarFieldEnum = (typeof NoteScalarFieldEnum)[keyof typeof NoteScalarFieldEnum]
+
+
+export const NoteReferenceScalarFieldEnum = {
+  id: 'id',
+  noteId: 'noteId',
+  entityType: 'entityType',
+  entityId: 'entityId',
+  createdAt: 'createdAt'
+} as const
+
+export type NoteReferenceScalarFieldEnum = (typeof NoteReferenceScalarFieldEnum)[keyof typeof NoteReferenceScalarFieldEnum]
+
+
+export const NotificationScalarFieldEnum = {
+  id: 'id',
+  noteId: 'noteId',
+  createdById: 'createdById',
+  title: 'title',
+  message: 'message',
+  createdAt: 'createdAt',
+  expiresAt: 'expiresAt'
+} as const
+
+export type NotificationScalarFieldEnum = (typeof NotificationScalarFieldEnum)[keyof typeof NotificationScalarFieldEnum]
+
+
+export const NotificationReadScalarFieldEnum = {
+  id: 'id',
+  notificationId: 'notificationId',
+  userId: 'userId',
+  readAt: 'readAt'
+} as const
+
+export type NotificationReadScalarFieldEnum = (typeof NotificationReadScalarFieldEnum)[keyof typeof NotificationReadScalarFieldEnum]
 
 
 export const SortOrder = {

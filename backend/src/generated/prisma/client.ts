@@ -126,3 +126,28 @@ export type Vehicle = Prisma.VehicleModel
  * 
  */
 export type VehicleHistory = Prisma.VehicleHistoryModel
+/**
+ * Model NoteFolder
+ * 
+ */
+export type NoteFolder = Prisma.NoteFolderModel
+/**
+ * Model Note
+ * 
+ */
+export type Note = Prisma.NoteModel
+/**
+ * Model NoteReference
+ * 
+ */
+export type NoteReference = Prisma.NoteReferenceModel
+/**
+ * Model Notification
+ * 
+ */
+export type Notification = Prisma.NotificationModel
+/**
+ * Model NotificationRead
+ * 
+ */
+export type NotificationRead = Prisma.NotificationReadModel
