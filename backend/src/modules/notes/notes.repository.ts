@@ -131,25 +131,6 @@ class NotesRepository {
         }
     }
 
-    async findNotesDashboard() {
-        const [folders, latestNotes, notesWithoutFolder, totalNotes] = await prisma.$transaction([
-            prisma.noteFolder.findMany({
-                include: { _count: { select: { notes: { where: { isArchived: false } } } } },
-                orderBy: { name: 'asc' }
-            }),
-            prisma.note.findMany({
-                where: { isArchived: false },
-                include: { folder: true, references: true },
-                orderBy: [{ isPinned: 'desc' }, { updatedAt: 'desc' }],
-                take: 8
-            }),
-            prisma.note.count({ where: { folderId: null, isArchived: false } }),
-            prisma.note.count({ where: { isArchived: false } })
-        ])
-
-        return { folders, latestNotes, notesWithoutFolder, totalNotes }
-    }
-
     async findNoteById(id: string) {
         return prisma.note.findUnique({
             where: { id },
