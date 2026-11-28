@@ -29,6 +29,7 @@ export const createNoteSchema = z.object({
     folderId: z.string().min(1).nullable().optional(),
     isPinned: z.boolean().optional(),
     isArchived: z.boolean().optional(),
+    notifyUsers: z.boolean().optional(),
     references: z.array(noteReferenceSchema).refine(uniqueReferences, {
         message: 'Note references must be unique'
     }).optional()
@@ -41,6 +42,7 @@ export const updateNoteSchema = z.object({
     folderId: z.string().min(1).nullable().optional(),
     isPinned: z.boolean().optional(),
     isArchived: z.boolean().optional(),
+    notifyUsers: z.boolean().optional(),
     references: z.array(noteReferenceSchema).refine(uniqueReferences, {
         message: 'Note references must be unique'
     }).optional()
@@ -49,6 +51,8 @@ export const updateNoteSchema = z.object({
 })
 
 export const findNotesSchema = z.object({
+    page: z.coerce.number().int().min(1).default(1),
+    limit: z.coerce.number().int().min(1).max(100).default(20),
     search: z.string().trim().min(1).optional(),
     folderId: z.string().min(1).optional(),
     withoutFolder: queryBoolean.optional(),
