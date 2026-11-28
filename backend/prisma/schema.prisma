@@ -15,6 +15,11 @@ model User {
   passwordHash String   @map("password_hash")
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
+
+  notesCreated         Note[]             @relation("NoteCreatedBy")
+  foldersCreated       NoteFolder[]       @relation("FolderCreatedBy")
+  notificationsCreated Notification[]     @relation("NotificationCreatedBy")
+  notificationReads    NotificationRead[]
 }
 
 model Client {
@@ -294,3 +299,89 @@ model VehicleHistory {
   @@map("vehicles_history")
 }
 
+
+
+model NoteFolder {
+  id          String   @id @default(uuid())
+  name        String   @unique
+  description String?
+  createdById String   @map("created_by_id")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  createdBy User   @relation("FolderCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+  notes     Note[]
+
+  @@index([createdById])
+  @@map("notes_folders")
+}
+
+model Note {
+  id          String   @id @default(uuid())
+  title       String
+  content     String
+  happenedAt  DateTime @default(now()) @map("happened_at")
+  folderId    String?  @map("folder_id")
+  createdById String   @map("created_by_id")
+  isPinned    Boolean  @default(false) @map("is_pinned")
+  isArchived  Boolean  @default(false) @map("is_archived")
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
+
+  folder       NoteFolder?      @relation(fields: [folderId], references: [id], onDelete: SetNull)
+  createdBy    User             @relation("NoteCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+  references   NoteReference[]
+  notification Notification?
+
+  @@index([folderId])
+  @@index([createdById])
+  @@index([happenedAt])
+  @@index([isArchived, isPinned, updatedAt])
+  @@map("notes")
+}
+
+model NoteReference {
+  id         String   @id @default(uuid())
+  noteId     String   @map("note_id")
+  entityType String   @map("entity_type")
+  entityId   String   @map("entity_id")
+  createdAt  DateTime @default(now()) @map("created_at")
+
+  note Note @relation(fields: [noteId], references: [id], onDelete: Cascade)
+
+  @@unique([noteId, entityType, entityId])
+  @@index([entityType, entityId])
+  @@map("notes_references")
+}
+
+model Notification {
+  id          String   @id @default(uuid())
+  noteId      String   @unique @map("note_id")
+  createdById String   @map("created_by_id")
+  title       String
+  message     String
+  createdAt   DateTime @default(now()) @map("created_at")
+  expiresAt   DateTime @map("expires_at")
+
+  note      Note               @relation(fields: [noteId], references: [id], onDelete: Cascade)
+  createdBy User                @relation("NotificationCreatedBy", fields: [createdById], references: [id], onDelete: Restrict)
+  reads     NotificationRead[]
+
+  @@index([expiresAt])
+  @@index([createdAt])
+  @@map("notifications")
+}
+
+model NotificationRead {
+  id             String   @id @default(uuid())
+  notificationId String   @map("notification_id")
+  userId         String   @map("user_id")
+  readAt         DateTime @default(now()) @map("read_at")
+
+  notification Notification @relation(fields: [notificationId], references: [id], onDelete: Cascade)
+  user         User         @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([notificationId, userId])
+  @@index([userId, readAt])
+  @@map("notifications_reads")
+}
