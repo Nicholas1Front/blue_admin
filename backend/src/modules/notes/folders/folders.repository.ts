@@ -9,13 +9,13 @@ class FoldersRepository {
                 description: data.description ?? null,
                 createdById
             },
-            include: { _count: { select: { notes: true } } }
+            include: { _count: { select: { notes: { where: { isArchived: false } } } } }
         })
     }
 
     async findAll() {
         return prisma.noteFolder.findMany({
-            include: { _count: { select: { notes: true } } },
+            include: { _count: { select: { notes: { where: { isArchived: false } } } } },
             orderBy: { name: 'asc' }
         })
     }
@@ -23,7 +23,7 @@ class FoldersRepository {
     async findById(id: string) {
         return prisma.noteFolder.findUnique({
             where: { id },
-            include: { _count: { select: { notes: true } } }
+            include: { _count: { select: { notes: { where: { isArchived: false } } } } }
         })
     }
 
@@ -38,7 +38,7 @@ class FoldersRepository {
                 ...(data.name !== undefined && { name: data.name }),
                 ...(data.description !== undefined && { description: data.description })
             },
-            include: { _count: { select: { notes: true } } }
+            include: { _count: { select: { notes: { where: { isArchived: false } } } } }
         })
     }
 
