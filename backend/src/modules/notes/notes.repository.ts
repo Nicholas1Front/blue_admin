@@ -1,5 +1,5 @@
 import { prisma } from '../../shared/database/prisma.js'
-import type { CreateNoteDTO, FindNotesDTO, NoteReferenceDTO, UpdateNoteDTO } from './notes.schema.js'
+import type { CreateNoteDTO, FindNotesDTO, UpdateNoteDTO } from './notes.schema.js'
 
 class NotesRepository {
     async folderExists(id: string) {
@@ -33,11 +33,11 @@ class NotesRepository {
                 data: {
                     title: data.title,
                     content: data.content,
-                    happenedAt: data.happenedAt,
-                    folderId: data.folderId,
+                    ...(data.happenedAt !== undefined && { happenedAt: data.happenedAt }),
+                    ...(data.folderId !== undefined && { folderId: data.folderId }),
                     createdById,
-                    isPinned: data.isPinned,
-                    isArchived: data.isArchived
+                    ...(data.isPinned !== undefined && { isPinned: data.isPinned }),
+                    ...(data.isArchived !== undefined && { isArchived: data.isArchived })
                 }
             })
 
@@ -96,12 +96,17 @@ class NotesRepository {
 
     async updateNote(id: string, data: UpdateNoteDTO) {
         return prisma.$transaction(async tx => {
-            const { references, ...noteData } = data
+            const { references, ...fields } = data
+            const noteData = {
+                ...(fields.title !== undefined && { title: fields.title }),
+                ...(fields.content !== undefined && { content: fields.content }),
+                ...(fields.happenedAt !== undefined && { happenedAt: fields.happenedAt }),
+                ...(fields.folderId !== undefined && { folderId: fields.folderId }),
+                ...(fields.isPinned !== undefined && { isPinned: fields.isPinned }),
+                ...(fields.isArchived !== undefined && { isArchived: fields.isArchived })
+            }
 
-            await tx.note.update({
-                where: { id },
-                data: noteData
-            })
+            await tx.note.update({ where: { id }, data: noteData })
 
             if (references !== undefined) {
                 await tx.noteReference.deleteMany({ where: { noteId: id } })
